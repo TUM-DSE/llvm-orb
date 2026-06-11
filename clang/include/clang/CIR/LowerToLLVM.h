@@ -34,7 +34,8 @@ std::unique_ptr<llvm::Module>
 lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule,
                              llvm::LLVMContext &llvmCtx,
                              llvm::StringRef mlirSaveTempsOutFile = {},
-                             llvm::vfs::FileSystem *fs = nullptr);
+                             llvm::vfs::FileSystem *fs = nullptr,
+                             bool useOrb = false);
 } // namespace direct
 } // namespace cir
 

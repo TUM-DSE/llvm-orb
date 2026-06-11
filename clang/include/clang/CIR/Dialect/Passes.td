@@ -72,6 +72,16 @@ def CIRFlattenCFG : Pass<"cir-flatten-cfg"> {
   let dependentDialects = ["cir::CIRDialect"];
 }
 
+def CIRToCF : Pass<"cir-to-cf", "mlir::ModuleOp"> {
+  let summary = "Lower flat CIR control flow to CF";
+  let description = [{
+    This pass lowers flat CIR control-flow operations such as `cir.br`,
+    into the standard CF dialect.
+  }];
+  let constructor = "mlir::createCIRToCFPass()";
+  let dependentDialects = ["cir::CIRDialect", "cf::ControlFlowDialect", "arith::ArithDialect"];
+}
+
 def GotoSolver : Pass<"cir-goto-solver"> {
   let summary = "Replaces goto operations with branches";
   let description = [{

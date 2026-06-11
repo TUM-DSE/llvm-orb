@@ -15,8 +15,10 @@
 #include <array>
 #include <optional>
 
-#include "mlir/Conversion/LLVMCommon/TypeConverter.h"
+#include "mlir/Conversion/ControlFlowToLLVM/ControlFlowToLLVM.h"
+#include "mlir/Conversion/Passes.h"
 #include "mlir/Conversion/OpenMPToLLVM/ConvertOpenMPToLLVM.h"
+#include "mlir/Conversion/SCFToControlFlow/SCFToControlFlow.h"
 #include "mlir/Dialect/DLTI/DLTI.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
@@ -4923,16 +4925,33 @@ void populateCIRToLLVMPasses(mlir::OpPassManager &pm) {
   pm.addPass(createConvertCIRToLLVMPass());
 }
 
+void populateOrbPasses(mlir::OpPassManager &pm) {
+  // [!] No flattening!
+  // Yes flattening! we don't need scf (I think)
+  mlir::populateCIRPreLoweringPasses(pm);
+
+  pm.addPass(mlir::createCIRToCFPass());
+
+  // Add Atomic passes here
+
+  pm.addPass(mlir::createConvertControlFlowToLLVMPass());
+  pm.addPass(mlir::createCIRToCFPass());
+}
+
 std::unique_ptr<llvm::Module>
 lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
                              StringRef mlirSaveTempsOutFile,
-                             llvm::vfs::FileSystem *fs) {
+                             llvm::vfs::FileSystem *fs,
+                             bool useOrb) {
   llvm::TimeTraceScope scope("lower from CIR to LLVM directly");
 
   mlir::MLIRContext *mlirCtx = mlirModule.getContext();
 
   mlir::PassManager pm(mlirCtx);
-  populateCIRToLLVMPasses(pm);
+  if (useOrb)
+    populateOrbPasses(pm);
+  else
+    populateCIRToLLVMPasses(pm);
 
   (void)mlir::applyPassManagerCLOptions(pm);
 

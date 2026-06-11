@@ -8,6 +8,7 @@ add_clang_library(MLIRCIRTransforms
   CXXABILowering.cpp
   EHABILowering.cpp
   TargetLowering.cpp
+  CIRToCF.cpp
   FlattenCFG.cpp
   HoistAllocas.cpp
   LoweringPrepare.cpp
@@ -31,6 +32,7 @@ add_clang_library(MLIRCIRTransforms
   MLIRCIR
   MLIRCIRInterfaces
   MLIRCIRTargetLowering
-  MLIROpenACCDialect
   MLIROpenMPDialect
+  MLIRSCFDialect
+  MLIROpenACCDialect
 )

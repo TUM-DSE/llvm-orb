@@ -24,6 +24,9 @@ def CppAtomic_Dialect : Dialect {
   let name = "cpp_atomic";
   let cppNamespace = "::mlir::cpp_atomic";
 
+  let summary = "A high-level dialect for analyzing atomics under the RC11 memory model";
+
+
   // Note: this does not need to depend on LLVMDialect as long as functions in
   // this dialect (such as canonicalization) do not produce entities belonging
   // to the LLVMDialect (ops or types).
@@ -36,5 +39,8 @@ def CppAtomic_Dialect : Dialect {
 //===----------------------------------------------------------------------===//
 // CppAtomic op definitions
 //===----------------------------------------------------------------------===//
+class CppAtomic_Op<string mnemonic, list<Trait> traits = []>
+    : Op<CppAtomic_Dialect, mnemonic, traits>;
+
 
 #endif // CPPATOMIC_OPS

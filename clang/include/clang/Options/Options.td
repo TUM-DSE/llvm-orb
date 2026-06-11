@@ -6443,6 +6443,9 @@ def object_file_name_EQ : Joined<["-"], "object-file-name=">,
 def object_file_name : Separate<["-"], "object-file-name">,
   Visibility<[ClangOption, CC1Option, CC1AsOption, CLOption, DXCOption]>,
     Alias<object_file_name_EQ>;
+def orb: Flag<["-"], "orb">, HelpText<"Enable robust lowering through Orb">,
+  Visibility<[ClangOption, CC1Option]>,
+  MarshallingInfoFlag<CodeGenOpts<"UseOrb">>;
 def pagezero__size : JoinedOrSeparate<["-"], "pagezero_size">;
 def pass_exit_codes : Flag<["-", "--"], "pass-exit-codes">, Flags<[Unsupported]>;
 def pedantic_errors : Flag<["-", "--"], "pedantic-errors">, Group<pedantic_Group>,

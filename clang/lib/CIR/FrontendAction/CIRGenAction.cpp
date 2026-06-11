@@ -58,9 +58,9 @@ getBackendActionFromOutputType(CIRGenAction::OutputType Action) {
 static std::unique_ptr<llvm::Module>
 lowerFromCIRToLLVMIR(mlir::ModuleOp MLIRModule, llvm::LLVMContext &LLVMCtx,
                      llvm::StringRef mlirSaveTempsOutFile = {},
-                     llvm::vfs::FileSystem *fs = nullptr) {
+                     llvm::vfs::FileSystem *fs = nullptr, bool useOrb = false) {
   return direct::lowerDirectlyFromCIRToLLVMIR(MLIRModule, LLVMCtx,
-                                              mlirSaveTempsOutFile, fs);
+                                              mlirSaveTempsOutFile, fs, useOrb);
 }
 
 class CIRGenConsumer : public clang::ASTConsumer {
@@ -176,7 +176,7 @@ public:
 
       std::unique_ptr<llvm::Module> LLVMModule =
           lowerFromCIRToLLVMIR(MlirModule, LLVMCtx, mlirSaveTempsOutFile,
-                               &CI.getVirtualFileSystem());
+                               &CI.getVirtualFileSystem(), CI.getCodeGenOpts().UseOrb);
 
       if (linkInModules(*LLVMModule))
         return;
