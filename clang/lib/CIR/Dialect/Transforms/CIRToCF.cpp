@@ -72,8 +72,8 @@ struct BrRewriter : public OpConversionPattern<cir::BrOp> {
 
 struct SwitchRewriter : public OpConversionPattern<cir::SwitchFlatOp> {
 
-  SwitchRewriter(MLIRContext *context)
-      : OpConversionPattern<cir::SwitchFlatOp>(context) {}
+  SwitchRewriter(MLIRContext *context, TypeConverter &typeConverter)
+      : OpConversionPattern<cir::SwitchFlatOp>(typeConverter, context) {}
 
   LogicalResult matchAndRewrite(cir::SwitchFlatOp switchOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
@@ -95,7 +95,10 @@ struct SwitchRewriter : public OpConversionPattern<cir::SwitchFlatOp> {
     SmallVector<Block *> cir_dsts(cir_dsts_raw.begin(), cir_dsts_raw.end());
     SmallVector<ValueRange> cir_caseOps(cir_caseOps_raw.begin(), cir_caseOps_raw.end());
 
-    rewriter.replaceOpWithNewOp<cf::SwitchOp>(switchOp, cir_cond, cir_default, cir_defaultOp, rewriter.getI32TensorAttr(cir_cases), cir_dsts, cir_caseOps);
+    auto cf_switch = cf::SwitchOp::create(rewriter, switchOp.getLoc(), cir_cond, cir_default, cir_defaultOp, rewriter.getI32TensorAttr(cir_cases), cir_dsts, cir_caseOps);
+    rewriter.eraseOp(switchOp);
+    //rewriter.replaceOpWithNewOp<cf::SwitchOp>(switchOp, cir_cond, cir_default, cir_defaultOp, rewriter.getI32TensorAttr(cir_cases), cir_dsts, cir_caseOps);
+
     return success();
   }
 };
@@ -103,7 +106,7 @@ struct SwitchRewriter : public OpConversionPattern<cir::SwitchFlatOp> {
 void populateCIRToCFPatterns(RewritePatternSet &patterns, TypeConverter &typeConverter) {
   patterns.add<BrCondRewriter>(patterns.getContext(), typeConverter);
   patterns.add<BrRewriter>(patterns.getContext());
-  patterns.add<SwitchRewriter>(patterns.getContext());
+  patterns.add<SwitchRewriter>(patterns.getContext(), typeConverter);
 }
 
 void populateTypeConversions(TypeConverter &typeConverter, MLIRContext *context) {
@@ -133,8 +136,16 @@ void populateTypeConversions(TypeConverter &typeConverter, MLIRContext *context)
     mlir::Location loc) -> Value {
       if (inputs.size() != 1)
         return nullptr;
-      if (!isa<cir::BoolType>(inputs[0].getType()))
+
+      auto InTy = inputs[0].getType();
+      if (!isa<cir::BoolType>(InTy) && !isa<cir::IntType>(InTy))
         return nullptr;
+
+      if (isa<cir::IntType>(InTy)) {
+        auto InIntTy = cast<cir::IntType>(InTy);
+        if (InIntTy.getWidth() != 32 || !InIntTy.isSigned())
+          return nullptr;
+      }
 
       return mlir::UnrealizedConversionCastOp::create(builder, loc, dstTy, inputs[0]).getResult(0);
   });

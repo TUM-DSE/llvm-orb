@@ -3641,6 +3641,13 @@ void ConvertCIRToLLVMPass::processCIRAttrs(mlir::ModuleOp module) {
                     asmAttr);
 }
 
+// Pattern to match leftover casts from the Orb pipeline
+struct UnrealCastRewriter : public mlir::OpConversionPattern<mlir::UnrealizedConversionCastOp> {
+  UnrealCastRewriter(mlir::MLIRContext *context) : OpConversionPattern<mlir::UnrealizedConversionCastOp>(context) {}
+
+  LogicalResult matchAndRewrite(mlir::UnrealizedConversionCastOp castOp, OpAdaptor adaptor, mlir::ConversionPatternRewriter &rewriter) const override;
+};
+
 void ConvertCIRToLLVMPass::runOnOperation() {
   llvm::TimeTraceScope scope("Convert CIR to LLVM Pass");
 
@@ -3668,6 +3675,8 @@ void ConvertCIRToLLVMPass::runOnOperation() {
 #include "clang/CIR/Dialect/IR/CIRLowering.inc"
 #undef GET_LLVM_LOWERING_PATTERNS_LIST
       >(converter, patterns.getContext(), dl);
+
+  patterns.add<UnrealCastRewriter>(patterns.getContext());
 
   processCIRAttrs(module);
 
@@ -4915,6 +4924,16 @@ mlir::LogicalResult CIRToLLVMMemChrOpLowering::matchAndRewrite(
   return mlir::success();
 }
 
+LogicalResult UnrealCastRewriter::matchAndRewrite(mlir::UnrealizedConversionCastOp castOp, OpAdaptor adaptor, mlir::ConversionPatternRewriter &rewriter) const {
+
+  auto inOps = castOp.getInputs();
+  if (inOps.size() != 1)
+    return failure();
+
+  rewriter.replaceOp(castOp, inOps[0]);
+  return success();
+}
+
 std::unique_ptr<mlir::Pass> createConvertCIRToLLVMPass() {
   return std::make_unique<ConvertCIRToLLVMPass>();
 }
@@ -4935,7 +4954,7 @@ void populateOrbPasses(mlir::OpPassManager &pm) {
   // Add Atomic passes here
 
   pm.addPass(mlir::createConvertControlFlowToLLVMPass());
-  pm.addPass(mlir::createCIRToCFPass());
+  pm.addPass(createConvertCIRToLLVMPass());
 }
 
 std::unique_ptr<llvm::Module>
