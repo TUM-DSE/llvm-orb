@@ -20,6 +20,7 @@
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 
 #include "mlir/Dialect/Orb/CppAtomicDialect.h.inc"
+#include "mlir/Dialect/Orb/CppAtomicEnums.h.inc"
 
 #define GET_OP_CLASSES
 #include "mlir/Dialect/Orb/CppAtomic.h.inc"

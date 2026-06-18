@@ -1,3 +1,8 @@
+set(CLANG_INCLUDE_DIR ${LLVM_MAIN_SRC_DIR}/../clang/include )
+set(CLANG_TABLEGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/tools/clang/include)
+include_directories(${CLANG_INCLUDE_DIR})
+include_directories(${CLANG_TABLEGEN_OUTPUT_DIR})
+
 set(LLVM_TARGET_DEFINITIONS CppAtomic.td)
 
 mlir_tablegen(CppAtomicEnums.h.inc -gen-enum-decls)
