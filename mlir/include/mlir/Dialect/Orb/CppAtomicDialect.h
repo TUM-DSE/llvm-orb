@@ -19,6 +19,7 @@
 #include "mlir/IR/Dialect.h"
 #include "mlir/IR/OpDefinition.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
+#include "clang/CIR/Dialect/IR/CIRTypes.h"
 
 #include "mlir/Dialect/Orb/CppAtomicDialect.h.inc"
 #include "mlir/Dialect/Orb/CppAtomicEnums.h.inc"

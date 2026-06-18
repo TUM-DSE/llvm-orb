@@ -82,6 +82,16 @@ def CIRToCF : Pass<"cir-to-cf", "mlir::ModuleOp"> {
   let dependentDialects = ["cir::CIRDialect", "cf::ControlFlowDialect", "arith::ArithDialect"];
 }
 
+def CIRToCppAtomic : Pass<"cir-to-cpp-atomic", "mlir::ModuleOp"> {
+  let summary = "Convert CIR load/stores to CppAtomic load/stores";
+  let description = [{
+    This pass converts CIR load and store operations such as `cir.load`
+    into cpp atomic loads and stores respectively.
+  }];
+  let constructor = "mlir::createCIRToCppAtomicPass()";
+  let dependentDialects = ["cir::CIRDialect", "cpp_atomic::CppAtomicDialect"];
+}
+
 def GotoSolver : Pass<"cir-goto-solver"> {
   let summary = "Replaces goto operations with branches";
   let description = [{

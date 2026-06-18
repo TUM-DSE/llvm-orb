@@ -74,7 +74,7 @@ class CppAtomic_Op<string mnemonic, list<Trait> traits = []>
 
 def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
         TypesMatchWith<"result type matches pointee type of 'addr'", "addr", "result",
-         "::llvm::cast<::mlir::cir::PointerType>($_self).getPointee()">
+         "::llvm::cast<cir::PointerType>($_self).getPointee()">
     ]> {
   let summary = "atomic load operation";
   let description = [{
@@ -109,7 +109,7 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
                    "::mlir::cpp_atomic::MemoryOrder":$memory_order,
                    CArg<"llvm::MaybeAlign", "llvm::MaybeAlign()">:$alignment), [{
 
-      auto ptrType = ::llvm::cast<::mlir::cir::PointerType>(addr.getType());
+      auto ptrType = ::llvm::cast<cir::PointerType>(addr.getType());
       Type resultType = ptrType.getPointee();
 
       auto orderAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
@@ -133,7 +133,7 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
 def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
             TypesMatchWith<"value type matches pointee type of 'addr'", 
             "addr", "value", 
-            "::llvm::cast<::mlir::cir::PointerType>($_self).getPointee()">
+            "::llvm::cast<cir::PointerType>($_self).getPointee()">
   ]> {
   let summary = "atomic store operation";
   let description = [{
