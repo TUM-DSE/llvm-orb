@@ -72,7 +72,10 @@ class CppAtomic_Op<string mnemonic, list<Trait> traits = []>
 // AtomicLoadOp
 //===----------------------------------------------------------------------===//
 
-def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load"> {
+def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
+        TypesMatchWith<"result type matches pointee type of 'addr'", "addr", "result",
+         "::llvm::cast<::mlir::cir::PointerType>($_self).getPointee()">
+    ]> {
   let summary = "atomic load operation";
   let description = [{
     The `atomic_load` op reads an element from a ClangIR pointer using the provided memory ordering.
@@ -95,17 +98,20 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load"> {
     ```
   }];
 
-  let arguments = (ins AnyType:$addr, 
+  let arguments = (ins CIR_PointerType:$addr, 
                       MemoryOrderAttr:$memory_order,
                       OptionalAttr<IntValidAlignment<I64Attr>>:$alignment);
 
   let results = (outs AnyType:$result);
 
   let builders = [
-    OpBuilder<(ins "Type":$resultType,
-                   "Value":$addr,
+    OpBuilder<(ins "Value":$addr,
                    "::mlir::cpp_atomic::MemoryOrder":$memory_order,
                    CArg<"llvm::MaybeAlign", "llvm::MaybeAlign()">:$alignment), [{
+
+      auto ptrType = ::llvm::cast<::mlir::cir::PointerType>(addr.getType());
+      Type resultType = ptrType.getPointee();
+
       auto orderAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
           $_builder.getContext(), memory_order);
           
@@ -115,10 +121,8 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load"> {
     }]>,
   ];
 
-  let hasVerifier = 1;
-
   let assemblyFormat = [{
-    $addr `memory_order` `(` $memory_order `)` attr-dict `:` type($addr) `->` type($result)
+    $addr `memory_order` `(` $memory_order `)` attr-dict `:` type($addr)
   }];
 }
 
@@ -126,7 +130,11 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load"> {
 // AtomicStoreOp
 //===----------------------------------------------------------------------===//
 
-def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store"> {
+def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
+            TypesMatchWith<"value type matches pointee type of 'addr'", 
+            "addr", "value", 
+            "::llvm::cast<::mlir::cir::PointerType>($_self).getPointee()">
+  ]> {
   let summary = "atomic store operation";
   let description = [{
     The `atomic_store` op writes a value to a pointer address (like `!cir.ptr`) 
@@ -148,7 +156,7 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store"> {
   }];
 
   let arguments = (ins AnyType:$value,
-                      AnyType:$addr, 
+                      CIR_PointerType:$addr, 
                       MemoryOrderAttr:$memory_order,
                       OptionalAttr<IntValidAlignment<I64Attr>>:$alignment);
 
@@ -169,10 +177,8 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store"> {
     }]>
   ];
 
-  let hasVerifier = 1;
-
   let assemblyFormat = [{
-    $value `,` $addr `memory_order` `(` $memory_order `)` attr-dict `:` type($value) `,` type($addr)
+    $value `,` $addr `memory_order` `(` $memory_order `)` attr-dict `:` type($addr)
   }];
 }
 
