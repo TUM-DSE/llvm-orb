@@ -51,7 +51,9 @@ def MemoryOrder : I32EnumAttr<
       MemoryOrderRelease,
       MemoryOrderAcqRel,
       MemoryOrderSeqCst
-    ]>;
+    ]> {
+      let cppNamespace = "mlir::cpp_atomic";
+    }
 
 def MemoryOrderAttr : EnumAttr<CppAtomic_Dialect, MemoryOrder, "memory_order">;
 
