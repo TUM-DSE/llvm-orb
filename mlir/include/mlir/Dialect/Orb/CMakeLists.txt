@@ -1,3 +1,10 @@
+set(LLVM_TARGET_DEFINITIONS CppAtomic.td)
+
+mlir_tablegen(CppAtomicEnums.h.inc -gen-enum-decls)
+mlir_tablegen(CppAtomicEnums.cpp.inc -gen-enum-defs)
+
+add_mlir_dialect_tablegen_target(MLIRCppAtomicEnumsIncGen)
+
 add_mlir_dialect(CppAtomic cpp_atomic)
 add_mlir_doc(CppAtomic CppAtomic Dialects/ -gen-dialect-doc)
 
