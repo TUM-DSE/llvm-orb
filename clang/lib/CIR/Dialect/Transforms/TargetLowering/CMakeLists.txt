@@ -1,7 +1,6 @@
 add_clang_library(MLIRCIRTargetLowering
   CIRABIRewriteContext.cpp
   CIRCXXABI.cpp
-  CIRToCppAtomic.cpp
   LowerModule.cpp
   LowerItaniumCXXABI.cpp
   TargetLoweringInfo.cpp

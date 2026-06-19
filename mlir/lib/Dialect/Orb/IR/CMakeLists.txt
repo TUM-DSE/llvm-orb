@@ -27,9 +27,11 @@ add_mlir_dialect_library(MLIRCppAtomicDialect
 
   DEPENDS
   MLIRCppAtomicIncGen
+  MLIRCppAtomicEnumsIncGen
 
   LINK_LIBS PUBLIC
   MLIRIR
   MLIRSideEffectInterfaces
   MLIRCIR
+  MLIRBytecodeOpInterface
   )

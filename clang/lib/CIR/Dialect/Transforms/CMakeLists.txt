@@ -9,6 +9,7 @@ add_clang_library(MLIRCIRTransforms
   EHABILowering.cpp
   TargetLowering.cpp
   CIRToCF.cpp
+  CIRToCppAtomic.cpp
   FlattenCFG.cpp
   HoistAllocas.cpp
   LoweringPrepare.cpp
@@ -35,4 +36,6 @@ add_clang_library(MLIRCIRTransforms
   MLIROpenMPDialect
   MLIRSCFDialect
   MLIROpenACCDialect
+
+  MLIRCppAtomicDialect
 )

@@ -16,7 +16,7 @@
 include "mlir/Dialect/LLVMIR/LLVMOpBase.td"
 include "mlir/IR/OpBase.td"
 include "mlir/IR/EnumAttr.td"
-include "clang/CIR/Dialect/IR/CIRTypes.td"  // CIR type definitions
+include "clang/CIR/Dialect/IR/CIRTypeConstraints.td"  // CIR type definitions
 
 //===----------------------------------------------------------------------===//
 // CppAtomic dialect definition
@@ -98,7 +98,7 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
     ```
   }];
 
-  let arguments = (ins CIR_PointerType:$addr, 
+  let arguments = (ins CIR_AnyPtrType:$addr, 
                       MemoryOrderAttr:$memory_order,
                       OptionalAttr<IntValidAlignment<I64Attr>>:$alignment);
 
@@ -156,7 +156,7 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
   }];
 
   let arguments = (ins AnyType:$value,
-                      CIR_PointerType:$addr, 
+                      CIR_AnyPtrType:$addr, 
                       MemoryOrderAttr:$memory_order,
                       OptionalAttr<IntValidAlignment<I64Attr>>:$alignment);
 

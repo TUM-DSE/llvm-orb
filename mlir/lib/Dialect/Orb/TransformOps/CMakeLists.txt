@@ -1,3 +1,8 @@
+set(CLANG_INCLUDE_DIR ${LLVM_MAIN_SRC_DIR}/../clang/include )
+set(CLANG_TABLEGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/tools/clang/include)
+include_directories(${CLANG_INCLUDE_DIR})
+include_directories(${CLANG_TABLEGEN_OUTPUT_DIR})
+
 add_mlir_dialect_library(MLIRCppAtomicTransformOps
   CppAtomicTransformOps.cpp
 
@@ -9,6 +14,7 @@ add_mlir_dialect_library(MLIRCppAtomicTransformOps
 
   LINK_LIBS PUBLIC
   MLIRIR
+  MLIRCIR
   MLIRLLVMCommonConversion
   MLIRLLVMDialect
   MLIRTransformDialect

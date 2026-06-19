@@ -7,9 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "PassDetail.h"
-#include "mlir/Dialect/Func/IR/FuncOps.h"
-#include "mlir/Dialect/Arith/IR/Arith.h"
-#include "mlir/Dialect/ControlFlow/IR/ControlFlowOps.h"
+#include "mlir/Dialect/Orb/CppAtomicDialect.h"
 #include "mlir/IR/Block.h"
 #include "mlir/IR/Operation.h"
 #include "mlir/IR/PatternMatch.h"
@@ -51,22 +49,22 @@ namespace {
 // };
 
 
-// void populateCIRToCFPatterns(RewritePatternSet &patterns, TypeConverter &typeConverter) {
+void populateCIRToCppAtomicPatterns(RewritePatternSet &patterns) {
 //   patterns.add<BrCondRewriter>(patterns.getContext(), typeConverter);
 //   patterns.add<BrRewriter>(patterns.getContext());
 //   patterns.add<SwitchRewriter>(patterns.getContext(), typeConverter);
-// }
+}
 
 //===----------------------------------------------------------------------===//
 // Pass definition
 // ===----------------------------------------------------------------------===//
 
-struct CIRToCppAtomicPass : public impl::CIRToCppAtomicBase<CIRToCppAtpomicPass> {
-  CIRToCFPass() = default;
+struct CIRToCppAtomicPass : public impl::CIRToCppAtomicBase<CIRToCppAtomicPass> {
+  CIRToCppAtomicPass() = default;
   void runOnOperation() override;
 };
 
-void CIRToCFPass::runOnOperation() {
+void CIRToCppAtomicPass::runOnOperation() {
   MLIRContext *context = &getContext();
   ConversionTarget target(*context);
   target.addLegalDialect<cpp_atomic::CppAtomicDialect>();
