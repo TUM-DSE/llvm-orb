@@ -41,7 +41,7 @@ static cpp_atomic::MemoryOrder convertMemoryOrder(std::optional<cir::MemOrder> c
     return cpp_atomic::MemoryOrder::SeqCst;
   }
 
-  switch (cirOrder) {
+  switch (cirOrder.value()) {
     case cir::MemOrder::Relaxed: return cpp_atomic::MemoryOrder::Relaxed;
     case cir::MemOrder::Acquire: return cpp_atomic::MemoryOrder::Acquire;
     case cir::MemOrder::Release: return cpp_atomic::MemoryOrder::Release;
@@ -59,7 +59,7 @@ struct LoadRewriter : public OpConversionPattern<cir::LoadOp> {
   LogicalResult matchAndRewrite(cir::LoadOp loadOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
 
-    Value addr = loadOp.getAddr();
+    Value addr = adaptor.getAddr();
 
     auto memOrder = convertMemoryOrder(loadOp.getMemOrder());
     auto alignment = loadOp.getAlignmentAttr();
@@ -77,11 +77,11 @@ struct StoreRewriter : public OpConversionPattern<cir::StoreOp> {
   LogicalResult matchAndRewrite(cir::StoreOp storeOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
 
-    Value value = storeOp.getValue();                             
-    Value addr = storeOp.getAddr();
+    Value value = adaptor.getValue();                             
+    Value addr = adaptor.getAddr();
 
-    auto memOrder = convertMemoryOrder(loadOp.getMemOrder());
-    auto alignment = loadOp.getAlignmentAttr();
+    auto memOrder = convertMemoryOrder(storeOp.getMemOrder());
+    auto alignment = storeOp.getAlignmentAttr();
     
     rewriter.replaceOpWithNewOp<cpp_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, alignment);
     return success();
