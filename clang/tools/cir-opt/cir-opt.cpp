@@ -25,6 +25,9 @@
 #include "clang/CIR/InitAllDialects.h"
 #include "clang/CIR/Passes.h"
 
+// not necessarily correct includes, just trying to get Filecheck to work with the cpp-atomics, change 1
+#include "mlir/Dialect/Orb/CppAtomicDialect.h"
+
 struct CIRToLLVMPipelineOptions
     : public mlir::PassPipelineOptions<CIRToLLVMPipelineOptions> {};
 
@@ -33,6 +36,9 @@ int main(int argc, char **argv) {
   mlir::DialectRegistry registry;
   cir::registerAllDialects(registry);
   registry.insert<mlir::memref::MemRefDialect, mlir::LLVM::LLVMDialect>();
+
+  // change 2
+  registry.insert<mlir::cpp_atomic::CppAtomicDialect>();
 
   ::mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
     return mlir::createCIRCanonicalizePass();
@@ -69,6 +75,11 @@ int main(int argc, char **argv) {
 
   ::mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
     return mlir::createCallConvLoweringPass();
+  });
+
+  // change 3
+  ::mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
+    return mlir::createCIRToCppAtomicPass();
   });
 
   mlir::omp::registerOpenMPPasses();

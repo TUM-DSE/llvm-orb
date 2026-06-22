@@ -43,4 +43,5 @@ target_link_libraries(cir-opt
   MLIRSideEffectInterfaces
   MLIRTransforms
   MLIRTransformUtils
+  MLIRCppAtomicDialect #added this to make filecheck work with cppatomics
 )
