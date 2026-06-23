@@ -27,6 +27,7 @@ add_clang_library(clangCIRLoweringDirectToLLVM
   MLIROpenMPToLLVMIRTranslation
   MLIROpenMPTransforms
   MLIRIR
+  MLIRCppAtomicToArmAtomic
   )
 
 target_include_directories(clangCIRLoweringDirectToLLVM PRIVATE

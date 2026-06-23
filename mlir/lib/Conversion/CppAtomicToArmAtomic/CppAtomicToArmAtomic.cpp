@@ -6,7 +6,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "PassDetail.h"
 #include "mlir/IR/Block.h"
 #include "mlir/IR/Operation.h"
 #include "mlir/IR/PatternMatch.h"
@@ -20,19 +19,20 @@
 #include "clang/CIR/Dialect/IR/CIRDialect.h"
 #include "clang/CIR/Dialect/Passes.h"
 #include "llvm/ADT/SmallVector.h"
+#include "mlir/Conversion/CppAtomicToArmAtomic/CppAtomicToArmAtomic.h"
+#include "mlir/Pass/Pass.h"
 
-using namespace mlir;
 
 namespace mlir {
-#define GEN_PASS_DEF_CPPATOMICTOARMATOMIC
+#define GEN_PASS_DEF_CONVERTCPPATOMICTOARMATOMICPASS
 #include "mlir/Conversion/Passes.h.inc"
 } // namespace mlir
+
+using namespace mlir;
 
 //===----------------------------------------------------------------------===//
 // Rewrite patterns
 //===----------------------------------------------------------------------===//
-
-namespace {
 
 static arm_atomic::MemoryOrder convertLoadMemoryOrder(cpp_atomic::MemoryOrder cppOrder) {
   switch (cppOrder) {
@@ -96,7 +96,7 @@ struct StoreRewriter : public OpConversionPattern<cpp_atomic::AtomicStoreOp> {
   }
 };
 
-void populateCIRToCppAtomicPatterns(RewritePatternSet &patterns) {
+void populateCppToArmPatterns(RewritePatternSet &patterns) {
   patterns.add<LoadRewriter>(patterns.getContext());
   patterns.add<StoreRewriter>(patterns.getContext());
 }
@@ -105,29 +105,25 @@ void populateCIRToCppAtomicPatterns(RewritePatternSet &patterns) {
 // Pass Definition
 //===----------------------------------------------------------------------===//
 
-struct CppAtomicToArmAtomicPass : public impl::CppAtomicToArmAtomicBase<CppAtomicToArmAtomicPass> {
-    CppAtomicToArmAtomicPass() = default;
-    void runOnOperation() override;
-};    
-  
-void CppAtomicToArmAtomicPass::runOnOperation() {
+namespace {
+class ConvertCppAtomicToArmAtomicPass : public impl::ConvertCppAtomicToArmAtomicPassBase<ConvertCppAtomicToArmAtomicPass> {
+  using Base::Base;
+  void runOnOperation() override;
+};
+}
+
+void ConvertCppAtomicToArmAtomicPass::runOnOperation() {
     MLIRContext *context = &getContext();
     ConversionTarget target(*context);
-    
+
     target.addLegalDialect<arm_atomic::ArmAtomicDialect>();
     target.addLegalOp<mlir::UnrealizedConversionCastOp>();
-    target.addIllegalOp<cpp_atomic::AtomicLoadOp, cpp_atomic::AtomicStoreOp>();
+    target.addIllegalDialect<cpp_atomic::CppAtomicDialect>();
 
     RewritePatternSet patterns(context);
 
-    populateCIRToCppAtomicPatterns(patterns);
+    populateCppToArmPatterns(patterns);
 
     if (failed(applyPartialConversion(getOperation(), target, std::move(patterns))))
       signalPassFailure();
   }
-
-} // namespace
-
-std::unique_ptr<Pass> mlir::createCppAtomicToArmAtomicPass() {
-  return std::make_unique<CppAtomicToArmAtomicPass>();
-}

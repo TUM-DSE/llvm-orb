@@ -15,12 +15,8 @@ namespace mlir {
 class Pass;
 class RewritePatternSet;
 
-#define GEN_PASS_DECL_CPPATOMICTOARMATOMIC
+#define GEN_PASS_DECL_CONVERTCPPATOMICTOARMATOMICPASS
 #include "mlir/Conversion/Passes.h.inc"
-
-/// Collect a set of patterns to convert CppAtomic memory operations to 
-/// ArmAtomic operations, handling the fallback of SeqCst to Acquire/Release.
-void populateCppAtomicToArmAtomicPatterns(RewritePatternSet &patterns);
 
 } // namespace mlir
 

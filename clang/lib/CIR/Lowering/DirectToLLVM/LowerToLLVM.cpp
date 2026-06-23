@@ -4951,6 +4951,7 @@ void populateOrbPasses(mlir::OpPassManager &pm) {
 
   pm.addPass(mlir::createCIRToCFPass());
   pm.addPass(mlir::createCIRToCppAtomicPass());
+  pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
 
   // Add Atomic passes here
 
