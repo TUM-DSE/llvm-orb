@@ -16,6 +16,8 @@ using namespace mlir;
 
 #include "mlir/Dialect/Orb/ArmAtomicDialect.cpp.inc"
 
+#include "mlir/Dialect/Orb/ArmAtomicEnums.cpp.inc"
+
 void arm_atomic::ArmAtomicDialect::initialize() {
   addOperations<
 #define GET_OP_LIST

@@ -15,6 +15,8 @@
 
 include "mlir/Dialect/LLVMIR/LLVMOpBase.td"
 include "mlir/IR/OpBase.td"
+include "mlir/IR/EnumAttr.td"
+include "clang/CIR/Dialect/IR/CIRTypeConstraints.td"  // CIR type definitions
 
 //===----------------------------------------------------------------------===//
 // ArmAtomic dialect definition
@@ -30,11 +32,122 @@ def ArmAtomic_Dialect : Dialect {
 }
 
 //===----------------------------------------------------------------------===//
+// ArmAtomic Enum definition
+//===----------------------------------------------------------------------===//
+
+def ArmMemoryOrderRelaxed : I32EnumAttrCase<"Relaxed", 0, "relaxed">;
+def ArmMemoryOrderAcquire : I32EnumAttrCase<"Acquire", 1, "acquire">;
+def ArmMemoryOrderRelease : I32EnumAttrCase<"Release", 2, "release">;
+def ArmMemoryOrderAcqRel  : I32EnumAttrCase<"AcqRel",  3, "acq_rel">;
+// ARM does not have a native SeqCst instruction, so it is omitted here!
+
+def ArmMemoryOrder : I32EnumAttr<
+    "MemoryOrder", "ARM memory ordering for atomic operations", [
+      ArmMemoryOrderRelaxed,
+      ArmMemoryOrderAcquire,
+      ArmMemoryOrderRelease,
+      ArmMemoryOrderAcqRel
+    ]> {
+  let cppNamespace = "::mlir::arm_atomic";
+}
+
+def ArmMemoryOrderAttr : EnumAttr<ArmAtomic_Dialect, ArmMemoryOrder, "memory_order">;
+
+//===----------------------------------------------------------------------===//
 // ArmAtomic type definition
 //===----------------------------------------------------------------------===//
 
 //===----------------------------------------------------------------------===//
 // ArmAtomic op definitions
 //===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
+// AtomicLoadOp
+//===----------------------------------------------------------------------===//
+
+def AtomicLoadOp : Op<ArmAtomic_Dialect, "atomic_load", [
+      TypesMatchWith<"result type matches pointee type of 'addr'",
+                     "addr", "result",
+                     "::llvm::cast<cir::PointerType>($_self).getPointee()">
+    ]> {
+  let summary = "ARM atomic load operation (LDR/LDAR)";
+  
+  let arguments = (ins 
+    CIR_AnyPtrType:$addr, 
+    ArmMemoryOrderAttr:$memory_order,
+    OptionalAttr<I64Attr>:$alignment
+  );
+
+  let results = (outs AnyType:$result);
+
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "Value":$addr,
+                   "::mlir::arm_atomic::MemoryOrder":$memory_order,
+                   CArg<"::mlir::IntegerAttr", "nullptr">:$alignment), [{
+      
+      auto ptrType = ::llvm::cast<cir::PointerType>(addr.getType());
+      $_state.addTypes(ptrType.getPointee());
+
+      $_state.addOperands(addr);
+      
+      auto orderAttr = ::mlir::arm_atomic::MemoryOrderAttr::get($_builder.getContext(), memory_order);
+      $_state.addAttribute("memory_order", orderAttr);
+
+      if (alignment) {
+        $_state.addAttribute("alignment", alignment);
+      }  
+    }]>
+  ];
+
+  let assemblyFormat = [{
+    $addr `memory_order` `(` $memory_order `)` (`align` `(` $alignment^ `)`)? attr-dict `:` type($addr)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// AtomicStoreOp
+//===----------------------------------------------------------------------===//
+
+def AtomicStoreOp : Op<ArmAtomic_Dialect, "atomic_store", [
+      TypesMatchWith<"value type matches pointee type of 'addr'",
+                     "addr", "value",
+                     "::llvm::cast<cir::PointerType>($_self).getPointee()">
+    ]> {
+  let summary = "ARM atomic store operation (STR/STLR)";
+
+  let arguments = (ins AnyType:$value, 
+                      CIR_AnyPtrType:$addr, 
+                      ArmMemoryOrderAttr:$memory_order,
+                      OptionalAttr<I64Attr>:$alignment
+  );
+
+  let results = (outs);
+
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "Value":$value, 
+                   "Value":$addr,
+                   "::mlir::arm_atomic::MemoryOrder":$memory_order,
+                   CArg<"::mlir::IntegerAttr", "nullptr">:$alignment), [{
+                   
+      $_state.addOperands(value);
+      $_state.addOperands(addr);
+      
+      auto orderAttr = ::mlir::arm_atomic::MemoryOrderAttr::get($_builder.getContext(), memory_order);
+      $_state.addAttribute("memory_order", orderAttr);
+
+      if (alignment) {
+        $_state.addAttribute("alignment", alignment);
+      }  
+    }]>
+  ];
+
+  let assemblyFormat = [{
+    $value `,` $addr `memory_order` `(` $memory_order `)` (`align` `(` $alignment^ `)`)? attr-dict `:` type($addr)
+  }];
+}
 
 #endif // ARMATOMIC_OPS

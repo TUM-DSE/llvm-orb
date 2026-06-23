@@ -449,6 +449,21 @@ def ConvertControlFlowToSPIRVPass : Pass<"convert-cf-to-spirv"> {
 }
 
 //===----------------------------------------------------------------------===//
+// CppAtomicToArmAtomic
+//===----------------------------------------------------------------------===//
+
+def CppAtomicToArmAtomic : Pass<"cpp-atomic-to-arm-atomic"> {
+  let summary = "Lower CppAtomic dialect to ArmAtomic dialect";
+  let description = [{
+    This pass converts hardware-agnostic C++ atomic memory operations into 
+    ARM-specific atomic instructions, correctly mapping SeqCst and AcqRel 
+    to their appropriate ARM fallbacks (LDAR/STLR).
+  }];
+  let constructor = "mlir::createCppAtomicToArmAtomicPass()";
+  let dependentDialects = ["mlir::arm_atomic::ArmAtomicDialect"];
+}
+
+//===----------------------------------------------------------------------===//
 // FuncToEmitC
 //===----------------------------------------------------------------------===//
 

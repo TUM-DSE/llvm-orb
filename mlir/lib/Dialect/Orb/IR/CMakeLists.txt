@@ -13,10 +13,13 @@ add_mlir_dialect_library(MLIRArmAtomicDialect
 
   DEPENDS
   MLIRArmAtomicIncGen
+  MLIRArmAtomicEnumsIncGen
 
   LINK_LIBS PUBLIC
   MLIRIR
   MLIRSideEffectInterfaces
+  MLIRCIR
+  MLIRBytecodeOpInterface
   )
 
 add_mlir_dialect_library(MLIRCppAtomicDialect

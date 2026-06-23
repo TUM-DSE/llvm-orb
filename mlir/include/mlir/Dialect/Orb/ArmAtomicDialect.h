@@ -13,13 +13,12 @@
 #ifndef MLIR_DIALECT_ARMATOMIC_ARMATOMICDIALECT_H_
 #define MLIR_DIALECT_ARMATOMIC_ARMATOMICDIALECT_H_
 
+#include "mlir/IR/Builders.h"
 #include "mlir/Bytecode/BytecodeOpInterface.h"
-#include "mlir/IR/BuiltinTypes.h"
-#include "mlir/IR/Dialect.h"
-#include "mlir/IR/OpDefinition.h"
-#include "mlir/Interfaces/SideEffectInterfaces.h"
+#include "clang/CIR/Dialect/IR/CIRTypes.h"
 
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h.inc"
+#include "mlir/Dialect/Orb/ArmAtomicEnums.h.inc"
 
 #define GET_OP_CLASSES
 #include "mlir/Dialect/Orb/ArmAtomic.h.inc"

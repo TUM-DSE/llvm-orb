@@ -15,6 +15,13 @@ add_mlir_doc(CppAtomic CppAtomic Dialects/ -gen-dialect-doc)
 
 
 set(LLVM_TARGET_DEFINITIONS ArmAtomic.td)
+
+mlir_tablegen(ArmAtomicEnums.h.inc -gen-enum-decls)
+mlir_tablegen(ArmAtomicEnums.cpp.inc -gen-enum-defs)
+
+add_mlir_dialect_tablegen_target(MLIRArmAtomicEnumsIncGen)
+
+
 mlir_tablegen(ArmAtomicConversions.inc -gen-llvmir-conversions)
 add_mlir_dialect_tablegen_target(MLIRArmAtomicConversionsIncGen)
 

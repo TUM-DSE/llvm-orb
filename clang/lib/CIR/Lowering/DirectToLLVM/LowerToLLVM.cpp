@@ -4950,11 +4950,13 @@ void populateOrbPasses(mlir::OpPassManager &pm) {
   mlir::populateCIRPreLoweringPasses(pm);
 
   pm.addPass(mlir::createCIRToCFPass());
+  pm.addPass(mlir::createCIRToCppAtomicPass());
 
   // Add Atomic passes here
 
   pm.addPass(mlir::createConvertControlFlowToLLVMPass());
   pm.addPass(createConvertCIRToLLVMPass());
+
 }
 
 std::unique_ptr<llvm::Module>
