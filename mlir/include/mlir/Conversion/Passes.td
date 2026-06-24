@@ -449,6 +449,21 @@ def ConvertControlFlowToSPIRVPass : Pass<"convert-cf-to-spirv"> {
 }
 
 //===----------------------------------------------------------------------===//
+// ArmAtomicToLLVM
+//===----------------------------------------------------------------------===//
+
+def ConvertArmAtomicToLLVMPass : Pass<"arm-atomic-to-llvm", "ModuleOp"> {
+  let summary = "Lower ArmAtomic dialect to LLVM dialect";
+  let description = [{
+    Converts arm_atomic.atomic_load and arm_atomic.atomic_store into LLVM
+    load/store ops with the appropriate AtomicOrdering attribute, mapping
+    ARM memory orders (Relaxed/Acquire/Release/AcqRel) to LLVM
+    (monotonic/acquire/release/acq_rel).
+  }];
+  let dependentDialects = ["LLVM::LLVMDialect"];
+}
+
+//===----------------------------------------------------------------------===//
 // CppAtomicToArmAtomic
 //===----------------------------------------------------------------------===//
 
