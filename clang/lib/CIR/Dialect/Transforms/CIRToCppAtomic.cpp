@@ -37,19 +37,16 @@ namespace {
 
 static cpp_atomic::MemoryOrder convertMemoryOrder(std::optional<cir::MemOrder> cirOrder) {
 
-  if (!cirOrder.has_value()) {
-    return cpp_atomic::MemoryOrder::SeqCst;
-  }
-
   switch (cirOrder.value()) {
     case cir::MemOrder::Relaxed: return cpp_atomic::MemoryOrder::Relaxed;
     case cir::MemOrder::Acquire: return cpp_atomic::MemoryOrder::Acquire;
     case cir::MemOrder::Release: return cpp_atomic::MemoryOrder::Release;
     case cir::MemOrder::AcquireRelease: return cpp_atomic::MemoryOrder::AcqRel;
-    default: 
-      return cpp_atomic::MemoryOrder::SeqCst;
+    case cir::MemOrder::SequentiallyConsistent: return cpp_atomic::MemoryOrder::SeqCst;
+    default:
+      llvm_unreachable("Unknown memory order");
   }
-}  
+}
 
 struct LoadRewriter : public OpConversionPattern<cir::LoadOp> {
 
@@ -63,7 +60,7 @@ struct LoadRewriter : public OpConversionPattern<cir::LoadOp> {
 
     auto memOrder = convertMemoryOrder(loadOp.getMemOrder());
     auto alignment = loadOp.getAlignmentAttr();
-    
+
     rewriter.replaceOpWithNewOp<cpp_atomic::AtomicLoadOp>(loadOp, addr, memOrder, alignment);
     return success();
   }
@@ -77,12 +74,12 @@ struct StoreRewriter : public OpConversionPattern<cir::StoreOp> {
   LogicalResult matchAndRewrite(cir::StoreOp storeOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
 
-    Value value = adaptor.getValue();                             
+    Value value = adaptor.getValue();
     Value addr = adaptor.getAddr();
 
     auto memOrder = convertMemoryOrder(storeOp.getMemOrder());
     auto alignment = storeOp.getAlignmentAttr();
-    
+
     rewriter.replaceOpWithNewOp<cpp_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, alignment);
     return success();
   }
@@ -107,7 +104,8 @@ void CIRToCppAtomicPass::runOnOperation() {
   ConversionTarget target(*context);
   target.addLegalDialect<cpp_atomic::CppAtomicDialect>();
   target.addLegalOp<mlir::UnrealizedConversionCastOp>();
-  target.addIllegalOp<cir::LoadOp, cir::StoreOp>();
+  target.addDynamicallyLegalOp<cir::LoadOp>([](cir::LoadOp op) { return !op.getMemOrder().has_value(); });
+  target.addDynamicallyLegalOp<cir::StoreOp>([](cir::StoreOp op) { return !op.getMemOrder().has_value(); });
 
   RewritePatternSet patterns(context);
 
