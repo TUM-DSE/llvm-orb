@@ -37,11 +37,11 @@ using namespace mlir;
 static arm_atomic::MemoryOrder convertLoadMemoryOrder(cpp_atomic::MemoryOrder cppOrder) {
   switch (cppOrder) {
     case cpp_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
-    case cpp_atomic::MemoryOrder::Acquire: return arm_atomic::MemoryOrder::Acquire;
     
-    case cpp_atomic::MemoryOrder::Release: 
-    case cpp_atomic::MemoryOrder::AcqRel: 
-    case cpp_atomic::MemoryOrder::SeqCst: 
+    // case cpp_atomic::MemoryOrder::Acquire:
+    // case cpp_atomic::MemoryOrder::Release: 
+    // case cpp_atomic::MemoryOrder::AcqRel: 
+    // case cpp_atomic::MemoryOrder::SeqCst: 
     default:
       return arm_atomic::MemoryOrder::Acquire;
   }
@@ -51,14 +51,27 @@ static arm_atomic::MemoryOrder convertLoadMemoryOrder(cpp_atomic::MemoryOrder cp
 static arm_atomic::MemoryOrder convertStoreMemoryOrder(cpp_atomic::MemoryOrder cppOrder) {
   switch (cppOrder) {
     case cpp_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
-    case cpp_atomic::MemoryOrder::Release: return arm_atomic::MemoryOrder::Release;
 
-    case cpp_atomic::MemoryOrder::Acquire: 
-    case cpp_atomic::MemoryOrder::AcqRel: 
-    case cpp_atomic::MemoryOrder::SeqCst: 
+    // case cpp_atomic::MemoryOrder::Release:
+    // case cpp_atomic::MemoryOrder::Acquire: 
+    // case cpp_atomic::MemoryOrder::AcqRel: 
+    // case cpp_atomic::MemoryOrder::SeqCst: 
     default:
       return arm_atomic::MemoryOrder::Release;
   }
+}
+
+static arm_atomic::MemoryOrder convertFenceMemoryOrder(cpp_atomic::MemoryOrder cppOrder) {
+  switch (cppOrder) {
+    case cpp_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
+    case cpp_atomic::MemoryOrder::Acquire: return arm_atomic::MemoryOrder::Acquire;
+    case cpp_atomic::MemoryOrder::Release: return arm_atomic::MemoryOrder::Release;
+    
+    case cpp_atomic::MemoryOrder::AcqRel:
+    case cpp_atomic::MemoryOrder::SeqCst:
+      return arm_atomic::MemoryOrder::AcqRel;
+  }
+  llvm_unreachable("Unknown CppAtomic memory order for fence");
 }
 
 struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
@@ -96,9 +109,24 @@ struct StoreRewriter : public OpConversionPattern<cpp_atomic::AtomicStoreOp> {
   }
 };
 
+struct FenceRewriter : public OpConversionPattern<cpp_atomic::AtomicFenceOp> {
+  FenceRewriter(MLIRContext *context) 
+      : OpConversionPattern<cpp_atomic::AtomicFenceOp>(context) {}
+
+  LogicalResult matchAndRewrite(cpp_atomic::AtomicFenceOp fenceOp, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+                                
+    auto memOrder = convertFenceMemoryOrder(fenceOp.getMemoryOrder());
+
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicFenceOp>(fenceOp, memOrder);
+    return success();
+  }
+};
+
 void populateCppToArmPatterns(RewritePatternSet &patterns) {
   patterns.add<LoadRewriter>(patterns.getContext());
   patterns.add<StoreRewriter>(patterns.getContext());
+  patterns.add<FenceRewriter>(patterns.getContext());
 }
 
 //===----------------------------------------------------------------------===//
@@ -126,4 +154,4 @@ void ConvertCppAtomicToArmAtomicPass::runOnOperation() {
 
     if (failed(applyPartialConversion(getOperation(), target, std::move(patterns))))
       signalPassFailure();
-  }
+}

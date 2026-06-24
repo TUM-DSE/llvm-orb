@@ -114,13 +114,29 @@ struct AtomicStoreLowering
   }
 };
 
+struct AtomicFenceLowering
+    : public ConvertOpToLLVMPattern<arm_atomic::AtomicFenceOp> {
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult
+  matchAndRewrite(arm_atomic::AtomicFenceOp op, OpAdaptor adaptor,
+                  ConversionPatternRewriter &rewriter) const override {
+    
+
+    rewriter.replaceOpWithNewOp<LLVM::FenceOp>(
+        op, toAtomicOrdering(op.getMemoryOrder()));
+        
+    return success();
+  }
+};
+
 //===----------------------------------------------------------------------===//
 // Pass
 //===----------------------------------------------------------------------===//
 
 void mlir::populateArmAtomicToLLVMPatterns(LLVMTypeConverter &converter,
                                            RewritePatternSet &patterns) {
-  patterns.add<AtomicLoadLowering, AtomicStoreLowering>(converter);
+  patterns.add<AtomicLoadLowering, AtomicStoreLowering, AtomicFenceLowering>(converter);
 }
 
 namespace {

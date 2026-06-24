@@ -150,4 +150,36 @@ def AtomicStoreOp : Op<ArmAtomic_Dialect, "atomic_store", [
   }];
 }
 
+//===----------------------------------------------------------------------===//
+// AtomicFenceOp
+//===----------------------------------------------------------------------===//
+
+def AtomicFenceOp : Op<ArmAtomic_Dialect, "atomic_fence"> {
+  let summary = "ARM atomic fence operation (DMB)";
+
+  let description = [{
+    Represents an ARM atomic fence. It establishes memory synchronization 
+    ordering without an associated atomic variable.
+  }];
+
+  let arguments = (ins ArmMemoryOrderAttr:$memory_order);
+  let results = (outs);
+  
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "::mlir::arm_atomic::MemoryOrder":$memory_order), [{
+      
+      auto orderAttr = ::mlir::arm_atomic::MemoryOrderAttr::get(
+          $_builder.getContext(), memory_order);
+          
+      $_state.addAttribute("memory_order", orderAttr);
+    }]>
+  ];
+
+  let assemblyFormat = [{
+    `memory_order` `(` $memory_order `)` attr-dict
+  }];
+}
+
 #endif // ARMATOMIC_OPS

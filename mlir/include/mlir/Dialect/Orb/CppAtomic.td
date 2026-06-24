@@ -193,5 +193,36 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
   }];
 }
 
+//===----------------------------------------------------------------------===//
+// AtomicFenceOp
+//===----------------------------------------------------------------------===//
+
+def AtomicFenceOp : Op<CppAtomic_Dialect, "atomic_fence"> {
+  let summary = "C++ atomic fence operation";
+  let description = [{
+    Represents a std::atomic_thread_fence. It establishes memory synchronization 
+    ordering without an associated atomic variable.
+  }];
+
+  let arguments = (ins MemoryOrderAttr:$memory_order);
+  let results = (outs);
+
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "::mlir::cpp_atomic::MemoryOrder":$memory_order), [{
+      
+      auto orderAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
+          $_builder.getContext(), memory_order);
+          
+      $_state.addAttribute("memory_order", orderAttr);
+    }]>
+  ];
+
+  let assemblyFormat = [{
+    `memory_order` `(` $memory_order `)` attr-dict
+  }];
+}
+
 
 #endif // CPPATOMIC_OPS

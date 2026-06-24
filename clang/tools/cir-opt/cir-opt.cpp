@@ -21,12 +21,14 @@
 #include "mlir/Pass/PassRegistry.h"
 #include "mlir/Tools/mlir-opt/MlirOptMain.h"
 #include "mlir/Transforms/Passes.h"
+#include "mlir/Conversion/Passes.h"
 #include "clang/CIR/Dialect/Passes.h"
 #include "clang/CIR/InitAllDialects.h"
 #include "clang/CIR/Passes.h"
 
 // not necessarily correct includes, just trying to get Filecheck to work with the cpp-atomics, change 1
 #include "mlir/Dialect/Orb/CppAtomicDialect.h"
+
 
 struct CIRToLLVMPipelineOptions
     : public mlir::PassPipelineOptions<CIRToLLVMPipelineOptions> {};
@@ -39,6 +41,7 @@ int main(int argc, char **argv) {
 
   // change 2
   registry.insert<mlir::cpp_atomic::CppAtomicDialect>();
+
 
   ::mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
     return mlir::createCIRCanonicalizePass();
@@ -82,8 +85,10 @@ int main(int argc, char **argv) {
     return mlir::createCIRToCppAtomicPass();
   });
 
+
   mlir::omp::registerOpenMPPasses();
   mlir::registerTransformsPasses();
+  mlir::registerConversionPasses();
 
   return mlir::asMainReturnCode(MlirOptMain(
       argc, argv, "Clang IR analysis and optimization tool\n", registry));

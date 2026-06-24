@@ -85,9 +85,27 @@ struct StoreRewriter : public OpConversionPattern<cir::StoreOp> {
   }
 };
 
+struct FenceRewriter : public OpConversionPattern<cir::AtomicFenceOp> {
+
+  FenceRewriter(MLIRContext *context)
+      : OpConversionPattern<cir::AtomicFenceOp>(context) {}
+
+  LogicalResult matchAndRewrite(cir::AtomicFenceOp fenceOp, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+    
+
+    auto memOrder = convertMemoryOrder(std::make_optional(fenceOp.getOrdering()));
+    
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(fenceOp, memOrder);
+    
+    return success();
+  }
+};  
+
 void populateCIRToCppAtomicPatterns(RewritePatternSet &patterns) {
   patterns.add<LoadRewriter>(patterns.getContext());
   patterns.add<StoreRewriter>(patterns.getContext());
+  patterns.add<FenceRewriter>(patterns.getContext());
 }
 
 //===----------------------------------------------------------------------===//
@@ -102,10 +120,14 @@ struct CIRToCppAtomicPass : public impl::CIRToCppAtomicBase<CIRToCppAtomicPass> 
 void CIRToCppAtomicPass::runOnOperation() {
   MLIRContext *context = &getContext();
   ConversionTarget target(*context);
+
   target.addLegalDialect<cpp_atomic::CppAtomicDialect>();
   target.addLegalOp<mlir::UnrealizedConversionCastOp>();
+
   target.addDynamicallyLegalOp<cir::LoadOp>([](cir::LoadOp op) { return !op.getMemOrder().has_value(); });
   target.addDynamicallyLegalOp<cir::StoreOp>([](cir::StoreOp op) { return !op.getMemOrder().has_value(); });
+
+  target.addIllegalOp<cir::AtomicFenceOp>();
 
   RewritePatternSet patterns(context);
 
