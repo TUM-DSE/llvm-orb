@@ -143,6 +143,10 @@ struct AtomicFenceLowering
   matchAndRewrite(arm_atomic::AtomicFenceOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
     
+    if (op.getMemoryOrder() == 0) { 
+      rewriter.eraseOp(op);
+      return success();
+    }
 
     rewriter.replaceOpWithNewOp<LLVM::FenceOp>(
         op, toAtomicOrdering(op.getMemoryOrder()));
