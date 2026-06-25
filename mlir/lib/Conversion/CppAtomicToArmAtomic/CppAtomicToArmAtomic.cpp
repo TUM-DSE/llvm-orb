@@ -63,15 +63,16 @@ static arm_atomic::MemoryOrder convertStoreMemoryOrder(cpp_atomic::MemoryOrder c
 
 static arm_atomic::MemoryOrder convertFenceMemoryOrder(cpp_atomic::MemoryOrder cppOrder) {
   switch (cppOrder) {
-    case cpp_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
     case cpp_atomic::MemoryOrder::Acquire: return arm_atomic::MemoryOrder::Acquire;
     case cpp_atomic::MemoryOrder::Release: return arm_atomic::MemoryOrder::Release;
     
     case cpp_atomic::MemoryOrder::AcqRel:
     case cpp_atomic::MemoryOrder::SeqCst:
       return arm_atomic::MemoryOrder::AcqRel;
+
+    case cpp_atomic::MemoryOrder::Relaxed: // return arm_atomic::MemoryOrder::Relaxed;
+      llvm_unreachable("Unknown CppAtomic memory order for fence");
   }
-  llvm_unreachable("Unknown CppAtomic memory order for fence");
 }
 
 struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {

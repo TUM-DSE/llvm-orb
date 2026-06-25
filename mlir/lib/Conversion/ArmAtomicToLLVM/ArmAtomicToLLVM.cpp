@@ -83,8 +83,17 @@ struct AtomicLoadLowering
     if (!resultTy)
       return rewriter.notifyMatchFailure(op, "unconvertible result type");
 
-    unsigned align =
-        op.getAlignment() ? static_cast<unsigned>(*op.getAlignment()) : 0;
+    unsigned align = 0;
+    if (op.getAlignment()) {
+      align = static_cast<unsigned>(*op.getAlignment());
+    } else {
+      // If missing, calculate the byte width from the converted type
+      if (resultTy.isIntOrFloat()) {
+        align = std::max(1u, resultTy.getIntOrFloatBitWidth() / 8);
+      } else {
+        align = 8; // in case of pointers
+      }
+    }
 
     rewriter.replaceOpWithNewOp<LLVM::LoadOp>(
         op, resultTy, adaptor.getAddr(), align,
@@ -102,8 +111,20 @@ struct AtomicStoreLowering
   LogicalResult
   matchAndRewrite(arm_atomic::AtomicStoreOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
-    unsigned align =
-        op.getAlignment() ? static_cast<unsigned>(*op.getAlignment()) : 0;
+
+    Type valTy = adaptor.getValue().getType();                 
+
+    unsigned align = 0;
+    if (op.getAlignment()) {
+      align = static_cast<unsigned>(*op.getAlignment());
+    } else {
+      // If missing, calculate the byte width from the converted type
+      if (valTy.isIntOrFloat()) {
+        align = std::max(1u, valTy.getIntOrFloatBitWidth() / 8);
+      } else {
+        align = 8; // in case of pointers
+      }
+    }
 
     rewriter.replaceOpWithNewOp<LLVM::StoreOp>(
         op, adaptor.getValue(), adaptor.getAddr(), align,

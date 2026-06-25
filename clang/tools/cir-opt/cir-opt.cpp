@@ -28,6 +28,7 @@
 
 // not necessarily correct includes, just trying to get Filecheck to work with the cpp-atomics, change 1
 #include "mlir/Dialect/Orb/CppAtomicDialect.h"
+#include "mlir/Dialect/Orb/ArmAtomicDialect.h"
 
 
 struct CIRToLLVMPipelineOptions
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
 
   // change 2
   registry.insert<mlir::cpp_atomic::CppAtomicDialect>();
-
+  registry.insert<mlir::arm_atomic::ArmAtomicDialect>();
 
   ::mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
     return mlir::createCIRCanonicalizePass();

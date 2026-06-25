@@ -44,4 +44,5 @@ target_link_libraries(cir-opt
   MLIRTransforms
   MLIRTransformUtils
   MLIRCppAtomicDialect # added this to make filecheck work with cppatomics
+  MLIRArmAtomicDialect
 )
