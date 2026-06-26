@@ -13,6 +13,7 @@
 #include "clang/CIR/Dialect/IR/CIRTypes.h"
 
 #include "mlir/Dialect/Ptr/IR/MemorySpaceInterfaces.h"
+#include "mlir/Dialect/Ptr/IR/PtrAttrs.h"
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/DialectImplementation.h"
 #include "mlir/IR/MLIRContext.h"
@@ -594,6 +595,25 @@ PointerType::getABIAlignment(const ::mlir::DataLayout &dataLayout,
   // FIXME: improve this in face of address spaces
   assert(!cir::MissingFeatures::dataLayoutPtrHandlingBasedOnLangAS());
   return 8;
+}
+
+Attribute cir::PointerType::getMemorySpace() const {
+  if (auto addrSpace = getAddrSpace())
+    return addrSpace;
+  // The normalized CIR default address space (null) is the generic/flat space.
+  return mlir::ptr::GenericSpaceAttr::get(getContext());
+}
+
+Type cir::PointerType::getElementType() const { return getPointee(); }
+
+bool cir::PointerType::hasPtrMetadata() const { return false; }
+
+FailureOr<mlir::PtrLikeTypeInterface> cir::PointerType::clonePtrWith(
+    Attribute memSpace, std::optional<Type> elementType) const {
+  Type pointee = elementType.value_or(getPointee());
+  return mlir::cast<mlir::PtrLikeTypeInterface>(cir::PointerType::get(
+      getContext(), pointee,
+      mlir::cast<mlir::ptr::MemorySpaceAttrInterface>(memSpace)));
 }
 
 llvm::TypeSize

@@ -1,0 +1,75 @@
+// RUN: cir-opt %s -cir-to-ptr -o - | FileCheck %s
+
+// Tests for CIR -> ptr dialect conversion pass.
+// The pass converts pointer arithmetic and memory ops to ptr dialect ops
+// while preserving cir.alloca (no ptr.alloca equivalent exists).
+
+!s32i = !cir.int<s, 32>
+
+// CHECK-LABEL: cir.func @load_store
+// CHECK: %[[ALLOCA:.*]] = cir.alloca
+// CHECK: ptr.to_ptr %[[ALLOCA]]
+// CHECK: ptr.store
+// CHECK: ptr.load
+cir.func @load_store() -> !s32i {
+  %0 = cir.alloca "x" align(4) : !cir.ptr<!s32i>
+  %1 = cir.const #cir.int<42> : !s32i
+  cir.store %1, %0 : !s32i, !cir.ptr<!s32i>
+  %2 = cir.load %0 : !cir.ptr<!s32i>, !s32i
+  cir.return %2 : !s32i
+}
+
+// CHECK-LABEL: cir.func @volatile_load_store
+// CHECK: ptr.store volatile
+// CHECK: ptr.load volatile
+cir.func @volatile_load_store() -> !s32i {
+  %0 = cir.alloca "x" align(4) : !cir.ptr<!s32i>
+  %1 = cir.const #cir.int<1> : !s32i
+  cir.store volatile %1, %0 : !s32i, !cir.ptr<!s32i>
+  %2 = cir.load volatile %0 : !cir.ptr<!s32i>, !s32i
+  cir.return %2 : !s32i
+}
+
+// CHECK-LABEL: cir.func @atomic_load_store
+// CHECK: ptr.store {{.*}} atomic release
+// CHECK: ptr.load {{.*}} atomic acquire
+cir.func @atomic_load_store() -> !s32i {
+  %0 = cir.alloca "x" align(4) : !cir.ptr<!s32i>
+  %1 = cir.const #cir.int<0> : !s32i
+  cir.store atomic(release) %1, %0 : !s32i, !cir.ptr<!s32i>
+  %2 = cir.load atomic(acquire) %0 : !cir.ptr<!s32i>, !s32i
+  cir.return %2 : !s32i
+}
+
+// CHECK-LABEL: cir.func @ptr_stride
+// CHECK: ptr.to_ptr
+// CHECK: ptr.type_offset
+// CHECK: builtin.unrealized_conversion_cast
+// CHECK: arith.index_cast
+// CHECK: arith.muli
+// CHECK: ptr.ptr_add
+cir.func @ptr_stride(%base: !cir.ptr<!s32i>, %stride: !s32i) -> !cir.ptr<!s32i> {
+  %0 = cir.ptr_stride %base, %stride : (!cir.ptr<!s32i>, !s32i) -> !cir.ptr<!s32i>
+  cir.return %0 : !cir.ptr<!s32i>
+}
+
+// CHECK-LABEL: cir.func @get_element
+// CHECK: ptr.to_ptr
+// CHECK: ptr.type_offset
+// CHECK: builtin.unrealized_conversion_cast
+// CHECK: arith.index_cast
+// CHECK: arith.muli
+// CHECK: ptr.ptr_add
+cir.func @get_element(%arr: !cir.ptr<!cir.array<!s32i x 4>>, %idx: !s32i) -> !cir.ptr<!s32i> {
+  %0 = cir.get_element %arr[%idx : !s32i] : !cir.ptr<!cir.array<!s32i x 4>> -> !cir.ptr<!s32i>
+  cir.return %0 : !cir.ptr<!s32i>
+}
+
+// CHECK-LABEL: cir.func @array_decay
+// array_to_ptrdecay is a no-op (both types map to the same !ptr.ptr<>)
+// CHECK-NOT: cir.cast array_to_ptrdecay
+// CHECK: ptr.to_ptr
+cir.func @array_decay(%arr: !cir.ptr<!cir.array<!s32i x 4>>) -> !cir.ptr<!s32i> {
+  %0 = cir.cast array_to_ptrdecay %arr : !cir.ptr<!cir.array<!s32i x 4>> -> !cir.ptr<!s32i>
+  cir.return %0 : !cir.ptr<!s32i>
+}

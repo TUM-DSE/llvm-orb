@@ -19,6 +19,7 @@ include "clang/CIR/Dialect/IR/CIRTypeConstraints.td"
 include "clang/CIR/Interfaces/CIRTypeInterfaces.td"
 include "mlir/Interfaces/DataLayoutInterfaces.td"
 include "mlir/IR/AttrTypeBase.td"
+include "mlir/IR/BuiltinTypeInterfaces.td"
 include "mlir/IR/EnumAttr.td"
 
 //===----------------------------------------------------------------------===//
@@ -240,7 +241,8 @@ def CIR_ComplexType : CIR_Type<"Complex", "complex", [
 
 def CIR_PointerType : CIR_Type<"Pointer", "ptr", [
     DeclareTypeInterfaceMethods<DataLayoutTypeInterface>,
-    DeclareTypeInterfaceMethods<CIR_SizedTypeInterface>
+    DeclareTypeInterfaceMethods<CIR_SizedTypeInterface>,
+    DeclareTypeInterfaceMethods<PtrLikeTypeInterface>
 ]> {
   let summary = "CIR pointer type";
   let description = [{

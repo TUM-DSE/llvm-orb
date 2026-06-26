@@ -586,7 +586,7 @@ def Ptr_StoreOp : Pointer_Op<"store", [
 // ToPtrOp
 //===----------------------------------------------------------------------===//
 
-def Ptr_ToPtrOp : Pointer_Op<"to_ptr", [Pure]> {
+def Ptr_ToPtrOp : Pointer_Op<"to_ptr", [Pure, ViewLikeOpInterface]> {
   let summary = "Casts a ptr-like value to a `!ptr.ptr` value.";
   let description = [{
     The `to_ptr` operation casts a ptr-like object to a `!ptr.ptr`. It's
@@ -610,6 +610,10 @@ def Ptr_ToPtrOp : Pointer_Op<"to_ptr", [Pure]> {
   }];
   let hasFolder = 1;
   let hasVerifier = 1;
+  let extraClassDeclaration = [{
+    /// ViewLikeOpInterface: the converted pointer views the same allocation.
+    Value getViewSource() { return getPtr(); }
+  }];
 }
 
 //===----------------------------------------------------------------------===//

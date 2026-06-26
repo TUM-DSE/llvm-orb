@@ -36,6 +36,7 @@ std::unique_ptr<Pass> createLoweringPreparePass(clang::ASTContext *astCtx);
 std::unique_ptr<Pass> createGotoSolverPass();
 std::unique_ptr<Pass> createIdiomRecognizerPass();
 std::unique_ptr<Pass> createIdiomRecognizerPass(clang::ASTContext *astCtx);
+std::unique_ptr<Pass> createCIRToPtrPass();
 
 void populateCIRPreLoweringPasses(mlir::OpPassManager &pm);
 

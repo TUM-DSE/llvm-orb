@@ -16,6 +16,7 @@
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Dialect/OpenMP/Transforms/Passes.h"
+#include "mlir/Dialect/Ptr/IR/PtrDialect.h"
 #include "mlir/Pass/PassManager.h"
 #include "mlir/Pass/PassOptions.h"
 #include "mlir/Pass/PassRegistry.h"
@@ -38,7 +39,8 @@ int main(int argc, char **argv) {
   // TODO: register needed MLIR passes for CIR?
   mlir::DialectRegistry registry;
   cir::registerAllDialects(registry);
-  registry.insert<mlir::memref::MemRefDialect, mlir::LLVM::LLVMDialect>();
+  registry.insert<mlir::memref::MemRefDialect, mlir::LLVM::LLVMDialect,
+                  mlir::ptr::PtrDialect>();
 
   // change 2
   registry.insert<mlir::cpp_atomic::CppAtomicDialect>();
@@ -86,6 +88,9 @@ int main(int argc, char **argv) {
     return mlir::createCIRToCppAtomicPass();
   });
 
+  ::mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
+    return mlir::createCIRToPtrPass();
+  });
 
   mlir::omp::registerOpenMPPasses();
   mlir::registerTransformsPasses();

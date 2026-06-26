@@ -256,4 +256,28 @@ def CallConvLowering : Pass<"cir-call-conv-lowering", "mlir::ModuleOp"> {
   ];
 }
 
+def CIRToPtr : Pass<"cir-to-ptr", "mlir::ModuleOp"> {
+  let summary = "Lower CIR pointer operations to the ptr dialect";
+  let description = [{
+    Partial lowering of CIR pointer arithmetic and memory operations to the
+    ptr dialect. The pass converts:
+      - cir.cast(array_to_ptrdecay) -> identity (no-op on !ptr.ptr)
+      - cir.get_element -> ptr.ptr_add with ptr.type_offset scaling
+      - cir.ptr_stride  -> ptr.ptr_add with ptr.type_offset scaling
+      - cir.load        -> ptr.load  (preserving volatile and atomic ordering)
+      - cir.store       -> ptr.store (preserving volatile and atomic ordering)
+
+    cir.alloca is preserved because ptr.alloca does not exist.
+
+    After this pass, LocalAliasAnalysis can trace through ptr.to_ptr
+    (ViewLikeOpInterface) and ptr.ptr_add (ViewLikeOpInterface) back to
+    cir.alloca (MemoryEffects::Allocate), enabling NoAlias results for
+    distinct stack allocations.
+  }];
+  let constructor = "mlir::createCIRToPtrPass()";
+  let dependentDialects = [
+    "cir::CIRDialect", "::mlir::ptr::PtrDialect", "arith::ArithDialect"
+  ];
+}
+
 #endif // CLANG_CIR_DIALECT_PASSES_TD
