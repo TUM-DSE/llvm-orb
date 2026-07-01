@@ -84,7 +84,7 @@ struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
     Value addr = adaptor.getAddr();
     
     auto memOrder = convertLoadMemoryOrder(loadOp.getMemoryOrder());
-    auto alignment = loadOp.getAlignmentAttr();
+    uint64_t alignment = loadOp.getAlignment();
 
     rewriter.replaceOpWithNewOp<arm_atomic::AtomicLoadOp>(loadOp, addr, memOrder, alignment);
     return success();
@@ -102,7 +102,7 @@ struct StoreRewriter : public OpConversionPattern<cpp_atomic::AtomicStoreOp> {
     Value addr = adaptor.getAddr();
     
     auto memOrder = convertStoreMemoryOrder(storeOp.getMemoryOrder());
-    auto alignment = storeOp.getAlignmentAttr();
+    uint64_t alignment = storeOp.getAlignment();
 
     rewriter.replaceOpWithNewOp<arm_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, alignment);
     return success();

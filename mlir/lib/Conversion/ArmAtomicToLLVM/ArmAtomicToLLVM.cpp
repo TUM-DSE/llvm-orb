@@ -83,17 +83,7 @@ struct AtomicLoadLowering
     if (!resultTy)
       return rewriter.notifyMatchFailure(op, "unconvertible result type");
 
-    unsigned align = 0;
-    if (op.getAlignment()) {
-      align = static_cast<unsigned>(*op.getAlignment());
-    } else {
-      // If missing, calculate the byte width from the converted type
-      if (resultTy.isIntOrFloat()) {
-        align = std::max(1u, resultTy.getIntOrFloatBitWidth() / 8);
-      } else {
-        align = 8; // in case of pointers
-      }
-    }
+    unsigned align = op.getAlignment();  
 
     rewriter.replaceOpWithNewOp<LLVM::LoadOp>(
         op, resultTy, adaptor.getAddr(), align,
@@ -112,19 +102,7 @@ struct AtomicStoreLowering
   matchAndRewrite(arm_atomic::AtomicStoreOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
 
-    Type valTy = adaptor.getValue().getType();                 
-
-    unsigned align = 0;
-    if (op.getAlignment()) {
-      align = static_cast<unsigned>(*op.getAlignment());
-    } else {
-      // If missing, calculate the byte width from the converted type
-      if (valTy.isIntOrFloat()) {
-        align = std::max(1u, valTy.getIntOrFloatBitWidth() / 8);
-      } else {
-        align = 8; // in case of pointers
-      }
-    }
+    unsigned align = op.getAlignment();
 
     rewriter.replaceOpWithNewOp<LLVM::StoreOp>(
         op, adaptor.getValue(), adaptor.getAddr(), align,
@@ -143,7 +121,7 @@ struct AtomicFenceLowering
   matchAndRewrite(arm_atomic::AtomicFenceOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
     
-    if (op.getMemoryOrder() == 0) { 
+    if (op.getMemoryOrder() == mlir::arm_atomic::MemoryOrder::Relaxed) { 
       rewriter.eraseOp(op);
       return success();
     }

@@ -100,7 +100,7 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
 
   let arguments = (ins CIR_AnyPtrType:$addr, 
                       MemoryOrderAttr:$memory_order,
-                      OptionalAttr<I64Attr>:$alignment);
+                      I64Attr:$alignment);
 
   let results = (outs AnyType:$result);
 
@@ -109,7 +109,7 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
   let builders = [
     OpBuilder<(ins "Value":$addr,
                    "::mlir::cpp_atomic::MemoryOrder":$memory_order,
-                   CArg<"::mlir::IntegerAttr", "nullptr">:$alignment), [{
+                   "uint64_t":$alignment), [{
 
       auto ptrType = ::llvm::cast<cir::PointerType>(addr.getType());
       $_state.addTypes(ptrType.getPointee());
@@ -120,14 +120,14 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
           $_builder.getContext(), memory_order);
       $_state.addAttribute("memory_order", orderAttr);
       
-      if (alignment) {
-        $_state.addAttribute("alignment", alignment);
-      }
+      auto alignAttr = ::mlir::IntegerAttr::get(
+          ::mlir::IntegerType::get($_builder.getContext(), 64), alignment);
+      $_state.addAttribute("alignment", alignAttr);
     }]>
   ];
 
-  let assemblyFormat = [{
-    $addr `memory_order` `(` $memory_order `)` (`align` `(` $alignment^ `)`)? attr-dict `:` type($addr)
+  let assemblyFormat = [{ 
+    $addr `memory_order` `(` $memory_order `)` `align` `(` $alignment `)` attr-dict `:` type($addr) 
   }];
 }
 
@@ -163,7 +163,7 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
   let arguments = (ins AnyType:$value,
                       CIR_AnyPtrType:$addr, 
                       MemoryOrderAttr:$memory_order,
-                      OptionalAttr<I64Attr>:$alignment);
+                      I64Attr:$alignment);
 
   let results = (outs);                    
   
@@ -173,7 +173,7 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
     OpBuilder<(ins "Value":$value,
                    "Value":$addr,
                    "::mlir::cpp_atomic::MemoryOrder":$memory_order,
-                   CArg<"::mlir::IntegerAttr", "nullptr">:$alignment), [{
+                   "uint64_t":$alignment), [{
                    
       $_state.addOperands(value);
       $_state.addOperands(addr);
@@ -182,14 +182,14 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
           $_builder.getContext(), memory_order);
       $_state.addAttribute("memory_order", orderAttr);
       
-      if (alignment) {
-        $_state.addAttribute("alignment", alignment);
-      }
+      auto alignAttr = ::mlir::IntegerAttr::get(
+          ::mlir::IntegerType::get($_builder.getContext(), 64), alignment);
+      $_state.addAttribute("alignment", alignAttr);
     }]>
   ];
 
-  let assemblyFormat = [{
-    $value `,` $addr `memory_order` `(` $memory_order `)` (`align` `(` $alignment^ `)`)? attr-dict `:` type($addr)
+  let assemblyFormat = [{ 
+    $value `,` $addr `memory_order` `(` $memory_order `)` `align` `(` $alignment `)` attr-dict `:` type($addr) 
   }];
 }
 

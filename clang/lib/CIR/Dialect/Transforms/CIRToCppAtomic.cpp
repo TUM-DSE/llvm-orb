@@ -59,9 +59,16 @@ struct LoadRewriter : public OpConversionPattern<cir::LoadOp> {
     Value addr = adaptor.getAddr();
 
     auto memOrder = convertMemoryOrder(loadOp.getMemOrder());
-    auto alignment = loadOp.getAlignmentAttr();
 
-    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicLoadOp>(loadOp, addr, memOrder, alignment);
+    unsigned align = loadOp.getAlignmentAttr() 
+                     ? static_cast<unsigned>(*loadOp.getAlignment()) : 0;
+
+    if (align == 0) {
+      return rewriter.notifyMatchFailure(
+          loadOp, "Atomic operations strictly require a non-zero alignment.");
+    }
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicLoadOp>(loadOp, addr, memOrder, align);
     return success();
   }
 };
@@ -78,9 +85,16 @@ struct StoreRewriter : public OpConversionPattern<cir::StoreOp> {
     Value addr = adaptor.getAddr();
 
     auto memOrder = convertMemoryOrder(storeOp.getMemOrder());
-    auto alignment = storeOp.getAlignmentAttr();
 
-    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, alignment);
+    unsigned align = storeOp.getAlignmentAttr() 
+                     ? static_cast<unsigned>(*storeOp.getAlignment()) : 0;
+
+    if (align == 0) {
+      return rewriter.notifyMatchFailure(
+          storeOp, "Atomic operations strictly require a non-zero alignment.");
+    }
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, align);
     return success();
   }
 };
