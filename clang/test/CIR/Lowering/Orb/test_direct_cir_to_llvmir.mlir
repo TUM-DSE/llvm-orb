@@ -1,0 +1,705 @@
+// === PHASE 7: Direct CIR -> LLVMIR === 
+
+// RUN: ./../../../../../build/bin/cir-translate tests/test_direct_cir_to_llvmir.mlir -cir-to-llvmir --target x86_64-unknown-linux-gnu --disable-cc-lowering | ./../../../../../build/bin/FileCheck tests/test_direct_cir_to_llvmir.mlir
+
+
+// CHECK-LABEL: define i8 @test_cir_to_llvm_load_i8_relaxed
+// CHECK: %{{[0-9]+}} = load atomic volatile i8, ptr %{{[0-9]+}} monotonic, align 1
+cir.func @test_cir_to_llvm_load_i8_relaxed(%arg0: !cir.ptr<!cir.int<s, 8>>) -> !cir.int<s, 8> {
+  %0 = cir.load deref volatile align(1) atomic(relaxed) %arg0 : !cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>
+  cir.return %0 : !cir.int<s, 8>
+}
+
+// CHECK-LABEL: define i8 @test_cir_to_llvm_load_i8_acquire
+// CHECK: %{{[0-9]+}} = load atomic volatile i8, ptr %{{[0-9]+}} acquire, align 1
+cir.func @test_cir_to_llvm_load_i8_acquire(%arg0: !cir.ptr<!cir.int<s, 8>>) -> !cir.int<s, 8> {
+  %0 = cir.load deref volatile align(1) atomic(acquire) %arg0 : !cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>
+  cir.return %0 : !cir.int<s, 8>
+}
+
+// CHECK-LABEL: define i8 @test_cir_to_llvm_load_i8_seq_cst
+// CHECK: %{{[0-9]+}} = load atomic volatile i8, ptr %{{[0-9]+}} seq_cst, align 1
+cir.func @test_cir_to_llvm_load_i8_seq_cst(%arg0: !cir.ptr<!cir.int<s, 8>>) -> !cir.int<s, 8> {
+  %0 = cir.load deref volatile align(1) atomic(seq_cst) %arg0 : !cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>
+  cir.return %0 : !cir.int<s, 8>
+}
+
+// CHECK-LABEL: define i16 @test_cir_to_llvm_load_i16_relaxed
+// CHECK: %{{[0-9]+}} = load atomic volatile i16, ptr %{{[0-9]+}} monotonic, align 2
+cir.func @test_cir_to_llvm_load_i16_relaxed(%arg0: !cir.ptr<!cir.int<s, 16>>) -> !cir.int<s, 16> {
+  %0 = cir.load deref volatile align(2) atomic(relaxed) %arg0 : !cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>
+  cir.return %0 : !cir.int<s, 16>
+}
+
+// CHECK-LABEL: define i16 @test_cir_to_llvm_load_i16_acquire
+// CHECK: %{{[0-9]+}} = load atomic volatile i16, ptr %{{[0-9]+}} acquire, align 2
+cir.func @test_cir_to_llvm_load_i16_acquire(%arg0: !cir.ptr<!cir.int<s, 16>>) -> !cir.int<s, 16> {
+  %0 = cir.load deref volatile align(2) atomic(acquire) %arg0 : !cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>
+  cir.return %0 : !cir.int<s, 16>
+}
+
+// CHECK-LABEL: define i16 @test_cir_to_llvm_load_i16_seq_cst
+// CHECK: %{{[0-9]+}} = load atomic volatile i16, ptr %{{[0-9]+}} seq_cst, align 2
+cir.func @test_cir_to_llvm_load_i16_seq_cst(%arg0: !cir.ptr<!cir.int<s, 16>>) -> !cir.int<s, 16> {
+  %0 = cir.load deref volatile align(2) atomic(seq_cst) %arg0 : !cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>
+  cir.return %0 : !cir.int<s, 16>
+}
+
+// CHECK-LABEL: define i32 @test_cir_to_llvm_load_i32_relaxed
+// CHECK: %{{[0-9]+}} = load atomic volatile i32, ptr %{{[0-9]+}} monotonic, align 4
+cir.func @test_cir_to_llvm_load_i32_relaxed(%arg0: !cir.ptr<!cir.int<s, 32>>) -> !cir.int<s, 32> {
+  %0 = cir.load deref volatile align(4) atomic(relaxed) %arg0 : !cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>
+  cir.return %0 : !cir.int<s, 32>
+}
+
+// CHECK-LABEL: define i32 @test_cir_to_llvm_load_i32_acquire
+// CHECK: %{{[0-9]+}} = load atomic volatile i32, ptr %{{[0-9]+}} acquire, align 4
+cir.func @test_cir_to_llvm_load_i32_acquire(%arg0: !cir.ptr<!cir.int<s, 32>>) -> !cir.int<s, 32> {
+  %0 = cir.load deref volatile align(4) atomic(acquire) %arg0 : !cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>
+  cir.return %0 : !cir.int<s, 32>
+}
+
+// CHECK-LABEL: define i32 @test_cir_to_llvm_load_i32_seq_cst
+// CHECK: %{{[0-9]+}} = load atomic volatile i32, ptr %{{[0-9]+}} seq_cst, align 4
+cir.func @test_cir_to_llvm_load_i32_seq_cst(%arg0: !cir.ptr<!cir.int<s, 32>>) -> !cir.int<s, 32> {
+  %0 = cir.load deref volatile align(4) atomic(seq_cst) %arg0 : !cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>
+  cir.return %0 : !cir.int<s, 32>
+}
+
+// CHECK-LABEL: define i64 @test_cir_to_llvm_load_i64_relaxed
+// CHECK: %{{[0-9]+}} = load atomic volatile i64, ptr %{{[0-9]+}} monotonic, align 8
+cir.func @test_cir_to_llvm_load_i64_relaxed(%arg0: !cir.ptr<!cir.int<s, 64>>) -> !cir.int<s, 64> {
+  %0 = cir.load deref volatile align(8) atomic(relaxed) %arg0 : !cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>
+  cir.return %0 : !cir.int<s, 64>
+}
+
+// CHECK-LABEL: define i64 @test_cir_to_llvm_load_i64_acquire
+// CHECK: %{{[0-9]+}} = load atomic volatile i64, ptr %{{[0-9]+}} acquire, align 8
+cir.func @test_cir_to_llvm_load_i64_acquire(%arg0: !cir.ptr<!cir.int<s, 64>>) -> !cir.int<s, 64> {
+  %0 = cir.load deref volatile align(8) atomic(acquire) %arg0 : !cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>
+  cir.return %0 : !cir.int<s, 64>
+}
+
+// CHECK-LABEL: define i64 @test_cir_to_llvm_load_i64_seq_cst
+// CHECK: %{{[0-9]+}} = load atomic volatile i64, ptr %{{[0-9]+}} seq_cst, align 8
+cir.func @test_cir_to_llvm_load_i64_seq_cst(%arg0: !cir.ptr<!cir.int<s, 64>>) -> !cir.int<s, 64> {
+  %0 = cir.load deref volatile align(8) atomic(seq_cst) %arg0 : !cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>
+  cir.return %0 : !cir.int<s, 64>
+}
+
+// CHECK-LABEL: define float @test_cir_to_llvm_load_f32_relaxed
+// CHECK: %{{[0-9]+}} = load atomic volatile float, ptr %{{[0-9]+}} monotonic, align 4
+cir.func @test_cir_to_llvm_load_f32_relaxed(%arg0: !cir.ptr<!cir.float>) -> !cir.float {
+  %0 = cir.load deref volatile align(4) atomic(relaxed) %arg0 : !cir.ptr<!cir.float>, !cir.float
+  cir.return %0 : !cir.float
+}
+
+// CHECK-LABEL: define float @test_cir_to_llvm_load_f32_acquire
+// CHECK: %{{[0-9]+}} = load atomic volatile float, ptr %{{[0-9]+}} acquire, align 4
+cir.func @test_cir_to_llvm_load_f32_acquire(%arg0: !cir.ptr<!cir.float>) -> !cir.float {
+  %0 = cir.load deref volatile align(4) atomic(acquire) %arg0 : !cir.ptr<!cir.float>, !cir.float
+  cir.return %0 : !cir.float
+}
+
+// CHECK-LABEL: define float @test_cir_to_llvm_load_f32_seq_cst
+// CHECK: %{{[0-9]+}} = load atomic volatile float, ptr %{{[0-9]+}} seq_cst, align 4
+cir.func @test_cir_to_llvm_load_f32_seq_cst(%arg0: !cir.ptr<!cir.float>) -> !cir.float {
+  %0 = cir.load deref volatile align(4) atomic(seq_cst) %arg0 : !cir.ptr<!cir.float>, !cir.float
+  cir.return %0 : !cir.float
+}
+
+// CHECK-LABEL: define double @test_cir_to_llvm_load_f64_relaxed
+// CHECK: %{{[0-9]+}} = load atomic volatile double, ptr %{{[0-9]+}} monotonic, align 8
+cir.func @test_cir_to_llvm_load_f64_relaxed(%arg0: !cir.ptr<!cir.double>) -> !cir.double {
+  %0 = cir.load deref volatile align(8) atomic(relaxed) %arg0 : !cir.ptr<!cir.double>, !cir.double
+  cir.return %0 : !cir.double
+}
+
+// CHECK-LABEL: define double @test_cir_to_llvm_load_f64_acquire
+// CHECK: %{{[0-9]+}} = load atomic volatile double, ptr %{{[0-9]+}} acquire, align 8
+cir.func @test_cir_to_llvm_load_f64_acquire(%arg0: !cir.ptr<!cir.double>) -> !cir.double {
+  %0 = cir.load deref volatile align(8) atomic(acquire) %arg0 : !cir.ptr<!cir.double>, !cir.double
+  cir.return %0 : !cir.double
+}
+
+// CHECK-LABEL: define double @test_cir_to_llvm_load_f64_seq_cst
+// CHECK: %{{[0-9]+}} = load atomic volatile double, ptr %{{[0-9]+}} seq_cst, align 8
+cir.func @test_cir_to_llvm_load_f64_seq_cst(%arg0: !cir.ptr<!cir.double>) -> !cir.double {
+  %0 = cir.load deref volatile align(8) atomic(seq_cst) %arg0 : !cir.ptr<!cir.double>, !cir.double
+  cir.return %0 : !cir.double
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i8_relaxed
+// CHECK: store atomic volatile i8 %{{[0-9]+}}, ptr %{{[0-9]+}} monotonic, align 1
+cir.func @test_cir_to_llvm_store_i8_relaxed(%arg0: !cir.int<s, 8>, %arg1: !cir.ptr<!cir.int<s, 8>>) {
+  cir.store volatile align(1) atomic(relaxed) %arg0, %arg1 : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i8_release
+// CHECK: store atomic volatile i8 %{{[0-9]+}}, ptr %{{[0-9]+}} release, align 1
+cir.func @test_cir_to_llvm_store_i8_release(%arg0: !cir.int<s, 8>, %arg1: !cir.ptr<!cir.int<s, 8>>) {
+  cir.store volatile align(1) atomic(release) %arg0, %arg1 : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i8_seq_cst
+// CHECK: store atomic volatile i8 %{{[0-9]+}}, ptr %{{[0-9]+}} seq_cst, align 1
+cir.func @test_cir_to_llvm_store_i8_seq_cst(%arg0: !cir.int<s, 8>, %arg1: !cir.ptr<!cir.int<s, 8>>) {
+  cir.store volatile align(1) atomic(seq_cst) %arg0, %arg1 : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i16_relaxed
+// CHECK: store atomic volatile i16 %{{[0-9]+}}, ptr %{{[0-9]+}} monotonic, align 2
+cir.func @test_cir_to_llvm_store_i16_relaxed(%arg0: !cir.int<s, 16>, %arg1: !cir.ptr<!cir.int<s, 16>>) {
+  cir.store volatile align(2) atomic(relaxed) %arg0, %arg1 : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i16_release
+// CHECK: store atomic volatile i16 %{{[0-9]+}}, ptr %{{[0-9]+}} release, align 2
+cir.func @test_cir_to_llvm_store_i16_release(%arg0: !cir.int<s, 16>, %arg1: !cir.ptr<!cir.int<s, 16>>) {
+  cir.store volatile align(2) atomic(release) %arg0, %arg1 : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i16_seq_cst
+// CHECK: store atomic volatile i16 %{{[0-9]+}}, ptr %{{[0-9]+}} seq_cst, align 2
+cir.func @test_cir_to_llvm_store_i16_seq_cst(%arg0: !cir.int<s, 16>, %arg1: !cir.ptr<!cir.int<s, 16>>) {
+  cir.store volatile align(2) atomic(seq_cst) %arg0, %arg1 : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i32_relaxed
+// CHECK: store atomic volatile i32 %{{[0-9]+}}, ptr %{{[0-9]+}} monotonic, align 4
+cir.func @test_cir_to_llvm_store_i32_relaxed(%arg0: !cir.int<s, 32>, %arg1: !cir.ptr<!cir.int<s, 32>>) {
+  cir.store volatile align(4) atomic(relaxed) %arg0, %arg1 : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i32_release
+// CHECK: store atomic volatile i32 %{{[0-9]+}}, ptr %{{[0-9]+}} release, align 4
+cir.func @test_cir_to_llvm_store_i32_release(%arg0: !cir.int<s, 32>, %arg1: !cir.ptr<!cir.int<s, 32>>) {
+  cir.store volatile align(4) atomic(release) %arg0, %arg1 : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i32_seq_cst
+// CHECK: store atomic volatile i32 %{{[0-9]+}}, ptr %{{[0-9]+}} seq_cst, align 4
+cir.func @test_cir_to_llvm_store_i32_seq_cst(%arg0: !cir.int<s, 32>, %arg1: !cir.ptr<!cir.int<s, 32>>) {
+  cir.store volatile align(4) atomic(seq_cst) %arg0, %arg1 : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i64_relaxed
+// CHECK: store atomic volatile i64 %{{[0-9]+}}, ptr %{{[0-9]+}} monotonic, align 8
+cir.func @test_cir_to_llvm_store_i64_relaxed(%arg0: !cir.int<s, 64>, %arg1: !cir.ptr<!cir.int<s, 64>>) {
+  cir.store volatile align(8) atomic(relaxed) %arg0, %arg1 : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i64_release
+// CHECK: store atomic volatile i64 %{{[0-9]+}}, ptr %{{[0-9]+}} release, align 8
+cir.func @test_cir_to_llvm_store_i64_release(%arg0: !cir.int<s, 64>, %arg1: !cir.ptr<!cir.int<s, 64>>) {
+  cir.store volatile align(8) atomic(release) %arg0, %arg1 : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_i64_seq_cst
+// CHECK: store atomic volatile i64 %{{[0-9]+}}, ptr %{{[0-9]+}} seq_cst, align 8
+cir.func @test_cir_to_llvm_store_i64_seq_cst(%arg0: !cir.int<s, 64>, %arg1: !cir.ptr<!cir.int<s, 64>>) {
+  cir.store volatile align(8) atomic(seq_cst) %arg0, %arg1 : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_f32_relaxed
+// CHECK: store atomic volatile float %{{[0-9]+}}, ptr %{{[0-9]+}} monotonic, align 4
+cir.func @test_cir_to_llvm_store_f32_relaxed(%arg0: !cir.float, %arg1: !cir.ptr<!cir.float>) {
+  cir.store volatile align(4) atomic(relaxed) %arg0, %arg1 : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_f32_release
+// CHECK: store atomic volatile float %{{[0-9]+}}, ptr %{{[0-9]+}} release, align 4
+cir.func @test_cir_to_llvm_store_f32_release(%arg0: !cir.float, %arg1: !cir.ptr<!cir.float>) {
+  cir.store volatile align(4) atomic(release) %arg0, %arg1 : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_f32_seq_cst
+// CHECK: store atomic volatile float %{{[0-9]+}}, ptr %{{[0-9]+}} seq_cst, align 4
+cir.func @test_cir_to_llvm_store_f32_seq_cst(%arg0: !cir.float, %arg1: !cir.ptr<!cir.float>) {
+  cir.store volatile align(4) atomic(seq_cst) %arg0, %arg1 : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_f64_relaxed
+// CHECK: store atomic volatile double %{{[0-9]+}}, ptr %{{[0-9]+}} monotonic, align 8
+cir.func @test_cir_to_llvm_store_f64_relaxed(%arg0: !cir.double, %arg1: !cir.ptr<!cir.double>) {
+  cir.store volatile align(8) atomic(relaxed) %arg0, %arg1 : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_f64_release
+// CHECK: store atomic volatile double %{{[0-9]+}}, ptr %{{[0-9]+}} release, align 8
+cir.func @test_cir_to_llvm_store_f64_release(%arg0: !cir.double, %arg1: !cir.ptr<!cir.double>) {
+  cir.store volatile align(8) atomic(release) %arg0, %arg1 : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_store_f64_seq_cst
+// CHECK: store atomic volatile double %{{[0-9]+}}, ptr %{{[0-9]+}} seq_cst, align 8
+cir.func @test_cir_to_llvm_store_f64_seq_cst(%arg0: !cir.double, %arg1: !cir.ptr<!cir.double>) {
+  cir.store volatile align(8) atomic(seq_cst) %arg0, %arg1 : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_fence_acquire
+// CHECK: fence acquire
+cir.func @test_cir_to_llvm_fence_acquire() {
+  cir.atomic.fence syncscope(system) acquire
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_fence_release
+// CHECK: fence release
+cir.func @test_cir_to_llvm_fence_release() {
+  cir.atomic.fence syncscope(system) release
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_fence_acq_rel
+// CHECK: fence acq_rel
+cir.func @test_cir_to_llvm_fence_acq_rel() {
+  cir.atomic.fence syncscope(system) acq_rel
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_fence_seq_cst
+// CHECK: fence seq_cst
+cir.func @test_cir_to_llvm_fence_seq_cst() {
+  cir.atomic.fence syncscope(system) seq_cst
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_relaxed_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} monotonic monotonic, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_relaxed_relaxed(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_relaxed_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} monotonic acquire, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_relaxed_acquire(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_relaxed_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} monotonic seq_cst, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_relaxed_seqcst(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_acquire_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} acquire monotonic, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_acquire_relaxed(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_acquire_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} acquire acquire, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_acquire_acquire(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_acquire_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} acquire seq_cst, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_acquire_seqcst(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_release_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} release monotonic, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_release_relaxed(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_release_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} release acquire, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_release_acquire(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_release_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} release seq_cst, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_release_seqcst(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_acqrel_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} acq_rel monotonic, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_acqrel_relaxed(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_acqrel_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} acq_rel acquire, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_acqrel_acquire(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_acqrel_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} acq_rel seq_cst, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_acqrel_seqcst(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_seqcst_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} seq_cst monotonic, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_seqcst_relaxed(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_seqcst_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} seq_cst acquire, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_seqcst_acquire(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i8_seqcst_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i8 %{{[0-9]+}}, i8 %{{[0-9]+}} seq_cst seq_cst, align 1
+cir.func @test_cir_to_llvm_cmpxchg_i8_seqcst_seqcst(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>, %arg2 : !cir.int<s, 8>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(1) : (!cir.ptr<!cir.int<s, 8>>, !cir.int<s, 8>, !cir.int<s, 8>) -> (!cir.int<s, 8>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_relaxed_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} monotonic monotonic, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_relaxed_relaxed(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_relaxed_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} monotonic acquire, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_relaxed_acquire(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_relaxed_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} monotonic seq_cst, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_relaxed_seqcst(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_acquire_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} acquire monotonic, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_acquire_relaxed(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_acquire_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} acquire acquire, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_acquire_acquire(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_acquire_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} acquire seq_cst, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_acquire_seqcst(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_release_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} release monotonic, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_release_relaxed(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_release_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} release acquire, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_release_acquire(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_release_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} release seq_cst, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_release_seqcst(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_acqrel_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} acq_rel monotonic, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_acqrel_relaxed(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_acqrel_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} acq_rel acquire, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_acqrel_acquire(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_acqrel_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} acq_rel seq_cst, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_acqrel_seqcst(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_seqcst_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} seq_cst monotonic, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_seqcst_relaxed(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_seqcst_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} seq_cst acquire, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_seqcst_acquire(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i16_seqcst_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i16 %{{[0-9]+}}, i16 %{{[0-9]+}} seq_cst seq_cst, align 2
+cir.func @test_cir_to_llvm_cmpxchg_i16_seqcst_seqcst(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>, %arg2 : !cir.int<s, 16>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(2) : (!cir.ptr<!cir.int<s, 16>>, !cir.int<s, 16>, !cir.int<s, 16>) -> (!cir.int<s, 16>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_relaxed_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} monotonic monotonic, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_relaxed_relaxed(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_relaxed_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} monotonic acquire, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_relaxed_acquire(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_relaxed_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} monotonic seq_cst, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_relaxed_seqcst(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_acquire_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} acquire monotonic, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_acquire_relaxed(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_acquire_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} acquire acquire, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_acquire_acquire(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_acquire_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} acquire seq_cst, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_acquire_seqcst(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_release_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} release monotonic, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_release_relaxed(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_release_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} release acquire, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_release_acquire(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_release_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} release seq_cst, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_release_seqcst(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_acqrel_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} acq_rel monotonic, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_acqrel_relaxed(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_acqrel_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} acq_rel acquire, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_acqrel_acquire(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_acqrel_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} acq_rel seq_cst, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_acqrel_seqcst(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_seqcst_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} seq_cst monotonic, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_seqcst_relaxed(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_seqcst_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} seq_cst acquire, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_seqcst_acquire(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i32_seqcst_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i32 %{{[0-9]+}}, i32 %{{[0-9]+}} seq_cst seq_cst, align 4
+cir.func @test_cir_to_llvm_cmpxchg_i32_seqcst_seqcst(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>, %arg2 : !cir.int<s, 32>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(4) : (!cir.ptr<!cir.int<s, 32>>, !cir.int<s, 32>, !cir.int<s, 32>) -> (!cir.int<s, 32>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_relaxed_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} monotonic monotonic, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_relaxed_relaxed(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_relaxed_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} monotonic acquire, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_relaxed_acquire(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_relaxed_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} monotonic seq_cst, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_relaxed_seqcst(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(relaxed) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_acquire_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} acquire monotonic, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_acquire_relaxed(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_acquire_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} acquire acquire, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_acquire_acquire(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_acquire_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} acquire seq_cst, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_acquire_seqcst(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(acquire) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_release_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} release monotonic, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_release_relaxed(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_release_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} release acquire, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_release_acquire(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_release_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} release seq_cst, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_release_seqcst(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(release) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_acqrel_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} acq_rel monotonic, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_acqrel_relaxed(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_acqrel_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} acq_rel acquire, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_acqrel_acquire(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_acqrel_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} acq_rel seq_cst, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_acqrel_seqcst(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(acq_rel) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_seqcst_relaxed
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} seq_cst monotonic, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_seqcst_relaxed(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(relaxed) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_seqcst_acquire
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} seq_cst acquire, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_seqcst_acquire(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(acquire) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
+// CHECK-LABEL: define void @test_cir_to_llvm_cmpxchg_i64_seqcst_seqcst
+// CHECK: %{{[0-9]+}} = cmpxchg ptr %{{[0-9]+}}, i64 %{{[0-9]+}}, i64 %{{[0-9]+}} seq_cst seq_cst, align 8
+cir.func @test_cir_to_llvm_cmpxchg_i64_seqcst_seqcst(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>, %arg2 : !cir.int<s, 64>) {
+  %0:2 = cir.atomic.cmpxchg success(seq_cst) failure(seq_cst) syncscope(system) %arg0, %arg1, %arg2 align(8) : (!cir.ptr<!cir.int<s, 64>>, !cir.int<s, 64>, !cir.int<s, 64>) -> (!cir.int<s, 64>, !cir.bool)
+  cir.return
+}
+
