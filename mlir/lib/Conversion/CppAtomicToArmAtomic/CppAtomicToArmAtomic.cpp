@@ -74,6 +74,27 @@ static arm_atomic::MemoryOrder convertFenceMemoryOrder(cpp_atomic::MemoryOrder c
   llvm_unreachable("Unknown CppAtomic memory order for fence");
 }
 
+static std::pair<arm_atomic::MemoryOrder, arm_atomic::MemoryOrder>
+convertCASMemoryOrders(cpp_atomic::MemoryOrder succ, cpp_atomic::MemoryOrder fail) {
+  // cas = compare and swap = relaxed
+  // casl = release
+  // casa = acquire
+  // casal = acquire release
+  
+  using Cpp = cpp_atomic::MemoryOrder;
+  using Arm = arm_atomic::MemoryOrder;
+  
+  if (succ == Cpp::SeqCst || fail == Cpp::SeqCst || succ == Cpp::AcqRel || (succ == Cpp::Release && fail == Cpp::Acquire)) {
+    return {Arm::AcqRel, Arm::Relaxed};
+  }
+
+  if (succ == Cpp::Acquire || fail == Cpp::Acquire) return {Arm::Acquire, Arm::Relaxed};
+
+  if (succ == Cpp::Release) return {Arm::Release, Arm::Relaxed};
+
+  return {Arm::Relaxed, Arm::Relaxed};
+}
+
 struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
 
   LoadRewriter(MLIRContext *context) 
@@ -86,7 +107,10 @@ struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
     auto memOrder = convertLoadMemoryOrder(loadOp.getMemoryOrder());
     uint64_t alignment = loadOp.getAlignment();
 
-    rewriter.replaceOpWithNewOp<arm_atomic::AtomicLoadOp>(loadOp, addr, memOrder, alignment);
+    bool isDeref = loadOp.getIsDerefAttr() != nullptr;
+    bool isVolatile = loadOp.getIsVolatileAttr() != nullptr;  
+
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicLoadOp>(loadOp, addr, memOrder, alignment, isDeref, isVolatile);
     return success();
   }
 };
@@ -104,12 +128,15 @@ struct StoreRewriter : public OpConversionPattern<cpp_atomic::AtomicStoreOp> {
     auto memOrder = convertStoreMemoryOrder(storeOp.getMemoryOrder());
     uint64_t alignment = storeOp.getAlignment();
 
-    rewriter.replaceOpWithNewOp<arm_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, alignment);
+    bool isVolatile = storeOp.getIsVolatileAttr() != nullptr;  
+
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, alignment, isVolatile);
     return success();
   }
 };
 
 struct FenceRewriter : public OpConversionPattern<cpp_atomic::AtomicFenceOp> {
+
   FenceRewriter(MLIRContext *context) 
       : OpConversionPattern<cpp_atomic::AtomicFenceOp>(context) {}
 
@@ -123,10 +150,45 @@ struct FenceRewriter : public OpConversionPattern<cpp_atomic::AtomicFenceOp> {
   }
 };
 
+struct CmpXchgRewriter : public OpConversionPattern<cpp_atomic::AtomicCmpXchgOp> {
+
+  CmpXchgRewriter(MLIRContext *context)
+      : OpConversionPattern<cpp_atomic::AtomicCmpXchgOp>(context) {}
+
+  LogicalResult matchAndRewrite(cpp_atomic::AtomicCmpXchgOp cmpOp, OpAdaptor adaptor,
+                              ConversionPatternRewriter &rewriter) const override {
+
+    auto [armSuccess, armFailure] = convertCASMemoryOrders(
+      cmpOp.getSuccessOrder(), 
+      cmpOp.getFailureOrder()
+    );
+
+    uint64_t alignment = cmpOp.getAlignment();
+
+    bool isWeak = cmpOp.getWeakAttr() != nullptr;
+    bool isVolatile = cmpOp.getIsVolatileAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicCmpXchgOp>(
+        cmpOp, 
+        adaptor.getAddr(), 
+        adaptor.getExpected(), 
+        adaptor.getDesired(), 
+        armSuccess, 
+        armFailure, 
+        alignment,
+        isWeak,
+        isVolatile
+    );
+        
+    return success();
+  }
+};
+
 void populateCppToArmPatterns(RewritePatternSet &patterns) {
   patterns.add<LoadRewriter>(patterns.getContext());
   patterns.add<StoreRewriter>(patterns.getContext());
   patterns.add<FenceRewriter>(patterns.getContext());
+  patterns.add<CmpXchgRewriter>(patterns.getContext());
 }
 
 //===----------------------------------------------------------------------===//

@@ -48,6 +48,19 @@ static cpp_atomic::MemoryOrder convertMemoryOrder(std::optional<cir::MemOrder> c
   }
 }
 
+static cpp_atomic::MemoryOrder convertFenceMemoryOrder(cir::MemOrder cirOrder) {
+
+  switch (cirOrder) {
+    case cir::MemOrder::Relaxed: return cpp_atomic::MemoryOrder::Relaxed;
+    case cir::MemOrder::Acquire: return cpp_atomic::MemoryOrder::Acquire;
+    case cir::MemOrder::Release: return cpp_atomic::MemoryOrder::Release;
+    case cir::MemOrder::AcquireRelease: return cpp_atomic::MemoryOrder::AcqRel;
+    case cir::MemOrder::SequentiallyConsistent: return cpp_atomic::MemoryOrder::SeqCst;
+    default:
+      llvm_unreachable("Unknown memory order");
+  }
+}
+
 struct LoadRewriter : public OpConversionPattern<cir::LoadOp> {
 
   LoadRewriter(MLIRContext *context)
@@ -68,7 +81,10 @@ struct LoadRewriter : public OpConversionPattern<cir::LoadOp> {
           loadOp, "Atomic operations strictly require a non-zero alignment.");
     }
 
-    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicLoadOp>(loadOp, addr, memOrder, align);
+    bool isDeref = loadOp.getIsDerefAttr() != nullptr;
+    bool isVolatile = loadOp.getIsVolatileAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicLoadOp>(loadOp, addr, memOrder, align, isDeref, isVolatile);
     return success();
   }
 };
@@ -94,7 +110,9 @@ struct StoreRewriter : public OpConversionPattern<cir::StoreOp> {
           storeOp, "Atomic operations strictly require a non-zero alignment.");
     }
 
-    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, align);
+    bool isVolatile = storeOp.getIsVolatileAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, align, isVolatile);
     return success();
   }
 };
@@ -108,18 +126,60 @@ struct FenceRewriter : public OpConversionPattern<cir::AtomicFenceOp> {
                                 ConversionPatternRewriter &rewriter) const override {
     
 
-    auto memOrder = convertMemoryOrder(std::make_optional(fenceOp.getOrdering()));
+    auto memOrder = convertFenceMemoryOrder(fenceOp.getOrdering());
     
     rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(fenceOp, memOrder);
     
     return success();
   }
-};  
+};
+
+struct CmpXchgRewriter : public OpConversionPattern<cir::AtomicCmpXchgOp> {
+
+  CmpXchgRewriter(MLIRContext *context)
+      : OpConversionPattern<cir::AtomicCmpXchgOp>(context) {}
+
+  LogicalResult matchAndRewrite(cir::AtomicCmpXchgOp cmpOp, OpAdaptor adaptor,
+                              ConversionPatternRewriter &rewriter) const override {
+
+    auto successOrder = convertMemoryOrder(cmpOp.getSuccOrder());
+    auto failureOrder = convertMemoryOrder(cmpOp.getFailOrder());
+
+    unsigned align = cmpOp.getAlignmentAttr() 
+                    ? static_cast<unsigned>(*cmpOp.getAlignment()) : 0;
+    
+    if (align == 0) {
+      return rewriter.notifyMatchFailure(
+        cmpOp, "Atomic operations strictly require a non-zero alignment.");
+      }
+      
+    bool isWeak = cmpOp.getWeakAttr() != nullptr;
+    bool isVolatile = cmpOp.getIsVolatileAttr() != nullptr;
+
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicCmpXchgOp>(
+        cmpOp, 
+        adaptor.getPtr(),
+        adaptor.getExpected(), 
+        adaptor.getDesired(), 
+        successOrder, 
+        failureOrder, 
+        align,
+        isWeak,   
+        isVolatile
+    );
+      
+    return success();
+  }
+};
+
+
 
 void populateCIRToCppAtomicPatterns(RewritePatternSet &patterns) {
   patterns.add<LoadRewriter>(patterns.getContext());
   patterns.add<StoreRewriter>(patterns.getContext());
   patterns.add<FenceRewriter>(patterns.getContext());
+  patterns.add<CmpXchgRewriter>(patterns.getContext());
 }
 
 //===----------------------------------------------------------------------===//
@@ -142,6 +202,7 @@ void CIRToCppAtomicPass::runOnOperation() {
   target.addDynamicallyLegalOp<cir::StoreOp>([](cir::StoreOp op) { return !op.getMemOrder().has_value(); });
 
   target.addIllegalOp<cir::AtomicFenceOp>();
+  target.addIllegalOp<cir::AtomicCmpXchgOp>();
 
   RewritePatternSet patterns(context);
 

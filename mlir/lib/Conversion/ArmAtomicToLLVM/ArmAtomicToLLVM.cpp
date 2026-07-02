@@ -83,11 +83,13 @@ struct AtomicLoadLowering
     if (!resultTy)
       return rewriter.notifyMatchFailure(op, "unconvertible result type");
 
-    unsigned align = op.getAlignment();  
+    unsigned align = op.getAlignment(); 
+    
+    bool isVolatile = op.getIsVolatileAttr() != nullptr;
 
     rewriter.replaceOpWithNewOp<LLVM::LoadOp>(
         op, resultTy, adaptor.getAddr(), align,
-        /*isVolatile=*/false, /*isNonTemporal=*/false,
+        isVolatile, /*isNonTemporal=*/false,
         /*isInvariant=*/false, /*isInvariantGroup=*/false,
         toAtomicOrdering(op.getMemoryOrder()));
     return success();
@@ -104,9 +106,11 @@ struct AtomicStoreLowering
 
     unsigned align = op.getAlignment();
 
+    bool isVolatile = op.getIsVolatileAttr() != nullptr;
+
     rewriter.replaceOpWithNewOp<LLVM::StoreOp>(
         op, adaptor.getValue(), adaptor.getAddr(), align,
-        /*isVolatile=*/false, /*isNonTemporal=*/false,
+        isVolatile, /*isNonTemporal=*/false,
         /*isInvariantGroup=*/false,
         toAtomicOrdering(op.getMemoryOrder()));
     return success();
@@ -133,13 +137,62 @@ struct AtomicFenceLowering
   }
 };
 
+struct AtomicCmpXchgLowering : public ConvertOpToLLVMPattern<arm_atomic::AtomicCmpXchgOp> {
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult
+  matchAndRewrite(arm_atomic::AtomicCmpXchgOp op, OpAdaptor adaptor,
+                  ConversionPatternRewriter &rewriter) const override {
+
+    Type loadedTy = typeConverter->convertType(op.getLoaded().getType());
+
+    bool isWeak = op.getWeakAttr() != nullptr;
+    bool isVolatile = op.getIsVolatileAttr() != nullptr;
+    uint64_t align = op.getAlignment();
+
+    auto llvmCmpXchg = LLVM::AtomicCmpXchgOp::create(
+        rewriter,
+        op.getLoc(),
+        adaptor.getAddr(),
+        adaptor.getExpected(),
+        adaptor.getDesired(),
+        toAtomicOrdering(op.getSuccessOrder()),
+        toAtomicOrdering(op.getFailureOrder()),
+        llvm::StringRef(), // syncscope
+        align,
+        isWeak,
+        isVolatile
+    );
+
+    Value loadedVal = LLVM::ExtractValueOp::create(
+        rewriter,
+        op.getLoc(), 
+        loadedTy, 
+        llvmCmpXchg.getResult(), 
+        rewriter.getDenseI64ArrayAttr({0})
+    );
+
+    Value successBool = LLVM::ExtractValueOp::create(
+        rewriter,
+        op.getLoc(), 
+        rewriter.getI1Type(), 
+        llvmCmpXchg.getResult(), 
+        rewriter.getDenseI64ArrayAttr({1})
+    );
+
+    rewriter.replaceOp(op, {loadedVal, successBool});
+    
+    return success();
+  }
+};
+
 //===----------------------------------------------------------------------===//
 // Pass
 //===----------------------------------------------------------------------===//
 
 void mlir::populateArmAtomicToLLVMPatterns(LLVMTypeConverter &converter,
                                            RewritePatternSet &patterns) {
-  patterns.add<AtomicLoadLowering, AtomicStoreLowering, AtomicFenceLowering>(converter);
+  patterns.add<AtomicLoadLowering, AtomicStoreLowering, AtomicFenceLowering, AtomicCmpXchgLowering>(converter);
 }
 
 namespace {

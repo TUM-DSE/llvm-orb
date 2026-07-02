@@ -100,7 +100,9 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
 
   let arguments = (ins CIR_AnyPtrType:$addr, 
                       MemoryOrderAttr:$memory_order,
-                      I64Attr:$alignment);
+                      I64Attr:$alignment,
+                      UnitAttr:$isDeref,
+                      UnitAttr:$is_volatile);
 
   let results = (outs AnyType:$result);
 
@@ -109,7 +111,9 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
   let builders = [
     OpBuilder<(ins "Value":$addr,
                    "::mlir::cpp_atomic::MemoryOrder":$memory_order,
-                   "uint64_t":$alignment), [{
+                   "uint64_t":$alignment,
+                   "bool":$isDeref,
+                   "bool":$is_volatile), [{
 
       auto ptrType = ::llvm::cast<cir::PointerType>(addr.getType());
       $_state.addTypes(ptrType.getPointee());
@@ -123,11 +127,21 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", [
       auto alignAttr = ::mlir::IntegerAttr::get(
           ::mlir::IntegerType::get($_builder.getContext(), 64), alignment);
       $_state.addAttribute("alignment", alignAttr);
+
+      if (isDeref) {
+        $_state.addAttribute("isDeref", $_builder.getUnitAttr());
+      }
+      if (is_volatile) {
+        $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
+      }
     }]>
   ];
 
   let assemblyFormat = [{ 
-    $addr `memory_order` `(` $memory_order `)` `align` `(` $alignment `)` attr-dict `:` type($addr) 
+    (`deref` $isDeref^)? 
+    (`volatile` $is_volatile^)? 
+    $addr `memory_order` `(` $memory_order `)` `align` `(` $alignment `)` 
+    attr-dict `:` type($addr) 
   }];
 }
 
@@ -163,7 +177,8 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
   let arguments = (ins AnyType:$value,
                       CIR_AnyPtrType:$addr, 
                       MemoryOrderAttr:$memory_order,
-                      I64Attr:$alignment);
+                      I64Attr:$alignment,
+                      UnitAttr:$is_volatile);
 
   let results = (outs);                    
   
@@ -173,7 +188,8 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
     OpBuilder<(ins "Value":$value,
                    "Value":$addr,
                    "::mlir::cpp_atomic::MemoryOrder":$memory_order,
-                   "uint64_t":$alignment), [{
+                   "uint64_t":$alignment,
+                   "bool":$is_volatile), [{
                    
       $_state.addOperands(value);
       $_state.addOperands(addr);
@@ -185,11 +201,17 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", [
       auto alignAttr = ::mlir::IntegerAttr::get(
           ::mlir::IntegerType::get($_builder.getContext(), 64), alignment);
       $_state.addAttribute("alignment", alignAttr);
+
+      if (is_volatile) {
+        $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
+      }
     }]>
   ];
 
   let assemblyFormat = [{ 
-    $value `,` $addr `memory_order` `(` $memory_order `)` `align` `(` $alignment `)` attr-dict `:` type($addr) 
+    (`volatile` $is_volatile^)? 
+    $value `,` $addr `memory_order` `(` $memory_order `)` `align` `(` $alignment `)` 
+    attr-dict `:` type($value) `,` type($addr) 
   }];
 }
 
@@ -221,6 +243,102 @@ def AtomicFenceOp : Op<CppAtomic_Dialect, "atomic_fence"> {
 
   let assemblyFormat = [{
     `memory_order` `(` $memory_order `)` attr-dict
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// AtomicCmpXchgOp
+//===----------------------------------------------------------------------===//
+
+def AtomicCmpXchgOp : Op<CppAtomic_Dialect, "atomic_cmpxchg", [
+    TypesMatchWith<"expected type matches pointee type of 'addr'", 
+                   "addr", "expected", 
+                   "::llvm::cast<cir::PointerType>($_self).getPointee()">,
+    TypesMatchWith<"desired type matches pointee type of 'addr'", 
+                   "addr", "desired", 
+                   "::llvm::cast<cir::PointerType>($_self).getPointee()">,
+    TypesMatchWith<"loaded type matches pointee type of 'addr'", 
+                   "addr", "loaded", 
+                   "::llvm::cast<cir::PointerType>($_self).getPointee()">,
+  ]> {
+  let summary = "atomic compare-and-exchange operation";
+  let description = [{
+    The `atomic_cmpxchg` op atomically compares the value at the pointer address 
+    with the `expected` value. If they are equal, it replaces the memory with the 
+    `desired` value. 
+
+    It returns two values:
+    1. The value that was actually loaded from memory.
+    2. A boolean (i1) indicating if the exchange was successful.
+
+    Example:
+    ```mlir
+    %loaded, %success = cpp_atomic.atomic_cmpxchg %ptr, %expected, %desired 
+        success_order(seq_cst) failure_order(acquire) align(4) : !cir.ptr<i32>, i1
+    ```
+  }];
+
+  let arguments = (ins CIR_AnyPtrType:$addr,
+                       AnyType:$expected,
+                       AnyType:$desired,
+                       MemoryOrderAttr:$success_order,
+                       MemoryOrderAttr:$failure_order,
+                       I64Attr:$alignment,
+                       UnitAttr:$weak,
+                       UnitAttr:$is_volatile);
+
+  let results = (outs AnyType:$loaded, AnyType:$success);                  
+  
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "Value":$addr,
+                   "Value":$expected,
+                   "Value":$desired,
+                   "::mlir::cpp_atomic::MemoryOrder":$success_order,
+                   "::mlir::cpp_atomic::MemoryOrder":$failure_order,
+                   "uint64_t":$alignment,
+                   "bool":$weak,
+                   "bool":$is_volatile), [{
+                   
+      $_state.addOperands(addr);
+      $_state.addOperands(expected);
+      $_state.addOperands(desired);
+      
+      auto successAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
+          $_builder.getContext(), success_order);
+      $_state.addAttribute("success_order", successAttr);
+
+      auto failureAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
+          $_builder.getContext(), failure_order);
+      $_state.addAttribute("failure_order", failureAttr);
+      
+      auto alignAttr = ::mlir::IntegerAttr::get(
+          ::mlir::IntegerType::get($_builder.getContext(), 64), alignment);
+      $_state.addAttribute("alignment", alignAttr);
+
+      if (weak) {
+        $_state.addAttribute("weak", $_builder.getUnitAttr());
+      }
+      if (is_volatile) {
+        $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
+      }
+
+      auto ptrType = ::llvm::cast<cir::PointerType>(addr.getType());
+      $_state.addTypes(ptrType.getPointee()); 
+      
+      $_state.addTypes(cir::BoolType::get($_builder.getContext()));
+    }]>
+  ];
+
+  let assemblyFormat = [{ 
+    (`weak` $weak^)? 
+    (`volatile` $is_volatile^)? 
+    $addr `,` $expected `,` $desired 
+    `success_order` `(` $success_order `)` 
+    `failure_order` `(` $failure_order `)` 
+    `align` `(` $alignment `)` 
+    attr-dict `:` type($addr) `,` type($success)
   }];
 }
 
