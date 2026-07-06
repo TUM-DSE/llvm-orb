@@ -707,3 +707,4905 @@ cir.func @test_arm_cmpxchg_i64_seqcst_seqcst(%arg0 : !cir.ptr<!cir.int<s, 64>>, 
   cir.return
 }
 
+// --- 5. ATOMIC FETCH ---
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_add_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_add_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_add_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_add_vol_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_sub_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_sub_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_and_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_and_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_and_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_and_vol_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_or_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_or_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_or_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_or_vol_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_xor_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_xor_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_max_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_min_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_relaxed_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_relaxed_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_add_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_add_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_add_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_add_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_sub_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_sub_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_and_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_and_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_and_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_and_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_or_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_or_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_or_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_or_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_xor_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_xor_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_max_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_min_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acquire_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acquire_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_add_
+cir.func @test_cpp_to_arm_fetch_i8_release_add_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_add_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_add_vol_
+cir.func @test_cpp_to_arm_fetch_i8_release_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_sub_
+cir.func @test_cpp_to_arm_fetch_i8_release_sub_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i8_release_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_and_
+cir.func @test_cpp_to_arm_fetch_i8_release_and_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_and_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_and_vol_
+cir.func @test_cpp_to_arm_fetch_i8_release_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_or_
+cir.func @test_cpp_to_arm_fetch_i8_release_or_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_or_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_or_vol_
+cir.func @test_cpp_to_arm_fetch_i8_release_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_xor_
+cir.func @test_cpp_to_arm_fetch_i8_release_xor_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i8_release_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_max_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_min_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_release_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_release_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_add_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_add_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_add_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_add_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_sub_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_sub_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_and_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_and_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_and_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_and_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_or_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_or_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_or_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_or_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_xor_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_xor_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_max_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_min_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_acqrel_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_acqrel_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_add_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_add_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_add_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_add_vol_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_sub_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_sub_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_and_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_and_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_and_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_and_vol_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_or_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_or_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_or_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_or_vol_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_xor_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_xor_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_max_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_min_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i8_seqcst_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i8_seqcst_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_add_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_add_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_add_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_add_vol_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_sub_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_sub_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_and_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_and_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_and_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_and_vol_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_or_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_or_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_or_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_or_vol_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_xor_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_xor_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_max_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_min_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_relaxed_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_relaxed_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_add_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_add_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_add_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_add_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_sub_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_sub_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_and_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_and_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_and_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_and_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_or_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_or_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_or_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_or_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_xor_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_xor_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_max_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_min_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acquire_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acquire_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_add_
+cir.func @test_cpp_to_arm_fetch_i16_release_add_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_add_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_add_vol_
+cir.func @test_cpp_to_arm_fetch_i16_release_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_sub_
+cir.func @test_cpp_to_arm_fetch_i16_release_sub_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i16_release_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_and_
+cir.func @test_cpp_to_arm_fetch_i16_release_and_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_and_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_and_vol_
+cir.func @test_cpp_to_arm_fetch_i16_release_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_or_
+cir.func @test_cpp_to_arm_fetch_i16_release_or_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_or_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_or_vol_
+cir.func @test_cpp_to_arm_fetch_i16_release_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_xor_
+cir.func @test_cpp_to_arm_fetch_i16_release_xor_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i16_release_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_max_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_min_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_release_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_release_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_add_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_add_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_add_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_add_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_sub_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_sub_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_and_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_and_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_and_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_and_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_or_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_or_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_or_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_or_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_xor_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_xor_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_max_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_min_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_acqrel_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_acqrel_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_add_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_add_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_add_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_add_vol_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_sub_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_sub_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_and_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_and_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_and_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_and_vol_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_or_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_or_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_or_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_or_vol_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_xor_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_xor_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_max_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_min_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i16_seqcst_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i16_seqcst_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_add_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_add_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_add_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_add_vol_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_sub_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_sub_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_and_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_and_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_and_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_and_vol_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_or_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_or_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_or_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_or_vol_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_xor_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_xor_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_max_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_min_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_relaxed_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_relaxed_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_add_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_add_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_add_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_add_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_sub_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_sub_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_and_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_and_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_and_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_and_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_or_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_or_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_or_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_or_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_xor_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_xor_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_max_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_min_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acquire_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acquire_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_add_
+cir.func @test_cpp_to_arm_fetch_i32_release_add_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_add_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_add_vol_
+cir.func @test_cpp_to_arm_fetch_i32_release_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_sub_
+cir.func @test_cpp_to_arm_fetch_i32_release_sub_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i32_release_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_and_
+cir.func @test_cpp_to_arm_fetch_i32_release_and_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_and_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_and_vol_
+cir.func @test_cpp_to_arm_fetch_i32_release_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_or_
+cir.func @test_cpp_to_arm_fetch_i32_release_or_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_or_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_or_vol_
+cir.func @test_cpp_to_arm_fetch_i32_release_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_xor_
+cir.func @test_cpp_to_arm_fetch_i32_release_xor_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i32_release_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_max_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_min_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_release_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_release_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_add_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_add_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_add_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_add_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_sub_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_sub_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_and_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_and_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_and_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_and_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_or_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_or_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_or_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_or_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_xor_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_xor_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_max_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_min_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_acqrel_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_acqrel_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_add_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_add_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_add_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_add_vol_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_sub_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_sub_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_and_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_and_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_and_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_and_vol_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_or_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_or_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_or_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_or_vol_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_xor_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_xor_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_max_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_min_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i32_seqcst_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i32_seqcst_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_add_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_add_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_add_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_add_vol_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_sub_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_sub_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_and_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_and_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_and_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_and_vol_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_or_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_or_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_or_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_or_vol_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_xor_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_xor_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_max_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_min_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_relaxed_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_relaxed_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_add_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_add_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_add_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_add_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_sub_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_sub_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_and_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_and_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_and_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_and_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_or_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_or_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_or_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_or_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_xor_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_xor_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_max_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_min_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acquire_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acquire_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_add_
+cir.func @test_cpp_to_arm_fetch_i64_release_add_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_add_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_add_vol_
+cir.func @test_cpp_to_arm_fetch_i64_release_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_sub_
+cir.func @test_cpp_to_arm_fetch_i64_release_sub_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i64_release_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_and_
+cir.func @test_cpp_to_arm_fetch_i64_release_and_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_and_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_and_vol_
+cir.func @test_cpp_to_arm_fetch_i64_release_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_or_
+cir.func @test_cpp_to_arm_fetch_i64_release_or_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_or_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_or_vol_
+cir.func @test_cpp_to_arm_fetch_i64_release_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_xor_
+cir.func @test_cpp_to_arm_fetch_i64_release_xor_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i64_release_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_max_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_min_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_release_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_release_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_add_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_add_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_add_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_add_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_sub_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_sub_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_and_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_and_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_and_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_and_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_or_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_or_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_or_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_or_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_xor_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_xor_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_max_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_min_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_acqrel_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_acqrel_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_add_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_add_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_add_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_add_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_add_vol_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_add_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_add_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_sub_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_sub_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_sub_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_sub_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_sub_vol_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_sub_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_sub_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_and_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_and_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_and_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_and_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_and_vol_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_and_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_and_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_and_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 2 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_or_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_or_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_or_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_or_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_or_vol_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_or_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_or_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_or_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 3 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_xor_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_xor_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_xor_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_xor_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_xor_vol_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_xor_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_xor_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_xor_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 4 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_nand_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_nand_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 5 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_nand_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_nand_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 5 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_max_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_max_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_max_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_min_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_min_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_i64_seqcst_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_i64_seqcst_min_vol_ff_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_add_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_add_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_add_ff_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_add_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_add_vol_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_add_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_add_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_sub_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_sub_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_sub_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_sub_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_sub_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_max_ff_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_max_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_max_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_min_ff_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_min_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_relaxed_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_relaxed_min_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_add_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_add_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_add_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_add_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_add_vol_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_add_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_add_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_sub_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_sub_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_sub_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_sub_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_sub_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_max_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_max_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_max_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_min_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_min_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acquire_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acquire_min_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_add_
+cir.func @test_cpp_to_arm_fetch_f32_release_add_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_add_ff_
+cir.func @test_cpp_to_arm_fetch_f32_release_add_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_add_vol_
+cir.func @test_cpp_to_arm_fetch_f32_release_add_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_release_add_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_sub_
+cir.func @test_cpp_to_arm_fetch_f32_release_sub_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f32_release_sub_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f32_release_sub_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_release_sub_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_max_ff_
+cir.func @test_cpp_to_arm_fetch_f32_release_max_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_release_max_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_min_ff_
+cir.func @test_cpp_to_arm_fetch_f32_release_min_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_release_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_release_min_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_add_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_add_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_add_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_add_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_add_vol_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_add_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_add_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_sub_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_sub_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_sub_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_sub_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_sub_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_max_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_max_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_max_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_min_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_min_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_acqrel_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_acqrel_min_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_add_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_add_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_add_ff_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_add_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_add_vol_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_add_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_add_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_sub_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_sub_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_sub_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_sub_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_sub_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_max_ff_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_max_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_max_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_min_ff_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_min_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f32_seqcst_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f32_seqcst_min_vol_ff_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_add_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_add_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_add_ff_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_add_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_add_vol_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_add_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_add_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_sub_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_sub_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_sub_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_sub_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_sub_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_max_ff_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_max_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_max_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_min_ff_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_min_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_relaxed_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_relaxed_min_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_add_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_add_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_add_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_add_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_add_vol_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_add_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_add_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_sub_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_sub_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_sub_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_sub_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_sub_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_max_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_max_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_max_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_min_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_min_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acquire_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acquire_min_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_add_
+cir.func @test_cpp_to_arm_fetch_f64_release_add_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_add_ff_
+cir.func @test_cpp_to_arm_fetch_f64_release_add_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_add_vol_
+cir.func @test_cpp_to_arm_fetch_f64_release_add_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_release_add_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_sub_
+cir.func @test_cpp_to_arm_fetch_f64_release_sub_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f64_release_sub_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f64_release_sub_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_release_sub_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_max_ff_
+cir.func @test_cpp_to_arm_fetch_f64_release_max_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_release_max_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_min_ff_
+cir.func @test_cpp_to_arm_fetch_f64_release_min_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_release_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_release_min_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_add_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_add_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_add_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_add_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_add_vol_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_add_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_add_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_sub_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_sub_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_sub_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_sub_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_sub_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_max_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_max_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_max_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_min_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_min_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_acqrel_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_acqrel_min_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_add_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_add_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_add_ff_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_add_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_add_vol_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_add_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_add_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_add_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 0 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_sub_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_sub_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_sub_ff_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_sub_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_sub_vol_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_sub_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_sub_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_sub_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 1 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_max_ff_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_max_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_max_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_max_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 6 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_min_ff_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_min_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_fetch_f64_seqcst_min_vol_ff_
+cir.func @test_cpp_to_arm_fetch_f64_seqcst_min_vol_ff_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_fetch volatile fetch_first 7 : i32 %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// --- 6. ATOMIC XCHG ---
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_relaxed_
+cir.func @test_cpp_to_arm_xchg_i8_relaxed_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_relaxed_vol_
+cir.func @test_cpp_to_arm_xchg_i8_relaxed_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_acquire_
+cir.func @test_cpp_to_arm_xchg_i8_acquire_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_acquire_vol_
+cir.func @test_cpp_to_arm_xchg_i8_acquire_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_release_
+cir.func @test_cpp_to_arm_xchg_i8_release_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_release_vol_
+cir.func @test_cpp_to_arm_xchg_i8_release_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_acqrel_
+cir.func @test_cpp_to_arm_xchg_i8_acqrel_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_acqrel_vol_
+cir.func @test_cpp_to_arm_xchg_i8_acqrel_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_seqcst_
+cir.func @test_cpp_to_arm_xchg_i8_seqcst_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i8_seqcst_vol_
+cir.func @test_cpp_to_arm_xchg_i8_seqcst_vol_(%arg0 : !cir.ptr<!cir.int<s, 8>>, %arg1 : !cir.int<s, 8>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 8>, !cir.ptr<!cir.int<s, 8>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_relaxed_
+cir.func @test_cpp_to_arm_xchg_i16_relaxed_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_relaxed_vol_
+cir.func @test_cpp_to_arm_xchg_i16_relaxed_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_acquire_
+cir.func @test_cpp_to_arm_xchg_i16_acquire_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_acquire_vol_
+cir.func @test_cpp_to_arm_xchg_i16_acquire_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_release_
+cir.func @test_cpp_to_arm_xchg_i16_release_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_release_vol_
+cir.func @test_cpp_to_arm_xchg_i16_release_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_acqrel_
+cir.func @test_cpp_to_arm_xchg_i16_acqrel_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_acqrel_vol_
+cir.func @test_cpp_to_arm_xchg_i16_acqrel_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_seqcst_
+cir.func @test_cpp_to_arm_xchg_i16_seqcst_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i16_seqcst_vol_
+cir.func @test_cpp_to_arm_xchg_i16_seqcst_vol_(%arg0 : !cir.ptr<!cir.int<s, 16>>, %arg1 : !cir.int<s, 16>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 16>, !cir.ptr<!cir.int<s, 16>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_relaxed_
+cir.func @test_cpp_to_arm_xchg_i32_relaxed_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_relaxed_vol_
+cir.func @test_cpp_to_arm_xchg_i32_relaxed_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_acquire_
+cir.func @test_cpp_to_arm_xchg_i32_acquire_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_acquire_vol_
+cir.func @test_cpp_to_arm_xchg_i32_acquire_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_release_
+cir.func @test_cpp_to_arm_xchg_i32_release_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_release_vol_
+cir.func @test_cpp_to_arm_xchg_i32_release_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_acqrel_
+cir.func @test_cpp_to_arm_xchg_i32_acqrel_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_acqrel_vol_
+cir.func @test_cpp_to_arm_xchg_i32_acqrel_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_seqcst_
+cir.func @test_cpp_to_arm_xchg_i32_seqcst_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i32_seqcst_vol_
+cir.func @test_cpp_to_arm_xchg_i32_seqcst_vol_(%arg0 : !cir.ptr<!cir.int<s, 32>>, %arg1 : !cir.int<s, 32>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 32>, !cir.ptr<!cir.int<s, 32>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_relaxed_
+cir.func @test_cpp_to_arm_xchg_i64_relaxed_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_relaxed_vol_
+cir.func @test_cpp_to_arm_xchg_i64_relaxed_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_acquire_
+cir.func @test_cpp_to_arm_xchg_i64_acquire_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_acquire_vol_
+cir.func @test_cpp_to_arm_xchg_i64_acquire_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_release_
+cir.func @test_cpp_to_arm_xchg_i64_release_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_release_vol_
+cir.func @test_cpp_to_arm_xchg_i64_release_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_acqrel_
+cir.func @test_cpp_to_arm_xchg_i64_acqrel_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_acqrel_vol_
+cir.func @test_cpp_to_arm_xchg_i64_acqrel_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_seqcst_
+cir.func @test_cpp_to_arm_xchg_i64_seqcst_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_i64_seqcst_vol_
+cir.func @test_cpp_to_arm_xchg_i64_seqcst_vol_(%arg0 : !cir.ptr<!cir.int<s, 64>>, %arg1 : !cir.int<s, 64>) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(4 : i32) : !cir.int<s, 64>, !cir.ptr<!cir.int<s, 64>>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_relaxed_
+cir.func @test_cpp_to_arm_xchg_f32_relaxed_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_relaxed_vol_
+cir.func @test_cpp_to_arm_xchg_f32_relaxed_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_acquire_
+cir.func @test_cpp_to_arm_xchg_f32_acquire_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_acquire_vol_
+cir.func @test_cpp_to_arm_xchg_f32_acquire_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_release_
+cir.func @test_cpp_to_arm_xchg_f32_release_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_release_vol_
+cir.func @test_cpp_to_arm_xchg_f32_release_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_acqrel_
+cir.func @test_cpp_to_arm_xchg_f32_acqrel_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_acqrel_vol_
+cir.func @test_cpp_to_arm_xchg_f32_acqrel_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_seqcst_
+cir.func @test_cpp_to_arm_xchg_f32_seqcst_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f32_seqcst_vol_
+cir.func @test_cpp_to_arm_xchg_f32_seqcst_vol_(%arg0 : !cir.ptr<!cir.float>, %arg1 : !cir.float) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(4 : i32) : !cir.float, !cir.ptr<!cir.float>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_relaxed_
+cir.func @test_cpp_to_arm_xchg_f64_relaxed_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_relaxed_vol_
+cir.func @test_cpp_to_arm_xchg_f64_relaxed_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(0 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_acquire_
+cir.func @test_cpp_to_arm_xchg_f64_acquire_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_acquire_vol_
+cir.func @test_cpp_to_arm_xchg_f64_acquire_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(1 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_release_
+cir.func @test_cpp_to_arm_xchg_f64_release_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_release_vol_
+cir.func @test_cpp_to_arm_xchg_f64_release_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(2 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_acqrel_
+cir.func @test_cpp_to_arm_xchg_f64_acqrel_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_acqrel_vol_
+cir.func @test_cpp_to_arm_xchg_f64_acqrel_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_seqcst_
+cir.func @test_cpp_to_arm_xchg_f64_seqcst_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+
+// CHECK-LABEL: cir.func @test_cpp_to_arm_xchg_f64_seqcst_vol_
+cir.func @test_cpp_to_arm_xchg_f64_seqcst_vol_(%arg0 : !cir.ptr<!cir.double>, %arg1 : !cir.double) {
+  // CHECK: arm_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(3 : i32)
+  %0 = cpp_atomic.atomic_xchg volatile %arg1, %arg0 memory_order(4 : i32) : !cir.double, !cir.ptr<!cir.double>
+  cir.return
+}
+

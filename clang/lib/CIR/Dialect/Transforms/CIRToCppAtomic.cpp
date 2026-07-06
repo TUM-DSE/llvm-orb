@@ -48,8 +48,9 @@ static cpp_atomic::MemoryOrder convertMemoryOrder(std::optional<cir::MemOrder> c
   }
 }
 
-static cpp_atomic::MemoryOrder convertFenceMemoryOrder(cir::MemOrder cirOrder) {
 
+static cpp_atomic::MemoryOrder convertFenceMemoryOrder(cir::MemOrder cirOrder) {
+  
   switch (cirOrder) {
     case cir::MemOrder::Relaxed: return cpp_atomic::MemoryOrder::Relaxed;
     case cir::MemOrder::Acquire: return cpp_atomic::MemoryOrder::Acquire;
@@ -57,7 +58,22 @@ static cpp_atomic::MemoryOrder convertFenceMemoryOrder(cir::MemOrder cirOrder) {
     case cir::MemOrder::AcquireRelease: return cpp_atomic::MemoryOrder::AcqRel;
     case cir::MemOrder::SequentiallyConsistent: return cpp_atomic::MemoryOrder::SeqCst;
     default:
-      llvm_unreachable("Unknown memory order");
+    llvm_unreachable("Unknown memory order");
+  }
+}
+
+static cpp_atomic::BinOp convertBinOp(cir::AtomicFetchKind kind) {
+  switch (kind) {
+    case cir::AtomicFetchKind::Add: return cpp_atomic::BinOp::Add;
+    case cir::AtomicFetchKind::Sub: return cpp_atomic::BinOp::Sub;
+    case cir::AtomicFetchKind::And: return cpp_atomic::BinOp::And;
+    case cir::AtomicFetchKind::Or:  return cpp_atomic::BinOp::Or;
+    case cir::AtomicFetchKind::Xor: return cpp_atomic::BinOp::Xor;
+    case cir::AtomicFetchKind::Nand: return cpp_atomic::BinOp::Nand;
+    case cir::AtomicFetchKind::Max: return cpp_atomic::BinOp::Max;
+    case cir::AtomicFetchKind::Min: return cpp_atomic::BinOp::Min;
+    default: 
+      llvm_unreachable("Unsupported CIR atomic fetch kind");
   }
 }
 
@@ -173,13 +189,63 @@ struct CmpXchgRewriter : public OpConversionPattern<cir::AtomicCmpXchgOp> {
   }
 };
 
+struct FetchRewriter : public mlir::OpConversionPattern<cir::AtomicFetchOp> {
+  
+  FetchRewriter(MLIRContext *context)
+      : OpConversionPattern<cir::AtomicFetchOp>(context) {}
 
+  LogicalResult matchAndRewrite(cir::AtomicFetchOp fetchOp, OpAdaptor adaptor,
+                              ConversionPatternRewriter &rewriter) const override {
+
+    auto memOrder = convertMemoryOrder(fetchOp.getMemOrder());
+    auto binOp = convertBinOp(fetchOp.getBinop());
+
+    bool isVolatile = fetchOp.getIsVolatileAttr() != nullptr;
+    bool fetchFirst = fetchOp.getFetchFirstAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFetchOp>(
+        fetchOp,
+        adaptor.getVal(),
+        adaptor.getPtr(),
+        binOp,
+        memOrder,
+        isVolatile,
+        fetchFirst
+    );
+
+    return success();
+  }
+};
+
+struct XchgRewriter : public OpConversionPattern<cir::AtomicXchgOp> {
+
+  XchgRewriter(MLIRContext *context)
+      : OpConversionPattern<cir::AtomicXchgOp>(context) {}
+
+  LogicalResult matchAndRewrite(cir::AtomicXchgOp xchgOp, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+                                
+    auto memOrder = convertFenceMemoryOrder(xchgOp.getMemOrder()); 
+    bool isVolatile = xchgOp.getIsVolatileAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicXchgOp>(
+        xchgOp,
+        adaptor.getVal(), 
+        adaptor.getPtr(),
+        memOrder,
+        isVolatile
+    );
+    return success();
+  }
+};
 
 void populateCIRToCppAtomicPatterns(RewritePatternSet &patterns) {
   patterns.add<LoadRewriter>(patterns.getContext());
   patterns.add<StoreRewriter>(patterns.getContext());
   patterns.add<FenceRewriter>(patterns.getContext());
   patterns.add<CmpXchgRewriter>(patterns.getContext());
+  patterns.add<FetchRewriter>(patterns.getContext());
+  patterns.add<XchgRewriter>(patterns.getContext());
 }
 
 //===----------------------------------------------------------------------===//
@@ -203,6 +269,8 @@ void CIRToCppAtomicPass::runOnOperation() {
 
   target.addIllegalOp<cir::AtomicFenceOp>();
   target.addIllegalOp<cir::AtomicCmpXchgOp>();
+  target.addIllegalOp<cir::AtomicFetchOp>();
+  target.addIllegalOp<cir::AtomicXchgOp>();
 
   RewritePatternSet patterns(context);
 

@@ -38,6 +38,10 @@ def CppAtomic_Dialect : Dialect {
 // CppAtomic enum definitions
 //===----------------------------------------------------------------------===//
 
+//===----------------------------------------------------------------------===//
+// Memory Order Enum
+//===----------------------------------------------------------------------===//
+
 def MemoryOrderRelaxed   : I32EnumAttrCase<"Relaxed", 0, "relaxed">;
 def MemoryOrderAcquire   : I32EnumAttrCase<"Acquire", 1, "acquire">;
 def MemoryOrderRelease   : I32EnumAttrCase<"Release", 2, "release">;
@@ -56,6 +60,39 @@ def MemoryOrder : I32EnumAttr<
     }
 
 def MemoryOrderAttr : EnumAttr<CppAtomic_Dialect, MemoryOrder, "memory_order">;
+
+//===----------------------------------------------------------------------===//
+// Atomic Fetch Binary Operations Enum
+//===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
+// Atomic Fetch Binary Operations Enum
+//===----------------------------------------------------------------------===//
+
+def BinOpAdd  : I32EnumAttrCase<"Add",  0, "add">;
+def BinOpSub  : I32EnumAttrCase<"Sub",  1, "sub">;
+def BinOpAnd  : I32EnumAttrCase<"And",  2, "and">;
+def BinOpOr   : I32EnumAttrCase<"Or",   3, "or">;
+def BinOpXor  : I32EnumAttrCase<"Xor",  4, "xor">;
+def BinOpNand : I32EnumAttrCase<"Nand", 5, "nand">;
+def BinOpMax  : I32EnumAttrCase<"Max",  6, "max">;
+def BinOpMin  : I32EnumAttrCase<"Min",  7, "min">;
+
+def BinOp : I32EnumAttr<
+    "BinOp", "C++ atomic fetch binary operations", [
+      BinOpAdd,
+      BinOpSub,
+      BinOpAnd,
+      BinOpOr,
+      BinOpXor,
+      BinOpNand,
+      BinOpMax,
+      BinOpMin
+    ]> {
+      let cppNamespace = "mlir::cpp_atomic";
+    }
+
+def BinOpAttr : EnumAttr<CppAtomic_Dialect, BinOp, "binop">;
 
 //===----------------------------------------------------------------------===//
 // CppAtomic type definition
@@ -342,5 +379,121 @@ def AtomicCmpXchgOp : Op<CppAtomic_Dialect, "atomic_cmpxchg", [
   }];
 }
 
+//===----------------------------------------------------------------------===//
+// AtomicFetchOp
+//===----------------------------------------------------------------------===//
+
+def AtomicFetchOp : Op<CppAtomic_Dialect, "atomic_fetch", [
+        TypesMatchWith<"result type matches pointee type of 'addr'", "addr", "result",
+                       "::llvm::cast<cir::PointerType>($_self).getPointee()">,
+        AllTypesMatch<["value", "result"]>
+    ]> {
+  let summary = "atomic fetch-and-modify operation";
+  let description = [{
+    The `atomic_fetch` op atomically reads a value, performs a binary operation, 
+    and stores it back. 
+
+    If `fetch_first` is true, it returns the old value that was loaded. If false, 
+    it returns the value that resulted from the binary operation.
+  }];
+
+  let arguments = (ins AnyType:$value,
+                       CIR_AnyPtrType:$addr,
+                       BinOpAttr:$binop,
+                       MemoryOrderAttr:$memory_order,
+                       UnitAttr:$is_volatile,
+                       UnitAttr:$fetch_first);
+
+  let results = (outs AnyType:$result);
+
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "Value":$value,
+                   "Value":$addr,
+                   "::mlir::cpp_atomic::BinOp":$binop,
+                   "::mlir::cpp_atomic::MemoryOrder":$memory_order,
+                   "bool":$is_volatile,
+                   "bool":$fetch_first), [{
+      
+      $_state.addOperands(value);
+      $_state.addOperands(addr);
+      $_state.addTypes(value.getType());
+      
+      auto binopAttr = ::mlir::cpp_atomic::BinOpAttr::get(
+          $_builder.getContext(), binop);
+      $_state.addAttribute("binop", binopAttr);
+
+      auto orderAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
+          $_builder.getContext(), memory_order);
+      $_state.addAttribute("memory_order", orderAttr);
+
+      if (is_volatile) $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
+      if (fetch_first) $_state.addAttribute("fetch_first", $_builder.getUnitAttr());
+    }]>
+  ];
+
+  let assemblyFormat = [{ 
+    (`volatile` $is_volatile^)? (`fetch_first` $fetch_first^)?
+    $binop $value `,` $addr `memory_order` `(` $memory_order `)` 
+    attr-dict `:` type($value) `,` type($addr) 
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// AtomicXchgOp
+//===----------------------------------------------------------------------===//
+
+def AtomicXchgOp : Op<CppAtomic_Dialect, "atomic_xchg", [
+    AllTypesMatch<["result", "value"]>,
+    TypesMatchWith<"value type matches pointee type of 'addr'", 
+                   "addr", "value", 
+                   "::llvm::cast<cir::PointerType>($_self).getPointee()">
+  ]> {
+  let summary = "atomic exchange operation";
+  let description = [{
+    The `atomic_xchg` op atomically replaces the value of the object pointed-to
+    by `addr` with `value`, and returns the original value of the object.
+
+    Example:
+    ```mlir
+    %res = cpp_atomic.atomic_xchg %val, %ptr memory_order(seq_cst) : i32, !cir.ptr<i32>
+    ```
+  }];
+
+  let arguments = (ins AnyType:$value,
+                       CIR_AnyPtrType:$addr, 
+                       MemoryOrderAttr:$memory_order,
+                       UnitAttr:$is_volatile);
+
+  let results = (outs AnyType:$result);                  
+  
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "Value":$value,
+                   "Value":$addr,
+                   "::mlir::cpp_atomic::MemoryOrder":$memory_order,
+                   "bool":$is_volatile), [{
+                   
+      $_state.addOperands(value);
+      $_state.addOperands(addr);
+      
+      $_state.addTypes(value.getType());
+      
+      auto orderAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
+          $_builder.getContext(), memory_order);
+      $_state.addAttribute("memory_order", orderAttr);
+
+      if (is_volatile) $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
+    }]>
+  ];
+
+  let assemblyFormat = [{ 
+    (`volatile` $is_volatile^)? 
+    $value `,` $addr `memory_order` `(` $memory_order `)` 
+    attr-dict `:` type($value) `,` type($addr) 
+  }];
+}
 
 #endif // CPPATOMIC_OPS

@@ -68,6 +68,23 @@ toAtomicOrdering(arm_atomic::MemoryOrder order) {
   llvm_unreachable("unhandled ArmAtomic MemoryOrder");
 }
 
+static LLVM::AtomicBinOp convertToLLVMBinOp(arm_atomic::BinOp op, Type valType) {
+  bool isFloat = llvm::isa<mlir::FloatType>(valType);
+
+  switch (op) {
+    case arm_atomic::BinOp::Add:  return isFloat ? LLVM::AtomicBinOp::fadd : LLVM::AtomicBinOp::add;
+    case arm_atomic::BinOp::Sub:  return isFloat ? LLVM::AtomicBinOp::fsub : LLVM::AtomicBinOp::sub;
+    case arm_atomic::BinOp::Max:  return isFloat ? LLVM::AtomicBinOp::fmax : LLVM::AtomicBinOp::max;
+    case arm_atomic::BinOp::Min:  return isFloat ? LLVM::AtomicBinOp::fmin : LLVM::AtomicBinOp::min;
+    
+    case arm_atomic::BinOp::And:  return LLVM::AtomicBinOp::_and;
+    case arm_atomic::BinOp::Or:   return LLVM::AtomicBinOp::_or;
+    case arm_atomic::BinOp::Xor:  return LLVM::AtomicBinOp::_xor;
+    case arm_atomic::BinOp::Nand: return LLVM::AtomicBinOp::nand;
+  }
+  llvm_unreachable("Unknown ArmAtomic BinOp");
+}
+
 //===----------------------------------------------------------------------===//
 // Patterns
 //===----------------------------------------------------------------------===//
@@ -186,13 +203,113 @@ struct AtomicCmpXchgLowering : public ConvertOpToLLVMPattern<arm_atomic::AtomicC
   }
 };
 
+struct AtomicFetchLowering : public ConvertOpToLLVMPattern<arm_atomic::AtomicFetchOp> {
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult 
+  matchAndRewrite(arm_atomic::AtomicFetchOp op, OpAdaptor adaptor,
+                  ConversionPatternRewriter &rewriter) const override {
+                    
+    Type valType = adaptor.getValue().getType();
+    LLVM::AtomicBinOp llvmBinOp = convertToLLVMBinOp(op.getBinop(), valType);
+
+    bool isVolatile = op.getIsVolatileAttr() != nullptr;
+    bool isFloat = llvm::isa<mlir::FloatType>(valType);
+
+    if (op.getFetchFirst()) {
+      rewriter.replaceOpWithNewOp<LLVM::AtomicRMWOp>(
+        op,
+        llvmBinOp,
+        adaptor.getAddr(),
+        adaptor.getValue(),
+        toAtomicOrdering(op.getMemoryOrder()),
+        /*syncscope*/llvm::StringRef(),
+        /*alignment*/0,
+        isVolatile
+      );
+      return success();
+    }
+
+    auto rmwOp = LLVM::AtomicRMWOp::create(
+      rewriter, 
+      op.getLoc(), 
+      llvmBinOp, 
+      adaptor.getAddr(), 
+      adaptor.getValue(),
+      toAtomicOrdering(op.getMemoryOrder()), 
+      /*syncscope*/llvm::StringRef(),
+      /*alignment*/0,
+      isVolatile
+    );
+
+    Value result = rmwOp.getResult();
+    Location loc = op.getLoc();
+    Value val = adaptor.getValue();
+
+    if (isFloat) {
+      switch (llvmBinOp) {
+        case LLVM::AtomicBinOp::fadd: 
+          result = LLVM::FAddOp::create(rewriter, loc, result, val); break;
+        case LLVM::AtomicBinOp::fsub: 
+          result = LLVM::FSubOp::create(rewriter, loc, result, val); break;
+        default:
+          llvm::errs() << "Warning: fetch_first=false not implemented for Float Min/Max.\n";
+          break;
+      }
+    } else {
+      switch (llvmBinOp) {
+        case LLVM::AtomicBinOp::add: 
+          result = LLVM::AddOp::create(rewriter, loc, result, val); break;
+        case LLVM::AtomicBinOp::sub: 
+          result = LLVM::SubOp::create(rewriter, loc, result, val); break;
+        case LLVM::AtomicBinOp::_and: 
+          result = LLVM::AndOp::create(rewriter, loc, result, val); break;
+        case LLVM::AtomicBinOp::_or: 
+          result = LLVM::OrOp::create(rewriter, loc, result, val); break;
+        case LLVM::AtomicBinOp::_xor: 
+          result = LLVM::XOrOp::create(rewriter, loc, result, val); break;
+        default:
+          llvm::errs() << "Warning: fetch_first=false not implemented for Integer Min/Max/Nand.\n";
+          break;
+      }
+    }  
+
+    rewriter.replaceOp(op, result);
+    return success();
+  }
+};
+
+struct AtomicXchgLowering : public ConvertOpToLLVMPattern<arm_atomic::AtomicXchgOp> {
+  using ConvertOpToLLVMPattern::ConvertOpToLLVMPattern;
+
+  LogicalResult 
+  matchAndRewrite(arm_atomic::AtomicXchgOp op, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+
+    bool isVolatile = op.getIsVolatileAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<LLVM::AtomicRMWOp>(
+        op, 
+        LLVM::AtomicBinOp::xchg, 
+        adaptor.getAddr(), 
+        adaptor.getValue(),
+        toAtomicOrdering(op.getMemoryOrder()), 
+        /*syncscope*/llvm::StringRef(),
+        /*alignment*/0,
+        isVolatile
+    );
+
+    return success();
+  }
+};
+
 //===----------------------------------------------------------------------===//
 // Pass
 //===----------------------------------------------------------------------===//
 
 void mlir::populateArmAtomicToLLVMPatterns(LLVMTypeConverter &converter,
                                            RewritePatternSet &patterns) {
-  patterns.add<AtomicLoadLowering, AtomicStoreLowering, AtomicFenceLowering, AtomicCmpXchgLowering>(converter);
+  patterns.add<AtomicLoadLowering, AtomicStoreLowering, AtomicFenceLowering, AtomicCmpXchgLowering, AtomicFetchLowering, AtomicXchgLowering>(converter);
 }
 
 namespace {

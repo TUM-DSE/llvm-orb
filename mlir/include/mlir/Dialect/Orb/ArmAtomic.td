@@ -35,6 +35,10 @@ def ArmAtomic_Dialect : Dialect {
 // ArmAtomic Enum definition
 //===----------------------------------------------------------------------===//
 
+//===----------------------------------------------------------------------===//
+// Memory Order Enum
+//===----------------------------------------------------------------------===//
+
 def ArmMemoryOrderRelaxed : I32EnumAttrCase<"Relaxed", 0, "relaxed">;
 def ArmMemoryOrderAcquire : I32EnumAttrCase<"Acquire", 1, "acquire">;
 def ArmMemoryOrderRelease : I32EnumAttrCase<"Release", 2, "release">;
@@ -52,6 +56,35 @@ def ArmMemoryOrder : I32EnumAttr<
 }
 
 def ArmMemoryOrderAttr : EnumAttr<ArmAtomic_Dialect, ArmMemoryOrder, "memory_order">;
+
+//===----------------------------------------------------------------------===//
+// Atomic Fetch Binary Operations Enum
+//===----------------------------------------------------------------------===//
+
+def BinOpAdd  : I32EnumAttrCase<"Add",  0, "add">;
+def BinOpSub  : I32EnumAttrCase<"Sub",  1, "sub">;
+def BinOpAnd  : I32EnumAttrCase<"And",  2, "and">;
+def BinOpOr   : I32EnumAttrCase<"Or",   3, "or">;
+def BinOpXor  : I32EnumAttrCase<"Xor",  4, "xor">;
+def BinOpNand : I32EnumAttrCase<"Nand", 5, "nand">;
+def BinOpMax  : I32EnumAttrCase<"Max",  6, "max">;
+def BinOpMin  : I32EnumAttrCase<"Min",  7, "min">;
+
+def BinOp : I32EnumAttr<
+    "BinOp", "ARM atomic fetch binary operations", [
+      BinOpAdd,
+      BinOpSub,
+      BinOpAnd,
+      BinOpOr,
+      BinOpXor,
+      BinOpNand,
+      BinOpMax,
+      BinOpMin
+    ]> {
+      let cppNamespace = "mlir::arm_atomic";
+    }
+
+def BinOpAttr : EnumAttr<ArmAtomic_Dialect, BinOp, "binop">;
 
 //===----------------------------------------------------------------------===//
 // ArmAtomic type definition
@@ -299,6 +332,117 @@ def AtomicCmpXchgOp : Op<ArmAtomic_Dialect, "atomic_cmpxchg", [
     `failure_order` `(` $failure_order `)` 
     `align` `(` $alignment `)` 
     attr-dict `:` type($addr) `,` type($success)
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// AtomicFetchOp
+//===----------------------------------------------------------------------===//
+
+def AtomicFetchOp : Op<ArmAtomic_Dialect, "atomic_fetch", [
+        TypesMatchWith<"result type matches pointee type of 'addr'", "addr", "result",
+                       "::llvm::cast<cir::PointerType>($_self).getPointee()">,
+        AllTypesMatch<["value", "result"]>
+    ]> {
+  let summary = "arm atomic fetch-and-modify operation";
+  let description = [{
+    The `atomic_fetch` op atomically reads a value, performs a binary operation, 
+    and stores it back. 
+
+    If `fetch_first` is true, it returns the old value that was loaded. If false, 
+    it returns the value that resulted from the binary operation.
+  }];
+
+  let arguments = (ins AnyType:$value,
+                       CIR_AnyPtrType:$addr,
+                       BinOpAttr:$binop,
+                       ArmMemoryOrderAttr:$memory_order,
+                       UnitAttr:$is_volatile,
+                       UnitAttr:$fetch_first);
+
+  let results = (outs AnyType:$result);
+
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "Value":$value,
+                   "Value":$addr,
+                   "::mlir::arm_atomic::BinOp":$binop,
+                   "::mlir::arm_atomic::MemoryOrder":$memory_order,
+                   "bool":$is_volatile,
+                   "bool":$fetch_first), [{
+      
+      $_state.addOperands(value);
+      $_state.addOperands(addr);
+      $_state.addTypes(value.getType());
+      
+      auto binopAttr = ::mlir::arm_atomic::BinOpAttr::get(
+          $_builder.getContext(), binop);
+      $_state.addAttribute("binop", binopAttr);
+
+      auto orderAttr = ::mlir::arm_atomic::MemoryOrderAttr::get(
+          $_builder.getContext(), memory_order);
+      $_state.addAttribute("memory_order", orderAttr);
+
+      if (is_volatile) $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
+      if (fetch_first) $_state.addAttribute("fetch_first", $_builder.getUnitAttr());
+    }]>
+  ];
+
+  let assemblyFormat = [{ 
+    (`volatile` $is_volatile^)? (`fetch_first` $fetch_first^)?
+    $binop $value `,` $addr `memory_order` `(` $memory_order `)` 
+    attr-dict `:` type($value) `,` type($addr) 
+  }];
+}
+
+//===----------------------------------------------------------------------===//
+// AtomicXchgOp
+//===----------------------------------------------------------------------===//
+
+def AtomicXchgOp : Op<ArmAtomic_Dialect, "atomic_xchg", [
+    AllTypesMatch<["result", "value"]>,
+    TypesMatchWith<"value type matches pointee type of 'addr'", 
+                   "addr", "value", 
+                   "::llvm::cast<cir::PointerType>($_self).getPointee()">
+  ]> {
+  let summary = "ARM atomic exchange operation";
+  let description = [{
+    The `atomic_xchg` op atomically replaces the value of the object pointed-to
+    by `addr` with `value`, and returns the original value of the object.
+  }];
+
+  let arguments = (ins AnyType:$value,
+                       CIR_AnyPtrType:$addr, 
+                       ArmMemoryOrderAttr:$memory_order,
+                       UnitAttr:$is_volatile);
+
+  let results = (outs AnyType:$result);                  
+  
+  let skipDefaultBuilders = 1;
+
+  let builders = [
+    OpBuilder<(ins "Value":$value,
+                   "Value":$addr,
+                   "::mlir::arm_atomic::MemoryOrder":$memory_order,
+                   "bool":$is_volatile), [{
+                   
+      $_state.addOperands(value);
+      $_state.addOperands(addr);
+      $_state.addTypes(value.getType());
+      
+      auto orderAttr = ::mlir::arm_atomic::MemoryOrderAttr::get(
+          $_builder.getContext(), memory_order);
+      $_state.addAttribute("memory_order", orderAttr);
+
+      if (is_volatile) $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
+    }]>
+  ];
+
+  let assemblyFormat = [{ 
+    (`volatile` $is_volatile^)? 
+    $value `,` $addr `memory_order` `(` $memory_order `)` 
+    attr-dict `:` type($value) `,` type($addr) 
   }];
 }
 

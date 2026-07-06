@@ -19,6 +19,10 @@ alignment_map = {
     "i8": 1, "i16": 2, "i32": 4, "i64": 8, "f32": 4, "f64": 8
 }
 
+binops_map = {
+    "add": 0, "sub": 1, "and": 2, "or": 3, "xor": 4, "nand": 5, "max": 6, "min": 7
+}
+
 valid_cas_fails = ["relaxed", "acquire", "seq_cst"]
 
 def get_arm_load_order(order):
@@ -55,6 +59,14 @@ def get_llvm_type(cir_type_name):
     if cir_type_name == "f64": return "double"
     return cir_type_name
 
+def get_mlir_llvm_binop(binop_name, cir_type_name):
+    if cir_type_name in ["f32", "f64"]:
+        return "f" + binop_name
+    # MLIR LLVM dialect uses underscores for these three to avoid keyword conflicts
+    if binop_name in ["and", "or", "xor"]:
+        return "_" + binop_name
+    return binop_name    
+
 # CmpXchg Syntax Helpers for INPUT lines (Includes strict types)
 def fmt_cir_cmpxchg(align, succ, fail, t):
     return f"cir.atomic.cmpxchg success({succ}) failure({fail}) syncscope(system) %arg0, %arg1, %arg2 align({align}) : (!cir.ptr<{t}>, {t}, {t}) -> ({t}, !cir.bool)"
@@ -71,6 +83,51 @@ def check_cpp_cmpxchg(align, succ_int, fail_int):
 
 def check_arm_cmpxchg(align, succ_int, fail_int):
     return f"arm_atomic.atomic_cmpxchg %arg0, %arg1, %arg2 success_order({succ_int} : i32) failure_order({fail_int} : i32) align({align})"
+
+
+def is_valid_fetch(cir_type_name, binop_name, fetch_first):
+    if cir_type_name in ["f32", "f64"] and binop_name not in ["add", "sub", "max", "min"]:
+        return False
+    # We haven't implemented manual recalculation for min/max/nand when fetch_first=False
+    if not fetch_first and binop_name in ["min", "max", "nand"]:
+        return False
+    return True
+
+def get_llvm_binop(binop_name, cir_type_name):
+    if cir_type_name in ["f32", "f64"]:
+        return "f" + binop_name
+    return binop_name
+
+# Fetch Syntax Helpers
+def fmt_cir_fetch(binop_name, order_name, is_volatile, fetch_first, t):
+    vol = " volatile" if is_volatile else ""
+    ff = " fetch_first" if fetch_first else ""
+    return f"cir.atomic.fetch {binop_name} {order_name} syncscope(system){ff} %arg0, %arg1{vol} : (!cir.ptr<{t}>, {t}) -> {t}"
+
+def fmt_cpp_arm_fetch(dialect, binop_name, order_int, is_volatile, fetch_first, t):
+    vol = "volatile " if is_volatile else ""
+    ff = "fetch_first " if fetch_first else ""
+    binop_int = binops_map[binop_name]
+    return f"{dialect}.atomic_fetch {vol}{ff}{binop_int} : i32 %arg1, %arg0 memory_order({order_int} : i32) : {t}, !cir.ptr<{t}>"
+
+def check_cpp_arm_fetch(dialect, binop_name, order_int, is_volatile, fetch_first):
+    vol = "volatile " if is_volatile else ""
+    ff = "fetch_first " if fetch_first else ""
+    binop_int = binops_map[binop_name]
+    return f"{dialect}.atomic_fetch {vol}{ff}{binop_int} : i32 %arg1, %arg0 memory_order({order_int} : i32)"
+
+# Xchg Syntax Helpers
+def fmt_cir_xchg(order_name, is_volatile, t):
+    vol = " volatile" if is_volatile else ""
+    return f"cir.atomic.xchg {order_name} syncscope(system){vol} %arg0, %arg1 : (!cir.ptr<{t}>, {t}) -> {t}"
+
+def fmt_cpp_arm_xchg(dialect, order_int, is_volatile, t):
+    vol = "volatile " if is_volatile else ""
+    return f"{dialect}.atomic_xchg {vol}%arg1, %arg0 memory_order({order_int} : i32) : {t}, !cir.ptr<{t}>"
+
+def check_cpp_arm_xchg(dialect, order_int, is_volatile):
+    vol = "volatile " if is_volatile else ""
+    return f"{dialect}.atomic_xchg {vol}%arg1, %arg0 memory_order({order_int} : i32)"
 
 
 
@@ -142,7 +199,38 @@ def generate_cir_to_cpp():
                     f.write(f"  // CHECK: {check_cpp_cmpxchg(align_val, succ_int, fail_int)}\n")
                     f.write(f"  %0:2 = {fmt_cir_cmpxchg(align_val, succ_name, fail_name, cir_type)}\n  cir.return\n}}\n\n")
 
-    print(f"Generated {len(types_map) * 2 + len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) - 1 + (len(types_map) - 2) * len(orders_map) * len(orders_map)} tests in Phase 1: {filename}")
+        f.write("// --- 6. ATOMIC FETCH ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                for binop_name, binop_int in binops_map.items():
+                    for is_vol in [False, True]:
+                        for fetch_first in [False, True]:
+                            if not is_valid_fetch(name, binop_name, fetch_first): continue
+                            vol_str = "vol_" if is_vol else ""
+                            ff_str = "ff_" if fetch_first else ""
+                            func_name = f"test_cir_to_cpp_fetch_{name}_{order_name.replace('_', '')}_{binop_name}_{vol_str}{ff_str}"
+                            f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                            f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                            f.write(f"  // CHECK: {check_cpp_arm_fetch('cpp_atomic', binop_name, order_int, is_vol, fetch_first)}\n")
+                            f.write(f"  %0 = {fmt_cir_fetch(binop_name, order_name, is_vol, fetch_first, cir_type)}\n  cir.return\n}}\n\n")
+
+        f.write("// --- 7. ATOMIC XCHG ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                for is_vol in [False, True]:
+                    vol_str = "vol_" if is_vol else ""
+                    func_name = f"test_cir_to_cpp_xchg_{name}_{order_name.replace('_', '')}_{vol_str}"
+                    f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                    f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                    f.write(f"  // CHECK: {check_cpp_arm_xchg('cpp_atomic', order_int, is_vol)}\n")
+                    f.write(f"  %0 = {fmt_cir_xchg(order_name, is_vol, cir_type)}\n  cir.return\n}}\n\n")
+
+    print(f"Generated {len(types_map) * 2 + len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) - 1 + (len(types_map) - 2) 
+                       * len(orders_map) * len(orders_map) + 
+                       len(types_map) * len(orders_map) * len(binops_map) * 4 - 
+                       2 * len(orders_map) * (len(binops_map) - 4) * 4 - 
+                       len(types_map) * len(orders_map) * 3 * 2 + 
+                       2 * len(orders_map) * len(types_map)} tests in Phase 1: {filename}")
 
 
 
@@ -201,8 +289,40 @@ def generate_cpp_to_arm():
                     f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}, %arg2 : {cir_type}) {{\n")
                     f.write(f"  // CHECK: {check_arm_cmpxchg(align_val, orders_map[arm_succ], orders_map[arm_fail])}\n")
                     f.write(f"  %0:2 = {fmt_cpp_cmpxchg(align_val, succ_int, fail_int, cir_type)}\n  cir.return\n}}\n\n")
+        
+        f.write("// --- 5. ATOMIC FETCH ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_int = orders_map[get_arm_fence_order(order_name)]
+                for binop_name, binop_int in binops_map.items():
+                    for is_vol in [False, True]:
+                        for fetch_first in [False, True]:
+                            if not is_valid_fetch(name, binop_name, fetch_first): continue
+                            vol_str = "vol_" if is_vol else ""
+                            ff_str = "ff_" if fetch_first else ""
+                            func_name = f"test_cpp_to_arm_fetch_{name}_{order_name.replace('_', '')}_{binop_name}_{vol_str}{ff_str}"
+                            f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                            f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                            f.write(f"  // CHECK: {check_cpp_arm_fetch('arm_atomic', binop_name, arm_order_int, is_vol, fetch_first)}\n")
+                            f.write(f"  %0 = {fmt_cpp_arm_fetch('cpp_atomic', binop_name, order_int, is_vol, fetch_first, cir_type)}\n  cir.return\n}}\n\n")
 
-    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) - 1 + (len(types_map) - 2) * len(orders_map) * len(orders_map)} tests in Phase 2: {filename}")
+        f.write("// --- 6. ATOMIC XCHG ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_int = orders_map[get_arm_fence_order(order_name)]
+                for is_vol in [False, True]:
+                    vol_str = "vol_" if is_vol else ""
+                    func_name = f"test_cpp_to_arm_xchg_{name}_{order_name.replace('_', '')}_{vol_str}"
+                    f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                    f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                    f.write(f"  // CHECK: {check_cpp_arm_xchg('arm_atomic', arm_order_int, is_vol)}\n")
+                    f.write(f"  %0 = {fmt_cpp_arm_xchg('cpp_atomic', order_int, is_vol, cir_type)}\n  cir.return\n}}\n\n")
+
+    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) - 1 + (len(types_map) - 2) * len(orders_map) * len(orders_map) + 
+                       len(types_map) * len(orders_map) * len(binops_map) * 4 - 
+                       2 * len(orders_map) * (len(binops_map) - 4) * 4 - 
+                       len(types_map) * len(orders_map) * 3 * 2 + 
+                       2 * len(orders_map) * len(types_map)} tests in Phase 2: {filename}")
 
 
 
@@ -261,7 +381,39 @@ def generate_cir_to_arm():
                     f.write(f"  // CHECK: {check_arm_cmpxchg(align_val, orders_map[arm_succ], orders_map[arm_fail])}\n")
                     f.write(f"  %0:2 = {fmt_cir_cmpxchg(align_val, succ_name, fail_name, cir_type)}\n  cir.return\n}}\n\n")
 
-    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) - 1 + (len(types_map) - 2) * len(orders_map) * len(orders_map)} tests in Phase 3: {filename}")
+        f.write("// --- 5. ATOMIC FETCH ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_int = orders_map[get_arm_fence_order(order_name)]
+                for binop_name, binop_int in binops_map.items():
+                    for is_vol in [False, True]:
+                        for fetch_first in [False, True]:
+                            if not is_valid_fetch(name, binop_name, fetch_first): continue
+                            vol_str = "vol_" if is_vol else ""
+                            ff_str = "ff_" if fetch_first else ""
+                            func_name = f"test_cir_to_arm_fetch_{name}_{order_name.replace('_', '')}_{binop_name}_{vol_str}{ff_str}"
+                            f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                            f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                            f.write(f"  // CHECK: {check_cpp_arm_fetch('arm_atomic', binop_name, arm_order_int, is_vol, fetch_first)}\n")
+                            f.write(f"  %0 = {fmt_cir_fetch(binop_name, order_name, is_vol, fetch_first, cir_type)}\n  cir.return\n}}\n\n")
+
+        f.write("// --- 6. ATOMIC XCHG ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_int = orders_map[get_arm_fence_order(order_name)]
+                for is_vol in [False, True]:
+                    vol_str = "vol_" if is_vol else ""
+                    func_name = f"test_cir_to_arm_xchg_{name}_{order_name.replace('_', '')}_{vol_str}"
+                    f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                    f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                    f.write(f"  // CHECK: {check_cpp_arm_xchg('arm_atomic', arm_order_int, is_vol)}\n")
+                    f.write(f"  %0 = {fmt_cir_xchg(order_name, is_vol, cir_type)}\n  cir.return\n}}\n\n")
+
+    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) - 1 + (len(types_map) - 2) * len(orders_map) * len(orders_map) + 
+                       len(types_map) * len(orders_map) * len(binops_map) * 4 - 
+                       2 * len(orders_map) * (len(binops_map) - 4) * 4 - 
+                       len(types_map) * len(orders_map) * 3 * 2 + 
+                       2 * len(orders_map) * len(types_map)} tests in Phase 3: {filename}")
 
 
 
@@ -339,7 +491,52 @@ def generate_arm_to_llvm():
                     f.write(f"  // CHECK-DAG: llvm.extractvalue [[RES]][1]\n")
                     f.write(f"  %0:2 = {fmt_arm_cmpxchg(align_val, orders_map[arm_succ], orders_map[arm_fail], cir_type)}\n  cir.return\n}}\n\n")
 
-    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + (len(orders_map) - 2) + (len(types_map) - 2) * len(orders_map) * len(orders_map)} tests in Phase 4: {filename}")
+        f.write("// --- 5. ATOMIC FETCH ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_name = get_arm_fence_order(order_name)
+                arm_order_int = orders_map[arm_order_name]
+                llvm_order = get_llvm_order(arm_order_name)
+                for binop_name, binop_int in binops_map.items():
+                    llvm_binop = get_mlir_llvm_binop(binop_name, name)
+                    inst_binop = get_llvm_binop(binop_name, name)
+                    for is_vol in [False, True]:
+                        for fetch_first in [False, True]:
+                            if not is_valid_fetch(name, binop_name, fetch_first): continue
+                            vol_match = "volatile " if is_vol else ""
+                            vol_str = "vol_" if is_vol else ""
+                            ff_str = "ff_" if fetch_first else ""
+                            func_name = f"test_arm_to_llvm_fetch_{name}_{order_name.replace('_', '')}_{binop_name}_{vol_str}{ff_str}"
+                            f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                            f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                            f.write(f"  // CHECK-DAG: [[PTR:%.*]] = builtin.unrealized_conversion_cast %arg0\n")
+                            f.write(f"  // CHECK-DAG: [[VAL:%.*]] = builtin.unrealized_conversion_cast %arg1\n")
+                            f.write(f"  // CHECK: [[RES:%.*]] = llvm.atomicrmw {vol_match}{llvm_binop} [[PTR]], [[VAL]] {llvm_order}\n")
+                            if not fetch_first:
+                                f.write(f"  // CHECK: llvm.{inst_binop} [[RES]], [[VAL]]\n")
+                            f.write(f"  %0 = {fmt_cpp_arm_fetch('arm_atomic', binop_name, arm_order_int, is_vol, fetch_first, cir_type)}\n  cir.return\n}}\n\n")
+
+        f.write("// --- 6. ATOMIC XCHG ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_name = get_arm_fence_order(order_name)
+                llvm_order = get_llvm_order(arm_order_name)
+                for is_vol in [False, True]:
+                    vol_match = "volatile " if is_vol else ""
+                    vol_str = "vol_" if is_vol else ""
+                    func_name = f"test_arm_to_llvm_xchg_{name}_{order_name.replace('_', '')}_{vol_str}"
+                    f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                    f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                    f.write(f"  // CHECK-DAG: [[PTR:%.*]] = builtin.unrealized_conversion_cast %arg0\n")
+                    f.write(f"  // CHECK-DAG: [[VAL:%.*]] = builtin.unrealized_conversion_cast %arg1\n")
+                    f.write(f"  // CHECK: [[RES:%.*]] = llvm.atomicrmw {vol_match}xchg [[PTR]], [[VAL]] {llvm_order}\n")
+                    f.write(f"  %0 = {fmt_cpp_arm_xchg('arm_atomic', orders_map[arm_order_name], is_vol, cir_type)}\n  cir.return\n}}\n\n")
+    
+    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + (len(orders_map) - 2) + (len(types_map) - 2) * len(orders_map) * len(orders_map) + 
+                       len(types_map) * len(orders_map) * len(binops_map) * 4 - 
+                       2 * len(orders_map) * (len(binops_map) - 4) * 4 - 
+                       len(types_map) * len(orders_map) * 3 * 2 + 
+                       2 * len(orders_map) * len(types_map)} tests in Phase 4: {filename}")
 
 
 
@@ -414,7 +611,51 @@ def generate_cpp_to_llvm():
                     f.write(f"  // CHECK-DAG: llvm.extractvalue [[RES]][1]\n")
                     f.write(f"  %0:2 = {fmt_cpp_cmpxchg(align_val, succ_int, fail_int, cir_type)}\n  cir.return\n}}\n\n")
 
-    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) + (len(types_map) - 2) * len(orders_map) * len(orders_map)} tests in Phase 5: {filename}")
+        f.write("// --- 5. ATOMIC FETCH ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_name = get_arm_fence_order(order_name)
+                llvm_order = get_llvm_order(arm_order_name)
+                for binop_name, binop_int in binops_map.items():
+                    llvm_binop = get_mlir_llvm_binop(binop_name, name)
+                    inst_binop = get_llvm_binop(binop_name, name)
+                    for is_vol in [False, True]:
+                        for fetch_first in [False, True]:
+                            if not is_valid_fetch(name, binop_name, fetch_first): continue
+                            vol_match = "volatile " if is_vol else ""
+                            vol_str = "vol_" if is_vol else ""
+                            ff_str = "ff_" if fetch_first else ""
+                            func_name = f"test_cpp_to_llvm_fetch_{name}_{order_name.replace('_', '')}_{binop_name}_{vol_str}{ff_str}"
+                            f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                            f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                            f.write(f"  // CHECK-DAG: [[PTR:%.*]] = builtin.unrealized_conversion_cast %arg0\n")
+                            f.write(f"  // CHECK-DAG: [[VAL:%.*]] = builtin.unrealized_conversion_cast %arg1\n")
+                            f.write(f"  // CHECK: [[RES:%.*]] = llvm.atomicrmw {vol_match}{llvm_binop} [[PTR]], [[VAL]] {llvm_order}\n")
+                            if not fetch_first:
+                                f.write(f"  // CHECK: llvm.{inst_binop} [[RES]], [[VAL]]\n")
+                            f.write(f"  %0 = {fmt_cpp_arm_fetch('cpp_atomic', binop_name, order_int, is_vol, fetch_first, cir_type)}\n  cir.return\n}}\n\n")
+
+        f.write("// --- 6. ATOMIC XCHG ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_name = get_arm_fence_order(order_name)
+                llvm_order = get_llvm_order(arm_order_name)
+                for is_vol in [False, True]:
+                    vol_match = "volatile " if is_vol else ""
+                    vol_str = "vol_" if is_vol else ""
+                    func_name = f"test_cpp_to_llvm_xchg_{name}_{order_name.replace('_', '')}_{vol_str}"
+                    f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                    f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                    f.write(f"  // CHECK-DAG: [[PTR:%.*]] = builtin.unrealized_conversion_cast %arg0\n")
+                    f.write(f"  // CHECK-DAG: [[VAL:%.*]] = builtin.unrealized_conversion_cast %arg1\n")
+                    f.write(f"  // CHECK: [[RES:%.*]] = llvm.atomicrmw {vol_match}xchg [[PTR]], [[VAL]] {llvm_order}\n")
+                    f.write(f"  %0 = {fmt_cpp_arm_xchg('cpp_atomic', order_int, is_vol, cir_type)}\n  cir.return\n}}\n\n")
+    
+    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) + (len(types_map) - 2) * len(orders_map) * len(orders_map) + 
+                       len(types_map) * len(orders_map) * len(binops_map) * 4 - 
+                       2 * len(orders_map) * (len(binops_map) - 4) * 4 - 
+                       len(types_map) * len(orders_map) * 3 * 2 + 
+                       2 * len(orders_map) * len(types_map)} tests in Phase 5: {filename}")
 
 
 
@@ -488,7 +729,51 @@ def generate_cir_to_llvm():
                     f.write(f"  // CHECK-DAG: llvm.extractvalue [[RES]][1]\n")
                     f.write(f"  %0:2 = {fmt_cir_cmpxchg(align_val, succ_name, fail_name, cir_type)}\n  cir.return\n}}\n\n")
 
-    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) + (len(types_map) - 2) * len(orders_map) * len(orders_map)} tests in Phase 6: {filename}")
+        f.write("// --- 5. ATOMIC FETCH ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_name = get_arm_fence_order(order_name)
+                llvm_order = get_llvm_order(arm_order_name)
+                for binop_name, binop_int in binops_map.items():
+                    llvm_binop = get_mlir_llvm_binop(binop_name, name)
+                    inst_binop = get_llvm_binop(binop_name, name)
+                    for is_vol in [False, True]:
+                        for fetch_first in [False, True]:
+                            if not is_valid_fetch(name, binop_name, fetch_first): continue
+                            vol_match = "volatile " if is_vol else ""
+                            vol_str = "vol_" if is_vol else ""
+                            ff_str = "ff_" if fetch_first else ""
+                            func_name = f"test_cir_to_llvm_fetch_{name}_{order_name.replace('_', '')}_{binop_name}_{vol_str}{ff_str}"
+                            f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                            f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                            f.write(f"  // CHECK-DAG: [[PTR:%.*]] = builtin.unrealized_conversion_cast %arg0\n")
+                            f.write(f"  // CHECK-DAG: [[VAL:%.*]] = builtin.unrealized_conversion_cast %arg1\n")
+                            f.write(f"  // CHECK: [[RES:%.*]] = llvm.atomicrmw {vol_match}{llvm_binop} [[PTR]], [[VAL]] {llvm_order}\n")
+                            if not fetch_first:
+                                f.write(f"  // CHECK: llvm.{inst_binop} [[RES]], [[VAL]]\n")
+                            f.write(f"  %0 = {fmt_cir_fetch(binop_name, order_name, is_vol, fetch_first, cir_type)}\n  cir.return\n}}\n\n")
+
+        f.write("// --- 6. ATOMIC XCHG ---\n")
+        for name, cir_type in types_map.items():
+            for order_name, order_int in orders_map.items():
+                arm_order_name = get_arm_fence_order(order_name)
+                llvm_order = get_llvm_order(arm_order_name)
+                for is_vol in [False, True]:
+                    vol_match = "volatile " if is_vol else ""
+                    vol_str = "vol_" if is_vol else ""
+                    func_name = f"test_cir_to_llvm_xchg_{name}_{order_name.replace('_', '')}_{vol_str}"
+                    f.write(f"// CHECK-LABEL: cir.func @{func_name}\n")
+                    f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) {{\n")
+                    f.write(f"  // CHECK-DAG: [[PTR:%.*]] = builtin.unrealized_conversion_cast %arg0\n")
+                    f.write(f"  // CHECK-DAG: [[VAL:%.*]] = builtin.unrealized_conversion_cast %arg1\n")
+                    f.write(f"  // CHECK: [[RES:%.*]] = llvm.atomicrmw {vol_match}xchg [[PTR]], [[VAL]] {llvm_order}\n")
+                    f.write(f"  %0 = {fmt_cir_xchg(order_name, is_vol, cir_type)}\n  cir.return\n}}\n\n")
+    
+    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) + (len(types_map) - 2) * len(orders_map) * len(orders_map) + 
+                       len(types_map) * len(orders_map) * len(binops_map) * 4 - 
+                       2 * len(orders_map) * (len(binops_map) - 4) * 4 - 
+                       len(types_map) * len(orders_map) * 3 * 2 + 
+                       2 * len(orders_map) * len(types_map)} tests in Phase 6: {filename}")
 
 
 # PHASE 7: Standard Direct CIR -> LLVMIR 
@@ -551,7 +836,46 @@ def generate_direct_cir_to_llvmir():
                     f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}, %arg2 : {cir_type}) {{\n")
                     f.write(f"  %0:2 = {fmt_cir_cmpxchg(align_val, succ_name, fail_name, cir_type)}\n  cir.return\n}}\n\n")
 
-    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) - 1 + (len(types_map) - 2) * len(orders_map) * len(orders_map)} tests in Phase 7: {filename}")
+        # 5. ATOMIC FETCH
+        for name, cir_type in types_map.items():
+            llvm_type = get_llvm_type(name)
+            for order_name, order_int in orders_map.items():
+                llvm_order = get_llvm_order(order_name)
+                for binop_name, binop_int in binops_map.items():
+                    llvm_binop = get_llvm_binop(binop_name, name)
+                    for is_vol in [False, True]:
+                        for fetch_first in [False, True]:
+                            if not is_valid_fetch(name, binop_name, fetch_first): continue
+                            # vol_match = "volatile " if is_vol else ""
+                            vol_str = "vol_" if is_vol else ""
+                            ff_str = "ff_" if fetch_first else ""
+                            func_name = f"test_direct_llvm_fetch_{name}_{order_name.replace('_', '')}_{binop_name}_{vol_str}{ff_str}"
+                            f.write(f"// CHECK-LABEL: define {llvm_type} @{func_name}\n")
+                            f.write(f"// CHECK: %{{{{[0-9]+}}}} = atomicrmw {llvm_binop} ptr %{{{{[0-9]+}}}}, {llvm_type} %{{{{[0-9]+}}}} {llvm_order}, align {alignment_map[name]}\n")
+                            f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) -> {cir_type} {{\n")
+                            f.write(f"  %0 = {fmt_cir_fetch(binop_name, order_name, is_vol, fetch_first, cir_type)}\n")
+                            f.write(f"  cir.return %0 : {cir_type}\n}}\n\n")
+
+        # 6. ATOMIC XCHG
+        for name, cir_type in types_map.items():
+            llvm_type = get_llvm_type(name)
+            for order_name, order_int in orders_map.items():
+                llvm_order = get_llvm_order(order_name)
+                for is_vol in [False, True]:
+                    vol_str = "vol_" if is_vol else ""
+                    func_name = f"test_direct_llvm_xchg_{name}_{order_name.replace('_', '')}_{vol_str}"
+                    f.write(f"// CHECK-LABEL: define {llvm_type} @{func_name}\n")
+                    # Leaving out isVolatile flag to bypass legacy ClangIR translation bug
+                    f.write(f"// CHECK: %{{{{[0-9]+}}}} = atomicrmw xchg ptr %{{{{[0-9]+}}}}, {llvm_type} %{{{{[0-9]+}}}} {llvm_order}, align {alignment_map[name]}\n")
+                    f.write(f"cir.func @{func_name}(%arg0 : !cir.ptr<{cir_type}>, %arg1 : {cir_type}) -> {cir_type} {{\n")
+                    f.write(f"  %0 = {fmt_cir_xchg(order_name, is_vol, cir_type)}\n")
+                    f.write(f"  cir.return %0 : {cir_type}\n}}\n\n")
+
+    print(f"Generated {len(types_map) * (len(orders_map) - 2) * 2 + len(orders_map) - 1 + (len(types_map) - 2) * len(orders_map) * len(orders_map) + 
+                       len(types_map) * len(orders_map) * len(binops_map) * 4 - 
+                       2 * len(orders_map) * (len(binops_map) - 4) * 4 - 
+                       len(types_map) * len(orders_map) * 3 * 2 + 
+                       2 * len(orders_map) * len(types_map)} tests in Phase 7: {filename}")
 
 if __name__ == "__main__":
     generate_cir_to_cpp()

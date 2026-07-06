@@ -95,6 +95,20 @@ convertCASMemoryOrders(cpp_atomic::MemoryOrder succ, cpp_atomic::MemoryOrder fai
   return {Arm::Relaxed, Arm::Relaxed};
 }
 
+static arm_atomic::BinOp convertBinOp(cpp_atomic::BinOp op) {
+  switch (op) {
+    case cpp_atomic::BinOp::Add: return arm_atomic::BinOp::Add;
+    case cpp_atomic::BinOp::Sub: return arm_atomic::BinOp::Sub;
+    case cpp_atomic::BinOp::And: return arm_atomic::BinOp::And;
+    case cpp_atomic::BinOp::Or:  return arm_atomic::BinOp::Or;
+    case cpp_atomic::BinOp::Xor: return arm_atomic::BinOp::Xor;
+    case cpp_atomic::BinOp::Nand: return arm_atomic::BinOp::Nand;
+    case cpp_atomic::BinOp::Max: return arm_atomic::BinOp::Max;
+    case cpp_atomic::BinOp::Min: return arm_atomic::BinOp::Min;
+  }
+  llvm_unreachable("Unsupported Cpp_atomic fetch binop");
+}
+
 struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
 
   LoadRewriter(MLIRContext *context) 
@@ -184,11 +198,63 @@ struct CmpXchgRewriter : public OpConversionPattern<cpp_atomic::AtomicCmpXchgOp>
   }
 };
 
+struct FetchRewriter : public OpConversionPattern<cpp_atomic::AtomicFetchOp> {
+  
+  FetchRewriter(MLIRContext *context)
+      : OpConversionPattern<cpp_atomic::AtomicFetchOp>(context) {}
+
+  LogicalResult matchAndRewrite(cpp_atomic::AtomicFetchOp fetchOp, OpAdaptor adaptor,
+                              ConversionPatternRewriter &rewriter) const override {
+
+    auto memOrder = convertFenceMemoryOrder(fetchOp.getMemoryOrder());
+    auto binOp = convertBinOp(fetchOp.getBinop());
+
+    bool isVolatile = fetchOp.getIsVolatileAttr() != nullptr;
+    bool fetchFirst = fetchOp.getFetchFirstAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicFetchOp>(
+        fetchOp,
+        adaptor.getValue(),
+        adaptor.getAddr(),
+        binOp,
+        memOrder,
+        isVolatile,
+        fetchFirst
+    );
+
+    return success();
+  }
+};
+
+struct XchgRewriter : public OpConversionPattern<cpp_atomic::AtomicXchgOp> {
+
+  XchgRewriter(MLIRContext *context)
+      : OpConversionPattern<cpp_atomic::AtomicXchgOp>(context) {}
+
+  LogicalResult matchAndRewrite(cpp_atomic::AtomicXchgOp xchgOp, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+
+    auto memOrder = convertFenceMemoryOrder(xchgOp.getMemoryOrder());
+    bool isVolatile = xchgOp.getIsVolatileAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicXchgOp>(
+        xchgOp,
+        adaptor.getValue(), 
+        adaptor.getAddr(),
+        memOrder,
+        isVolatile
+    );
+    return success();
+  }
+};
+
 void populateCppToArmPatterns(RewritePatternSet &patterns) {
   patterns.add<LoadRewriter>(patterns.getContext());
   patterns.add<StoreRewriter>(patterns.getContext());
   patterns.add<FenceRewriter>(patterns.getContext());
   patterns.add<CmpXchgRewriter>(patterns.getContext());
+  patterns.add<FetchRewriter>(patterns.getContext());
+  patterns.add<XchgRewriter>(patterns.getContext());
 }
 
 //===----------------------------------------------------------------------===//
