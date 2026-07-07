@@ -12,9 +12,9 @@
 #include "mlir/Conversion/LLVMCommon/Pattern.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h"
+#include "mlir/Dialect/Ptr/IR/PtrTypes.h"
 #include "mlir/Pass/Pass.h"
 #include "mlir/Transforms/DialectConversion.h"
-#include "clang/CIR/Dialect/IR/CIRTypes.h"
 
 namespace mlir {
 #define GEN_PASS_DEF_CONVERTARMATOMICTOLLVMPASS
@@ -27,29 +27,14 @@ using namespace mlir;
 // Type conversion
 //===----------------------------------------------------------------------===//
 
-/// Register CIR scalar and pointer type conversions that are relevant for
-/// atomic load/store operands and results.
-static void addCIRTypeConversions(LLVMTypeConverter &converter) {
-  converter.addConversion([](cir::PointerType type) -> mlir::Type {
-    mlir::ptr::MemorySpaceAttrInterface addrSpaceAttr = type.getAddrSpace();
-    unsigned numericAS = 0;
-    if (auto targetAsAttr =
-            mlir::dyn_cast_if_present<cir::TargetAddressSpaceAttr>(
-                addrSpaceAttr))
-      numericAS = targetAsAttr.getValue();
-    return LLVM::LLVMPointerType::get(type.getContext(), numericAS);
-  });
-  converter.addConversion([](cir::IntType type) -> mlir::Type {
-    return IntegerType::get(type.getContext(), type.getWidth());
-  });
-  converter.addConversion([](cir::BoolType type) -> mlir::Type {
-    return IntegerType::get(type.getContext(), 1, IntegerType::Signless);
-  });
-  converter.addConversion([](cir::SingleType type) -> mlir::Type {
-    return Float32Type::get(type.getContext());
-  });
-  converter.addConversion([](cir::DoubleType type) -> mlir::Type {
-    return Float64Type::get(type.getContext());
+/// Register ptr dialect pointer type conversion to LLVM pointer type.
+/// After cir-to-ptr, all atomic pointer operands are !ptr.ptr<space>.
+/// Value operands (integers, floats) are already MLIR signless types handled
+/// by LLVMTypeConverter's default conversions.
+static void addPtrTypeConversions(LLVMTypeConverter &converter) {
+  converter.addConversion([](ptr::PtrType type) -> mlir::Type {
+    // Map !ptr.ptr<space> → !llvm.ptr (address space 0 for generic/null).
+    return LLVM::LLVMPointerType::get(type.getContext(), 0);
   });
 }
 
@@ -143,7 +128,7 @@ struct AtomicFenceLowering
   matchAndRewrite(arm_atomic::AtomicFenceOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
     
-    if (op.getMemoryOrder() == 0) { 
+    if (op.getMemoryOrder() == arm_atomic::MemoryOrder::Relaxed) {
       rewriter.eraseOp(op);
       return success();
     }
@@ -171,7 +156,7 @@ struct ConvertArmAtomicToLLVMPass
 
   void runOnOperation() override {
     LLVMTypeConverter converter(&getContext());
-    addCIRTypeConversions(converter);
+    addPtrTypeConversions(converter);
 
     LLVMConversionTarget target(getContext());
     target.addIllegalDialect<arm_atomic::ArmAtomicDialect>();

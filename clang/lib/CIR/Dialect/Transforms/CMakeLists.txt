@@ -4,13 +4,10 @@ add_clang_library(MLIRCIRTransforms
   CallConvLoweringPass.cpp
   CIRCanonicalize.cpp
   CIRSimplify.cpp
-  CIRToPtr.cpp
   CIRTransformUtils.cpp
   CXXABILowering.cpp
   EHABILowering.cpp
   TargetLowering.cpp
-  CIRToCF.cpp
-  CIRToCppAtomic.cpp
   FlattenCFG.cpp
   HoistAllocas.cpp
   LoweringPrepare.cpp
@@ -34,10 +31,7 @@ add_clang_library(MLIRCIRTransforms
   MLIRCIR
   MLIRCIRInterfaces
   MLIRCIRTargetLowering
-  MLIRPtrDialect
   MLIROpenMPDialect
   MLIRSCFDialect
   MLIROpenACCDialect
-
-  MLIRCppAtomicDialect
 )

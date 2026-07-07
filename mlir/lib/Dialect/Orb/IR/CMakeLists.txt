@@ -1,8 +1,3 @@
-set(CLANG_INCLUDE_DIR ${LLVM_MAIN_SRC_DIR}/../clang/include )
-set(CLANG_TABLEGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/tools/clang/include)
-include_directories(${CLANG_INCLUDE_DIR})
-include_directories(${CLANG_TABLEGEN_OUTPUT_DIR})
-
 add_mlir_dialect_library(MLIRArmAtomicDialect
   PARTIAL_SOURCES_INTENDED
 
@@ -17,9 +12,9 @@ add_mlir_dialect_library(MLIRArmAtomicDialect
 
   LINK_LIBS PUBLIC
   MLIRIR
-  MLIRSideEffectInterfaces
-  MLIRCIR
   MLIRBytecodeOpInterface
+  PRIVATE
+  MLIRPtrDialect
   )
 
 add_mlir_dialect_library(MLIRCppAtomicDialect
@@ -34,7 +29,7 @@ add_mlir_dialect_library(MLIRCppAtomicDialect
 
   LINK_LIBS PUBLIC
   MLIRIR
-  MLIRSideEffectInterfaces
-  MLIRCIR
   MLIRBytecodeOpInterface
+  PRIVATE
+  MLIRPtrDialect
   )

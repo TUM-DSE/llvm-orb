@@ -17,7 +17,10 @@
 
 #include "mlir/Conversion/ControlFlowToLLVM/ControlFlowToLLVM.h"
 #include "mlir/Conversion/Passes.h"
+#include "mlir/Conversion/FuncToLLVM/ConvertFuncToLLVM.h"
 #include "mlir/Conversion/OpenMPToLLVM/ConvertOpenMPToLLVM.h"
+#include "mlir/Conversion/PtrToLLVM/PtrToLLVM.h"
+#include "mlir/Conversion/UBToLLVM/UBToLLVM.h"
 #include "mlir/Conversion/SCFToControlFlow/SCFToControlFlow.h"
 #include "mlir/Dialect/DLTI/DLTI.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
@@ -37,6 +40,7 @@
 #include "mlir/Target/LLVMIR/Dialect/Builtin/BuiltinToLLVMIRTranslation.h"
 #include "mlir/Target/LLVMIR/Dialect/LLVMIR/LLVMToLLVMIRTranslation.h"
 #include "mlir/Target/LLVMIR/Dialect/OpenMP/OpenMPToLLVMIRTranslation.h"
+#include "mlir/Target/LLVMIR/Dialect/Ptr/PtrToLLVMIRTranslation.h"
 #include "mlir/Target/LLVMIR/Export.h"
 #include "mlir/Transforms/DialectConversion.h"
 #include "clang/CIR/Dialect/IR/CIRAttrs.h"
@@ -78,21 +82,6 @@ mlir::Type elementTypeIfVector(mlir::Type type) {
 }
 } // namespace
 
-/// Given a type convertor and a data layout, convert the given type to a type
-/// that is suitable for memory operations. For example, this can be used to
-/// lower cir.bool accesses to i8.
-static mlir::Type convertTypeForMemory(const mlir::TypeConverter &converter,
-                                       mlir::DataLayout const &dataLayout,
-                                       mlir::Type type) {
-  // TODO(cir): Handle other types similarly to clang's codegen
-  // convertTypeForMemory
-  if (isa<cir::BoolType>(type)) {
-    return mlir::IntegerType::get(type.getContext(),
-                                  dataLayout.getTypeSizeInBits(type));
-  }
-
-  return converter.convertType(type);
-}
 
 static mlir::Value createIntCast(mlir::OpBuilder &bld, mlir::Value src,
                                  mlir::IntegerType dstTy,
@@ -3167,120 +3156,6 @@ mlir::LogicalResult CIRToLLVMSelectOpLowering::matchAndRewrite(
   return mlir::success();
 }
 
-static void prepareTypeConverter(mlir::LLVMTypeConverter &converter,
-                                 mlir::DataLayout &dataLayout) {
-  converter.addConversion([&](cir::PointerType type) -> mlir::Type {
-    mlir::ptr::MemorySpaceAttrInterface addrSpaceAttr = type.getAddrSpace();
-    unsigned numericAS = 0;
-
-    if (auto targetAsAttr =
-            mlir::dyn_cast_if_present<cir::TargetAddressSpaceAttr>(
-                addrSpaceAttr))
-      numericAS = targetAsAttr.getValue();
-    return mlir::LLVM::LLVMPointerType::get(type.getContext(), numericAS);
-  });
-  converter.addConversion([&](cir::VPtrType type) -> mlir::Type {
-    assert(!cir::MissingFeatures::addressSpace());
-    return mlir::LLVM::LLVMPointerType::get(type.getContext());
-  });
-  converter.addConversion([&](cir::ArrayType type) -> mlir::Type {
-    mlir::Type ty =
-        convertTypeForMemory(converter, dataLayout, type.getElementType());
-    return mlir::LLVM::LLVMArrayType::get(ty, type.getSize());
-  });
-  converter.addConversion([&](cir::VectorType type) -> mlir::Type {
-    const mlir::Type ty = converter.convertType(type.getElementType());
-    return mlir::VectorType::get(type.getSize(), ty, {type.getIsScalable()});
-  });
-  converter.addConversion([&](cir::BoolType type) -> mlir::Type {
-    return mlir::IntegerType::get(type.getContext(), 1,
-                                  mlir::IntegerType::Signless);
-  });
-  converter.addConversion([&](cir::IntType type) -> mlir::Type {
-    // LLVM doesn't work with signed types, so we drop the CIR signs here.
-    return mlir::IntegerType::get(type.getContext(), type.getWidth());
-  });
-  converter.addConversion([&](cir::SingleType type) -> mlir::Type {
-    return mlir::Float32Type::get(type.getContext());
-  });
-  converter.addConversion([&](cir::DoubleType type) -> mlir::Type {
-    return mlir::Float64Type::get(type.getContext());
-  });
-  converter.addConversion([&](cir::FP80Type type) -> mlir::Type {
-    return mlir::Float80Type::get(type.getContext());
-  });
-  converter.addConversion([&](cir::FP128Type type) -> mlir::Type {
-    return mlir::Float128Type::get(type.getContext());
-  });
-  converter.addConversion([&](cir::LongDoubleType type) -> mlir::Type {
-    return converter.convertType(type.getUnderlying());
-  });
-  converter.addConversion([&](cir::FP16Type type) -> mlir::Type {
-    return mlir::Float16Type::get(type.getContext());
-  });
-  converter.addConversion([&](cir::BF16Type type) -> mlir::Type {
-    return mlir::BFloat16Type::get(type.getContext());
-  });
-  converter.addConversion([&](cir::ComplexType type) -> mlir::Type {
-    // A complex type is lowered to an LLVM struct that contains the real and
-    // imaginary part as data fields.
-    mlir::Type elementTy = converter.convertType(type.getElementType());
-    mlir::Type structFields[2] = {elementTy, elementTy};
-    return mlir::LLVM::LLVMStructType::getLiteral(type.getContext(),
-                                                  structFields);
-  });
-  converter.addConversion([&](cir::FuncType type) -> std::optional<mlir::Type> {
-    auto result = converter.convertType(type.getReturnType());
-    llvm::SmallVector<mlir::Type> arguments;
-    arguments.reserve(type.getNumInputs());
-    if (converter.convertTypes(type.getInputs(), arguments).failed())
-      return std::nullopt;
-    auto varArg = type.isVarArg();
-    return mlir::LLVM::LLVMFunctionType::get(result, arguments, varArg);
-  });
-  converter.addConversion([&](cir::StructType type) -> mlir::Type {
-    llvm::SmallVector<mlir::Type> llvmMembers;
-    for (mlir::Type ty : type.getMembers())
-      llvmMembers.push_back(convertTypeForMemory(converter, dataLayout, ty));
-
-    mlir::LLVM::LLVMStructType llvmStruct;
-    if (type.getName()) {
-      llvmStruct = mlir::LLVM::LLVMStructType::getIdentified(
-          type.getContext(), type.getPrefixedName());
-      if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
-        llvm_unreachable("Failed to set body of record");
-    } else {
-      llvmStruct = mlir::LLVM::LLVMStructType::getLiteral(
-          type.getContext(), llvmMembers, type.getPacked());
-    }
-    return llvmStruct;
-  });
-  // Unions are lowered as only the largest member.
-  converter.addConversion([&](cir::UnionType type) -> mlir::Type {
-    llvm::SmallVector<mlir::Type> llvmMembers;
-    if (!type.getMembers().empty())
-      if (auto storage = type.getUnionStorageType(dataLayout))
-        llvmMembers.push_back(
-            convertTypeForMemory(converter, dataLayout, storage));
-    if (mlir::Type pad = type.getPadding())
-      llvmMembers.push_back(convertTypeForMemory(converter, dataLayout, pad));
-
-    mlir::LLVM::LLVMStructType llvmStruct;
-    if (type.getName()) {
-      llvmStruct = mlir::LLVM::LLVMStructType::getIdentified(
-          type.getContext(), type.getPrefixedName());
-      if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
-        llvm_unreachable("Failed to set body of record");
-    } else {
-      llvmStruct = mlir::LLVM::LLVMStructType::getLiteral(
-          type.getContext(), llvmMembers, type.getPacked());
-    }
-    return llvmStruct;
-  });
-  converter.addConversion([&](cir::VoidType type) -> mlir::Type {
-    return mlir::LLVM::LLVMVoidType::get(type.getContext());
-  });
-}
 
 static void buildCtorDtorList(
     mlir::ModuleOp module, StringRef globalXtorName, StringRef llvmXtorName,
@@ -3654,7 +3529,7 @@ void ConvertCIRToLLVMPass::runOnOperation() {
   mlir::ModuleOp module = getOperation();
   mlir::DataLayout dl(module);
   mlir::LLVMTypeConverter converter(&getContext());
-  prepareTypeConverter(converter, dl);
+  populateCIRTypeConversions(converter, dl);
 
   /// Tracks the state required to lower CIR `LabelOp` and `BlockAddressOp`.
   /// Maps labels to their corresponding `BlockTagOp` and keeps bookkeeping
@@ -4945,20 +4820,17 @@ void populateCIRToLLVMPasses(mlir::OpPassManager &pm) {
 }
 
 void populateOrbPasses(mlir::OpPassManager &pm) {
-  // [!] No flattening!
-  // Yes flattening! we don't need scf (I think)
   mlir::populateCIRPreLoweringPasses(pm);
 
   pm.addPass(mlir::createCIRToCFPass());
+  pm.addPass(mlir::createCIRToPtrPass());
   pm.addPass(mlir::createCIRToCppAtomicPass());
   pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
-  pm.addPass(mlir::createConvertArmAtomicToLLVMPass());
 
-  // Add Atomic passes here
-
-  pm.addPass(mlir::createConvertControlFlowToLLVMPass());
   pm.addPass(createConvertCIRToLLVMPass());
-
+  pm.addPass(mlir::createCIROrbCleanupPass());
+  pm.addPass(mlir::createConvertArmAtomicToLLVMPass());
+  pm.addPass(mlir::createConvertToLLVMPass());
 }
 
 std::unique_ptr<llvm::Module>
@@ -4971,9 +4843,21 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
   mlir::MLIRContext *mlirCtx = mlirModule.getContext();
 
   mlir::PassManager pm(mlirCtx);
-  if (useOrb)
+  if (useOrb) {
+    mlir::DialectRegistry registry;
+    mlir::ptr::registerConvertPtrToLLVMInterface(registry);
+    mlir::ub::registerConvertUBToLLVMInterface(registry);
+    registerConvertOpenMPToLLVMInterface(registry);
+    registerConvertMemRefToLLVMInterface(registry);
+    registerConvertFuncToLLVMInterface(registry);
+    mlir::arith::registerConvertArithToLLVMInterface(registry);
+    mlir::cf::registerConvertControlFlowToLLVMInterface(registry);
+    mlir::index::registerConvertIndexToLLVMInterface(registry);
+    mlir::vector::registerConvertVectorToLLVMInterface(registry);
+
+    mlirCtx->appendDialectRegistry(registry);
     populateOrbPasses(pm);
-  else
+  } else
     populateCIRToLLVMPasses(pm);
 
   (void)mlir::applyPassManagerCLOptions(pm);
@@ -4995,6 +4879,7 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
   mlir::registerLLVMDialectTranslation(*mlirCtx);
   mlir::registerOpenMPDialectTranslation(*mlirCtx);
   mlir::registerCIRDialectTranslation(*mlirCtx);
+  mlir::registerPtrDialectTranslation(*mlirCtx);
 
   llvm::TimeTraceScope translateScope("translateModuleToLLVMIR");
 

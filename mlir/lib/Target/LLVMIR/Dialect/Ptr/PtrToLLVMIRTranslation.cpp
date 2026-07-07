@@ -404,6 +404,22 @@ public:
         .Case([&](ConstantOp constantOp) {
           return translateConstantOp(constantOp, builder, moduleTranslation);
         })
+        .Case([&](ToPtrOp toPtrOp) -> LogicalResult {
+          // Identity: forward the LLVM value from the input ptr-like value.
+          llvm::Value *ptr = moduleTranslation.lookupValue(toPtrOp.getPtr());
+          if (!ptr)
+            return toPtrOp.emitError("Failed to lookup input pointer");
+          moduleTranslation.mapValue(toPtrOp.getResult(), ptr);
+          return success();
+        })
+        .Case([&](FromPtrOp fromPtrOp) -> LogicalResult {
+          // Identity: forward the LLVM value to the output.
+          llvm::Value *ptr = moduleTranslation.lookupValue(fromPtrOp.getPtr());
+          if (!ptr)
+            return fromPtrOp.emitError("Failed to lookup input pointer");
+          moduleTranslation.mapValue(fromPtrOp.getResult(), ptr);
+          return success();
+        })
         .Case([&](PtrAddOp ptrAddOp) {
           return translatePtrAddOp(ptrAddOp, builder, moduleTranslation);
         })

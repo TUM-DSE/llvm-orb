@@ -59,13 +59,26 @@ struct BrCondRewriter : public OpConversionPattern<cir::BrCondOp> {
 
 struct BrRewriter : public OpConversionPattern<cir::BrOp> {
 
-  BrRewriter(MLIRContext *context)
-      : OpConversionPattern<cir::BrOp>(context) {}
+  BrRewriter(MLIRContext *context, TypeConverter &typeConverter)
+      : OpConversionPattern<cir::BrOp>(typeConverter, context) {}
 
   LogicalResult matchAndRewrite(cir::BrOp brOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    auto *cir_dst = brOp.getDest();
-    rewriter.replaceOpWithNewOp<cf::BranchOp>(brOp, cir_dst);
+    Block *dest = brOp.getDest();
+    ValueRange convertedOps = adaptor.getDestOperands();
+
+    // Convert destination block argument types to match the converted operands.
+    // Only convert if types don't already match (avoids double-conversion when
+    // multiple predecessors branch to the same block).
+    if (!convertedOps.empty() &&
+        dest->getArgument(0).getType() != convertedOps[0].getType()) {
+      TypeConverter::SignatureConversion sigConv(dest->getNumArguments());
+      for (auto [idx, val] : llvm::enumerate(convertedOps))
+        sigConv.addInputs(idx, val.getType());
+      dest = rewriter.applySignatureConversion(dest, sigConv, getTypeConverter());
+    }
+
+    rewriter.replaceOpWithNewOp<cf::BranchOp>(brOp, dest, convertedOps);
     return success();
   }
 };
@@ -105,7 +118,7 @@ struct SwitchRewriter : public OpConversionPattern<cir::SwitchFlatOp> {
 
 void populateCIRToCFPatterns(RewritePatternSet &patterns, TypeConverter &typeConverter) {
   patterns.add<BrCondRewriter>(patterns.getContext(), typeConverter);
-  patterns.add<BrRewriter>(patterns.getContext());
+  patterns.add<BrRewriter>(patterns.getContext(), typeConverter);
   patterns.add<SwitchRewriter>(patterns.getContext(), typeConverter);
 }
 
@@ -128,7 +141,7 @@ void populateTypeConversions(TypeConverter &typeConverter, MLIRContext *context)
       if (!isa<cir::BoolType>(srcTy))
         return nullptr;
 
-      return cir::CastOp::create(builder, loc, srcTy, cir::CastKind::int_to_bool, inputs[0]);
+      return mlir::UnrealizedConversionCastOp::create(builder, loc, srcTy, inputs[0]).getResult(0);
   });
 
   typeConverter.addTargetMaterialization([](OpBuilder &builder, mlir::Type dstTy,

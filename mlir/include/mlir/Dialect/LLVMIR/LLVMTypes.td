@@ -262,6 +262,7 @@ def LLVMPointerType : LLVMType<"LLVMPointer", "ptr", [
     DeclareTypeInterfaceMethods<DataLayoutTypeInterface, [
       "getIndexBitwidth", "areCompatible", "verifyEntries",
       "getPreferredAlignment"]>,
+    DeclareTypeInterfaceMethods<PtrLikeTypeInterface>,
     VectorElementTypeInterface]> {
   let summary = "LLVM pointer type";
   let description = [{

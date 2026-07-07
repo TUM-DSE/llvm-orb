@@ -141,7 +141,7 @@ LogicalResult FromPtrOpConversion::matchAndRewrite(
   // Get the target memref type
   auto mTy = dyn_cast<MemRefType>(op.getResult().getType());
   if (!mTy)
-    return rewriter.notifyMatchFailure(op, "Expected memref result type");
+    return rewriter.notifyMatchFailure(op, "Expected a memref result");
 
   if (!op.getMetadata() && op.getType().hasPtrMetadata()) {
     return rewriter.notifyMatchFailure(
@@ -326,7 +326,6 @@ PtrAddOpConversion::matchAndRewrite(ptr::PtrAddOp op, OpAdaptor adaptor,
 LogicalResult
 ToPtrOpConversion::matchAndRewrite(ptr::ToPtrOp op, OpAdaptor adaptor,
                                    ConversionPatternRewriter &rewriter) const {
-  // Bail if it's not a memref.
   if (!isa<MemRefType>(op.getPtr().getType()))
     return rewriter.notifyMatchFailure(op, "Expected a memref input");
 

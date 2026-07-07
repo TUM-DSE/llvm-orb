@@ -12,9 +12,23 @@
 #ifndef LLVM_CLANG_CIR_LOWERINGHELPERS_H
 #define LLVM_CLANG_CIR_LOWERINGHELPERS_H
 
+#include "mlir/Conversion/LLVMCommon/TypeConverter.h"
 #include "mlir/IR/BuiltinAttributes.h"
+#include "mlir/Interfaces/DataLayoutInterfaces.h"
 #include "mlir/Transforms/DialectConversion.h"
 #include "clang/CIR/Dialect/IR/CIRDialect.h"
+
+/// Convert a CIR type to a type suitable for memory operations (e.g. bool →
+/// iN where N is the ABI storage width).
+mlir::Type convertTypeForMemory(const mlir::TypeConverter &converter,
+                                mlir::DataLayout const &dataLayout,
+                                mlir::Type type);
+
+/// Register all CIR→LLVM type conversions.  This is the canonical mapping
+/// used by both CIRToPtrPass (which then overrides the pointer conversion to
+/// produce ptr.ptr instead of llvm.ptr) and ConvertCIRToLLVMPass.
+void populateCIRTypeConversions(mlir::LLVMTypeConverter &converter,
+                                mlir::DataLayout &dataLayout);
 
 mlir::DenseElementsAttr
 convertStringAttrToDenseElementsAttr(cir::ConstArrayAttr attr, mlir::Type type);

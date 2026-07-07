@@ -15,20 +15,24 @@ add_clang_library(clangCIRLoweringDirectToLLVM
   MLIRCIROpsIncGen
   MLIRCIROpInterfacesIncGen
 
-  LINK_LIBS
+  LINK_LIBS PRIVATE
   clangCIRLoweringCommon
+  clangCIRLoweringToMLIR
   ${dialect_libs}
   MLIRCIR
   MLIRCIRTargetLowering
   MLIRCIRTransforms
   MLIRBuiltinToLLVMIRTranslation
   MLIRLLVMToLLVMIRTranslation
+  MLIRPtrToLLVMIRTranslation
   MLIROpenMPToLLVM
   MLIROpenMPToLLVMIRTranslation
   MLIROpenMPTransforms
   MLIRIR
   MLIRCppAtomicToArmAtomic
   MLIRArmAtomicToLLVM
+  MLIRPtrToLLVM
+  MLIRUBToLLVM
   )
 
 target_include_directories(clangCIRLoweringDirectToLLVM PRIVATE

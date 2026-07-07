@@ -6,21 +6,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mlir/IR/Block.h"
-#include "mlir/IR/Operation.h"
-#include "mlir/IR/PatternMatch.h"
-#include "mlir/IR/Region.h"
-#include "mlir/Support/LogicalResult.h"
-#include "mlir/Transforms/GreedyPatternRewriteDriver.h"
-#include "mlir/Transforms/WalkPatternRewriteDriver.h"
-#include "mlir/Transforms/DialectConversion.h"
-#include "mlir/Dialect/Orb/CppAtomicDialect.h"
-#include "mlir/Dialect/Orb/ArmAtomicDialect.h"
-#include "clang/CIR/Dialect/IR/CIRDialect.h"
-#include "clang/CIR/Dialect/Passes.h"
-#include "llvm/ADT/SmallVector.h"
 #include "mlir/Conversion/CppAtomicToArmAtomic/CppAtomicToArmAtomic.h"
+#include "mlir/Dialect/Orb/ArmAtomicDialect.h"
+#include "mlir/Dialect/Orb/CppAtomicDialect.h"
+#include "mlir/IR/PatternMatch.h"
 #include "mlir/Pass/Pass.h"
+#include "mlir/Support/LogicalResult.h"
+#include "mlir/Transforms/DialectConversion.h"
 
 
 namespace mlir {
@@ -76,35 +68,28 @@ static arm_atomic::MemoryOrder convertFenceMemoryOrder(cpp_atomic::MemoryOrder c
 
 struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
 
-  LoadRewriter(MLIRContext *context) 
-      : OpConversionPattern<cpp_atomic::AtomicLoadOp>(context) {}
+  using OpConversionPattern::OpConversionPattern;
 
   LogicalResult matchAndRewrite(cpp_atomic::AtomicLoadOp loadOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    Value addr = adaptor.getAddr();
-    
     auto memOrder = convertLoadMemoryOrder(loadOp.getMemoryOrder());
     auto alignment = loadOp.getAlignmentAttr();
-
-    rewriter.replaceOpWithNewOp<arm_atomic::AtomicLoadOp>(loadOp, addr, memOrder, alignment);
+    // Pass explicit result type (no longer inferred from pointer pointee)
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicLoadOp>(
+        loadOp, loadOp.getResult().getType(), adaptor.getAddr(), memOrder, alignment);
     return success();
   }
 };
 
 struct StoreRewriter : public OpConversionPattern<cpp_atomic::AtomicStoreOp> {
-
-  StoreRewriter(MLIRContext *context) 
-      : OpConversionPattern<cpp_atomic::AtomicStoreOp>(context) {}
+  using OpConversionPattern::OpConversionPattern;
 
   LogicalResult matchAndRewrite(cpp_atomic::AtomicStoreOp storeOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    Value value = adaptor.getValue();
-    Value addr = adaptor.getAddr();
-    
     auto memOrder = convertStoreMemoryOrder(storeOp.getMemoryOrder());
     auto alignment = storeOp.getAlignmentAttr();
-
-    rewriter.replaceOpWithNewOp<arm_atomic::AtomicStoreOp>(storeOp, value, addr, memOrder, alignment);
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicStoreOp>(
+        storeOp, adaptor.getValue(), adaptor.getAddr(), memOrder, alignment);
     return success();
   }
 };

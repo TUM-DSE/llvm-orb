@@ -280,4 +280,19 @@ def CIRToPtr : Pass<"cir-to-ptr", "mlir::ModuleOp"> {
   ];
 }
 
+def CIROrbCleanup : Pass<"cir-orb-cleanup", "mlir::ModuleOp"> {
+  let summary = "Clean up ptr.from_ptr + unrealized_cast pairs after CIR-to-LLVM lowering";
+  let description = [{
+    After ConvertCIRToLLVMPass, pointer operations leave behind chains of the form:
+      ptr.from_ptr(%x : !ptr.ptr<space>) -> !cir.ptr<T>
+      unrealized_cast(%result : !cir.ptr<T>) -> !llvm.ptr
+    This pass collapses such pairs into a single:
+      ptr.from_ptr(%x : !ptr.ptr<space>) -> !llvm.ptr
+  }];
+  let constructor = "mlir::createCIROrbCleanupPass()";
+  let dependentDialects = [
+    "::mlir::ptr::PtrDialect", "::mlir::LLVM::LLVMDialect"
+  ];
+}
+
 #endif // CLANG_CIR_DIALECT_PASSES_TD

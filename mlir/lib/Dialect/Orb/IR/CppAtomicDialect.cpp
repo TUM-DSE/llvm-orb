@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "mlir/Dialect/Orb/CppAtomicDialect.h"
+#include "mlir/Dialect/Ptr/IR/PtrTypes.h"
 
 using namespace mlir;
 

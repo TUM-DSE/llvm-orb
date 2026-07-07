@@ -15,7 +15,6 @@
 
 #include "mlir/IR/Builders.h"
 #include "mlir/Bytecode/BytecodeOpInterface.h"
-#include "clang/CIR/Dialect/IR/CIRTypes.h"
 
 #include "mlir/Dialect/Orb/CppAtomicDialect.h.inc"
 #include "mlir/Dialect/Orb/CppAtomicEnums.h.inc"

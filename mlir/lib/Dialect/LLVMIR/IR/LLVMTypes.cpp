@@ -16,6 +16,7 @@
 #include "mlir/Dialect/LLVMIR/LLVMAttrs.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/LLVMIR/LLVMTypes.h"
+#include "mlir/Dialect/Ptr/IR/PtrAttrs.h"
 #include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/DialectImplementation.h"
 #include "mlir/IR/TypeSupport.h"
@@ -427,6 +428,29 @@ LogicalResult LLVMPointerType::verifyEntries(DataLayoutEntryListRef entries,
     }
   }
   return success();
+}
+
+//===----------------------------------------------------------------------===//
+// LLVMPointerType PtrLikeTypeInterface
+//===----------------------------------------------------------------------===//
+
+Attribute LLVMPointerType::getMemorySpace() const {
+  if (getAddressSpace() == 0)
+    return ptr::GenericSpaceAttr::get(getContext());
+  return IntegerAttr::get(IntegerType::get(getContext(), 32), getAddressSpace());
+}
+
+Type LLVMPointerType::getElementType() const { return Type(); }
+
+bool LLVMPointerType::hasPtrMetadata() const { return false; }
+
+FailureOr<PtrLikeTypeInterface>
+LLVMPointerType::clonePtrWith(Attribute memorySpace,
+                              std::optional<Type> elementType) const {
+  unsigned as = 0;
+  if (auto intAttr = dyn_cast_if_present<IntegerAttr>(memorySpace))
+    as = intAttr.getInt();
+  return cast<PtrLikeTypeInterface>(LLVMPointerType::get(getContext(), as));
 }
 
 //===----------------------------------------------------------------------===//

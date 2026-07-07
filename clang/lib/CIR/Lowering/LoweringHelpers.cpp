@@ -13,7 +13,12 @@
 #include "clang/CIR/LoweringHelpers.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/LLVMIR/LLVMTypes.h"
+#include "mlir/Dialect/Ptr/IR/MemorySpaceInterfaces.h"
+#include "mlir/IR/BuiltinTypes.h"
 #include "mlir/IR/SymbolTable.h"
+#include "clang/CIR/Dialect/IR/CIRAttrs.h"
+#include "clang/CIR/Dialect/IR/CIRTypes.h"
+#include "clang/CIR/MissingFeatures.h"
 
 static unsigned getIntOrBoolBitWidth(mlir::Type ty) {
   if (auto intTy = mlir::dyn_cast<cir::IntType>(ty))
@@ -315,4 +320,122 @@ mlir::Value createLShR(mlir::OpBuilder &bld, mlir::Value lhs, unsigned rhs) {
     return lhs;
   mlir::Value rhsVal = getConst(bld, lhs.getLoc(), lhs.getType(), rhs);
   return mlir::LLVM::LShrOp::create(bld, lhs.getLoc(), lhs, rhsVal);
+}
+
+mlir::Type convertTypeForMemory(const mlir::TypeConverter &converter,
+                                mlir::DataLayout const &dataLayout,
+                                mlir::Type type) {
+  if (mlir::isa<cir::BoolType>(type))
+    return mlir::IntegerType::get(type.getContext(),
+                                  dataLayout.getTypeSizeInBits(type));
+  return converter.convertType(type);
+}
+
+void populateCIRTypeConversions(mlir::LLVMTypeConverter &converter,
+                                mlir::DataLayout &dataLayout) {
+  converter.addConversion([&](cir::PointerType type) -> mlir::Type {
+    mlir::ptr::MemorySpaceAttrInterface addrSpaceAttr = type.getAddrSpace();
+    unsigned numericAS = 0;
+    if (auto targetAsAttr =
+            mlir::dyn_cast_if_present<cir::TargetAddressSpaceAttr>(
+                addrSpaceAttr))
+      numericAS = targetAsAttr.getValue();
+    return mlir::LLVM::LLVMPointerType::get(type.getContext(), numericAS);
+  });
+  converter.addConversion([&](cir::VPtrType type) -> mlir::Type {
+    assert(!cir::MissingFeatures::addressSpace());
+    return mlir::LLVM::LLVMPointerType::get(type.getContext());
+  });
+  converter.addConversion([&](cir::ArrayType type) -> mlir::Type {
+    mlir::Type ty =
+        convertTypeForMemory(converter, dataLayout, type.getElementType());
+    return mlir::LLVM::LLVMArrayType::get(ty, type.getSize());
+  });
+  converter.addConversion([&](cir::VectorType type) -> mlir::Type {
+    const mlir::Type ty = converter.convertType(type.getElementType());
+    return mlir::VectorType::get(type.getSize(), ty, {type.getIsScalable()});
+  });
+  converter.addConversion([&](cir::BoolType type) -> mlir::Type {
+    return mlir::IntegerType::get(type.getContext(), 1,
+                                  mlir::IntegerType::Signless);
+  });
+  converter.addConversion([&](cir::IntType type) -> mlir::Type {
+    return mlir::IntegerType::get(type.getContext(), type.getWidth());
+  });
+  converter.addConversion([&](cir::SingleType type) -> mlir::Type {
+    return mlir::Float32Type::get(type.getContext());
+  });
+  converter.addConversion([&](cir::DoubleType type) -> mlir::Type {
+    return mlir::Float64Type::get(type.getContext());
+  });
+  converter.addConversion([&](cir::FP80Type type) -> mlir::Type {
+    return mlir::Float80Type::get(type.getContext());
+  });
+  converter.addConversion([&](cir::FP128Type type) -> mlir::Type {
+    return mlir::Float128Type::get(type.getContext());
+  });
+  converter.addConversion([&](cir::LongDoubleType type) -> mlir::Type {
+    return converter.convertType(type.getUnderlying());
+  });
+  converter.addConversion([&](cir::FP16Type type) -> mlir::Type {
+    return mlir::Float16Type::get(type.getContext());
+  });
+  converter.addConversion([&](cir::BF16Type type) -> mlir::Type {
+    return mlir::BFloat16Type::get(type.getContext());
+  });
+  converter.addConversion([&](cir::ComplexType type) -> mlir::Type {
+    mlir::Type elementTy = converter.convertType(type.getElementType());
+    mlir::Type structFields[2] = {elementTy, elementTy};
+    return mlir::LLVM::LLVMStructType::getLiteral(type.getContext(),
+                                                  structFields);
+  });
+  converter.addConversion(
+      [&](cir::FuncType type) -> std::optional<mlir::Type> {
+        auto result = converter.convertType(type.getReturnType());
+        llvm::SmallVector<mlir::Type> arguments;
+        arguments.reserve(type.getNumInputs());
+        if (converter.convertTypes(type.getInputs(), arguments).failed())
+          return std::nullopt;
+        auto varArg = type.isVarArg();
+        return mlir::LLVM::LLVMFunctionType::get(result, arguments, varArg);
+      });
+  converter.addConversion([&](cir::StructType type) -> mlir::Type {
+    llvm::SmallVector<mlir::Type> llvmMembers;
+    for (mlir::Type ty : type.getMembers())
+      llvmMembers.push_back(convertTypeForMemory(converter, dataLayout, ty));
+    mlir::LLVM::LLVMStructType llvmStruct;
+    if (type.getName()) {
+      llvmStruct = mlir::LLVM::LLVMStructType::getIdentified(
+          type.getContext(), type.getPrefixedName());
+      if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
+        llvm_unreachable("Failed to set body of record");
+    } else {
+      llvmStruct = mlir::LLVM::LLVMStructType::getLiteral(
+          type.getContext(), llvmMembers, type.getPacked());
+    }
+    return llvmStruct;
+  });
+  converter.addConversion([&](cir::UnionType type) -> mlir::Type {
+    llvm::SmallVector<mlir::Type> llvmMembers;
+    if (!type.getMembers().empty())
+      if (auto storage = type.getUnionStorageType(dataLayout))
+        llvmMembers.push_back(
+            convertTypeForMemory(converter, dataLayout, storage));
+    if (mlir::Type pad = type.getPadding())
+      llvmMembers.push_back(convertTypeForMemory(converter, dataLayout, pad));
+    mlir::LLVM::LLVMStructType llvmStruct;
+    if (type.getName()) {
+      llvmStruct = mlir::LLVM::LLVMStructType::getIdentified(
+          type.getContext(), type.getPrefixedName());
+      if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
+        llvm_unreachable("Failed to set body of record");
+    } else {
+      llvmStruct = mlir::LLVM::LLVMStructType::getLiteral(
+          type.getContext(), llvmMembers, type.getPacked());
+    }
+    return llvmStruct;
+  });
+  converter.addConversion([&](cir::VoidType type) -> mlir::Type {
+    return mlir::LLVM::LLVMVoidType::get(type.getContext());
+  });
 }
