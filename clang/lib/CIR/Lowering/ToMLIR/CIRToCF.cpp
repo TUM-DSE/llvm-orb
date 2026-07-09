@@ -138,8 +138,8 @@ void populateTypeConversions(TypeConverter &typeConverter, MLIRContext *context)
     mlir::Location loc) -> Value {
       if (inputs.size() != 1)
         return nullptr;
-      if (!isa<cir::BoolType>(srcTy))
-        return nullptr;
+      //if (!isa<cir::BoolType>(srcTy))
+      //  return nullptr;
 
       return mlir::UnrealizedConversionCastOp::create(builder, loc, srcTy, inputs[0]).getResult(0);
   });
@@ -154,11 +154,11 @@ void populateTypeConversions(TypeConverter &typeConverter, MLIRContext *context)
       if (!isa<cir::BoolType>(InTy) && !isa<cir::IntType>(InTy))
         return nullptr;
 
-      if (isa<cir::IntType>(InTy)) {
-        auto InIntTy = cast<cir::IntType>(InTy);
-        if (InIntTy.getWidth() != 32 || !InIntTy.isSigned())
-          return nullptr;
-      }
+      //if (isa<cir::IntType>(InTy)) {
+      //  auto InIntTy = cast<cir::IntType>(InTy);
+      //  if (InIntTy.getWidth() != 32 || !InIntTy.isSigned())
+      //    return nullptr;
+      //}
 
       return mlir::UnrealizedConversionCastOp::create(builder, loc, dstTy, inputs[0]).getResult(0);
   });

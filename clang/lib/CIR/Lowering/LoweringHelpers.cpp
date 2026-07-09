@@ -407,8 +407,10 @@ void populateCIRTypeConversions(mlir::LLVMTypeConverter &converter,
     if (type.getName()) {
       llvmStruct = mlir::LLVM::LLVMStructType::getIdentified(
           type.getContext(), type.getPrefixedName());
-      if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
-        llvm_unreachable("Failed to set body of record");
+      if (!llvmStruct.isInitialized()) {
+        if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
+          llvm_unreachable("Failed to set body of record");
+      }
     } else {
       llvmStruct = mlir::LLVM::LLVMStructType::getLiteral(
           type.getContext(), llvmMembers, type.getPacked());
@@ -427,8 +429,10 @@ void populateCIRTypeConversions(mlir::LLVMTypeConverter &converter,
     if (type.getName()) {
       llvmStruct = mlir::LLVM::LLVMStructType::getIdentified(
           type.getContext(), type.getPrefixedName());
-      if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
-        llvm_unreachable("Failed to set body of record");
+      if (!llvmStruct.isInitialized()) {
+        if (llvmStruct.setBody(llvmMembers, type.getPacked()).failed())
+          llvm_unreachable("Failed to set body of record");
+      }
     } else {
       llvmStruct = mlir::LLVM::LLVMStructType::getLiteral(
           type.getContext(), llvmMembers, type.getPacked());

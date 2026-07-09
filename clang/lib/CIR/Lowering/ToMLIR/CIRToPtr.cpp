@@ -148,7 +148,8 @@ struct GetElementLowering : public OpConversionPattern<cir::GetElementOp> {
     Type idxTy = rewriter.getIndexType();
 
     // Element type of the array being indexed.
-    Type elemTy = op.getElementType();
+    auto TC = getTypeConverter();
+    Type elemTy = TC->convertType(op.getElementType());
 
     // Byte size of one element.
     Value sz = ptr::TypeOffsetOp::create(rewriter, loc, idxTy, elemTy);
@@ -175,7 +176,8 @@ struct PtrStrideLowering : public OpConversionPattern<cir::PtrStrideOp> {
     Type idxTy = rewriter.getIndexType();
 
     // Pointee type of the base pointer.
-    Type elemTy = op.getElementType();
+    auto TC = getTypeConverter();
+    Type elemTy = TC->convertType(op.getElementType());
 
     // Byte size of one element.
     Value sz = ptr::TypeOffsetOp::create(rewriter, loc, idxTy, elemTy);
@@ -412,13 +414,99 @@ struct CleanupToPtrCastPattern
 
   mlir::LogicalResult matchAndRewrite(mlir::ptr::ToPtrOp toPtrOp,
                                       mlir::PatternRewriter &rewriter) const override {
-    auto cast = toPtrOp.getPtr().getDefiningOp<mlir::UnrealizedConversionCastOp>();
-    if (!cast || cast.getNumOperands() != 1 || cast.getNumResults() != 1)
+    auto pre_cast = toPtrOp.getPtr().getDefiningOp<mlir::UnrealizedConversionCastOp>();
+    if (!pre_cast || pre_cast.getNumOperands() != 1 || pre_cast.getNumResults() != 1)
       return failure();
-    if (!mlir::isa<mlir::LLVM::LLVMPointerType>(cast.getOperand(0).getType()))
+
+    if (!mlir::isa<mlir::LLVM::LLVMPointerType>(pre_cast.getOperand(0).getType()))
       return failure();
     rewriter.replaceOpWithNewOp<mlir::ptr::ToPtrOp>(
-        toPtrOp, toPtrOp.getType(), cast.getOperand(0));
+        toPtrOp, toPtrOp.getType(), pre_cast.getOperand(0));
+    return success();
+  }
+};
+
+/// Removes:
+///   %ptrptr = ptr.to_ptr %llvm1 : !llvm.ptr -> <space>
+///   %llvm2 = unrealized_cast %ptrptr : !<space> -> !llvm.ptr
+struct ReconcileToPtrCastPattern
+    : public mlir::OpRewritePattern<mlir::UnrealizedConversionCastOp> {
+  using OpRewritePattern::OpRewritePattern;
+
+  mlir::LogicalResult matchAndRewrite(mlir::UnrealizedConversionCastOp castOp,
+                                      mlir::PatternRewriter &rewriter) const override {
+
+    if (castOp.getNumOperands() != 1 || castOp.getNumResults() != 1)
+      return failure();
+
+    auto pre_toPtr = castOp.getOperand(0).getDefiningOp<mlir::ptr::ToPtrOp>();
+    if (!pre_toPtr)
+      return failure();
+
+    if (castOp.getOutputs()[0].getType() != pre_toPtr.getPtr().getType())
+      return failure();
+
+    rewriter.replaceAllUsesWith(castOp.getOutputs()[0], pre_toPtr.getPtr());
+    rewriter.eraseOp(castOp);
+
+    if (pre_toPtr->getUses().empty())
+      rewriter.eraseOp(pre_toPtr);
+
+    return success();
+  }
+};
+
+/// Removes:
+///   %ptrptr = unrealized_cast %in : !llvm.ptr -> <space>
+///   %llvmptr = ptr.from_ptr %ptrptr : <space> -> !llvm.ptr
+struct ReconcileFromPtrCastPattern
+    : public mlir::OpRewritePattern<mlir::ptr::FromPtrOp> {
+  using OpRewritePattern::OpRewritePattern;
+
+  mlir::LogicalResult matchAndRewrite(mlir::ptr::FromPtrOp fromPtrOp,
+                                      mlir::PatternRewriter &rewriter) const override {
+
+    auto pre_cast = fromPtrOp.getOperand(0).getDefiningOp<mlir::UnrealizedConversionCastOp>();
+    if (!pre_cast || pre_cast.getNumOperands() != 1 || pre_cast.getNumResults() != 1)
+      return failure();
+
+    if (pre_cast.getOperand(0).getType() != fromPtrOp.getResult().getType())
+      return failure();
+
+    rewriter.replaceAllUsesWith(fromPtrOp.getResult(), pre_cast.getOperand(0));
+    rewriter.eraseOp(fromPtrOp);
+
+    if (pre_cast->getUses().empty())
+      rewriter.eraseOp(pre_cast);
+
+    return success();
+  }
+};
+
+/// Converts:
+///   %ptrptr = unrealized_cast %in : !llvm.ptr -> <space>
+/// into:
+///   %ptrptr = ptr.to_ptr %in : !llvm.ptr -> <space>
+/// and
+///   %llvmptr = unrealized_cast %in : <space> -> !llvm.ptr
+/// into:
+///   %llvmptr = ptr.from_ptr %in : <space> -> !llvm.ptr
+struct ConvertCastPattern
+    : public mlir::OpRewritePattern<mlir::UnrealizedConversionCastOp> {
+  using OpRewritePattern::OpRewritePattern;
+
+  mlir::LogicalResult matchAndRewrite(mlir::UnrealizedConversionCastOp castOp,
+                                      mlir::PatternRewriter &rewriter) const override {
+
+    if (castOp.getNumOperands() != 1 || castOp.getNumResults() != 1)
+      return failure();
+
+    auto in = castOp.getInputs()[0];
+
+    if (isa<mlir::ptr::PtrType>(castOp.getResult(0).getType()))
+      rewriter.replaceOpWithNewOp<mlir::ptr::ToPtrOp>(castOp, castOp.getResult(0).getType(), in);
+    else
+      rewriter.replaceOpWithNewOp<mlir::ptr::FromPtrOp>(castOp, castOp.getResult(0).getType(), in);
     return success();
   }
 };
@@ -429,6 +517,9 @@ struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPas
     patterns.add<CleanupFromPtrCastPattern>(&getContext());
     patterns.add<CleanupFromPtrViaToPtrPattern>(&getContext());
     patterns.add<CleanupToPtrCastPattern>(&getContext());
+    patterns.add<ReconcileToPtrCastPattern>(&getContext());
+    patterns.add<ReconcileFromPtrCastPattern>(&getContext());
+    patterns.add<ConvertCastPattern>(&getContext());
     if (failed(mlir::applyPatternsGreedily(getOperation(),
                                            std::move(patterns))))
       signalPassFailure();

@@ -4828,9 +4828,9 @@ void populateOrbPasses(mlir::OpPassManager &pm) {
   pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
 
   pm.addPass(createConvertCIRToLLVMPass());
-  pm.addPass(mlir::createCIROrbCleanupPass());
   pm.addPass(mlir::createConvertArmAtomicToLLVMPass());
   pm.addPass(mlir::createConvertToLLVMPass());
+  pm.addPass(mlir::createCIROrbCleanupPass());
 }
 
 std::unique_ptr<llvm::Module>
