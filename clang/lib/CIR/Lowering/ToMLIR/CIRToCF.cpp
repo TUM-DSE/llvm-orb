@@ -108,7 +108,16 @@ struct SwitchRewriter : public OpConversionPattern<cir::SwitchFlatOp> {
     SmallVector<Block *> cir_dsts(cir_dsts_raw.begin(), cir_dsts_raw.end());
     SmallVector<ValueRange> cir_caseOps(cir_caseOps_raw.begin(), cir_caseOps_raw.end());
 
-    auto cf_switch = cf::SwitchOp::create(rewriter, switchOp.getLoc(), cir_cond, cir_default, cir_defaultOp, rewriter.getI32TensorAttr(cir_cases), cir_dsts, cir_caseOps);
+    // Build case_values tensor matching the converted flag type.
+    mlir::Type flagTy = cir_cond.getType();
+    mlir::DenseIntElementsAttr caseValuesAttr;
+    if (flagTy.isInteger(64)) {
+      SmallVector<int64_t> cir_cases64(cir_cases.begin(), cir_cases.end());
+      caseValuesAttr = rewriter.getI64TensorAttr(cir_cases64);
+    } else {
+      caseValuesAttr = rewriter.getI32TensorAttr(cir_cases);
+    }
+    auto cf_switch = cf::SwitchOp::create(rewriter, switchOp.getLoc(), cir_cond, cir_default, cir_defaultOp, caseValuesAttr, cir_dsts, cir_caseOps);
     rewriter.eraseOp(switchOp);
     //rewriter.replaceOpWithNewOp<cf::SwitchOp>(switchOp, cir_cond, cir_default, cir_defaultOp, rewriter.getI32TensorAttr(cir_cases), cir_dsts, cir_caseOps);
 

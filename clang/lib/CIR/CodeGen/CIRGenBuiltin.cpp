@@ -220,6 +220,43 @@ static mlir::Value makeBinaryAtomicValue(
   return rmwi->getResult(0);
 }
 
+/// Emit __sync_{val,bool}_compare_and_swap[_N] builtins.
+/// If \p returnBool is true, returns the success flag; else returns the old
+/// value loaded from memory before the exchange.
+static RValue emitSyncCAS(CIRGenFunction &cgf, const CallExpr *e,
+                           bool returnBool) {
+  Address destAddr = checkAtomicAlignment(cgf, e);
+  CIRGenBuilderTy &builder = cgf.getBuilder();
+  mlir::Location loc = cgf.getLoc(e->getSourceRange());
+  mlir::MLIRContext &ctx = cgf.getMLIRContext();
+
+  mlir::Value ptrValue = destAddr.getPointer();
+  mlir::Value expectedVal = cgf.emitScalarExpr(e->getArg(1));
+  mlir::Value desiredVal = cgf.emitScalarExpr(e->getArg(2));
+
+  // If the pointee is a pointer type, convert ptr/old/new to integer so that
+  // the AtomicCmpXchgOp constraint (ptr pointee == expected type) holds.
+  auto ptrTy = mlir::cast<cir::PointerType>(ptrValue.getType());
+  if (mlir::isa<cir::PointerType>(ptrTy.getPointee())) {
+    cir::IntType intTy = builder.getUIntNTy(
+        cgf.getContext().getTypeSize(e->getArg(1)->getType()));
+    ptrValue = builder.createBitcast(ptrValue, builder.getPointerTo(intTy));
+    expectedVal = emitToInt(cgf, expectedVal, e->getArg(1)->getType(), intTy);
+    desiredVal = emitToInt(cgf, desiredVal, e->getArg(2)->getType(), intTy);
+  }
+
+  auto seqCst = cir::MemOrderAttr::get(&ctx, cir::MemOrder::SequentiallyConsistent);
+  auto scopeAttr = cir::SyncScopeKindAttr::get(&ctx, cir::SyncScopeKind::System);
+  auto alignAttr = builder.getI64IntegerAttr(
+      destAddr.getAlignment().getAsAlign().value());
+
+  auto cmpxchg = cir::AtomicCmpXchgOp::create(
+      builder, loc, ptrValue, expectedVal, desiredVal,
+      seqCst, seqCst, scopeAttr, alignAttr);
+
+  return RValue::get(returnBool ? cmpxchg.getSuccess() : cmpxchg.getOld());
+}
+
 static RValue emitBinaryAtomic(CIRGenFunction &cgf,
                                cir::AtomicFetchKind atomicOpkind,
                                const CallExpr *e) {
@@ -1976,7 +2013,9 @@ RValue CIRGenFunction::emitBuiltinExpr(const GlobalDecl &gd, unsigned builtinID,
   case Builtin::BI__sync_xor_and_fetch:
   case Builtin::BI__sync_nand_and_fetch:
   case Builtin::BI__sync_val_compare_and_swap:
+    return emitSyncCAS(*this, e, /*returnBool=*/false);
   case Builtin::BI__sync_bool_compare_and_swap:
+    return emitSyncCAS(*this, e, /*returnBool=*/true);
   case Builtin::BI__sync_lock_test_and_set:
   case Builtin::BI__sync_lock_release:
   case Builtin::BI__sync_swap:
@@ -2069,11 +2108,13 @@ RValue CIRGenFunction::emitBuiltinExpr(const GlobalDecl &gd, unsigned builtinID,
   case Builtin::BI__sync_val_compare_and_swap_4:
   case Builtin::BI__sync_val_compare_and_swap_8:
   case Builtin::BI__sync_val_compare_and_swap_16:
+    return emitSyncCAS(*this, e, /*returnBool=*/false);
   case Builtin::BI__sync_bool_compare_and_swap_1:
   case Builtin::BI__sync_bool_compare_and_swap_2:
   case Builtin::BI__sync_bool_compare_and_swap_4:
   case Builtin::BI__sync_bool_compare_and_swap_8:
   case Builtin::BI__sync_bool_compare_and_swap_16:
+    return emitSyncCAS(*this, e, /*returnBool=*/true);
   case Builtin::BI__sync_swap_1:
   case Builtin::BI__sync_swap_2:
   case Builtin::BI__sync_swap_4:

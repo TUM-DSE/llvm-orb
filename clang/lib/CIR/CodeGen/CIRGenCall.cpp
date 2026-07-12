@@ -702,12 +702,20 @@ void CIRGenModule::constructFunctionArgumentAttributes(
   // Build a parallel array of ParmVarDecls aligned with argAttrs so we can
   // access parameter-level attributes (e.g. restrict, nonnull) without manual
   // index arithmetic in the loop.
+  // NOTE: info.arguments() inserts an implicit size_t after each param that
+  // carries pass_object_size, so we must mirror that by inserting nullptr for
+  // those implicit slots; otherwise parmDecls is misaligned and attributes
+  // (e.g. noalias from restrict) get applied to the wrong argument.
   SmallVector<const ParmVarDecl *> parmDecls;
   parmDecls.reserve(argAttrs.size());
   if (fd) {
     if (info.isInstanceMethod())
       parmDecls.push_back(nullptr);
-    parmDecls.insert(parmDecls.end(), fd->param_begin(), fd->param_end());
+    for (const ParmVarDecl *pvd : fd->parameters()) {
+      parmDecls.push_back(pvd);
+      if (pvd->hasAttr<PassObjectSizeAttr>())
+        parmDecls.push_back(nullptr); // implicit size_t slot
+    }
   }
   parmDecls.resize(argAttrs.size(), nullptr);
 
@@ -940,6 +948,10 @@ arrangeFreeFunctionLikeCall(CIRGenTypes &cgt, CIRGenModule &cgm,
   SmallVector<CanQualType, 16> argTypes;
   for (const CallArg &arg : args)
     argTypes.push_back(cgt.getASTContext().getCanonicalParamType(arg.ty));
+
+  if (required.allowsOptionalArgs() &&
+      required.getNumRequiredArgs() > argTypes.size())
+    required = RequiredArgs(argTypes.size());
 
   CanQualType retType = fnType->getReturnType()->getCanonicalTypeUnqualified();
 

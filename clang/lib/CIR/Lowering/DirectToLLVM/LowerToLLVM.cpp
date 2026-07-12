@@ -16,6 +16,7 @@
 #include <optional>
 
 #include "mlir/Conversion/ControlFlowToLLVM/ControlFlowToLLVM.h"
+#include "mlir/Dialect/ControlFlow/Transforms/StructuralTypeConversions.h"
 #include "mlir/Conversion/Passes.h"
 #include "mlir/Conversion/FuncToLLVM/ConvertFuncToLLVM.h"
 #include "mlir/Conversion/OpenMPToLLVM/ConvertOpenMPToLLVM.h"
@@ -29,6 +30,7 @@
 #include "mlir/Dialect/OpenMP/OpenMPDialect.h"
 #include "mlir/Dialect/OpenMP/Transforms/Passes.h"
 #include "mlir/Dialect/Ptr/IR/MemorySpaceInterfaces.h"
+#include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/BuiltinDialect.h"
 #include "mlir/IR/BuiltinOps.h"
@@ -3516,6 +3518,55 @@ void ConvertCIRToLLVMPass::processCIRAttrs(mlir::ModuleOp module) {
                     asmAttr);
 }
 
+// Orb pipeline: ptr.to_ptr(!cir.ptr<T>) — adaptor converts input to !llvm.ptr
+struct OrbToPtrLowering : public mlir::OpConversionPattern<mlir::ptr::ToPtrOp> {
+  using OpConversionPattern::OpConversionPattern;
+  LogicalResult matchAndRewrite(mlir::ptr::ToPtrOp op, OpAdaptor adaptor,
+                                mlir::ConversionPatternRewriter &rewriter) const override {
+    if (!mlir::isa<cir::PointerType>(op.getPtr().getType()))
+      return failure();
+    rewriter.replaceOpWithNewOp<mlir::ptr::ToPtrOp>(op, op.getType(),
+                                                    adaptor.getPtr());
+    return success();
+  }
+};
+
+// Orb pipeline: ptr.from_ptr(!ptr.ptr<space>) -> !cir.ptr<T> — the adaptor
+// converts the !ptr.ptr<space> input to !llvm.ptr (via the ptr::PtrType
+// conversion added below).  We just forward that converted value; no new op
+// is needed, and no ptr.from_ptr verifier constraint is triggered.
+struct OrbFromPtrLowering : public mlir::OpConversionPattern<mlir::ptr::FromPtrOp> {
+  using OpConversionPattern::OpConversionPattern;
+  LogicalResult matchAndRewrite(mlir::ptr::FromPtrOp op, OpAdaptor adaptor,
+                                mlir::ConversionPatternRewriter &rewriter) const override {
+    if (!mlir::isa<cir::PointerType>(op.getType()))
+      return failure();
+    rewriter.replaceOp(op, adaptor.getPtr());
+    return success();
+  }
+};
+
+
+// Orb pipeline: ptr.type_offset !cir.T → ptr.type_offset !llvm.T.
+// CIRToPtr leaves the element type as a CIR type (structs pass through
+// unchanged so that CIRToLLVM can initialize named LLVM struct bodies).
+// After CIRToLLVM the struct bodies are set up, so we can update the
+// type attribute here using the type converter.
+struct OrbTypeOffsetLowering
+    : public mlir::OpConversionPattern<mlir::ptr::TypeOffsetOp> {
+  using OpConversionPattern::OpConversionPattern;
+  LogicalResult matchAndRewrite(mlir::ptr::TypeOffsetOp op, OpAdaptor,
+                                mlir::ConversionPatternRewriter &rewriter) const override {
+    mlir::Type elemTy = op.getElementType();
+    mlir::Type llvmElemTy = getTypeConverter()->convertType(elemTy);
+    if (!llvmElemTy || llvmElemTy == elemTy)
+      return failure();
+    rewriter.replaceOpWithNewOp<mlir::ptr::TypeOffsetOp>(
+        op, op.getResult().getType(), llvmElemTy);
+    return success();
+  }
+};
+
 // Pattern to match leftover casts from the Orb pipeline
 struct UnrealCastRewriter : public mlir::OpConversionPattern<mlir::UnrealizedConversionCastOp> {
   UnrealCastRewriter(mlir::MLIRContext *context) : OpConversionPattern<mlir::UnrealizedConversionCastOp>(context) {}
@@ -3530,6 +3581,12 @@ void ConvertCIRToLLVMPass::runOnOperation() {
   mlir::DataLayout dl(module);
   mlir::LLVMTypeConverter converter(&getContext());
   populateCIRTypeConversions(converter, dl);
+  // Orb pipeline: ptr::PtrType appears after CIRToPtr. Teach the type converter
+  // to map it to !llvm.ptr so that ops using !ptr.ptr<space> stay legal in
+  // applyPartialConversion and OrbFromPtrLowering's adaptor can provide !llvm.ptr.
+  converter.addConversion([](mlir::ptr::PtrType type) -> mlir::Type {
+    return mlir::LLVM::LLVMPointerType::get(type.getContext());
+  });
 
   /// Tracks the state required to lower CIR `LabelOp` and `BlockAddressOp`.
   /// Maps labels to their corresponding `BlockTagOp` and keeps bookkeeping
@@ -3551,6 +3608,8 @@ void ConvertCIRToLLVMPass::runOnOperation() {
 #undef GET_LLVM_LOWERING_PATTERNS_LIST
       >(converter, patterns.getContext(), dl);
 
+  patterns.add<OrbToPtrLowering, OrbFromPtrLowering, OrbTypeOffsetLowering>(
+      converter, patterns.getContext());
   patterns.add<UnrealCastRewriter>(patterns.getContext());
 
   processCIRAttrs(module);
@@ -3567,6 +3626,42 @@ void ConvertCIRToLLVMPass::runOnOperation() {
   mlir::populateOpenMPToLLVMConversionPatterns(converter, patterns);
   target.addIllegalDialect<mlir::BuiltinDialect, cir::CIRDialect,
                            mlir::func::FuncDialect>();
+  // Orb pipeline: ptr.from_ptr/to_ptr with CIR-typed operands/results must
+  // be converted; otherwise they're left as-is (UNKNOWN dialect = legal).
+  target.addDynamicallyLegalOp<mlir::ptr::FromPtrOp>(
+      [](mlir::ptr::FromPtrOp op) {
+        return !mlir::isa<cir::PointerType>(op.getType());
+      });
+  target.addDynamicallyLegalOp<mlir::ptr::ToPtrOp>(
+      [](mlir::ptr::ToPtrOp op) {
+        return !mlir::isa<cir::PointerType>(op.getPtr().getType());
+      });
+  // Orb pipeline: ptr.type_offset with a CIR element type must be updated to
+  // use the corresponding LLVM type (CIRToPtr left CIR struct types as-is).
+  target.addDynamicallyLegalOp<mlir::ptr::TypeOffsetOp>(
+      [](mlir::ptr::TypeOffsetOp op) {
+        return !mlir::isa<cir::CIRDialect>(
+            op.getElementType().getDialect());
+      });
+  // Orb pipeline: the framework inserts unrealized_cast(!ptr.ptr<space> → !llvm.ptr)
+  // source materializations; allow them so ConvertToLLVM/CIROrbCleanupPass can
+  // clean them up later.
+  target.addDynamicallyLegalOp<mlir::UnrealizedConversionCastOp>(
+      [](mlir::UnrealizedConversionCastOp op) {
+        if (op.getNumOperands() != 1 || op.getNumResults() != 1)
+          return false;
+        mlir::Type in = op.getOperands()[0].getType();
+        mlir::Type out = op.getResultTypes()[0];
+        return (mlir::isa<mlir::ptr::PtrType>(in) &&
+                mlir::isa<mlir::LLVM::LLVMPointerType>(out)) ||
+               (mlir::isa<mlir::LLVM::LLVMPointerType>(in) &&
+                mlir::isa<mlir::ptr::PtrType>(out));
+      });
+  // Orb pipeline: cf.br/cf.cond_br operands must be updated when block arg
+  // types change from !ptr.ptr<space> to !llvm.ptr (e.g. after cir.func
+  // conversion updates block argument types).
+  mlir::cf::populateCFStructuralTypeConversionsAndLegality(converter, patterns,
+                                                           target);
 
   llvm::SmallVector<mlir::Operation *> ops;
   ops.push_back(module);
@@ -4804,6 +4899,18 @@ LogicalResult UnrealCastRewriter::matchAndRewrite(mlir::UnrealizedConversionCast
   auto inOps = castOp.getInputs();
   if (inOps.size() != 1)
     return failure();
+
+  // Orb pipeline: ptr.from_ptr produces !cir.ptr<T> source materializations.
+  // When CIRToLLVM needs !llvm.ptr from such a value, re-emit ptr.from_ptr with
+  // the LLVM target type directly, avoiding an unresolvable unrealized_cast.
+  if (auto fromPtr = inOps[0].getDefiningOp<mlir::ptr::FromPtrOp>()) {
+    mlir::Type resTy = castOp.getResult(0).getType();
+    if (mlir::LLVM::isCompatibleType(resTy)) {
+      rewriter.replaceOpWithNewOp<mlir::ptr::FromPtrOp>(castOp, resTy,
+                                                        fromPtr.getPtr());
+      return success();
+    }
+  }
 
   rewriter.replaceOp(castOp, inOps[0]);
   return success();

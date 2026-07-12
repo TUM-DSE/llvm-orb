@@ -628,6 +628,8 @@ public:
   /// attribute, and the alias index of this attribute.
   std::pair<size_t, size_t> visit(Attribute attr, bool canBeDeferred = false,
                                   bool elideType = false) {
+    if (!attr)
+      return {0, 0};
     return visitImpl(attr, aliases, canBeDeferred, elideType);
   }
 

@@ -18,6 +18,7 @@
 #include "PassDetail.h"
 #include "mlir/Conversion/LLVMCommon/TypeConverter.h"
 #include "mlir/Dialect/Arith/IR/Arith.h"
+#include "mlir/Dialect/ControlFlow/Transforms/StructuralTypeConversions.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/LLVMIR/LLVMTypes.h"
 #include "mlir/Dialect/Ptr/IR/PtrAttrs.h"
@@ -26,6 +27,7 @@
 #include "mlir/Dialect/Ptr/IR/PtrTypes.h"
 #include "mlir/IR/BuiltinTypeInterfaces.h"
 #include "mlir/IR/PatternMatch.h"
+#include "mlir/Interfaces/ControlFlowInterfaces.h"
 #include "mlir/Interfaces/DataLayoutInterfaces.h"
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Transforms/DialectConversion.h"
@@ -83,6 +85,16 @@ static void populateCIRToPtrTypeConversions(mlir::LLVMTypeConverter &converter,
       addrSpace = ptr::GenericSpaceAttr::get(ptrTy.getContext());
     return ptr::PtrType::get(addrSpace);
   });
+
+  // Pass struct/union types through unchanged so that ConvertCIRToLLVMPass can
+  // properly initialize their named LLVM struct bodies. If we converted them
+  // here, the named LLVM structs would be initialized with ptr::PtrType members
+  // (since cir::PointerType maps to ptr::PtrType in this pass), which would
+  // poison the struct cache for the subsequent LLVM lowering pass.
+  converter.addConversion([](cir::StructType t) -> Type { return t; });
+  converter.addConversion([](cir::UnionType t) -> Type { return t; });
+
+  converter.addConversion([](ptr::PtrType t) -> Type { return t; });
 
   converter.addTargetMaterialization([](OpBuilder &b, ptr::PtrType dstTy,
                                         ValueRange inputs,
@@ -250,6 +262,14 @@ struct AllocaLowering : public OpConversionPattern<cir::AllocaOp> {
     // Element type to allocate.
     Type elemTy = convertTypeForMemory(*getTypeConverter(), dataLayout,
                                       op.getAllocaType());
+    // If the element type wasn't converted to an LLVM type (e.g. a CIR
+    // struct/union left as-is by the passthrough), substitute i8[N] so that
+    // llvm.alloca gets a valid LLVM element type with the right allocation size.
+    if (!mlir::LLVM::isCompatibleType(elemTy)) {
+      uint64_t byteSize = dataLayout.getTypeSize(op.getAllocaType());
+      elemTy = mlir::LLVM::LLVMArrayType::get(
+          mlir::IntegerType::get(ctx, 8), byteSize);
+    }
 
     // llvm.alloca always produces !llvm.ptr (address space 0 for locals).
     Type llvmPtrTy = mlir::LLVM::LLVMPointerType::get(ctx, 0);
@@ -323,6 +343,9 @@ struct CIRToPtrPass : public mlir::impl::CIRToPtrBase<CIRToPtrPass> {
     patterns.add<AllocaLowering>(tc, ctx, dl);
     patterns.add<CastArrayDecayLowering, GetElementLowering, PtrStrideLowering,
                  LoadLowering, StoreLowering>(tc, ctx);
+
+    mlir::cf::populateCFStructuralTypeConversionsAndLegality(tc, patterns,
+                                                             target);
 
     if (failed(applyPartialConversion(getOperation(), target,
                                       std::move(patterns))))
@@ -503,17 +526,181 @@ struct ConvertCastPattern
 
     auto in = castOp.getInputs()[0];
 
-    if (isa<mlir::ptr::PtrType>(castOp.getResult(0).getType()))
+    if (isa<mlir::ptr::PtrType>(castOp.getResult(0).getType())) {
+      // to_ptr requires PtrLikeTypeInterface on the input (and input must not
+      // already be ptr::PtrType, which would be a no-op ToPtrOp).
+      if (!mlir::isa<mlir::PtrLikeTypeInterface>(in.getType()) ||
+          isa<mlir::ptr::PtrType>(in.getType()))
+        return failure();
       rewriter.replaceOpWithNewOp<mlir::ptr::ToPtrOp>(castOp, castOp.getResult(0).getType(), in);
-    else
+    } else {
+      // from_ptr requires ptr::PtrType on the input.
+      if (!isa<mlir::ptr::PtrType>(in.getType()))
+        return failure();
       rewriter.replaceOpWithNewOp<mlir::ptr::FromPtrOp>(castOp, castOp.getResult(0).getType(), in);
+    }
     return success();
   }
 };
 
+struct FixPtrLoadTypePattern : public mlir::OpRewritePattern<mlir::ptr::LoadOp> {
+  using OpRewritePattern::OpRewritePattern;
+
+  mlir::LogicalResult matchAndRewrite(mlir::ptr::LoadOp load,
+                                      mlir::PatternRewriter &rewriter) const override {
+    auto *ctx = load.getContext();
+    auto ptrPtrTy = mlir::ptr::PtrType::get(mlir::ptr::GenericSpaceAttr::get(ctx));
+    if (load.getValue().getType() != ptrPtrTy)
+      return failure();
+    auto llvmPtrTy = mlir::LLVM::LLVMPointerType::get(ctx);
+    rewriter.setInsertionPointAfter(load);
+    auto newLoad = mlir::ptr::LoadOp::create(
+        rewriter, load.getLoc(), llvmPtrTy, load.getPtr(),
+        load.getAlignment().value_or(0), load.getVolatile_(),
+        load.getNontemporal(), load.getInvariant(), load.getInvariantGroup(),
+        load.getOrdering(), load.getSyncscope().value_or(llvm::StringRef{}));
+    auto toPtr = mlir::ptr::ToPtrOp::create(rewriter, load.getLoc(), ptrPtrTy, newLoad);
+    rewriter.replaceOp(load, toPtr.getResult());
+    return success();
+  }
+};
+
+struct FixNonLLVMPtrLoadPattern : public mlir::OpRewritePattern<mlir::ptr::LoadOp> {
+  using OpRewritePattern::OpRewritePattern;
+
+  mlir::LogicalResult matchAndRewrite(mlir::ptr::LoadOp load,
+                                      mlir::PatternRewriter &rewriter) const override {
+    mlir::Type valTy = load.getValue().getType();
+    if (mlir::LLVM::isCompatibleType(valTy) || mlir::isa<mlir::ptr::PtrType>(valTy))
+      return failure();
+    mlir::Type llvmTy;
+    for (mlir::Operation *user : load->getUsers()) {
+      auto cast = mlir::dyn_cast<mlir::UnrealizedConversionCastOp>(user);
+      if (!cast || cast.getNumResults() != 1)
+        return failure();
+      mlir::Type resTy = cast.getResult(0).getType();
+      if (!mlir::LLVM::isCompatibleType(resTy))
+        return failure();
+      if (!llvmTy)
+        llvmTy = resTy;
+      else if (llvmTy != resTy)
+        return failure();
+    }
+    if (!llvmTy)
+      return failure();
+    rewriter.setInsertionPoint(load);
+    auto newLoad = mlir::ptr::LoadOp::create(
+        rewriter, load.getLoc(), llvmTy, load.getPtr(),
+        load.getAlignment().value_or(0), load.getVolatile_(),
+        load.getNontemporal(), load.getInvariant(), load.getInvariantGroup(),
+        load.getOrdering(), load.getSyncscope().value_or(llvm::StringRef{}));
+    for (mlir::Operation *user : llvm::to_vector(load->getUsers()))
+      rewriter.replaceOp(mlir::cast<mlir::UnrealizedConversionCastOp>(user),
+                         newLoad.getResult());
+    rewriter.eraseOp(load);
+    return success();
+  }
+};
+
+struct FixNonLLVMPtrStorePattern : public mlir::OpRewritePattern<mlir::ptr::StoreOp> {
+  using OpRewritePattern::OpRewritePattern;
+
+  mlir::LogicalResult matchAndRewrite(mlir::ptr::StoreOp store,
+                                      mlir::PatternRewriter &rewriter) const override {
+    mlir::Value val = store.getValue();
+    if (mlir::LLVM::isCompatibleType(val.getType()) ||
+        mlir::isa<mlir::ptr::PtrType>(val.getType()))
+      return failure();
+    auto cast = mlir::dyn_cast_or_null<mlir::UnrealizedConversionCastOp>(
+        val.getDefiningOp());
+    if (!cast || cast.getNumOperands() != 1)
+      return failure();
+    mlir::Value src = cast.getOperand(0);
+    if (!mlir::LLVM::isCompatibleType(src.getType()))
+      return failure();
+    rewriter.replaceOpWithNewOp<mlir::ptr::StoreOp>(
+        store, src, store.getPtr(), store.getAlignment().value_or(0),
+        store.getVolatile_(), store.getNontemporal(), /*invariantGroup=*/false,
+        store.getOrdering(),
+        store.getSyncscope().value_or(llvm::StringRef{}));
+    return success();
+  }
+};
+
+/// After CIRToPtr converts !cir.ptr<T> block args to ptr::PtrType and
+/// ConvertToLLVM converts cf.cond_br → llvm.cond_br, the resulting
+/// llvm.cond_br ops may have ptr::PtrType block-arg operands, which violate
+/// LLVM dialect constraints.  Fix this by:
+///   1. Inserting ptr.from_ptr before each LLVM branch to convert the
+///      ptr::PtrType operand to !llvm.ptr.
+///   2. Changing the target block arg type to !llvm.ptr.
+///   3. Inserting ptr.to_ptr at the start of each fixed block so that ops
+///      inside it that need ptr::PtrType continue to work.
+static void fixPtrTypeBlockArgsInLLVMBranches(mlir::Operation *root) {
+  auto *ctx = root->getContext();
+  auto ptrPtrTy =
+      mlir::ptr::PtrType::get(mlir::ptr::GenericSpaceAttr::get(ctx));
+  auto llvmPtrTy = mlir::LLVM::LLVMPointerType::get(ctx);
+  mlir::OpBuilder b(ctx);
+
+  root->walk([&](mlir::Block *block) {
+    if (block->hasNoPredecessors())
+      return;
+
+    llvm::SmallVector<mlir::BlockArgument> argsToFix;
+    for (auto arg : block->getArguments())
+      if (arg.getType() == ptrPtrTy)
+        argsToFix.push_back(arg);
+    if (argsToFix.empty())
+      return;
+
+    // Fix predecessor branch operands.
+    for (mlir::Block *pred : block->getPredecessors()) {
+      auto *term = pred->getTerminator();
+      auto brOp = mlir::dyn_cast<mlir::BranchOpInterface>(term);
+      if (!brOp)
+        continue;
+      for (unsigned si = 0; si < term->getNumSuccessors(); ++si) {
+        if (term->getSuccessor(si) != block)
+          continue;
+        auto succOps = brOp.getSuccessorOperands(si);
+        for (auto arg : argsToFix) {
+          unsigned argIdx = arg.getArgNumber();
+          if (succOps.isOperandProduced(argIdx))
+            continue;
+          mlir::Value operand = succOps[argIdx];
+          if (!operand || operand.getType() != ptrPtrTy)
+            continue;
+          b.setInsertionPoint(term);
+          auto fromPtr = mlir::ptr::FromPtrOp::create(b, term->getLoc(),
+                                                      llvmPtrTy, operand);
+          succOps.slice(argIdx, 1).assign(fromPtr.getResult());
+        }
+      }
+    }
+
+    // Change block arg types and patch up inner uses with ptr.to_ptr.
+    b.setInsertionPointToStart(block);
+    for (auto arg : argsToFix) {
+      llvm::SmallVector<mlir::OpOperand *> uses;
+      for (auto &use : arg.getUses())
+        uses.push_back(&use);
+      arg.setType(llvmPtrTy);
+      mlir::Location loc = block->getParentOp() ? block->getParentOp()->getLoc()
+                                                 : b.getUnknownLoc();
+      auto toPtr = mlir::ptr::ToPtrOp::create(b, loc, ptrPtrTy, arg);
+      for (auto *use : uses)
+        use->set(toPtr.getResult());
+    }
+  });
+}
+
 struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPass> {
   void runOnOperation() override {
     mlir::RewritePatternSet patterns(&getContext());
+    patterns.add<FixNonLLVMPtrLoadPattern>(&getContext());
+    patterns.add<FixNonLLVMPtrStorePattern>(&getContext());
+    patterns.add<FixPtrLoadTypePattern>(&getContext());
     patterns.add<CleanupFromPtrCastPattern>(&getContext());
     patterns.add<CleanupFromPtrViaToPtrPattern>(&getContext());
     patterns.add<CleanupToPtrCastPattern>(&getContext());
@@ -523,6 +710,9 @@ struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPas
     if (failed(mlir::applyPatternsGreedily(getOperation(),
                                            std::move(patterns))))
       signalPassFailure();
+    // ConvertCastPattern may have produced new ptr::PtrType values (ptr.to_ptr
+    // results) that ended up as llvm.cond_br block-arg operands.  Fix them now.
+    fixPtrTypeBlockArgsInLLVMBranches(getOperation());
   }
 };
 
