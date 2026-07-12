@@ -2321,6 +2321,14 @@ CIRGenFunction::emitAArch64BuiltinExpr(unsigned builtinID, const CallExpr *expr,
                 getContext().BuiltinInfo.getName(builtinID));
       }
     }
+    // Multi-vector NEON types (uint8x8x2_t etc.) are structs — not scalar.
+    // Bail with NYI rather than asserting in emitScalarExpr.
+    if (!hasScalarEvaluationKind(expr->getArg(i)->getType())) {
+      cgm.errorNYI(expr->getSourceRange(),
+                   std::string("non-scalar NEON argument: ") +
+                       getContext().BuiltinInfo.getName(builtinID));
+      return mlir::Value{};
+    }
     ops.push_back(
         emitScalarOrConstFoldImmArg(iceArguments, i, expr->getArg(i)));
   }
