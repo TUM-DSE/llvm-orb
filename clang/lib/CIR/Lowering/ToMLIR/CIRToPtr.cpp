@@ -695,6 +695,55 @@ static void fixPtrTypeBlockArgsInLLVMBranches(mlir::Operation *root) {
   });
 }
 
+/// If `llvm.intr.threadlocal.address` is called on a block argument (which
+/// becomes a phi node in LLVM IR, not a GlobalValue), the LLVM IR verifier
+/// rejects it.  Fix by sinking the threadlocal_address into each predecessor:
+///   predecessor: br ^join(%addressof_global)
+///   ^join(%arg):  %tls = threadlocal_address(%arg)
+/// becomes:
+///   predecessor: %tls = threadlocal_address(%addressof_global); br ^join(%tls)
+///   ^join(%arg):  (use %arg directly)
+static void fixTLSAddressOnBlockArgs(mlir::Operation *root) {
+  auto *ctx = root->getContext();
+  mlir::OpBuilder b(ctx);
+
+  llvm::SmallVector<mlir::LLVM::ThreadlocalAddressOp> toFix;
+  root->walk([&](mlir::LLVM::ThreadlocalAddressOp tlsOp) {
+    if (mlir::isa<mlir::BlockArgument>(tlsOp.getGlobal()))
+      toFix.push_back(tlsOp);
+  });
+
+  for (auto tlsOp : toFix) {
+    auto blockArg = mlir::cast<mlir::BlockArgument>(tlsOp.getGlobal());
+    mlir::Block *block = blockArg.getOwner();
+    unsigned argIdx = blockArg.getArgNumber();
+
+    for (mlir::Block *pred : block->getPredecessors()) {
+      auto *term = pred->getTerminator();
+      auto brOp = mlir::dyn_cast<mlir::BranchOpInterface>(term);
+      if (!brOp)
+        continue;
+      for (unsigned si = 0; si < term->getNumSuccessors(); ++si) {
+        if (term->getSuccessor(si) != block)
+          continue;
+        auto succOps = brOp.getSuccessorOperands(si);
+        if (succOps.isOperandProduced(argIdx))
+          continue;
+        mlir::Value operand = succOps[argIdx];
+        if (!operand)
+          continue;
+        b.setInsertionPoint(term);
+        auto newTLS = mlir::LLVM::ThreadlocalAddressOp::create(
+            b, tlsOp.getLoc(), tlsOp.getType(), operand);
+        succOps.slice(argIdx, 1).assign(newTLS.getResult());
+      }
+    }
+    // Block arg now carries TLS-resolved address; drop the redundant call.
+    tlsOp.replaceAllUsesWith(blockArg);
+    tlsOp.erase();
+  }
+}
+
 struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPass> {
   void runOnOperation() override {
     mlir::RewritePatternSet patterns(&getContext());
@@ -713,6 +762,9 @@ struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPas
     // ConvertCastPattern may have produced new ptr::PtrType values (ptr.to_ptr
     // results) that ended up as llvm.cond_br block-arg operands.  Fix them now.
     fixPtrTypeBlockArgsInLLVMBranches(getOperation());
+    // TLS globals whose address flowed through a block arg need threadlocal_address
+    // sunk into each predecessor so it is always applied to a GlobalValue.
+    fixTLSAddressOnBlockArgs(getOperation());
   }
 };
 
