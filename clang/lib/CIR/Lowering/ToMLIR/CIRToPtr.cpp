@@ -744,6 +744,92 @@ static void fixTLSAddressOnBlockArgs(mlir::Operation *root) {
   }
 }
 
+/// AArch64 ABI requires composites > 16 bytes to be passed by reference
+/// (caller allocates a copy and passes a pointer).  CIR skips ABI lowering,
+/// so large structs (e.g. struct __va_list / 32 bytes) appear as value-typed
+/// arguments in llvm.call after CIRToLLVM.  Fix: when a struct-typed call
+/// argument was loaded from an alloca via ptr.load(ptr.to_ptr(%alloca_ptr)),
+/// replace the argument with %alloca_ptr and update the callee declaration's
+/// function type accordingly.
+static void fixLargeStructCallArgs(mlir::Operation *root) {
+  auto *ctx = root->getContext();
+  mlir::OpBuilder b(ctx);
+  auto llvmPtrTy = mlir::LLVM::LLVMPointerType::get(ctx);
+
+  llvm::SmallVector<mlir::LLVM::CallOp> calls;
+  root->walk([&](mlir::LLVM::CallOp callOp) {
+    for (mlir::Value arg : callOp.getArgOperands())
+      if (mlir::isa<mlir::LLVM::LLVMStructType>(arg.getType())) {
+        calls.push_back(callOp);
+        break;
+      }
+  });
+
+  for (auto callOp : calls) {
+    // Only fix calls to external declarations; for defined functions the
+    // struct parameter types must match the function body's block arg types.
+    auto calleeName = callOp.getCallee();
+    if (!calleeName)
+      continue;
+    auto moduleOp = callOp->getParentOfType<mlir::ModuleOp>();
+    if (!moduleOp)
+      continue;
+    auto fn = dyn_cast_or_null<mlir::LLVM::LLVMFuncOp>(
+        moduleOp.lookupSymbol(*calleeName));
+    if (!fn || !fn.isExternal())
+      continue;
+
+    llvm::SmallVector<mlir::Value> newArgs(callOp.getArgOperands().begin(),
+                                           callOp.getArgOperands().end());
+    llvm::SmallVector<mlir::Type> newArgTypes;
+    bool changed = false;
+
+    llvm::SmallVector<mlir::Operation *> loadOpsToCheck;
+    for (auto &arg : newArgs) {
+      if (!mlir::isa<mlir::LLVM::LLVMStructType>(arg.getType())) {
+        newArgTypes.push_back(arg.getType());
+        continue;
+      }
+      // Trace: ptr.load(%ptr_ptr) where %ptr_ptr = ptr.to_ptr(%llvm_ptr)
+      auto loadOp = arg.getDefiningOp<mlir::ptr::LoadOp>();
+      if (!loadOp) {
+        newArgTypes.push_back(arg.getType());
+        continue;
+      }
+      auto toPtrOp = loadOp.getPtr().getDefiningOp<mlir::ptr::ToPtrOp>();
+      if (!toPtrOp) {
+        newArgTypes.push_back(arg.getType());
+        continue;
+      }
+      mlir::Value llvmPtr = toPtrOp.getPtr();
+      arg = llvmPtr;
+      newArgTypes.push_back(llvmPtrTy);
+      changed = true;
+      loadOpsToCheck.push_back(loadOp);
+    }
+
+    if (!changed)
+      continue;
+
+    // Update the external callee declaration's function type.
+    auto oldFnTy = fn.getFunctionType();
+    fn.setFunctionType(mlir::LLVM::LLVMFunctionType::get(
+        ctx, oldFnTy.getReturnType(), newArgTypes, oldFnTy.isVarArg()));
+
+    b.setInsertionPoint(callOp);
+    auto newCall = mlir::LLVM::CallOp::create(
+        b, callOp.getLoc(), callOp.getResultTypes(),
+        callOp.getCalleeAttr(), newArgs);
+    callOp.replaceAllUsesWith(newCall.getResults());
+    callOp.erase();
+
+    // Erase load ops that are now dead (their only user was the old call).
+    for (auto *op : loadOpsToCheck)
+      if (op->use_empty())
+        op->erase();
+  }
+}
+
 struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPass> {
   void runOnOperation() override {
     mlir::RewritePatternSet patterns(&getContext());
@@ -765,6 +851,11 @@ struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPas
     // TLS globals whose address flowed through a block arg need threadlocal_address
     // sunk into each predecessor so it is always applied to a GlobalValue.
     fixTLSAddressOnBlockArgs(getOperation());
+    // Large structs (e.g. AArch64 va_list / 32 bytes) must be passed by
+    // reference per the ABI; CIR skips ABI lowering and emits them by value.
+    // Replace struct-typed call args that came from ptr.load(ptr.to_ptr(%ptr))
+    // with %ptr (the alloca address), and update the callee declaration type.
+    fixLargeStructCallArgs(getOperation());
   }
 };
 
