@@ -4940,6 +4940,80 @@ void populateOrbPasses(mlir::OpPassManager &pm) {
   pm.addPass(mlir::createCIROrbCleanupPass());
 }
 
+/// After ConvertCIRToLLVMPass, large structs (e.g. AArch64 va_list) passed to
+/// external functions are emitted as struct values instead of pointers,
+/// violating the platform ABI. Fix: when a struct-typed call argument was
+/// loaded via llvm.load(%ptr), replace it with %ptr and update the external
+/// callee's type. Mirrors fixLargeStructCallArgs in CIRToPtr.cpp but operates
+/// on llvm.load instead of ptr.load(ptr.to_ptr(...)).
+static void fixLargeStructCallArgsDirect(mlir::Operation *root) {
+  auto *ctx = root->getContext();
+  mlir::OpBuilder b(ctx);
+  auto llvmPtrTy = mlir::LLVM::LLVMPointerType::get(ctx);
+
+  llvm::SmallVector<mlir::LLVM::CallOp> calls;
+  root->walk([&](mlir::LLVM::CallOp callOp) {
+    for (mlir::Value arg : callOp.getArgOperands())
+      if (mlir::isa<mlir::LLVM::LLVMStructType>(arg.getType())) {
+        calls.push_back(callOp);
+        break;
+      }
+  });
+
+  for (auto callOp : calls) {
+    auto calleeName = callOp.getCallee();
+    if (!calleeName)
+      continue;
+    auto moduleOp = callOp->getParentOfType<mlir::ModuleOp>();
+    if (!moduleOp)
+      continue;
+    auto fn = dyn_cast_or_null<mlir::LLVM::LLVMFuncOp>(
+        moduleOp.lookupSymbol(*calleeName));
+    if (!fn || !fn.isExternal())
+      continue;
+
+    llvm::SmallVector<mlir::Value> newArgs(callOp.getArgOperands().begin(),
+                                           callOp.getArgOperands().end());
+    llvm::SmallVector<mlir::Type> newArgTypes;
+    bool changed = false;
+    llvm::SmallVector<mlir::Operation *> loadOpsToCheck;
+
+    for (auto &arg : newArgs) {
+      if (!mlir::isa<mlir::LLVM::LLVMStructType>(arg.getType())) {
+        newArgTypes.push_back(arg.getType());
+        continue;
+      }
+      auto loadOp = arg.getDefiningOp<mlir::LLVM::LoadOp>();
+      if (!loadOp) {
+        newArgTypes.push_back(arg.getType());
+        continue;
+      }
+      arg = loadOp.getAddr();
+      newArgTypes.push_back(llvmPtrTy);
+      changed = true;
+      loadOpsToCheck.push_back(loadOp);
+    }
+
+    if (!changed)
+      continue;
+
+    auto oldFnTy = fn.getFunctionType();
+    fn.setFunctionType(mlir::LLVM::LLVMFunctionType::get(
+        ctx, oldFnTy.getReturnType(), newArgTypes, oldFnTy.isVarArg()));
+
+    b.setInsertionPoint(callOp);
+    auto newCall = mlir::LLVM::CallOp::create(b, callOp.getLoc(),
+                                              callOp.getResultTypes(),
+                                              callOp.getCalleeAttr(), newArgs);
+    callOp.replaceAllUsesWith(newCall.getResults());
+    callOp.erase();
+
+    for (auto *op : loadOpsToCheck)
+      if (op->use_empty())
+        op->erase();
+  }
+}
+
 std::unique_ptr<llvm::Module>
 lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
                              StringRef mlirSaveTempsOutFile,
@@ -4974,6 +5048,9 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
     report_fatal_error(
         "The pass manager failed to lower CIR to LLVMIR dialect!");
   }
+
+  if (!useOrb)
+    fixLargeStructCallArgsDirect(mlirModule);
 
   if (!mlirSaveTempsOutFile.empty()) {
     std::error_code ec;
