@@ -102,8 +102,10 @@ struct FenceRewriter : public OpConversionPattern<cpp_atomic::AtomicFenceOp> {
                                 ConversionPatternRewriter &rewriter) const override {
                                 
     auto memOrder = convertFenceMemoryOrder(fenceOp.getMemoryOrder());
-
-    rewriter.replaceOpWithNewOp<arm_atomic::AtomicFenceOp>(fenceOp, memOrder);
+    StringAttr syncscope;
+    if (auto scope = fenceOp.getSyncscope())
+      syncscope = StringAttr::get(rewriter.getContext(), *scope);
+    rewriter.replaceOpWithNewOp<arm_atomic::AtomicFenceOp>(fenceOp, memOrder, syncscope);
     return success();
   }
 };

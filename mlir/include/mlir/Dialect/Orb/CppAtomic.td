@@ -174,23 +174,25 @@ def AtomicFenceOp : Op<CppAtomic_Dialect, "atomic_fence"> {
     ordering without an associated atomic variable.
   }];
 
-  let arguments = (ins MemoryOrderAttr:$memory_order);
+  let arguments = (ins MemoryOrderAttr:$memory_order,
+                       OptionalAttr<StrAttr>:$syncscope);
   let results = (outs);
 
   let skipDefaultBuilders = 1;
 
   let builders = [
-    OpBuilder<(ins "::mlir::cpp_atomic::MemoryOrder":$memory_order), [{
-      
+    OpBuilder<(ins "::mlir::cpp_atomic::MemoryOrder":$memory_order,
+                   "::mlir::StringAttr":$syncscope), [{
       auto orderAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
           $_builder.getContext(), memory_order);
-          
       $_state.addAttribute("memory_order", orderAttr);
+      if (syncscope)
+        $_state.addAttribute("syncscope", syncscope);
     }]>
   ];
 
   let assemblyFormat = [{
-    `memory_order` `(` $memory_order `)` attr-dict
+    `memory_order` `(` $memory_order `)` (`syncscope` `(` $syncscope^ `)`)? attr-dict
   }];
 }
 

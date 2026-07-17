@@ -119,7 +119,10 @@ struct FenceRewriter : public OpConversionPattern<cir::AtomicFenceOp> {
   LogicalResult matchAndRewrite(cir::AtomicFenceOp op, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
     auto order = convertCIRFenceOrder(op.getOrdering());
-    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(op, order);
+    StringAttr syncscope;
+    if (op.getSyncscope() == cir::SyncScopeKind::SingleThread)
+      syncscope = rewriter.getStringAttr("singlethread");
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(op, order, syncscope);
     return success();
   }
 };

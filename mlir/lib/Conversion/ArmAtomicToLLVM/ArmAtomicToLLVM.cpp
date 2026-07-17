@@ -133,8 +133,10 @@ struct AtomicFenceLowering
       return success();
     }
 
-    rewriter.replaceOpWithNewOp<LLVM::FenceOp>(
+    auto fence = rewriter.replaceOpWithNewOp<LLVM::FenceOp>(
         op, toAtomicOrdering(op.getMemoryOrder()));
+    if (auto syncscope = op.getSyncscope())
+      fence.setSyncscope(*syncscope);
         
     return success();
   }
