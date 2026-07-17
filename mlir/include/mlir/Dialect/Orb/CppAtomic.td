@@ -15,6 +15,7 @@
 
 include "mlir/IR/OpBase.td"
 include "mlir/IR/EnumAttr.td"
+include "mlir/Interfaces/SideEffectInterfaces.td"
 
 // Type predicate for !ptr.ptr<space> (from the MLIR ptr dialect)
 def CppAtomic_AnyPtrType : Type<
@@ -75,7 +76,8 @@ class CppAtomic_Op<string mnemonic, list<Trait> traits = []>
 // AtomicLoadOp
 //===----------------------------------------------------------------------===//
 
-def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", []> {
+def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "atomic load operation";
   let description = [{
     The `atomic_load` op reads a value through a `!ptr.ptr<>` using the provided
@@ -121,7 +123,8 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", []> {
 // AtomicStoreOp
 //===----------------------------------------------------------------------===//
 
-def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", []> {
+def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "atomic store operation";
   let description = [{
     The `atomic_store` op writes a value through a `!ptr.ptr<>` using the provided
@@ -167,7 +170,8 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", []> {
 // AtomicFenceOp
 //===----------------------------------------------------------------------===//
 
-def AtomicFenceOp : Op<CppAtomic_Dialect, "atomic_fence"> {
+def AtomicFenceOp : Op<CppAtomic_Dialect, "atomic_fence",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "C++ atomic fence operation";
   let description = [{
     Represents a std::atomic_thread_fence. It establishes memory synchronization 

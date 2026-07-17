@@ -97,7 +97,7 @@ struct AtomicStoreLowering
   matchAndRewrite(arm_atomic::AtomicStoreOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
 
-    Type valTy = adaptor.getValue().getType();                 
+    Type valTy = adaptor.getValue().getType();
 
     unsigned align = 0;
     if (op.getAlignment()) {

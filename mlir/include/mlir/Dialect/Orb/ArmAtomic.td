@@ -16,6 +16,7 @@
 include "mlir/Dialect/LLVMIR/LLVMOpBase.td"
 include "mlir/IR/OpBase.td"
 include "mlir/IR/EnumAttr.td"
+include "mlir/Interfaces/SideEffectInterfaces.td"
 
 // Type predicate for !ptr.ptr<space> (from the MLIR ptr dialect)
 def ArmAtomic_AnyPtrType : Type<
@@ -69,7 +70,8 @@ def ArmMemoryOrderAttr : EnumAttr<ArmAtomic_Dialect, ArmMemoryOrder, "memory_ord
 // AtomicLoadOp
 //===----------------------------------------------------------------------===//
 
-def AtomicLoadOp : Op<ArmAtomic_Dialect, "atomic_load", []> {
+def AtomicLoadOp : Op<ArmAtomic_Dialect, "atomic_load",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "ARM atomic load operation (LDR/LDAR)";
 
   let arguments = (ins
@@ -107,7 +109,8 @@ def AtomicLoadOp : Op<ArmAtomic_Dialect, "atomic_load", []> {
 // AtomicStoreOp
 //===----------------------------------------------------------------------===//
 
-def AtomicStoreOp : Op<ArmAtomic_Dialect, "atomic_store", []> {
+def AtomicStoreOp : Op<ArmAtomic_Dialect, "atomic_store",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "ARM atomic store operation (STR/STLR)";
 
   let arguments = (ins AnyType:$value,
@@ -145,7 +148,8 @@ def AtomicStoreOp : Op<ArmAtomic_Dialect, "atomic_store", []> {
 // AtomicFenceOp
 //===----------------------------------------------------------------------===//
 
-def AtomicFenceOp : Op<ArmAtomic_Dialect, "atomic_fence"> {
+def AtomicFenceOp : Op<ArmAtomic_Dialect, "atomic_fence",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "ARM atomic fence operation (DMB)";
 
   let description = [{

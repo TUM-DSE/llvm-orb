@@ -12,6 +12,7 @@
 
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h"
 #include "mlir/Dialect/Ptr/IR/PtrTypes.h"
+#include "mlir/Interfaces/SideEffectInterfaces.h"
 
 using namespace mlir;
 
@@ -19,12 +20,101 @@ using namespace mlir;
 
 #include "mlir/Dialect/Orb/ArmAtomicEnums.cpp.inc"
 
+//===----------------------------------------------------------------------===//
+// ArmAtomic OrbAtomicDialectInterface implementation
+//===----------------------------------------------------------------------===//
+
+namespace {
+
+/// Returns the ArmMemoryOrder of an arm_atomic memory event op.
+static arm_atomic::MemoryOrder getArmMemoryOrder(Operation *op) {
+  if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(op))
+    return load.getMemoryOrder();
+  if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(op))
+    return store.getMemoryOrder();
+  if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(op))
+    return fence.getMemoryOrder();
+  llvm_unreachable("not an arm_atomic memory event");
+}
+
+struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
+  explicit ArmAtomicOrbInterface(Dialect *d) : OrbAtomicDialectInterface(d) {}
+
+  bool isMemoryEvent(Operation *op) const override {
+    return isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp,
+               arm_atomic::AtomicFenceOp>(op);
+  }
+
+  orb::EventOrder getOrder(Operation *a, Operation *b,
+                           AliasAnalysis &aliasAnalysis,
+                           DominanceInfo &dominance) const override {
+    if (!isMemoryEvent(a) || !isMemoryEvent(b))
+      return orb::EventOrder::Unreachable;
+    // Relaxed/relaxed pairs are unordered; all others ordered
+    // (stub — full ARM memory model analysis is deferred).
+    if (getArmMemoryOrder(a) == arm_atomic::MemoryOrder::Relaxed &&
+        getArmMemoryOrder(b) == arm_atomic::MemoryOrder::Relaxed)
+      return orb::EventOrder::Unordered;
+    return orb::EventOrder::Ordered;
+  }
+
+  llvm::SmallVector<orb::Promotion> promote(uint64_t idA, Operation *a,
+                                            uint64_t idB,
+                                            Operation *b) const override {
+    if (!isMemoryEvent(a) || !isMemoryEvent(b))
+      return {};
+    llvm::SmallVector<orb::Promotion> options;
+    // Option 1: upgrade 'a' to a stronger memory order.
+    if (isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp>(a)) {
+      orb::Promotion p;
+      p.action = orb::Promotion::UpgradeAction{a};
+      p.newlyOrdered.emplace_back(idA, idB);
+      options.push_back(std::move(p));
+    }
+    // Option 2: insert an arm_atomic fence before 'b'.
+    orb::Promotion fence;
+    fence.action = orb::Promotion::FenceAction{b};
+    fence.newlyOrdered.emplace_back(idA, idB);
+    options.push_back(std::move(fence));
+    return options;
+  }
+
+  int cost(const orb::Promotion &) const override { return 1; }
+};
+
+} // namespace
+
 void arm_atomic::ArmAtomicDialect::initialize() {
   addOperations<
 #define GET_OP_LIST
 #include "mlir/Dialect/Orb/ArmAtomic.cpp.inc"
       >();
+  addInterfaces<ArmAtomicOrbInterface>();
 }
 
 #define GET_OP_CLASSES
 #include "mlir/Dialect/Orb/ArmAtomic.cpp.inc"
+
+//===----------------------------------------------------------------------===//
+// MemoryEffects implementations
+//===----------------------------------------------------------------------===//
+
+using EffectVec =
+    SmallVectorImpl<SideEffects::EffectInstance<MemoryEffects::Effect>>;
+
+void arm_atomic::AtomicLoadOp::getEffects(EffectVec &effects) {
+  effects.emplace_back(MemoryEffects::Read::get(), &getAddrMutable());
+  effects.emplace_back(MemoryEffects::Read::get());
+  effects.emplace_back(MemoryEffects::Write::get());
+}
+
+void arm_atomic::AtomicStoreOp::getEffects(EffectVec &effects) {
+  effects.emplace_back(MemoryEffects::Write::get(), &getAddrMutable());
+  effects.emplace_back(MemoryEffects::Read::get());
+  effects.emplace_back(MemoryEffects::Write::get());
+}
+
+void arm_atomic::AtomicFenceOp::getEffects(EffectVec &effects) {
+  effects.emplace_back(MemoryEffects::Read::get());
+  effects.emplace_back(MemoryEffects::Write::get());
+}
