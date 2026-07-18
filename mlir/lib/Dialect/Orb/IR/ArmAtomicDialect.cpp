@@ -68,18 +68,35 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp>(a)) {
       orb::Promotion p;
       p.action = orb::Promotion::UpgradeAction{a};
-      p.newlyOrdered.emplace_back(idA, idB);
-      options.push_back(std::move(p));
+      options.push_back(p);
     }
     // Option 2: insert an arm_atomic fence before 'b'.
     orb::Promotion fence;
     fence.action = orb::Promotion::FenceAction{b};
-    fence.newlyOrdered.emplace_back(idA, idB);
-    options.push_back(std::move(fence));
+    options.push_back(fence);
     return options;
   }
 
   int cost(const orb::Promotion &) const override { return 1; }
+
+  void applyPromotion(const orb::Promotion &p,
+                      OpBuilder &builder) const override {
+    if (const auto *fa =
+            std::get_if<orb::Promotion::FenceAction>(&p.action)) {
+      builder.setInsertionPoint(fa->insertBefore);
+      arm_atomic::AtomicFenceOp::create(builder, fa->insertBefore->getLoc(),
+                                        arm_atomic::MemoryOrder::AcqRel,
+                                        /*syncscope=*/StringAttr{});
+    } else if (const auto *ua =
+                   std::get_if<orb::Promotion::UpgradeAction>(&p.action)) {
+      if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(ua->op))
+        load.setMemoryOrder(arm_atomic::MemoryOrder::Acquire);
+      else if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(ua->op))
+        store.setMemoryOrder(arm_atomic::MemoryOrder::Release);
+      else if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(ua->op))
+        fence.setMemoryOrder(arm_atomic::MemoryOrder::AcqRel);
+    }
+  }
 };
 
 } // namespace

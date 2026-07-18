@@ -7,8 +7,11 @@
 //===----------------------------------------------------------------------===//
 
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
+#include "mlir/Analysis/AliasAnalysis.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/IR/Builders.h"
+#include "mlir/IR/Dominance.h"
+#include "mlir/Pass/AnalysisManager.h"
 
 using namespace mlir;
 using namespace mlir::orb;
@@ -45,6 +48,27 @@ void mlir::orb::assignEventIds(ModuleOp module) {
       op->setAttr(kEventIdAttr, b.getI64IntegerAttr(nextId++));
     }
   });
+}
+
+//===----------------------------------------------------------------------===//
+// getOrderMatrix
+//===----------------------------------------------------------------------===//
+
+//===----------------------------------------------------------------------===//
+// OrderAnalysis
+//===----------------------------------------------------------------------===//
+
+mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
+  auto module = dyn_cast<ModuleOp>(op);
+  if (!module)
+    return;
+  auto &aa  = am.getAnalysis<AliasAnalysis>();
+  auto &dom = am.getAnalysis<DominanceInfo>();
+  OrderMatrix matrix = getOrderMatrix(module, aa, dom);
+  for (uint64_t idA : matrix.eventIds())
+    for (uint64_t idB : matrix.eventIds())
+      if (idA != idB && matrix.getOrder(idA, idB) == EventOrder::Ordered)
+        pairs.emplace_back(idA, idB);
 }
 
 //===----------------------------------------------------------------------===//

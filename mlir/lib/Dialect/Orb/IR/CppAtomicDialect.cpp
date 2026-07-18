@@ -77,18 +77,20 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (isa<cpp_atomic::AtomicLoadOp, cpp_atomic::AtomicStoreOp>(a)) {
       orb::Promotion p;
       p.action = orb::Promotion::UpgradeAction{a};
-      p.newlyOrdered.emplace_back(idA, idB);
-      options.push_back(std::move(p));
+      options.push_back(p);
     }
     // Option 2: insert a cpp_atomic fence before 'b'.
     orb::Promotion fence;
     fence.action = orb::Promotion::FenceAction{b};
-    fence.newlyOrdered.emplace_back(idA, idB);
-    options.push_back(std::move(fence));
+    options.push_back(fence);
     return options;
   }
 
   int cost(const orb::Promotion &) const override { return 1; }
+
+  void applyPromotion(const orb::Promotion &, OpBuilder &) const override {
+    llvm_unreachable("CppAtomic is never the synthesis target");
+  }
 };
 
 } // namespace
