@@ -42,14 +42,16 @@ def CppAtomic_Dialect : Dialect {
 // CppAtomic enum definitions
 //===----------------------------------------------------------------------===//
 
-def MemoryOrderRelaxed   : I32EnumAttrCase<"Relaxed", 0, "relaxed">;
-def MemoryOrderAcquire   : I32EnumAttrCase<"Acquire", 1, "acquire">;
-def MemoryOrderRelease   : I32EnumAttrCase<"Release", 2, "release">;
-def MemoryOrderAcqRel    : I32EnumAttrCase<"AcqRel", 3, "acq_rel">;
-def MemoryOrderSeqCst    : I32EnumAttrCase<"SeqCst", 4, "seq_cst">;
+def MemoryOrderNA        : I32EnumAttrCase<"NA", 0, "plain">;
+def MemoryOrderRelaxed   : I32EnumAttrCase<"Relaxed", 1, "relaxed">;
+def MemoryOrderAcquire   : I32EnumAttrCase<"Acquire", 2, "acquire">;
+def MemoryOrderRelease   : I32EnumAttrCase<"Release", 3, "release">;
+def MemoryOrderAcqRel    : I32EnumAttrCase<"AcqRel", 4, "acq_rel">;
+def MemoryOrderSeqCst    : I32EnumAttrCase<"SeqCst", 5, "seq_cst">;
 
 def MemoryOrder : I32EnumAttr<
     "MemoryOrder", "memory ordering for atomic operations", [
+      MemoryOrderNA,
       MemoryOrderRelaxed,
       MemoryOrderAcquire,
       MemoryOrderRelease,

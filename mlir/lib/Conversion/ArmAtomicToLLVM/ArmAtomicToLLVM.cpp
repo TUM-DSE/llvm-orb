@@ -46,6 +46,7 @@ static LLVM::AtomicOrdering
 toAtomicOrdering(arm_atomic::MemoryOrder order) {
   switch (order) {
   case arm_atomic::MemoryOrder::Relaxed: return LLVM::AtomicOrdering::monotonic;
+  case arm_atomic::MemoryOrder::AcquirePC: return LLVM::AtomicOrdering::acquire;
   case arm_atomic::MemoryOrder::Acquire: return LLVM::AtomicOrdering::acquire;
   case arm_atomic::MemoryOrder::Release: return LLVM::AtomicOrdering::release;
   case arm_atomic::MemoryOrder::AcqRel:  return LLVM::AtomicOrdering::acq_rel;

@@ -89,6 +89,14 @@ public:
                               AliasAnalysis &aliasAnalysis,
                               DominanceInfo &dominance) const = 0;
 
+  /// Returns Ordered if a→f→b is a valid split-fence ordering triple,
+  /// i.e. a→f satisfies one rule and f→b the paired rule (bob2 1&2/3&4/5&6,
+  /// ppo_fence2 1&2/3&4/5&6, ppo_sc2 1&2). `f` must be a fence op.
+  /// Returns Unreachable if dominance a≺f≺b does not hold.
+  virtual EventOrder getOrderThroughFence(Operation *a, Operation *f,
+                                          Operation *b,
+                                          DominanceInfo &dominance) const = 0;
+
   /// Returns promotion options for an UNORDERED pair (identified by ID).
   /// `a` and `b` are the current Operation* for those IDs.
   /// Returns {} if this dialect cannot promote the pair.
@@ -126,6 +134,13 @@ public:
     return pairs;
   }
   bool empty() const { return pairs.empty(); }
+
+  /// Fills `before` with all idC where (idC, idF) is an ordered pair,
+  /// and `after` with all idD where (idF, idD) is an ordered pair.
+  /// Used by FenceSynthesisPass to find access-access pairs mediated by fence idF.
+  void pairsWithFence(uint64_t idF,
+                      llvm::SmallVectorImpl<uint64_t> &before,
+                      llvm::SmallVectorImpl<uint64_t> &after) const;
 
 private:
   llvm::SmallVector<std::pair<uint64_t, uint64_t>> pairs;

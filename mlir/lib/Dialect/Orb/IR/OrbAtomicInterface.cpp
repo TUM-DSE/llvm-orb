@@ -58,6 +58,17 @@ void mlir::orb::assignEventIds(ModuleOp module) {
 // OrderAnalysis
 //===----------------------------------------------------------------------===//
 
+void mlir::orb::OrderAnalysis::pairsWithFence(
+    uint64_t idF, llvm::SmallVectorImpl<uint64_t> &before,
+    llvm::SmallVectorImpl<uint64_t> &after) const {
+  for (auto [a, b] : pairs) {
+    if (b == idF)
+      before.push_back(a);
+    if (a == idF)
+      after.push_back(b);
+  }
+}
+
 mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
   auto module = dyn_cast<ModuleOp>(op);
   if (!module)
