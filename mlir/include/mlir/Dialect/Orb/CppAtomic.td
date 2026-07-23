@@ -32,6 +32,7 @@ def CppAtomic_Dialect : Dialect {
 
   let summary = "A high-level dialect for analyzing atomics under the RC11 memory model";
 
+  let useDefaultAttributePrinterParser = 1;
 
   // Note: this does not need to depend on LLVMDialect as long as functions in
   // this dialect (such as canonicalization) do not produce entities belonging

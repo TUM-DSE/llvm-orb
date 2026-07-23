@@ -12,6 +12,7 @@
 
 #include "mlir/Dialect/Orb/CppAtomicDialect.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
+#include "mlir/IR/DialectImplementation.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 
 using namespace mlir;
@@ -19,6 +20,36 @@ using namespace mlir;
 #include "mlir/Dialect/Orb/CppAtomicDialect.cpp.inc"
 
 #include "mlir/Dialect/Orb/CppAtomicEnums.cpp.inc"
+
+//===----------------------------------------------------------------------===//
+// CppAtomicDialect attribute parsing/printing
+//===----------------------------------------------------------------------===//
+
+::mlir::Attribute cpp_atomic::CppAtomicDialect::parseAttribute(
+    ::mlir::DialectAsmParser &parser, ::mlir::Type) const {
+  llvm::StringRef mnemonic;
+  if (parser.parseKeyword(&mnemonic))
+    return {};
+  if (mnemonic == "memory_order") {
+    if (parser.parseLess())
+      return {};
+    auto mo = FieldParser<cpp_atomic::MemoryOrder, cpp_atomic::MemoryOrder>::parse(parser);
+    if (failed(mo))
+      return {};
+    if (parser.parseGreater())
+      return {};
+    return cpp_atomic::MemoryOrderAttr::get(parser.getContext(), *mo);
+  }
+  parser.emitError(parser.getNameLoc()) << "unknown cpp_atomic attribute: " << mnemonic;
+  return {};
+}
+
+void cpp_atomic::CppAtomicDialect::printAttribute(
+    ::mlir::Attribute attr, ::mlir::DialectAsmPrinter &printer) const {
+  if (auto mo = ::mlir::dyn_cast<cpp_atomic::MemoryOrderAttr>(attr)) {
+    printer << "memory_order<" << stringifyMemoryOrder(mo.getValue()) << ">";
+  }
+}
 
 //===----------------------------------------------------------------------===//
 // CppAtomic OrbAtomicDialectInterface implementation

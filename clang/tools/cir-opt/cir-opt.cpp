@@ -14,6 +14,9 @@
 
 #include "mlir/Conversion/ReconcileUnrealizedCasts/ReconcileUnrealizedCasts.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
+#include "mlir/Dialect/Arith/IR/Arith.h"
+#include "mlir/Dialect/ControlFlow/IR/ControlFlow.h"
+#include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
 #include "mlir/Dialect/OpenMP/Transforms/Passes.h"
 #include "mlir/Dialect/Ptr/IR/PtrDialect.h"
@@ -40,7 +43,9 @@ int main(int argc, char **argv) {
   mlir::DialectRegistry registry;
   cir::registerAllDialects(registry);
   registry.insert<mlir::memref::MemRefDialect, mlir::LLVM::LLVMDialect,
-                  mlir::ptr::PtrDialect>();
+                  mlir::ptr::PtrDialect, mlir::func::FuncDialect,
+                  mlir::cf::ControlFlowDialect,
+                  mlir::arith::ArithDialect>();
 
   // change 2
   registry.insert<mlir::cpp_atomic::CppAtomicDialect>();

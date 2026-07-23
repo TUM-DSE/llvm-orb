@@ -26,9 +26,10 @@ struct OrderAnalysisPass
     // Assign stable IDs before the analysis computes the matrix.
     orb::assignEventIds(module);
     // Force computation and caching of OrderAnalysis.
-    // ConvertCppAtomicToArmAtomicPass will markAnalysesPreserved<OrderAnalysis>
-    // so that FenceSynthesisPass can read it after conversion.
+    // Mark it preserved so it survives this pass and subsequent passes until
+    // FenceSynthesisPass reads it.
     getAnalysis<orb::OrderAnalysis>();
+    markAnalysesPreserved<orb::OrderAnalysis>();
   }
 };
 
