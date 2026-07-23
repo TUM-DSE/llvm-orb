@@ -40,7 +40,13 @@ struct FenceSynthesisPass
 
     // isSatisfied: is (idA, idB) ordered in the current ArmAtomic IR?
     // Checks direct ordering and fence-mediated ordering (getOrderThroughFence).
+    // Also checks synthesized fences that have no event_id yet.
     orb::OrderMatrix current;
+    auto *armDialect = module->getContext()
+                           ->getLoadedDialect<arm_atomic::ArmAtomicDialect>();
+    auto *armIface = armDialect
+                         ? armDialect->getRegisteredInterface<orb::OrbAtomicDialectInterface>()
+                         : nullptr;
     auto isSatisfied = [&](uint64_t idA, uint64_t idB) -> bool {
       if (current.getOrder(idA, idB) == orb::EventOrder::Ordered)
         return true;
@@ -48,19 +54,21 @@ struct FenceSynthesisPass
       Operation *b = current.getOpForId(idB);
       if (!a || !b)
         return false;
-      for (uint64_t idF : current.eventIds()) {
-        if (idF == idA || idF == idB)
-          continue;
-        Operation *f = current.getOpForId(idF);
-        if (!f)
-          continue;
-        auto *iface = f->getDialect()
-                          ->getRegisteredInterface<orb::OrbAtomicDialectInterface>();
-        if (iface &&
-            iface->getOrderThroughFence(a, f, b, dom) == orb::EventOrder::Ordered)
-          return true;
-      }
-      return false;
+      // Walk ALL arm_atomic fences (including newly synthesized ones with no
+      // event_id) to check fence-mediated ordering.
+      bool satisfied = false;
+      module.walk([&](arm_atomic::AtomicFenceOp fence) {
+        if (satisfied)
+          return;
+        Operation *f = fence.getOperation();
+        if (f == a || f == b)
+          return;
+        if (armIface &&
+            armIface->getOrderThroughFence(a, f, b, dom) ==
+                orb::EventOrder::Ordered)
+          satisfied = true;
+      });
+      return satisfied;
     };
 
     // F_ign: event IDs of source fences whose mediated access-access pairs
