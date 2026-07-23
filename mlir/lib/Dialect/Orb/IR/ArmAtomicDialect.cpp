@@ -304,16 +304,32 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return {};
     llvm::SmallVector<orb::Promotion> options;
+
+    // Helper: returns true if upgrading this op would be a no-op (already max).
+    auto alreadyMax = [](Operation *op) -> bool {
+      auto mo = getArmMemoryOrder(op);
+      if (isa<arm_atomic::AtomicLoadOp>(op))
+        return mo == arm_atomic::MemoryOrder::Acquire ||
+               mo == arm_atomic::MemoryOrder::AcqRel ||
+               mo == arm_atomic::MemoryOrder::AcquirePC;
+      if (isa<arm_atomic::AtomicStoreOp>(op))
+        return mo == arm_atomic::MemoryOrder::Release ||
+               mo == arm_atomic::MemoryOrder::AcqRel;
+      if (isa<arm_atomic::AtomicFenceOp>(op))
+        return mo == arm_atomic::MemoryOrder::AcqRel;
+      return false;
+    };
+
     // Upgrade 'a' in-place (load→Acquire, store→Release, fence→AcqRel).
     if (isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp,
-            arm_atomic::AtomicFenceOp>(a)) {
+            arm_atomic::AtomicFenceOp>(a) && !alreadyMax(a)) {
       orb::Promotion p;
       p.action = orb::Promotion::UpgradeAction{a};
       options.push_back(p);
     }
     // Upgrade 'b' in-place — valid for relaxed loads, stores, and fences.
     if (isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp,
-            arm_atomic::AtomicFenceOp>(b)) {
+            arm_atomic::AtomicFenceOp>(b) && !alreadyMax(b)) {
       orb::Promotion p;
       p.action = orb::Promotion::UpgradeAction{b};
       options.push_back(p);
