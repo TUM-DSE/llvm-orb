@@ -40,13 +40,7 @@ struct FenceSynthesisPass
 
     // isSatisfied: is (idA, idB) ordered in the current ArmAtomic IR?
     // Checks direct ordering and fence-mediated ordering (getOrderThroughFence).
-    // Also checks synthesized fences that have no event_id yet.
     orb::OrderMatrix current;
-    auto *armDialect = module->getContext()
-                           ->getLoadedDialect<arm_atomic::ArmAtomicDialect>();
-    auto *armIface = armDialect
-                         ? armDialect->getRegisteredInterface<orb::OrbAtomicDialectInterface>()
-                         : nullptr;
     auto isSatisfied = [&](uint64_t idA, uint64_t idB) -> bool {
       if (current.getOrder(idA, idB) == orb::EventOrder::Ordered)
         return true;
@@ -54,22 +48,28 @@ struct FenceSynthesisPass
       Operation *b = current.getOpForId(idB);
       if (!a || !b)
         return false;
-      // Walk ALL arm_atomic fences (including newly synthesized ones with no
-      // event_id) to check fence-mediated ordering.
-      bool satisfied = false;
-      module.walk([&](arm_atomic::AtomicFenceOp fence) {
-        if (satisfied)
-          return;
-        Operation *f = fence.getOperation();
-        if (f == a || f == b)
-          return;
-        if (armIface &&
-            armIface->getOrderThroughFence(a, f, b, dom) ==
-                orb::EventOrder::Ordered)
-          satisfied = true;
-      });
-      return satisfied;
+      for (uint64_t idF : current.eventIds()) {
+        if (idF == idA || idF == idB)
+          continue;
+        Operation *f = current.getOpForId(idF);
+        if (!f)
+          continue;
+        auto *iface = f->getDialect()
+                          ->getRegisteredInterface<orb::OrbAtomicDialectInterface>();
+        if (iface &&
+            iface->getOrderThroughFence(a, f, b, dom) == orb::EventOrder::Ordered)
+          return true;
+      }
+      return false;
     };
+
+    // nextSynthId: event IDs for synthesized fences, starting above all source IDs.
+    uint64_t nextSynthId = 0;
+    module.walk([&](Operation *op) {
+      if (auto id = op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr))
+        nextSynthId = std::max(nextSynthId,
+                               static_cast<uint64_t>(id.getInt()) + 1);
+    });
 
     // F_ign: event IDs of source fences whose mediated access-access pairs
     // are all already satisfied — these fences can be erased.
@@ -148,6 +148,15 @@ struct FenceSynthesisPass
 
       if (best && bestIface) {
         bestIface->applyPromotion(*best, builder);
+        // If a new fence was inserted (FenceAction), assign it a fresh event ID
+        // so getOrderMatrix picks it up on the next iteration.
+        if (std::get_if<orb::Promotion::FenceAction>(&best->action)) {
+          module.walk([&](arm_atomic::AtomicFenceOp fence) {
+            if (!fence->hasAttr(orb::kEventIdAttr))
+              fence->setAttr(orb::kEventIdAttr,
+                             builder.getI64IntegerAttr(nextSynthId++));
+          });
+        }
         progress = true;
       }
     }

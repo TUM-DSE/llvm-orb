@@ -183,6 +183,8 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return orb::EventOrder::Unreachable;
 
+    if (a->getBlock()->getParent() != b->getBlock()->getParent())
+      return orb::EventOrder::Unreachable;
     if (!dominance.dominates(a,b) && !a->getBlock()->isReachable(b->getBlock()))
       return orb::EventOrder::Unreachable;
 
