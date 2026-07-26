@@ -29,6 +29,7 @@
 #include "mlir/Dialect/LLVMIR/LLVMTypes.h"
 #include "mlir/Dialect/OpenMP/OpenMPDialect.h"
 #include "mlir/Dialect/OpenMP/Transforms/Passes.h"
+#include "mlir/Transforms/Passes.h"
 #include "mlir/Dialect/Ptr/IR/MemorySpaceInterfaces.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/IR/BuiltinAttributes.h"
@@ -4932,6 +4933,12 @@ void populateOrbPasses(mlir::OpPassManager &pm) {
   pm.addPass(mlir::createCIRToCFPass());
   pm.addPass(mlir::createCIRToPtrPass());
   pm.addPass(mlir::createCIRToCppAtomicPass());
+  // NOTE: SymbolDCEPass is intentionally omitted here. The MLIR SymbolDCE
+  // does not check CIR module-level attributes (cir.global_ctors /
+  // cir.global_dtors), so it incorrectly removes functions that are only
+  // referenced through those attributes (e.g. urcu_bp_exit_destructor).
+  // Those removed symbols then fail 'llvm.mlir.addressof' verification
+  // during CIR→LLVM lowering.
   pm.addPass(mlir::createOrderAnalysisPass());
   pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
   pm.addPass(mlir::createFenceSynthesisPass());

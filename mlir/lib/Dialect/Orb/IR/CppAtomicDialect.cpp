@@ -78,6 +78,10 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
                cpp_atomic::AtomicFenceOp, ptr::LoadOp, ptr::StoreOp>(op);
   }
 
+  bool isFenceEvent(Operation *op) const override {
+    return isa<cpp_atomic::AtomicFenceOp>(op);
+  }
+
   /// ppo_rc11 for order
 
   /// Local order based on memory order annotations
@@ -183,42 +187,38 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return orb::EventOrder::Unreachable;
 
-    if (a->getBlock()->getParent() != b->getBlock()->getParent())
-      return orb::EventOrder::Unreachable;
-    if (!dominance.dominates(a,b) && !a->getBlock()->isReachable(b->getBlock()))
-      return orb::EventOrder::Unreachable;
+    bool sameRegion = a->getBlock()->getParent() == b->getBlock()->getParent();
+    if (sameRegion) {
+      if (a->getBlock() == b->getBlock()) {
+        if (!dominance.dominates(a, b))
+          return orb::EventOrder::Unreachable;
+      } else if (!a->getBlock()->isReachable(b->getBlock())) {
+        return orb::EventOrder::Unreachable;
+      }
+    }
 
     if (isa<cpp_atomic::AtomicFenceOp>(a))
       return try_order_from_fence(a, b);
-
     if (isa<cpp_atomic::AtomicFenceOp>(b))
       return try_order_to_fence(a, b);
-
     if (isa<cpp_atomic::AtomicLoadOp>(a))
       return try_order_from_load(a, b);
-
     if (isa<cpp_atomic::AtomicStoreOp>(a))
       return try_order_from_store(a, b, aliasAnalysis);
-
     if (isa<ptr::StoreOp>(a))
       return try_order_from_plain_store(a, b, aliasAnalysis);
-
     return orb::EventOrder::Unordered;
   }
 
-  orb::EventOrder getOrderThroughFence(Operation *a, Operation *f, Operation *b,
-                                       DominanceInfo &dom) const override {
+  orb::EventOrder getOrderThroughFence(Operation *a, Operation *f,
+                                       Operation *b) const override {
     if (!isa<cpp_atomic::AtomicFenceOp>(f))
       return orb::EventOrder::Unordered;
-    if (!dom.dominates(a, f) || !dom.dominates(f, b))
-      return orb::EventOrder::Unreachable;
-
     auto mof = getCppMemoryOrder(f);
     bool aIsRead  = isa<cpp_atomic::AtomicLoadOp,  ptr::LoadOp>(a);
     bool aIsWrite = isa<cpp_atomic::AtomicStoreOp, ptr::StoreOp>(a);
     bool bIsWrite = isa<cpp_atomic::AtomicStoreOp, ptr::StoreOp>(b);
-
-    // ppo_fence2 pair 5&6: ACQREL/SC — any a, any b (most permissive, check first)
+    // ppo_fence2 pair 5&6: ACQREL/SC — any a, any b
     if (mof == cpp_atomic::MemoryOrder::AcqRel ||
         mof == cpp_atomic::MemoryOrder::SeqCst)
       return orb::EventOrder::Ordered;
@@ -228,7 +228,6 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     // ppo_fence2 pair 3&4: REL — any a, b is Write
     if (mof == cpp_atomic::MemoryOrder::Release && bIsWrite)
       return orb::EventOrder::Ordered;
-
     (void)aIsWrite;
     return orb::EventOrder::Unordered;
   }
@@ -253,7 +252,7 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
   int cost(const orb::Promotion &) const override { return 1; }
 
-  void applyPromotion(const orb::Promotion &, OpBuilder &) const override {
+  Operation *applyPromotion(const orb::Promotion &, OpBuilder &) const override {
     llvm_unreachable("CppAtomic is never the synthesis target");
   }
 };

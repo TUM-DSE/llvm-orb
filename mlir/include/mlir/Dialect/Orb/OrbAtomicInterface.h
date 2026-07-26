@@ -22,10 +22,12 @@
 #include "mlir/IR/Dominance.h"
 #include "mlir/IR/Operation.h"
 #include "llvm/ADT/ArrayRef.h"
+#include "llvm/ADT/BitVector.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/StringRef.h"
 #include <variant>
+#include <vector>
 
 namespace mlir {
 class AnalysisManager;
@@ -40,13 +42,14 @@ static constexpr llvm::StringLiteral kEventIdAttr = "orb.event_id";
 
 
 /// Ordering status between two memory events.
-enum class EventOrder { Unreachable, Ordered, Unordered };
+enum class EventOrder : uint8_t { Unreachable, Ordered, Unordered };
 
 /// One option returned by OrbAtomicDialectInterface::promote().
 struct Promotion {
   /// Insert an Orb fence before `insertBefore`.
   struct FenceAction {
-    Operation *insertBefore; ///< nullptr means end of enclosing block.
+    Operation *insertBefore;
+    int memoryOrder; ///< Dialect-specific memory order enum value.
   };
   /// Strengthen the memory order of `op` in-place.
   /// The dialect's promote() knows the target ordering.
@@ -58,18 +61,69 @@ struct Promotion {
   Action action;
 };
 
+class OrbAtomicDialectInterface; // forward declaration for OrderMatrix::addFence
+
+/// Interprocedural region reachability via call+return edges.
+/// Computed once per pass by computeCallReachability(); stable across synthesis
+/// iterations because synthesis never adds new call ops.
+struct CallReachability {
+  llvm::DenseMap<Region *, llvm::DenseSet<Region *>> data;
+  bool reaches(Region *from, Region *to) const {
+    auto it = data.find(from);
+    return it != data.end() && it->second.count(to);
+  }
+};
+
 class OrderMatrix {
 public:
   EventOrder getOrder(uint64_t idA, uint64_t idB) const;
   /// Look up the current Operation* for a given event ID.
   Operation *getOpForId(uint64_t id) const;
   llvm::ArrayRef<uint64_t> eventIds() const { return ids; }
+  /// Map event ID → matrix index. Asserts if id is not present.
+  unsigned idxOf(uint64_t id) const;
+
+  /// Apply ACQ upgrade: row sweep — set all Unordered in row aIdx → Ordered.
+  /// (stride-1, cache-friendly)
+  void applyAcqUpgrade(unsigned aIdx);
+
+  /// Apply REL upgrade: column sweep — set all Unordered in column bIdx → Ordered.
+  /// (stride-n, cache-unfriendly but unavoidable)
+  void applyRelUpgrade(unsigned bIdx);
+
+  /// Extend the matrix for a newly inserted fence op `f`.
+  /// `f` must already have an orb.event_id attribute.
+  /// Expands the n×n matrix to (n+1)×(n+1), computes the fence's row/column
+  /// via queryOrder, and applies the fence closure for all existing event pairs.
+  void addFence(Operation *f,
+                llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces,
+                AliasAnalysis &aa, DominanceInfo &dom,
+                const CallReachability &reach);
+
+  /// Re-evaluate ordering for an existing fence at `fIdx` after its memory
+  /// order was upgraded to AcqRel. Recomputes the fence's row/column via
+  /// queryOrder and applies fence closure. No matrix expansion.
+  void applyFenceUpgrade(unsigned fIdx,
+                         llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces,
+                         AliasAnalysis &aa, DominanceInfo &dom,
+                         const CallReachability &reach);
 
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
-  llvm::DenseMap<std::pair<uint64_t, uint64_t>, EventOrder> data;
+  friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &,
+                                    const CallReachability &);
+  // Flat n×n array indexed by consecutive event indices — avoids DenseMap
+  // cache misses for the O(n²) pairwise pass and O(n²) fence closure.
+  // EventOrder is uint8_t-backed; at n=7941 (all events + fences): ~63MB.
+  std::vector<EventOrder> matrix; // size n*n
+  llvm::DenseMap<uint64_t, unsigned> idToIdx; // id → row/col index
   llvm::DenseMap<uint64_t, Operation *> idToOp;
   llvm::SmallVector<uint64_t> ids;
+  unsigned n = 0; // total events (loads + stores + fences)
+
+  void setOrder(unsigned aIdx, unsigned bIdx, EventOrder order) {
+    matrix[aIdx * n + bIdx] = order;
+  }
 };
 
 /// Per-dialect interface for atomic memory ordering analysis.
@@ -83,19 +137,22 @@ public:
   /// May return true for ops from other dialects (e.g. ptr.load).
   virtual bool isMemoryEvent(Operation *op) const = 0;
 
+  /// Returns true if `op` is a fence op (not a load/store/rmw).
+  /// Fences are kept separate from the main event matrix to avoid O(n³) blowup.
+  virtual bool isFenceEvent(Operation *op) const { return false; }
+
   /// Returns the ordering between two memory events.
   /// Returns Unreachable if either op is not recognised by this dialect.
+  /// For same-region pairs, may use `dominance`; for cross-region pairs
+  /// (already vetted for call reachability by getOrderMatrix), skips dominance.
   virtual EventOrder getOrder(Operation *a, Operation *b,
                               AliasAnalysis &aliasAnalysis,
                               DominanceInfo &dominance) const = 0;
 
-  /// Returns Ordered if a→f→b is a valid split-fence ordering triple,
-  /// i.e. a→f satisfies one rule and f→b the paired rule (bob2 1&2/3&4/5&6,
-  /// ppo_fence2 1&2/3&4/5&6, ppo_sc2 1&2). `f` must be a fence op.
-  /// Returns Unreachable if dominance a≺f≺b does not hold.
+  /// Returns Ordered if f orders (a, b) by the dialect's fence rules.
+  /// `f` must be a fence op. Dominance/reachability is the caller's concern.
   virtual EventOrder getOrderThroughFence(Operation *a, Operation *f,
-                                          Operation *b,
-                                          DominanceInfo &dominance) const = 0;
+                                          Operation *b) const = 0;
 
   /// Returns promotion options for an UNORDERED pair (identified by ID).
   /// `a` and `b` are the current Operation* for those IDs.
@@ -109,8 +166,10 @@ public:
 
   /// Apply a promotion to the IR.
   /// For FenceAction: sets builder insertion point and creates the dialect's
-  /// fence op. For UpgradeAction: mutates the op's memory order attribute.
-  virtual void applyPromotion(const Promotion &p, OpBuilder &builder) const = 0;
+  /// fence op; returns the created Operation*.
+  /// For UpgradeAction: mutates the op's memory order attribute; returns nullptr.
+  virtual Operation *applyPromotion(const Promotion &p,
+                                    OpBuilder &builder) const = 0;
 };
 
 /// Assign sequential orb.event_id attributes to all memory events in `module`.
@@ -118,7 +177,18 @@ public:
 /// copy the attribute to the corresponding target ops.
 void assignEventIds(ModuleOp module);
 
+/// Compute interprocedural call+return reachability between callable regions.
+/// Stable across synthesis iterations; call once per pass and reuse.
+CallReachability computeCallReachability(ModuleOp module);
+
 /// Build an ordering matrix over all memory events in `module`.
+/// Uses precomputed call reachability (cheap, safe to call in a hot loop).
+OrderMatrix getOrderMatrix(ModuleOp module, AliasAnalysis &aliasAnalysis,
+                           DominanceInfo &dominance,
+                           const CallReachability &reach);
+
+/// Convenience overload: computes CallReachability internally.
+/// Use for one-shot calls (e.g. OrderAnalysis); prefer the reach overload in loops.
 OrderMatrix getOrderMatrix(ModuleOp module, AliasAnalysis &aliasAnalysis,
                            DominanceInfo &dominance);
 

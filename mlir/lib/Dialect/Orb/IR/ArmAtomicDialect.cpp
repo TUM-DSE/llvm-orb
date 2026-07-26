@@ -100,6 +100,10 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
                arm_atomic::AtomicFenceOp, ptr::LoadOp, ptr::StoreOp>(op);
   }
 
+  bool isFenceEvent(Operation *op) const override {
+    return isa<arm_atomic::AtomicFenceOp>(op);
+  }
+
   /// ppo_arm = lob | pick-lob for ARMv8
   ///
   /// dtrm: dependency through register or memory
@@ -257,36 +261,63 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return orb::EventOrder::Unreachable;
 
-    if (a->getBlock()->getParent() != b->getBlock()->getParent())
-      return orb::EventOrder::Unreachable;
-    if (!dominance.dominates(a,b) && !a->getBlock()->isReachable(b->getBlock()))
-      return orb::EventOrder::Unreachable;
+    bool sameRegion = a->getBlock()->getParent() == b->getBlock()->getParent();
+    if (sameRegion) {
+      if (a->getBlock() == b->getBlock()) {
+        if (!dominance.dominates(a, b))
+          return orb::EventOrder::Unreachable;
+      } else if (!a->getBlock()->isReachable(b->getBlock())) {
+        return orb::EventOrder::Unreachable;
+      }
+    }
 
     if (isa<arm_atomic::AtomicFenceOp>(a) || isa<arm_atomic::AtomicFenceOp>(b))
-      return try_order_bob2(a,b);
+      return try_order_bob2(a, b);
 
-    orb::EventOrder ret;
-    if (try_order_dob(a, b, aliasAnalysis, dominance, ret))
-      return ret;
-    if (try_order_bob1(a, b, aliasAnalysis, dominance, ret))
-      return ret;
-    // aob ...
+    if (sameRegion) {
+      orb::EventOrder ret;
+      if (try_order_dob(a, b, aliasAnalysis, dominance, ret))
+        return ret;
+    }
+
+    // bob1: [R & (ACQ|ACQPC|ACQREL)];po
+    if (isa<arm_atomic::AtomicLoadOp>(a)) {
+      auto mo = getArmMemoryOrder(a);
+      if (mo == arm_atomic::MemoryOrder::Acquire ||
+          mo == arm_atomic::MemoryOrder::AcquirePC ||
+          mo == arm_atomic::MemoryOrder::AcqRel)
+        return orb::EventOrder::Ordered;
+    }
+    // bob1: po;[W & (REL|ACQREL)]
+    if (isa<arm_atomic::AtomicStoreOp>(b)) {
+      auto mo = getArmMemoryOrder(b);
+      if (mo == arm_atomic::MemoryOrder::Release ||
+          mo == arm_atomic::MemoryOrder::AcqRel)
+        return orb::EventOrder::Ordered;
+    }
+    // stlr→ldar: [W & (REL|ACQREL)];po;[R & (ACQ|ACQPC|ACQREL)]
+    if (isa<arm_atomic::AtomicStoreOp>(a) && isa<arm_atomic::AtomicLoadOp>(b)) {
+      auto moa = getArmMemoryOrder(a);
+      auto mob = getArmMemoryOrder(b);
+      if ((moa == arm_atomic::MemoryOrder::Release ||
+           moa == arm_atomic::MemoryOrder::AcqRel) &&
+          (mob == arm_atomic::MemoryOrder::Acquire ||
+           mob == arm_atomic::MemoryOrder::AcquirePC ||
+           mob == arm_atomic::MemoryOrder::AcqRel))
+        return orb::EventOrder::Ordered;
+    }
 
     return orb::EventOrder::Unordered;
   }
 
-  orb::EventOrder getOrderThroughFence(Operation *a, Operation *f, Operation *b,
-                                       DominanceInfo &dom) const override {
+  orb::EventOrder getOrderThroughFence(Operation *a, Operation *f,
+                                       Operation *b) const override {
     if (!isa<arm_atomic::AtomicFenceOp>(f))
       return orb::EventOrder::Unordered;
-    if (!dom.dominates(a, f) || !dom.dominates(f, b))
-      return orb::EventOrder::Unreachable;
-
     auto mof = getArmMemoryOrder(f);
     bool aIsRead  = isa<arm_atomic::AtomicLoadOp,  ptr::LoadOp>(a);
     bool aIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(a);
     bool bIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b);
-
     // Pair 1&2: DMB SY — any a, any b
     if (mof == arm_atomic::MemoryOrder::AcqRel)
       return orb::EventOrder::Ordered;
@@ -296,7 +327,6 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     // Pair 5&6: DMB ST — a is Write, b is Write
     if (mof == arm_atomic::MemoryOrder::Release && aIsWrite && bIsWrite)
       return orb::EventOrder::Ordered;
-
     return orb::EventOrder::Unordered;
   }
 
@@ -307,60 +337,80 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return {};
     llvm::SmallVector<orb::Promotion> options;
 
-    // Helper: returns true if upgrading this op would be a no-op (already max).
-    auto alreadyMax = [](Operation *op) -> bool {
-      auto mo = getArmMemoryOrder(op);
-      if (isa<arm_atomic::AtomicLoadOp>(op))
-        return mo == arm_atomic::MemoryOrder::Acquire ||
-               mo == arm_atomic::MemoryOrder::AcqRel ||
-               mo == arm_atomic::MemoryOrder::AcquirePC;
-      if (isa<arm_atomic::AtomicStoreOp>(op))
-        return mo == arm_atomic::MemoryOrder::Release ||
-               mo == arm_atomic::MemoryOrder::AcqRel;
-      if (isa<arm_atomic::AtomicFenceOp>(op))
-        return mo == arm_atomic::MemoryOrder::AcqRel;
-      return false;
-    };
+    // a is a load → make it Acquire (bob1: [R & ACQ];po orders everything after).
+    if (isa<arm_atomic::AtomicLoadOp>(a)) {
+      auto mo = getArmMemoryOrder(a);
+      if (mo != arm_atomic::MemoryOrder::Acquire &&
+          mo != arm_atomic::MemoryOrder::AcquirePC &&
+          mo != arm_atomic::MemoryOrder::AcqRel)
+        options.push_back({orb::Promotion::UpgradeAction{a}});
+    }
 
-    // Upgrade 'a' in-place (load→Acquire, store→Release, fence→AcqRel).
-    if (isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp,
-            arm_atomic::AtomicFenceOp>(a) && !alreadyMax(a)) {
-      orb::Promotion p;
-      p.action = orb::Promotion::UpgradeAction{a};
-      options.push_back(p);
+    // b is a store → make it Release (bob1: po;[W & REL] orders everything before).
+    if (isa<arm_atomic::AtomicStoreOp>(b)) {
+      auto mo = getArmMemoryOrder(b);
+      if (mo != arm_atomic::MemoryOrder::Release &&
+          mo != arm_atomic::MemoryOrder::AcqRel)
+        options.push_back({orb::Promotion::UpgradeAction{b}});
     }
-    // Upgrade 'b' in-place — valid for relaxed loads, stores, and fences.
-    if (isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp,
-            arm_atomic::AtomicFenceOp>(b) && !alreadyMax(b)) {
-      orb::Promotion p;
-      p.action = orb::Promotion::UpgradeAction{b};
-      options.push_back(p);
+
+    // a is a relaxed fence → upgrade it to AcqRel.
+    if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(a)) {
+      if (fence.getMemoryOrder() == arm_atomic::MemoryOrder::Relaxed)
+        options.push_back({orb::Promotion::UpgradeAction{a}});
     }
-    // Insert a new arm_atomic fence before 'b' (only when b is not itself a fence).
-    if (!isa<arm_atomic::AtomicFenceOp>(b)) {
-      orb::Promotion fence;
-      fence.action = orb::Promotion::FenceAction{b};
-      options.push_back(fence);
+    // b is a relaxed fence → upgrade it to AcqRel.
+    if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(b)) {
+      if (fence.getMemoryOrder() == arm_atomic::MemoryOrder::Relaxed)
+        options.push_back({orb::Promotion::UpgradeAction{b}});
     }
+
+    // Fence: needed when a/b are ptr ops, fences, or already at max ordering.
+    // Minimal fence type per ARM DMB rules:
+    //   a is read  → DMB LD (Acquire): orders [R];po;[R|W]
+    //   a is write, b is write → DMB ST (Release): orders [W];po;[W]
+    //   otherwise  → DMB SY (AcqRel): orders any-any
+    bool aIsRead  = isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a);
+    bool aIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(a);
+    bool bIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b);
+
+    arm_atomic::MemoryOrder fenceMO;
+    if (aIsRead)
+      fenceMO = arm_atomic::MemoryOrder::Acquire;
+    else if (aIsWrite && bIsWrite)
+      fenceMO = arm_atomic::MemoryOrder::Release;
+    else
+      fenceMO = arm_atomic::MemoryOrder::AcqRel;
+    int mo = static_cast<int>(fenceMO);
+
+    // Two positions: directly after a, or directly before b.
+    // Never insert before the first op of a block: doing so inside a
+    // CIR structured region (e.g. ctor body) confuses the CIR→LLVM lowering
+    // and can produce an llvm.mlir.addressof with no matching symbol.
+    if (!isa<arm_atomic::AtomicFenceOp>(a) && a->getNextNode())
+      options.push_back({orb::Promotion::FenceAction{a->getNextNode(), mo}});
+    if (!isa<arm_atomic::AtomicFenceOp>(b) && b->getPrevNode())
+      options.push_back({orb::Promotion::FenceAction{b, mo}});
+
     return options;
   }
 
   int cost(const orb::Promotion &p) const override {
-    if (std::get_if<orb::Promotion::UpgradeAction>(&p.action))
-      return 1;
-    return 2; // FenceAction
+    return std::get_if<orb::Promotion::UpgradeAction>(&p.action) ? 1 : 2;
   }
 
-  void applyPromotion(const orb::Promotion &p,
-                      OpBuilder &builder) const override {
+  Operation *applyPromotion(const orb::Promotion &p,
+                            OpBuilder &builder) const override {
     if (const auto *fa =
             std::get_if<orb::Promotion::FenceAction>(&p.action)) {
+      auto mo = static_cast<arm_atomic::MemoryOrder>(fa->memoryOrder);
       builder.setInsertionPoint(fa->insertBefore);
-      arm_atomic::AtomicFenceOp::create(builder, fa->insertBefore->getLoc(),
-                                        arm_atomic::MemoryOrder::AcqRel,
-                                        /*syncscope=*/StringAttr{});
-    } else if (const auto *ua =
-                   std::get_if<orb::Promotion::UpgradeAction>(&p.action)) {
+      return arm_atomic::AtomicFenceOp::create(builder,
+                                               fa->insertBefore->getLoc(),
+                                               mo, /*syncscope=*/StringAttr{});
+    }
+    if (const auto *ua =
+            std::get_if<orb::Promotion::UpgradeAction>(&p.action)) {
       if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(ua->op))
         load.setMemoryOrder(arm_atomic::MemoryOrder::Acquire);
       else if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(ua->op))
@@ -368,6 +418,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       else if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(ua->op))
         fence.setMemoryOrder(arm_atomic::MemoryOrder::AcqRel);
     }
+    return nullptr;
   }
 };
 

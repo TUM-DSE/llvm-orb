@@ -14,7 +14,7 @@
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/Dominance.h"
 #include "mlir/Pass/Pass.h"
-#include "llvm/ADT/DenseSet.h"
+#include <chrono>
 
 namespace mlir {
 
@@ -30,7 +30,16 @@ struct FenceSynthesisPass
   void runOnOperation() override {
     ModuleOp module = getOperation();
 
+    auto synthStart = std::chrono::steady_clock::now();
+    auto elapsedMs = [&]() {
+      return std::chrono::duration_cast<std::chrono::milliseconds>(
+                 std::chrono::steady_clock::now() - synthStart)
+          .count();
+    };
+    llvm::errs() << "[FenceSynthesis] start\n";
+    // M_A: required ordering pairs from the CppAtomic analysis — fixed.
     auto &required = getAnalysis<orb::OrderAnalysis>();
+    llvm::errs() << "[FenceSynthesis] required pairs=" << required.requiredPairs().size() << "\n";
     if (required.empty())
       return;
 
@@ -38,32 +47,10 @@ struct FenceSynthesisPass
     auto &dom = getAnalysis<DominanceInfo>();
     OpBuilder builder(module->getContext());
 
-    // isSatisfied: is (idA, idB) ordered in the current ArmAtomic IR?
-    // Checks direct ordering and fence-mediated ordering (getOrderThroughFence).
-    orb::OrderMatrix current;
-    auto isSatisfied = [&](uint64_t idA, uint64_t idB) -> bool {
-      if (current.getOrder(idA, idB) == orb::EventOrder::Ordered)
-        return true;
-      Operation *a = current.getOpForId(idA);
-      Operation *b = current.getOpForId(idB);
-      if (!a || !b)
-        return false;
-      for (uint64_t idF : current.eventIds()) {
-        if (idF == idA || idF == idB)
-          continue;
-        Operation *f = current.getOpForId(idF);
-        if (!f)
-          continue;
-        auto *iface = f->getDialect()
-                          ->getRegisteredInterface<orb::OrbAtomicDialectInterface>();
-        if (iface &&
-            iface->getOrderThroughFence(a, f, b, dom) == orb::EventOrder::Ordered)
-          return true;
-      }
-      return false;
-    };
+    // Precomputed reachability — stable across synthesis iterations.
+    auto reach = orb::computeCallReachability(module);
 
-    // nextSynthId: event IDs for synthesized fences, starting above all source IDs.
+    // Assign IDs for synthesized fences above all source IDs.
     uint64_t nextSynthId = 0;
     module.walk([&](Operation *op) {
       if (auto id = op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr))
@@ -71,103 +58,200 @@ struct FenceSynthesisPass
                                static_cast<uint64_t>(id.getInt()) + 1);
     });
 
-    // F_ign: event IDs of source fences whose mediated access-access pairs
-    // are all already satisfied — these fences can be erased.
-    llvm::SmallDenseSet<uint64_t> fIgn;
+    // Collect all OrbAtomic interfaces present in this module.
+    llvm::SmallDenseSet<orb::OrbAtomicDialectInterface *> ifaceSet;
+    module.walk([&](Operation *op) {
+      if (!op->hasAttr(orb::kEventIdAttr))
+        return;
+      if (auto *iface =
+              op->getDialect()
+                  ->getRegisteredInterface<orb::OrbAtomicDialectInterface>())
+        ifaceSet.insert(iface);
+    });
+    llvm::SmallVector<orb::OrbAtomicDialectInterface *> allIfaces(
+        ifaceSet.begin(), ifaceSet.end());
 
-    bool progress = true;
-    while (progress) {
-      progress = false;
-      current = orb::getOrderMatrix(module, aa, dom);
+    // M_B: current ArmAtomic ordering matrix — built once, updated incrementally.
+    auto mb = orb::getOrderMatrix(module, aa, dom, reach);
 
-      std::optional<orb::Promotion> best;
-      int bestCost = INT_MAX;
-      orb::OrbAtomicDialectInterface *bestIface = nullptr;
+    // isEventFence: true if id refers to a fence op in any registered dialect.
+    auto isEventFence = [&](uint64_t id) {
+      Operation *op = mb.getOpForId(id);
+      if (!op) return false;
+      for (auto *iface : allIfaces)
+        if (iface->isFenceEvent(op)) return true;
+      return false;
+    };
 
-      for (auto [idA, idB] : required.requiredPairs()) {
-        // Skip pairs involving already-ignorable fences.
-        if (fIgn.count(idA) || fIgn.count(idB))
+    // F_ign: source fence IDs whose mediated access-access pairs are all
+    // already ordered in M_B. These pairs are skipped (paper §5.2).
+    llvm::DenseSet<uint64_t> fIgn;
+
+    // Pressure maps: count of unsatisfied required pairs per row/column.
+    // Used for coverage-aware promotion scoring.
+    llvm::DenseMap<uint64_t, unsigned> rowPressure, colPressure;
+    auto rebuildPressure = [&]() {
+      rowPressure.clear();
+      colPressure.clear();
+      for (auto [c, d] : required.requiredPairs()) {
+        if (fIgn.count(c) || fIgn.count(d))
           continue;
-        if (isSatisfied(idA, idB))
+        if (mb.getOrder(c, d) == orb::EventOrder::Ordered)
           continue;
+        rowPressure[c]++;
+        colPressure[d]++;
+      }
+    };
+    rebuildPressure();
 
-        Operation *a = current.getOpForId(idA);
-        Operation *b = current.getOpForId(idB);
-        if (!a || !b)
-          continue;
+    // Pairs-per-event threshold: above this, prefer fence over access upgrade.
+    static constexpr unsigned kFencePressureLimit = 10;
 
-        // Fence-pair: check whether all access-access pairs mediated by this
-        // fence are already satisfied (paper Alg. 1, fence-ignorable check).
-        bool aIsFence = isa<arm_atomic::AtomicFenceOp>(a);
-        bool bIsFence = isa<arm_atomic::AtomicFenceOp>(b);
-        if (aIsFence || bIsFence) {
-          uint64_t idF = aIsFence ? idA : idB;
-          llvm::SmallVector<uint64_t> before, after;
-          required.pairsWithFence(idF, before, after);
-          // Restrict to access-access pairs (O_A submatrix of M_A):
-          // skip ids that correspond to fence events.
-          auto isAccess = [&](uint64_t id) {
-            Operation *op = current.getOpForId(id);
-            return op && !isa<arm_atomic::AtomicFenceOp>(op);
-          };
-          bool needed = false;
-          for (uint64_t idC : before) {
-            if (!isAccess(idC)) continue;
-            for (uint64_t idD : after) {
-              if (!isAccess(idD)) continue;
-              if (!isSatisfied(idC, idD)) {
-                needed = true;
-                break;
+    // Fixpoint: each iteration either adds a fence to F_ign or adds edges to
+    // M_B. Both sets are finite, so the loop always terminates (paper §5).
+    bool changed = true;
+    while (changed) {
+      changed = false;
+
+      // Two passes: fence-involving pairs first (highest payoff), then
+      // access-access pairs. Fence upgrades establish the most order per action.
+      for (int pass = 0; pass < 2; ++pass) {
+        for (auto [idA, idB] : required.requiredPairs()) {
+          if (fIgn.count(idA) || fIgn.count(idB))
+            continue;
+          if (mb.getOrder(idA, idB) == orb::EventOrder::Ordered)
+            continue;
+
+          bool aIsFence = isEventFence(idA), bIsFence = isEventFence(idB);
+          if (pass == 0 && !(aIsFence || bIsFence))
+            continue;
+          if (pass == 1 && (aIsFence || bIsFence))
+            continue;
+
+          // Paper §5.2: if one endpoint is a source fence f, count how many
+          // access-access pairs it mediates are still unordered.
+          // If 0: f is ignorable. Otherwise fall through to promote() always —
+          // deferring fence pairs causes an infinite loop (pass=1 skips them).
+          // The highPressure flag below controls whether to prefer fence upgrade.
+          if (aIsFence || bIsFence) {
+            uint64_t fId = aIsFence ? idA : idB;
+            llvm::SmallVector<uint64_t> before, after;
+            required.pairsWithFence(fId, before, after);
+            unsigned mediatedUnordered = 0;
+            for (auto c : before) {
+              if (isEventFence(c))
+                continue; // O_B: access-access only
+              for (auto d : after) {
+                if (isEventFence(d))
+                  continue;
+                if (mb.getOrder(c, d) != orb::EventOrder::Ordered)
+                  ++mediatedUnordered;
               }
             }
-            if (needed)
-              break;
+            if (mediatedUnordered == 0) {
+              fIgn.insert(fId);
+              changed = true;
+              continue;
+            }
+            // mediatedUnordered > 0: fall through to promote().
           }
-          if (!needed) {
-            fIgn.insert(idF);
-            progress = true;
-            break; // restart the loop with updated fIgn
-          }
-          // needed=true: fall through to promote the fence pair
-        }
 
-        // Promote (a, b) — handles access-access and access-fence pairs.
-        auto *iface = a->getDialect()
-                          ->getRegisteredInterface<orb::OrbAtomicDialectInterface>();
-        if (!iface)
-          continue;
-        for (auto p : iface->promote(idA, a, idB, b)) {
-          int c = iface->cost(p);
-          if (c < bestCost) {
-            best = p;
-            bestCost = c;
-            bestIface = iface;
+          Operation *a = mb.getOpForId(idA);
+          Operation *b = mb.getOpForId(idB);
+          if (!a || !b) {
+            signalPassFailure();
+            return;
           }
-        }
-      }
 
-      if (best && bestIface) {
-        bestIface->applyPromotion(*best, builder);
-        // If a new fence was inserted (FenceAction), assign it a fresh event ID
-        // so getOrderMatrix picks it up on the next iteration.
-        if (std::get_if<orb::Promotion::FenceAction>(&best->action)) {
-          module.walk([&](arm_atomic::AtomicFenceOp fence) {
-            if (!fence->hasAttr(orb::kEventIdAttr))
-              fence->setAttr(orb::kEventIdAttr,
-                             builder.getI64IntegerAttr(nextSynthId++));
-          });
+          // Pick the promotion with the best coverage-adjusted cost.
+          // score = baseCost / coverage, lower is better.
+          // Under high pressure: skip plain-access upgrades, prefer fences.
+          bool highPressure =
+              (rowPressure[idA] + colPressure[idB]) > kFencePressureLimit;
+          orb::OrbAtomicDialectInterface *bestIface = nullptr;
+          orb::Promotion bestPromotion;
+          float bestScore = std::numeric_limits<float>::max();
+          for (auto *iface : allIfaces) {
+            for (auto &p : iface->promote(idA, a, idB, b)) {
+              const auto *ua =
+                  std::get_if<orb::Promotion::UpgradeAction>(&p.action);
+              // Under high pressure, skip plain-access upgrades.
+              if (highPressure && ua &&
+                  !isa<arm_atomic::AtomicFenceOp>(ua->op))
+                continue;
+              int baseCost = iface->cost(p);
+              unsigned cov = 1;
+              if (ua) {
+                cov = (ua->op == a) ? std::max(rowPressure[idA], 1u)
+                                    : std::max(colPressure[idB], 1u);
+              } else {
+                cov = std::max(rowPressure[idA] + colPressure[idB], 1u);
+              }
+              float score = (float)baseCost / cov;
+              if (score < bestScore) {
+                bestScore = score;
+                bestIface = iface;
+                bestPromotion = p;
+              }
+            }
+          }
+          if (!bestIface) {
+            llvm::errs() << "[FenceSynthesis] ERROR: no promotion for pair ("
+                         << idA << ", " << idB << ") — aborting\n";
+            signalPassFailure();
+            return;
+          }
+
+          Operation *newOp = bestIface->applyPromotion(bestPromotion, builder);
+
+          if (const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(
+                  &bestPromotion.action)) {
+            if (isa<arm_atomic::AtomicLoadOp>(ua->op))
+              mb.applyAcqUpgrade(mb.idxOf(idA));
+            else if (isa<arm_atomic::AtomicStoreOp>(ua->op))
+              mb.applyRelUpgrade(mb.idxOf(idB));
+            else { // fence upgrade
+              uint64_t fId = (ua->op == a) ? idA : idB;
+              mb.applyFenceUpgrade(mb.idxOf(fId), allIfaces, aa, dom, reach);
+            }
+          } else {
+            assert(newOp && "applyPromotion must return the created fence op");
+            newOp->setAttr(orb::kEventIdAttr,
+                           builder.getI64IntegerAttr(nextSynthId++));
+            mb.addFence(newOp, allIfaces, aa, dom, reach);
+          }
+
+          rebuildPressure();
+          changed = true;
+
+          // Debug: outstanding count after each individual promotion.
+          unsigned outstanding = 0;
+          for (auto [c, d] : required.requiredPairs()) {
+            if (fIgn.count(c) || fIgn.count(d))
+              continue;
+            if (mb.getOrder(c, d) != orb::EventOrder::Ordered)
+              ++outstanding;
+          }
+          llvm::errs() << "[FenceSynthesis] outstanding=" << outstanding
+                       << " fIgn=" << fIgn.size()
+                       << " t=" << elapsedMs() << "ms\n";
         }
-        progress = true;
       }
     }
 
-    // Erase ignorable source fences — they are still arm::Relaxed and contribute
-    // no ordering; keeping them would generate spurious (no-op) ArmAtomic fences.
-    module.walk([&](arm_atomic::AtomicFenceOp fence) {
-      auto idAttr = fence->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
-      if (idAttr && fIgn.count(static_cast<uint64_t>(idAttr.getInt())))
-        fence->erase();
-    });
+    // Verify all required pairs (excluding ignorable fences) are satisfied.
+    unsigned remaining = 0;
+    for (auto [idA, idB] : required.requiredPairs()) {
+      if (fIgn.count(idA) || fIgn.count(idB))
+        continue;
+      if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
+        ++remaining;
+    }
+
+    llvm::errs() << "[FenceSynthesis] done remaining=" << remaining
+                 << " t=" << elapsedMs() << "ms\n";
+    if (remaining > 0)
+      signalPassFailure();
   }
 };
 
