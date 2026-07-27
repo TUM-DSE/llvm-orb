@@ -67,10 +67,33 @@ class OrbAtomicDialectInterface; // forward declaration for OrderMatrix::addFenc
 /// Computed once per pass by computeCallReachability(); stable across synthesis
 /// iterations because synthesis never adds new call ops.
 struct CallReachability {
+  /// Region-level reachability (bidirectional: call + return edges).
   llvm::DenseMap<Region *, llvm::DenseSet<Region *>> data;
   bool reaches(Region *from, Region *to) const {
     auto it = data.find(from);
     return it != data.end() && it->second.count(to);
+  }
+
+  /// Direct call ops: directCalls[{callerRegion, calleeRegion}] = list of
+  /// CallOps in callerRegion that directly call calleeRegion.
+  llvm::DenseMap<std::pair<Region *, Region *>,
+                 llvm::SmallVector<Operation *>>
+      directCalls;
+
+  /// Returns true if op `a` in its region can execute before events in
+  /// `toRegion`. Requires that `a` dominates at least one direct call from
+  /// `a`'s region to `toRegion`. This is stricter than `reaches()`: it rules
+  /// out ops that only appear AFTER the call to `toRegion`.
+  bool opCanReach(Operation *a, Region *toRegion, DominanceInfo &dom) const {
+    Region *fromRegion = a->getBlock()->getParent();
+    if (fromRegion == toRegion)
+      return true;
+    auto it = directCalls.find({fromRegion, toRegion});
+    if (it == directCalls.end())
+      return false;
+    return llvm::any_of(it->second, [&](Operation *callOp) {
+      return dom.dominates(a, callOp);
+    });
   }
 };
 

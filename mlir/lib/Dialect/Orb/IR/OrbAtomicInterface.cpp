@@ -102,7 +102,7 @@ void OrderMatrix::addFence(Operation *f,
     Region *rEv = ev->getBlock()->getParent();
     if (rEv == rF || reach.reaches(rEv, rF))
       matrix[evIdx * n + fIdx] = queryOrder(ev, f);
-    if (rF == rEv || reach.reaches(rF, rEv))
+    if (reach.opCanReach(f, rEv, dom))
       matrix[fIdx * n + evIdx] = queryOrder(f, ev);
   }
 
@@ -151,7 +151,7 @@ void OrderMatrix::applyFenceUpgrade(
     Region *rEv = ev->getBlock()->getParent();
     if (rEv == rF || reach.reaches(rEv, rF))
       matrix[evIdx * n + fIdx] = queryOrder(ev, f);
-    if (rF == rEv || reach.reaches(rF, rEv))
+    if (reach.opCanReach(f, rEv, dom))
       matrix[fIdx * n + evIdx] = queryOrder(f, ev);
   }
 
@@ -242,6 +242,7 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
   // Avoids mlir::CallGraph which asserts on ops with empty getCallableForCallee().
   llvm::DenseMap<Region *, llvm::SmallVector<Region *>> callEdges;
   llvm::DenseMap<Region *, llvm::SmallVector<Region *>> callerEdges;
+  CallReachability reach;
 
   module.walk([&](Operation *op) {
     auto call = dyn_cast<CallOpInterface>(op);
@@ -272,6 +273,8 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
       return;
     callEdges[callerRegion].push_back(calleeRegion);
     callerEdges[calleeRegion].push_back(callerRegion);
+    // Record the direct call op for position-aware reachability.
+    reach.directCalls[{callerRegion, calleeRegion}].push_back(op);
   });
 
   // Collect all regions that appear in any edge.
@@ -280,7 +283,6 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
   for (auto &[r, _] : callerEdges) allRegions.insert(r);
 
   // BFS per region: reachable via call+return edges, with cycle safety.
-  CallReachability reach;
   for (Region *startRegion : allRegions) {
     auto &reachable = reach.data[startRegion];
     llvm::DenseSet<Region *> visited;
@@ -349,12 +351,11 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   // Pairwise pass: O(n²) over ALL events including fences.
   for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
     Operation *a = result.idToOp[result.ids[aIdx]];
-    Region *rA = a->getBlock()->getParent();
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
       if (aIdx == bIdx) continue;
       Operation *b = result.idToOp[result.ids[bIdx]];
       Region *rB = b->getBlock()->getParent();
-      EventOrder order = (rA == rB || reach.reaches(rA, rB))
+      EventOrder order = reach.opCanReach(a, rB, dominance)
                              ? queryOrder(a, b)
                              : EventOrder::Unreachable;
       result.setOrder(aIdx, bIdx, order);
