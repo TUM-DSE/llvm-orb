@@ -242,9 +242,17 @@ struct FenceSynthesisPass
     // Verify all required pairs (excluding ignorable fences) are satisfied.
     unsigned covered, overspecified;
     countOrdered(covered, overspecified);
-    unsigned remaining = total - covered;
+    unsigned remaining = 0;
+    for (auto [idA, idB] : required.requiredPairs()) {
+      if (fIgn.count(idA) || fIgn.count(idB))
+        continue;
+      if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
+        ++remaining;
+    }
     llvm::errs() << "[FenceSynthesis] done ordered=" << covered << "/" << total
                  << " overspecified=" << overspecified
+                 << " fIgn=" << fIgn.size()
+                 << " remaining=" << remaining
                  << " t=" << elapsedMs() << "ms\n";
     if (remaining > 0)
       signalPassFailure();
