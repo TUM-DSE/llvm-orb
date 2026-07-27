@@ -18,6 +18,7 @@
 
 namespace mlir {
 
+#define GEN_PASS_DECL_FENCESYNTHESISPASS
 #define GEN_PASS_DEF_FENCESYNTHESISPASS
 #include "mlir/Conversion/Passes.h.inc"
 
@@ -104,6 +105,26 @@ struct FenceSynthesisPass
     };
     rebuildPressure();
 
+    // O(1) required-pair lookup for overspecified counter.
+    llvm::DenseSet<std::pair<uint64_t,uint64_t>> requiredSet(
+        required.requiredPairs().begin(), required.requiredPairs().end());
+    unsigned total = required.requiredPairs().size();
+
+    // Count ordered pairs in M_B: covered = required pairs that are ordered;
+    // overspecified = ordered pairs in M_B not in the required set.
+    auto countOrdered = [&](unsigned &covered, unsigned &overspecified) {
+      covered = overspecified = 0;
+      for (uint64_t c : mb.eventIds()) {
+        for (uint64_t d : mb.eventIds()) {
+          if (c == d || mb.getOrder(c, d) != orb::EventOrder::Ordered)
+            continue;
+          if (requiredSet.count({c, d}))
+            ++covered;
+          else
+            ++overspecified;
+        }
+      }
+    };
 
     // Fixpoint: each iteration either adds a fence to F_ign or adds edges to
     // M_B. Both sets are finite, so the loop always terminates (paper §5).
@@ -160,6 +181,15 @@ struct FenceSynthesisPass
             return;
           }
 
+          // Log state before this promotion (first call = implicit coverage).
+          {
+            unsigned covered, overspecified;
+            countOrdered(covered, overspecified);
+            llvm::errs() << "[FenceSynthesis] ordered=" << covered << "/" << total
+                         << " overspecified=" << overspecified
+                         << " t=" << elapsedMs() << "ms\n";
+          }
+
           // Pick the promotion with the best coverage-adjusted cost.
           // Lower score is better; dialect's cost() encodes both base cost and
           // coverage via the CostContext.
@@ -205,32 +235,16 @@ struct FenceSynthesisPass
 
           rebuildPressure();
           changed = true;
-
-          // Debug: outstanding count after each individual promotion.
-          unsigned outstanding = 0;
-          for (auto [c, d] : required.requiredPairs()) {
-            if (fIgn.count(c) || fIgn.count(d))
-              continue;
-            if (mb.getOrder(c, d) != orb::EventOrder::Ordered)
-              ++outstanding;
-          }
-          llvm::errs() << "[FenceSynthesis] outstanding=" << outstanding
-                       << " fIgn=" << fIgn.size()
-                       << " t=" << elapsedMs() << "ms\n";
         }
       }
     }
 
     // Verify all required pairs (excluding ignorable fences) are satisfied.
-    unsigned remaining = 0;
-    for (auto [idA, idB] : required.requiredPairs()) {
-      if (fIgn.count(idA) || fIgn.count(idB))
-        continue;
-      if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
-        ++remaining;
-    }
-
-    llvm::errs() << "[FenceSynthesis] done remaining=" << remaining
+    unsigned covered, overspecified;
+    countOrdered(covered, overspecified);
+    unsigned remaining = total - covered;
+    llvm::errs() << "[FenceSynthesis] done ordered=" << covered << "/" << total
+                 << " overspecified=" << overspecified
                  << " t=" << elapsedMs() << "ms\n";
     if (remaining > 0)
       signalPassFailure();
