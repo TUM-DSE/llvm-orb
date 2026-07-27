@@ -37,7 +37,7 @@ struct FenceSynthesisPass
                  std::chrono::steady_clock::now() - synthStart)
           .count();
     };
-    llvm::errs() << "[FenceSynthesis] start\n";
+    llvm::errs() << "[FenceSynthesis] start fenceCostBase=" << fenceCostBase << "\n";
     // M_A: required ordering pairs from the CppAtomic analysis — fixed.
     auto &required = getAnalysis<orb::OrderAnalysis>();
     llvm::errs() << "[FenceSynthesis] required pairs=" << required.requiredPairs().size() << "\n";

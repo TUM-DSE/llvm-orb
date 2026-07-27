@@ -410,10 +410,10 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     unsigned cov;
     switch (mo) {
     case arm_atomic::MemoryOrder::Acquire:
-      cov = std::max(ctx.colPressure, 1u); // orders (op, X): covers column
+      cov = std::max(ctx.rowPressure, 1u); // Acquire of a covers (a,*) = row
       break;
     case arm_atomic::MemoryOrder::Release:
-      cov = std::max(ctx.rowPressure, 1u); // orders (X, op): covers row
+      cov = std::max(ctx.colPressure, 1u); // Release of b covers (*,b) = col
       break;
     default: // AcqRel
       cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
