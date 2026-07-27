@@ -35,7 +35,8 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule,
                              llvm::LLVMContext &llvmCtx,
                              llvm::StringRef mlirSaveTempsOutFile = {},
                              llvm::vfs::FileSystem *fs = nullptr,
-                             bool useOrb = false);
+                             bool useOrb = false,
+                             unsigned orbFenceCostBase = 2);
 } // namespace direct
 } // namespace cir
 
