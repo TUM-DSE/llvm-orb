@@ -4927,7 +4927,7 @@ void populateCIRToLLVMPasses(mlir::OpPassManager &pm) {
   pm.addPass(createConvertCIRToLLVMPass());
 }
 
-void populateOrbPasses(mlir::OpPassManager &pm) {
+void populateOrbPasses(mlir::OpPassManager &pm, unsigned fenceCostBase = 2) {
   mlir::populateCIRPreLoweringPasses(pm);
 
   pm.addPass(mlir::createCIRToCFPass());
@@ -4941,7 +4941,8 @@ void populateOrbPasses(mlir::OpPassManager &pm) {
   // during CIR→LLVM lowering.
   pm.addPass(mlir::createOrderAnalysisPass());
   pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
-  pm.addPass(mlir::createFenceSynthesisPass());
+  pm.addPass(mlir::createFenceSynthesisPass(
+      mlir::FenceSynthesisPassOptions{fenceCostBase}));
 
   pm.addPass(createConvertCIRToLLVMPass());
   pm.addPass(mlir::createConvertArmAtomicToLLVMPass());
@@ -5027,7 +5028,8 @@ std::unique_ptr<llvm::Module>
 lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
                              StringRef mlirSaveTempsOutFile,
                              llvm::vfs::FileSystem *fs,
-                             bool useOrb) {
+                             bool useOrb,
+                             unsigned orbFenceCostBase = 2) {
   llvm::TimeTraceScope scope("lower from CIR to LLVM directly");
 
   mlir::MLIRContext *mlirCtx = mlirModule.getContext();
@@ -5046,7 +5048,7 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
     mlir::vector::registerConvertVectorToLLVMInterface(registry);
 
     mlirCtx->appendDialectRegistry(registry);
-    populateOrbPasses(pm);
+    populateOrbPasses(pm, orbFenceCostBase);
   } else
     populateCIRToLLVMPasses(pm);
 

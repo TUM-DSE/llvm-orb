@@ -104,8 +104,6 @@ struct FenceSynthesisPass
     };
     rebuildPressure();
 
-    // Pairs-per-event threshold: above this, prefer fence over access upgrade.
-    static constexpr unsigned kFencePressureLimit = 10;
 
     // Fixpoint: each iteration either adds a fence to F_ign or adds edges to
     // M_B. Both sets are finite, so the loop always terminates (paper §5).
@@ -132,7 +130,6 @@ struct FenceSynthesisPass
           // access-access pairs it mediates are still unordered.
           // If 0: f is ignorable. Otherwise fall through to promote() always —
           // deferring fence pairs causes an infinite loop (pass=1 skips them).
-          // The highPressure flag below controls whether to prefer fence upgrade.
           if (aIsFence || bIsFence) {
             uint64_t fId = aIsFence ? idA : idB;
             llvm::SmallVector<uint64_t> before, after;
@@ -164,30 +161,15 @@ struct FenceSynthesisPass
           }
 
           // Pick the promotion with the best coverage-adjusted cost.
-          // score = baseCost / coverage, lower is better.
-          // Under high pressure: skip plain-access upgrades, prefer fences.
-          bool highPressure =
-              (rowPressure[idA] + colPressure[idB]) > kFencePressureLimit;
+          // Lower score is better; dialect's cost() encodes both base cost and
+          // coverage via the CostContext.
           orb::OrbAtomicDialectInterface *bestIface = nullptr;
           orb::Promotion bestPromotion;
-          float bestScore = std::numeric_limits<float>::max();
+          int bestScore = std::numeric_limits<int>::max();
+          orb::CostContext ctx{rowPressure[idA], colPressure[idB], fenceCostBase};
           for (auto *iface : allIfaces) {
             for (auto &p : iface->promote(idA, a, idB, b)) {
-              const auto *ua =
-                  std::get_if<orb::Promotion::UpgradeAction>(&p.action);
-              // Under high pressure, skip plain-access upgrades.
-              if (highPressure && ua &&
-                  !isa<arm_atomic::AtomicFenceOp>(ua->op))
-                continue;
-              int baseCost = iface->cost(p);
-              unsigned cov = 1;
-              if (ua) {
-                cov = (ua->op == a) ? std::max(rowPressure[idA], 1u)
-                                    : std::max(colPressure[idB], 1u);
-              } else {
-                cov = std::max(rowPressure[idA] + colPressure[idB], 1u);
-              }
-              float score = (float)baseCost / cov;
+              int score = iface->cost(p, ctx);
               if (score < bestScore) {
                 bestScore = score;
                 bestIface = iface;

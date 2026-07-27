@@ -460,6 +460,11 @@ def FenceSynthesisPass : Pass<"fence-synthesis", "ModuleOp"> {
     upgrading memory orders until all required orderings are satisfied.
     Dialect-specific logic is delegated to OrbAtomicDialectInterface.
   }];
+  let options = [
+    Option<"fenceCostBase", "fence-cost-base", "unsigned", /*default=*/"2",
+           "Base cost multiplier for fence insertion relative to access upgrade "
+           "(higher values prefer access upgrades over new fences)">
+  ];
 }
 
 def ConvertArmAtomicToLLVMPass : Pass<"arm-atomic-to-llvm", "ModuleOp"> {

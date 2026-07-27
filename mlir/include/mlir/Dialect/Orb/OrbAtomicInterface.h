@@ -52,13 +52,23 @@ struct Promotion {
     int memoryOrder; ///< Dialect-specific memory order enum value.
   };
   /// Strengthen the memory order of `op` in-place.
-  /// The dialect's promote() knows the target ordering.
   struct UpgradeAction {
     Operation *op;
+    int targetMemoryOrder; ///< Dialect-specific memory order enum value.
   };
   using Action = std::variant<FenceAction, UpgradeAction>;
 
   Action action;
+};
+
+/// Coverage context passed to cost(). Precomputed by FenceSynthesisPass from
+/// the required-pairs pressure maps for the pair (idA, idB) being promoted.
+/// rowPressure: unsatisfied pairs where idA is the "before" event.
+/// colPressure: unsatisfied pairs where idB is the "after" event.
+struct CostContext {
+  unsigned rowPressure;
+  unsigned colPressure;
+  unsigned fenceCostBase = 2; ///< Base cost multiplier for FenceAction.
 };
 
 class OrbAtomicDialectInterface; // forward declaration for OrderMatrix::addFence
@@ -184,8 +194,9 @@ public:
                                                uint64_t idB,
                                                Operation *b) const = 0;
 
-  /// Relative cost of a promotion. Lower is cheaper.
-  virtual int cost(const Promotion &p) const = 0;
+  /// Coverage-adjusted cost of a promotion. Lower is cheaper.
+  /// ctx carries the unsatisfied-pair counts for the pair being promoted.
+  virtual int cost(const Promotion &p, const CostContext &ctx) const = 0;
 
   /// Apply a promotion to the IR.
   /// For FenceAction: sets builder insertion point and creates the dialect's

@@ -343,7 +343,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       if (mo != arm_atomic::MemoryOrder::Acquire &&
           mo != arm_atomic::MemoryOrder::AcquirePC &&
           mo != arm_atomic::MemoryOrder::AcqRel)
-        options.push_back({orb::Promotion::UpgradeAction{a}});
+        options.push_back(
+            {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::Acquire}});
     }
 
     // b is a store → make it Release (bob1: po;[W & REL] orders everything before).
@@ -351,18 +352,21 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       auto mo = getArmMemoryOrder(b);
       if (mo != arm_atomic::MemoryOrder::Release &&
           mo != arm_atomic::MemoryOrder::AcqRel)
-        options.push_back({orb::Promotion::UpgradeAction{b}});
+        options.push_back(
+            {orb::Promotion::UpgradeAction{b, (int)arm_atomic::MemoryOrder::Release}});
     }
 
-    // a is a relaxed fence → upgrade it to AcqRel.
-    if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(a)) {
-      if (fence.getMemoryOrder() == arm_atomic::MemoryOrder::Relaxed)
-        options.push_back({orb::Promotion::UpgradeAction{a}});
-    }
-    // b is a relaxed fence → upgrade it to AcqRel.
-    if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(b)) {
-      if (fence.getMemoryOrder() == arm_atomic::MemoryOrder::Relaxed)
-        options.push_back({orb::Promotion::UpgradeAction{b}});
+    // Relaxed fence → offer Acquire, Release, and AcqRel upgrades.
+    // cost() selects the cheapest based on coverage (colPressure / rowPressure).
+    for (Operation *fenceOp : {a, b}) {
+      auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(fenceOp);
+      if (!fence || fence.getMemoryOrder() != arm_atomic::MemoryOrder::Relaxed)
+        continue;
+      for (auto mo : {arm_atomic::MemoryOrder::Acquire,
+                      arm_atomic::MemoryOrder::Release,
+                      arm_atomic::MemoryOrder::AcqRel})
+        options.push_back(
+            {orb::Promotion::UpgradeAction{fenceOp, (int)mo}});
     }
 
     // Fence: needed when a/b are ptr ops, fences, or already at max ordering.
@@ -395,8 +399,27 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return options;
   }
 
-  int cost(const orb::Promotion &p) const override {
-    return std::get_if<orb::Promotion::UpgradeAction>(&p.action) ? 1 : 2;
+  int cost(const orb::Promotion &p, const orb::CostContext &ctx) const override {
+    const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action);
+    if (!ua) {
+      // FenceAction: base cost fenceCostBase, covers both directions.
+      unsigned cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
+      return (int)ctx.fenceCostBase * 1000 / (int)cov;
+    }
+    auto mo = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
+    unsigned cov;
+    switch (mo) {
+    case arm_atomic::MemoryOrder::Acquire:
+      cov = std::max(ctx.colPressure, 1u); // orders (op, X): covers column
+      break;
+    case arm_atomic::MemoryOrder::Release:
+      cov = std::max(ctx.rowPressure, 1u); // orders (X, op): covers row
+      break;
+    default: // AcqRel
+      cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
+      break;
+    }
+    return 1000 / (int)cov;
   }
 
   Operation *applyPromotion(const orb::Promotion &p,
@@ -416,7 +439,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       else if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(ua->op))
         store.setMemoryOrder(arm_atomic::MemoryOrder::Release);
       else if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(ua->op))
-        fence.setMemoryOrder(arm_atomic::MemoryOrder::AcqRel);
+        fence.setMemoryOrder(
+            static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder));
     }
     return nullptr;
   }

@@ -250,7 +250,9 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
    *       NA: 0
    */
 
-  int cost(const orb::Promotion &) const override { return 1; }
+  int cost(const orb::Promotion &, const orb::CostContext &) const override {
+    return 1;
+  }
 
   Operation *applyPromotion(const orb::Promotion &, OpBuilder &) const override {
     llvm_unreachable("CppAtomic is never the synthesis target");
