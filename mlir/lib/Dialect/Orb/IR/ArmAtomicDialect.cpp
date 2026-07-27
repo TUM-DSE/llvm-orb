@@ -357,16 +357,24 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     }
 
     // Relaxed fence → offer Acquire, Release, and AcqRel upgrades.
-    // cost() selects the cheapest based on coverage (colPressure / rowPressure).
+    // Offer upgrades for existing fences. Relaxed fences can go to any order;
+    // Acquire/Release fences can still be promoted to AcqRel.
     for (Operation *fenceOp : {a, b}) {
       auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(fenceOp);
-      if (!fence || fence.getMemoryOrder() != arm_atomic::MemoryOrder::Relaxed)
+      if (!fence)
         continue;
-      for (auto mo : {arm_atomic::MemoryOrder::Acquire,
-                      arm_atomic::MemoryOrder::Release,
-                      arm_atomic::MemoryOrder::AcqRel})
+      auto curMO = fence.getMemoryOrder();
+      if (curMO == arm_atomic::MemoryOrder::Relaxed) {
+        for (auto mo : {arm_atomic::MemoryOrder::Acquire,
+                        arm_atomic::MemoryOrder::Release,
+                        arm_atomic::MemoryOrder::AcqRel})
+          options.push_back({orb::Promotion::UpgradeAction{fenceOp, (int)mo}});
+      } else if (curMO != arm_atomic::MemoryOrder::AcqRel) {
+        // Acquire or Release fence: only AcqRel upgrades it to cover both dirs.
         options.push_back(
-            {orb::Promotion::UpgradeAction{fenceOp, (int)mo}});
+            {orb::Promotion::UpgradeAction{fenceOp,
+                                           (int)arm_atomic::MemoryOrder::AcqRel}});
+      }
     }
 
     // Fence: needed when a/b are ptr ops, fences, or already at max ordering.
