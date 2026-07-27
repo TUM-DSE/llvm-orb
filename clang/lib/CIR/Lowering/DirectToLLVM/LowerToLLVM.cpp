@@ -18,6 +18,9 @@
 #include "mlir/Conversion/ControlFlowToLLVM/ControlFlowToLLVM.h"
 #include "mlir/Dialect/ControlFlow/Transforms/StructuralTypeConversions.h"
 #include "mlir/Conversion/Passes.h"
+// Bring FenceSynthesisPassOptions into scope (emitted under GEN_PASS_DECL).
+#define GEN_PASS_DECL_FENCESYNTHESISPASS
+#include "mlir/Conversion/Passes.h.inc"
 #include "mlir/Conversion/FuncToLLVM/ConvertFuncToLLVM.h"
 #include "mlir/Conversion/OpenMPToLLVM/ConvertOpenMPToLLVM.h"
 #include "mlir/Conversion/PtrToLLVM/PtrToLLVM.h"
