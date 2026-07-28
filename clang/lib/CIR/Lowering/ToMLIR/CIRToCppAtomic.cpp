@@ -39,37 +39,51 @@ namespace {
 
 static cpp_atomic::MemoryOrder convertPtrOrder(ptr::AtomicOrdering ord) {
   switch (ord) {
-  case ptr::AtomicOrdering::monotonic:
-    return cpp_atomic::MemoryOrder::Relaxed;
-  case ptr::AtomicOrdering::acquire:
-    return cpp_atomic::MemoryOrder::Acquire;
-  case ptr::AtomicOrdering::release:
-    return cpp_atomic::MemoryOrder::Release;
-  case ptr::AtomicOrdering::acq_rel:
-    return cpp_atomic::MemoryOrder::AcqRel;
-  case ptr::AtomicOrdering::seq_cst:
-    return cpp_atomic::MemoryOrder::SeqCst;
-  default:
-    llvm_unreachable("unexpected ptr AtomicOrdering in CIRToCppAtomic");
+    case ptr::AtomicOrdering::monotonic:
+      return cpp_atomic::MemoryOrder::Relaxed;
+    case ptr::AtomicOrdering::acquire:
+      return cpp_atomic::MemoryOrder::Acquire;
+    case ptr::AtomicOrdering::release:
+      return cpp_atomic::MemoryOrder::Release;
+    case ptr::AtomicOrdering::acq_rel:
+      return cpp_atomic::MemoryOrder::AcqRel;
+    case ptr::AtomicOrdering::seq_cst:
+      return cpp_atomic::MemoryOrder::SeqCst;
+    default:
+      llvm_unreachable("unexpected ptr AtomicOrdering in CIRToCppAtomic");
   }
 }
 
-static cpp_atomic::MemoryOrder
-convertCIRFenceOrder(cir::MemOrder order) {
+static cpp_atomic::MemoryOrder convertCIRMemOrder(cir::MemOrder order) {
   switch (order) {
-  case cir::MemOrder::Relaxed:
-    return cpp_atomic::MemoryOrder::Relaxed;
-  case cir::MemOrder::Consume:
-  case cir::MemOrder::Acquire:
-    return cpp_atomic::MemoryOrder::Acquire;
-  case cir::MemOrder::Release:
-    return cpp_atomic::MemoryOrder::Release;
-  case cir::MemOrder::AcquireRelease:
-    return cpp_atomic::MemoryOrder::AcqRel;
-  case cir::MemOrder::SequentiallyConsistent:
-    return cpp_atomic::MemoryOrder::SeqCst;
+    case cir::MemOrder::Relaxed:
+      return cpp_atomic::MemoryOrder::Relaxed;
+    case cir::MemOrder::Acquire:
+      return cpp_atomic::MemoryOrder::Acquire;
+    case cir::MemOrder::Release:
+      return cpp_atomic::MemoryOrder::Release;
+    case cir::MemOrder::AcquireRelease:
+      return cpp_atomic::MemoryOrder::AcqRel;
+    case cir::MemOrder::SequentiallyConsistent:
+      return cpp_atomic::MemoryOrder::SeqCst;
+    default:
+      llvm_unreachable("unknown CIR MemOrder");
   }
-  llvm_unreachable("unknown CIR MemOrder");
+}
+
+static cpp_atomic::BinOp convertBinOp(cir::AtomicFetchKind kind) {
+  switch (kind) {
+    case cir::AtomicFetchKind::Add: return cpp_atomic::BinOp::Add;
+    case cir::AtomicFetchKind::Sub: return cpp_atomic::BinOp::Sub;
+    case cir::AtomicFetchKind::And: return cpp_atomic::BinOp::And;
+    case cir::AtomicFetchKind::Or:  return cpp_atomic::BinOp::Or;
+    case cir::AtomicFetchKind::Xor: return cpp_atomic::BinOp::Xor;
+    case cir::AtomicFetchKind::Nand: return cpp_atomic::BinOp::Nand;
+    case cir::AtomicFetchKind::Max: return cpp_atomic::BinOp::Max;
+    case cir::AtomicFetchKind::Min: return cpp_atomic::BinOp::Min;
+    default: 
+      llvm_unreachable("Unsupported CIR atomic fetch kind");
+  }
 }
 
 //===----------------------------------------------------------------------===//
@@ -80,16 +94,24 @@ convertCIRFenceOrder(cir::MemOrder order) {
 struct LoadRewriter : public OpConversionPattern<ptr::LoadOp> {
   using OpConversionPattern::OpConversionPattern;
 
-  LogicalResult matchAndRewrite(ptr::LoadOp op, OpAdaptor adaptor,
+  LogicalResult matchAndRewrite(ptr::LoadOp loadOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    auto order = convertPtrOrder(op.getOrdering());
-    IntegerAttr alignAttr;
-    if (auto a = op.getAlignment())
-      alignAttr = rewriter.getI64IntegerAttr(*a);
+    auto memOrder = convertPtrOrder(loadOp.getOrdering());
+
+    uint64_t align = loadOp.getAlignment().value_or(0);
+
+    if (align == 0) {
+      return rewriter.notifyMatchFailure(
+          loadOp, "Atomic operations strictly require a non-zero alignment.");
+    }
+
+    // TODO: isDeref was destroyed by the cir-to-ptr pass, so it is always false here
+    bool isDeref = false;
+    bool isVolatile = loadOp.getVolatile_();
 
     // ptr::LoadOp operand is named $ptr
     rewriter.replaceOpWithNewOp<cpp_atomic::AtomicLoadOp>(
-        op, op.getValue().getType(), adaptor.getPtr(), order, alignAttr);
+        loadOp, loadOp.getValue().getType(), adaptor.getPtr(), memOrder, align, isDeref, isVolatile);
     return success();
   }
 };
@@ -98,16 +120,22 @@ struct LoadRewriter : public OpConversionPattern<ptr::LoadOp> {
 struct StoreRewriter : public OpConversionPattern<ptr::StoreOp> {
   using OpConversionPattern::OpConversionPattern;
 
-  LogicalResult matchAndRewrite(ptr::StoreOp op, OpAdaptor adaptor,
+  LogicalResult matchAndRewrite(ptr::StoreOp storeOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    auto order = convertPtrOrder(op.getOrdering());
-    IntegerAttr alignAttr;
-    if (auto a = op.getAlignment())
-      alignAttr = rewriter.getI64IntegerAttr(*a);
+    auto memOrder = convertPtrOrder(storeOp.getOrdering());
+
+    uint64_t align = storeOp.getAlignment().value_or(0);
+    
+    if (align == 0) {
+      return rewriter.notifyMatchFailure(
+          storeOp, "Atomic operations strictly require a non-zero alignment.");
+    }
+
+    bool isVolatile = storeOp.getVolatile_();
 
     // ptr::StoreOp operands are $value and $ptr
     rewriter.replaceOpWithNewOp<cpp_atomic::AtomicStoreOp>(
-        op, adaptor.getValue(), adaptor.getPtr(), order, alignAttr);
+        storeOp, adaptor.getValue(), adaptor.getPtr(), memOrder, align, isVolatile);
     return success();
   }
 };
@@ -116,13 +144,101 @@ struct StoreRewriter : public OpConversionPattern<ptr::StoreOp> {
 struct FenceRewriter : public OpConversionPattern<cir::AtomicFenceOp> {
   using OpConversionPattern::OpConversionPattern;
 
-  LogicalResult matchAndRewrite(cir::AtomicFenceOp op, OpAdaptor adaptor,
+  LogicalResult matchAndRewrite(cir::AtomicFenceOp fenceOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    auto order = convertCIRFenceOrder(op.getOrdering());
+    auto memOrder = convertCIRMemOrder(fenceOp.getOrdering());
+
     StringAttr syncscope;
-    if (op.getSyncscope() == cir::SyncScopeKind::SingleThread)
+    if (fenceOp.getSyncscope() == cir::SyncScopeKind::SingleThread)
       syncscope = rewriter.getStringAttr("singlethread");
-    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(op, order, syncscope);
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(fenceOp, memOrder, syncscope);
+    return success();
+  }
+};
+
+/// cir.atomic.cmpxchg → cpp_atomic.atomic_cmpxchg
+struct CmpXchgRewriter : public OpConversionPattern<cir::AtomicCmpXchgOp> {
+  using OpConversionPattern::OpConversionPattern;
+
+  LogicalResult matchAndRewrite(cir::AtomicCmpXchgOp cmpOp, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+    auto successOrder = convertCIRMemOrder(cmpOp.getSuccOrder());
+    auto failureOrder = convertCIRMemOrder(cmpOp.getFailOrder());
+
+    uint64_t align = cmpOp.getAlignment() ? *cmpOp.getAlignment() : 0;
+    
+    if (align == 0) {
+      return rewriter.notifyMatchFailure(
+        cmpOp, "Atomic operations strictly require a non-zero alignment.");
+    }
+      
+    bool isWeak = cmpOp.getWeakAttr() != nullptr;
+    bool isVolatile = cmpOp.getIsVolatileAttr() != nullptr;
+
+    // Opaque pointer fix: Grab the boolean type from the original operation
+    Type successType = cmpOp.getSuccess().getType();
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicCmpXchgOp>(
+        cmpOp, 
+        successType,
+        adaptor.getPtr(),
+        adaptor.getExpected(), 
+        adaptor.getDesired(), 
+        successOrder, 
+        failureOrder, 
+        align,
+        isWeak,   
+        isVolatile
+    );
+      
+    return success();
+  }
+};
+
+/// cir.atomic.fetch → cpp_atomic.atomic_fetch
+struct FetchRewriter : public mlir::OpConversionPattern<cir::AtomicFetchOp> {
+  using OpConversionPattern::OpConversionPattern;
+
+  LogicalResult matchAndRewrite(cir::AtomicFetchOp fetchOp, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+    auto memOrder = convertCIRMemOrder(fetchOp.getMemOrder());
+    auto binOp = convertBinOp(fetchOp.getBinop());
+
+    bool isVolatile = fetchOp.getIsVolatileAttr() != nullptr;
+    bool fetchFirst = fetchOp.getFetchFirstAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFetchOp>(
+        fetchOp,
+        adaptor.getVal(),
+        adaptor.getPtr(),
+        binOp,
+        memOrder,
+        isVolatile,
+        fetchFirst
+    );
+
+    return success();
+  }
+};
+
+/// cir.atomic.xchg → cpp_atomic.atomic_xchg
+struct XchgRewriter : public OpConversionPattern<cir::AtomicXchgOp> {
+  using OpConversionPattern::OpConversionPattern;
+
+  LogicalResult matchAndRewrite(cir::AtomicXchgOp xchgOp, OpAdaptor adaptor,
+                                ConversionPatternRewriter &rewriter) const override {
+    auto memOrder = convertCIRMemOrder(xchgOp.getMemOrder()); 
+    bool isVolatile = xchgOp.getIsVolatileAttr() != nullptr;
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicXchgOp>(
+        xchgOp,
+        adaptor.getVal(), 
+        adaptor.getPtr(),
+        memOrder,
+        isVolatile
+    );
+
     return success();
   }
 };
@@ -149,9 +265,12 @@ struct CIRToCppAtomicPass : public impl::CIRToCppAtomicBase<CIRToCppAtomicPass> 
       return op.getOrdering() == ptr::AtomicOrdering::not_atomic;
     });
     target.addIllegalOp<cir::AtomicFenceOp>();
+    target.addIllegalOp<cir::AtomicCmpXchgOp>();
+    target.addIllegalOp<cir::AtomicFetchOp>();
+    target.addIllegalOp<cir::AtomicXchgOp>();
 
     RewritePatternSet patterns(context);
-    patterns.add<LoadRewriter, StoreRewriter, FenceRewriter>(context);
+    patterns.add<LoadRewriter, StoreRewriter, FenceRewriter, CmpXchgRewriter, FetchRewriter, XchgRewriter>(context);
 
     if (failed(applyPartialConversion(getOperation(), target,
                                       std::move(patterns))))
