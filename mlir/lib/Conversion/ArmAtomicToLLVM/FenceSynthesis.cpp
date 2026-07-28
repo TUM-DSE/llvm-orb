@@ -74,6 +74,9 @@ struct FenceSynthesisPass
 
     // M_B: current ArmAtomic ordering matrix — built once, updated incrementally.
     auto mb = orb::getOrderMatrix(module, aa, dom, reach);
+    // Let the target dialect apply model-specific derived orderings (e.g. lob* for ARM).
+    for (auto *iface : allIfaces)
+      iface->refineInitialOrderMatrix(mb);
 
     // isEventFence: true if id refers to a fence op in any registered dialect.
     auto isEventFence = [&](uint64_t id) {
@@ -89,18 +92,41 @@ struct FenceSynthesisPass
     llvm::DenseSet<uint64_t> fIgn;
 
     // Pressure maps: count of unsatisfied required pairs per row/column.
-    // Used for coverage-aware promotion scoring.
-    llvm::DenseMap<uint64_t, unsigned> rowPressure, colPressure;
+    // rowWritePressure[c]: subset of rowPressure where d is a write — used for ACQPC cost.
+    // colReadPressure[d]: subset of colPressure where c is a read — used for DMB LD cost.
+    // colWritePressure[d]: subset of colPressure where c is a write — used for DMB ST cost.
+    llvm::DenseMap<uint64_t, unsigned> rowPressure, rowWritePressure,
+        colPressure, colReadPressure, colWritePressure;
+    unsigned totalUnsatisfied = 0;
     auto rebuildPressure = [&]() {
       rowPressure.clear();
+      rowWritePressure.clear();
       colPressure.clear();
+      colReadPressure.clear();
+      colWritePressure.clear();
+      totalUnsatisfied = 0;
       for (auto [c, d] : required.requiredPairs()) {
         if (fIgn.count(c) || fIgn.count(d))
           continue;
         if (mb.getOrder(c, d) == orb::EventOrder::Ordered)
           continue;
+        ++totalUnsatisfied;
         rowPressure[c]++;
         colPressure[d]++;
+        Operation *dOp = mb.getOpForId(d);
+        if (dOp && llvm::any_of(allIfaces, [&](orb::OrbAtomicDialectInterface *iface) {
+              return iface->isWriteEvent(dOp);
+            }))
+          rowWritePressure[c]++;
+        Operation *cOp = mb.getOpForId(c);
+        bool cIsWrite = cOp && llvm::any_of(allIfaces, [&](orb::OrbAtomicDialectInterface *iface) {
+              return iface->isWriteEvent(cOp); });
+        bool cIsFence = cOp && llvm::any_of(allIfaces, [&](orb::OrbAtomicDialectInterface *iface) {
+              return iface->isFenceEvent(cOp); });
+        if (!cIsWrite && !cIsFence)
+          colReadPressure[d]++;
+        else if (cIsWrite)
+          colWritePressure[d]++;
       }
     };
     rebuildPressure();
@@ -196,7 +222,9 @@ struct FenceSynthesisPass
           orb::OrbAtomicDialectInterface *bestIface = nullptr;
           orb::Promotion bestPromotion;
           int bestScore = std::numeric_limits<int>::max();
-          orb::CostContext ctx{rowPressure[idA], colPressure[idB], fenceCostBase};
+          orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
+                               colPressure[idB], colReadPressure[idB],
+                               colWritePressure[idB], fenceCostBase};
           for (auto *iface : allIfaces) {
             for (auto &p : iface->promote(idA, a, idB, b)) {
               int score = iface->cost(p, ctx);
@@ -218,9 +246,13 @@ struct FenceSynthesisPass
 
           if (const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(
                   &bestPromotion.action)) {
-            if (isa<arm_atomic::AtomicLoadOp>(ua->op))
-              mb.applyAcqUpgrade(mb.idxOf(idA));
-            else if (isa<arm_atomic::AtomicStoreOp>(ua->op))
+            if (isa<arm_atomic::AtomicLoadOp>(ua->op)) {
+              auto targetMO = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
+              if (targetMO == arm_atomic::MemoryOrder::AcquirePC)
+                mb.applyAcqPCUpgrade(mb.idxOf(idA), allIfaces);
+              else
+                mb.applyAcqUpgrade(mb.idxOf(idA));
+            } else if (isa<arm_atomic::AtomicStoreOp>(ua->op))
               mb.applyRelUpgrade(mb.idxOf(idB));
             else { // fence upgrade
               uint64_t fId = (ua->op == a) ? idA : idB;

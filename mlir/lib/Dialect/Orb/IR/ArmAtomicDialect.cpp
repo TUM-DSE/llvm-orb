@@ -13,6 +13,7 @@
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
+#include <limits>
 
 using namespace mlir;
 
@@ -102,6 +103,10 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
   bool isFenceEvent(Operation *op) const override {
     return isa<arm_atomic::AtomicFenceOp>(op);
+  }
+
+  bool isWriteEvent(Operation *op) const override {
+    return isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(op);
   }
 
   /// ppo_arm = lob | pick-lob for ARMv8
@@ -252,6 +257,16 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return true;
     }
 
+    // ctrl;[W] ∈ dob: if a's result flows into a branch that controls b's block,
+    // and b is a write, then (a,b) is dependency-ordered-before.
+    // Pass Value{} as target: transitivelyReaches returns true only via the
+    // ctrl-dep early-exit (terminator use toward b), never on value match.
+    if (isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b))
+      if (transitivelyReaches(sources, Value{}, b)) {
+        ret = orb::EventOrder::Ordered;
+        return true;
+      }
+
     return false;
   }
 
@@ -280,12 +295,15 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
         return ret;
     }
 
-    // bob1: [R & (ACQ|ACQPC|ACQREL)];po
+    // bob1: [R & (ACQ|ACQREL)];po — full acquire orders before all po-successors.
+    // bob1: [R & ACQPC];po;[W]   — ACQPC (LDAPR) orders only before writes.
     if (isa<arm_atomic::AtomicLoadOp>(a)) {
       auto mo = getArmMemoryOrder(a);
       if (mo == arm_atomic::MemoryOrder::Acquire ||
-          mo == arm_atomic::MemoryOrder::AcquirePC ||
           mo == arm_atomic::MemoryOrder::AcqRel)
+        return orb::EventOrder::Ordered;
+      if (mo == arm_atomic::MemoryOrder::AcquirePC &&
+          isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b))
         return orb::EventOrder::Ordered;
     }
     // bob1: po;[W & (REL|ACQREL)]
@@ -337,14 +355,21 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return {};
     llvm::SmallVector<orb::Promotion> options;
 
-    // a is a load → make it Acquire (bob1: [R & ACQ];po orders everything after).
+    // a is a load → offer ACQPC (cheap, orders before writes only) and/or ACQ (orders all).
     if (isa<arm_atomic::AtomicLoadOp>(a)) {
       auto mo = getArmMemoryOrder(a);
-      if (mo != arm_atomic::MemoryOrder::Acquire &&
-          mo != arm_atomic::MemoryOrder::AcquirePC &&
-          mo != arm_atomic::MemoryOrder::AcqRel)
+      if (mo == arm_atomic::MemoryOrder::Relaxed) {
+        // Offer both: synthesis picks ACQPC first (cheaper); upgrades to ACQ if reads need ordering.
+        options.push_back(
+            {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::AcquirePC}});
         options.push_back(
             {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::Acquire}});
+      } else if (mo == arm_atomic::MemoryOrder::AcquirePC) {
+        // Already ACQPC: only ACQ can strengthen it further.
+        options.push_back(
+            {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::Acquire}});
+      }
+      // ACQ and AcqRel are already at max for loads.
     }
 
     // b is a store → make it Release (bob1: po;[W & REL] orders everything before).
@@ -377,32 +402,33 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       }
     }
 
-    // Fence: needed when a/b are ptr ops, fences, or already at max ordering.
-    // Minimal fence type per ARM DMB rules:
-    //   a is read  → DMB LD (Acquire): orders [R];po;[R|W]
-    //   a is write, b is write → DMB ST (Release): orders [W];po;[W]
-    //   otherwise  → DMB SY (AcqRel): orders any-any
+    // Fence insertions: offer all DMB variants that would actually order (a, b).
+    // DMB LD (Acquire): [R];po;[R|W] — valid when a is read.
+    // DMB ST (Release): [W];po;[W]   — valid when a is write AND b is write.
+    // DMB SY (AcqRel):  any;po;any  — always valid.
+    // Offering all applicable types lets cost() pick the cheapest per fc.
     bool aIsRead  = isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a);
     bool aIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(a);
     bool bIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b);
 
-    arm_atomic::MemoryOrder fenceMO;
+    llvm::SmallVector<arm_atomic::MemoryOrder, 3> fenceMOs;
     if (aIsRead)
-      fenceMO = arm_atomic::MemoryOrder::Acquire;
-    else if (aIsWrite && bIsWrite)
-      fenceMO = arm_atomic::MemoryOrder::Release;
-    else
-      fenceMO = arm_atomic::MemoryOrder::AcqRel;
-    int mo = static_cast<int>(fenceMO);
+      fenceMOs.push_back(arm_atomic::MemoryOrder::Acquire);
+    if (aIsWrite && bIsWrite)
+      fenceMOs.push_back(arm_atomic::MemoryOrder::Release);
+    fenceMOs.push_back(arm_atomic::MemoryOrder::AcqRel);
 
     // Two positions: directly after a, or directly before b.
     // Never insert before the first op of a block: doing so inside a
     // CIR structured region (e.g. ctor body) confuses the CIR→LLVM lowering
     // and can produce an llvm.mlir.addressof with no matching symbol.
-    if (!isa<arm_atomic::AtomicFenceOp>(a) && a->getNextNode())
-      options.push_back({orb::Promotion::FenceAction{a->getNextNode(), mo}});
-    if (!isa<arm_atomic::AtomicFenceOp>(b) && b->getPrevNode())
-      options.push_back({orb::Promotion::FenceAction{b, mo}});
+    for (auto fenceMO : fenceMOs) {
+      int mo = static_cast<int>(fenceMO);
+      if (!isa<arm_atomic::AtomicFenceOp>(a) && a->getNextNode())
+        options.push_back({orb::Promotion::FenceAction{a->getNextNode(), mo}});
+      if (!isa<arm_atomic::AtomicFenceOp>(b) && b->getPrevNode())
+        options.push_back({orb::Promotion::FenceAction{b, mo}});
+    }
 
     return options;
   }
@@ -410,22 +436,64 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   int cost(const orb::Promotion &p, const orb::CostContext &ctx) const override {
     const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action);
     if (!ua) {
-      // FenceAction: base cost fenceCostBase, covers both directions.
-      unsigned cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
-      return (int)ctx.fenceCostBase * 1000 / (int)cov;
+      // FenceAction: cost = fenceCostBase * hardwareMult * 1000 / coverage.
+      // DMB SY (AcqRel) is a full barrier (2× hardware cost vs partial fences).
+      const auto &fa = std::get<orb::Promotion::FenceAction>(p.action);
+      auto fmo = static_cast<arm_atomic::MemoryOrder>(fa.memoryOrder);
+      // Fence coverage: sum of the column (events that need ordering before fence)
+      // and row (events that need ordering after fence). The sum is a better proxy
+      // for required-pair coverage than the product (col*row), which would count
+      // non-required cross-product pairs and cause the synthesis to overuse fences.
+      unsigned cov, hw;
+      switch (fmo) {
+      case arm_atomic::MemoryOrder::Acquire: // DMB LD: [R];po;[*]
+        cov = std::max(ctx.rowPressure + ctx.colReadPressure, 1u);
+        hw = 1;
+        break;
+      case arm_atomic::MemoryOrder::Release: // DMB ST: [W];po;[W]
+        cov = std::max(ctx.rowWritePressure + ctx.colWritePressure, 1u);
+        hw = 1;
+        break;
+      default: // DMB SY (AcqRel): any;po;any — full barrier, 2× hardware cost
+        cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
+        hw = 2;
+        break;
+      }
+      // +1: ensures new fence insertion is always slightly more expensive than
+      // upgrading an existing fence to the same memory order (same formula, no +1).
+      long long raw = (long long)ctx.fenceCostBase * hw * 1000 / cov + 1;
+      return (int)std::min(raw, (long long)std::numeric_limits<int>::max());
     }
     auto mo = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
+
+    // Existing fence upgraded to a stronger MO: same formula as FenceAction but
+    // without the +1, so upgrade is always 1 unit cheaper than inserting a new
+    // fence at the same effective cost.
+    if (isa<arm_atomic::AtomicFenceOp>(ua->op)) {
+      unsigned cov, hw;
+      switch (mo) {
+      case arm_atomic::MemoryOrder::Acquire:
+        cov = std::max(ctx.rowPressure + ctx.colReadPressure, 1u); hw = 1; break;
+      case arm_atomic::MemoryOrder::Release:
+        cov = std::max(ctx.rowWritePressure + ctx.colWritePressure, 1u); hw = 1; break;
+      default: // AcqRel
+        cov = std::max(ctx.rowPressure + ctx.colPressure, 1u); hw = 2; break;
+      }
+      long long raw = (long long)ctx.fenceCostBase * hw * 1000 / cov; // no +1
+      return (int)std::min(raw, (long long)std::numeric_limits<int>::max());
+    }
+
+    // Access upgrades (load/store → stronger MO): fixed hardware cost ~1 unit.
     unsigned cov;
     switch (mo) {
+    case arm_atomic::MemoryOrder::AcquirePC:
+      cov = std::max(ctx.rowWritePressure, 1u); break;
     case arm_atomic::MemoryOrder::Acquire:
-      cov = std::max(ctx.rowPressure, 1u); // Acquire of a covers (a,*) = row
-      break;
+      cov = std::max(ctx.rowPressure, 1u); break;
     case arm_atomic::MemoryOrder::Release:
-      cov = std::max(ctx.colPressure, 1u); // Release of b covers (*,b) = col
-      break;
+      cov = std::max(ctx.colPressure, 1u); break;
     default: // AcqRel
-      cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
-      break;
+      cov = std::max(ctx.rowPressure + ctx.colPressure, 1u); break;
     }
     return 1000 / (int)cov;
   }
@@ -443,7 +511,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (const auto *ua =
             std::get_if<orb::Promotion::UpgradeAction>(&p.action)) {
       if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(ua->op))
-        load.setMemoryOrder(arm_atomic::MemoryOrder::Acquire);
+        load.setMemoryOrder(
+            static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder));
       else if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(ua->op))
         store.setMemoryOrder(arm_atomic::MemoryOrder::Release);
       else if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(ua->op))
@@ -451,6 +520,13 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
             static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder));
     }
     return nullptr;
+  }
+
+  /// ARM's lob* relation is transitive: close the initial target matrix under
+  /// transitivity so that dob;dob, dob;bob, and bob;dob chains are captured
+  /// before synthesis begins.
+  void refineInitialOrderMatrix(orb::OrderMatrix &matrix) const override {
+    matrix.closeTransitively();
   }
 };
 

@@ -66,8 +66,11 @@ struct Promotion {
 /// rowPressure: unsatisfied pairs where idA is the "before" event.
 /// colPressure: unsatisfied pairs where idB is the "after" event.
 struct CostContext {
-  unsigned rowPressure;
-  unsigned colPressure;
+  unsigned rowPressure;      ///< Unsatisfied pairs where idA is "before" (all b).
+  unsigned rowWritePressure; ///< Subset of rowPressure where b is a write.
+  unsigned colPressure;      ///< Unsatisfied pairs where idB is "after" (all c).
+  unsigned colReadPressure;  ///< Subset of colPressure where c is a read.
+  unsigned colWritePressure; ///< Subset of colPressure where c is a write.
   unsigned fenceCostBase = 2; ///< Base cost multiplier for FenceAction.
 };
 
@@ -120,6 +123,11 @@ public:
   /// (stride-1, cache-friendly)
   void applyAcqUpgrade(unsigned aIdx);
 
+  /// Apply ACQPC upgrade: row sweep — set Unordered write entries in row aIdx → Ordered.
+  /// [R & ACQPC];po;[W] — weaker than ACQ; only orders before writes.
+  void applyAcqPCUpgrade(unsigned aIdx,
+                          llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces);
+
   /// Apply REL upgrade: column sweep — set all Unordered in column bIdx → Ordered.
   /// (stride-n, cache-unfriendly but unavoidable)
   void applyRelUpgrade(unsigned bIdx);
@@ -140,6 +148,10 @@ public:
                          llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces,
                          AliasAnalysis &aa, DominanceInfo &dom,
                          const CallReachability &reach);
+
+  /// Close the Ordered relation under transitivity, only over Unordered cells.
+  /// Call at most once per matrix (on the initial target matrix before synthesis).
+  void closeTransitively();
 
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
@@ -174,6 +186,10 @@ public:
   /// Fences are kept separate from the main event matrix to avoid O(n³) blowup.
   virtual bool isFenceEvent(Operation *op) const { return false; }
 
+  /// Returns true if `op` is a write (store) event.
+  /// Used by applyAcqPCUpgrade to restrict ACQPC ordering to writes.
+  virtual bool isWriteEvent(Operation *op) const { return false; }
+
   /// Returns the ordering between two memory events.
   /// Returns Unreachable if either op is not recognised by this dialect.
   /// For same-region pairs, may use `dominance`; for cross-region pairs
@@ -204,6 +220,11 @@ public:
   /// For UpgradeAction: mutates the op's memory order attribute; returns nullptr.
   virtual Operation *applyPromotion(const Promotion &p,
                                     OpBuilder &builder) const = 0;
+
+  /// Called once on the initial target OrderMatrix after getOrderMatrix(),
+  /// before synthesis begins. Dialects may apply model-specific derived orderings
+  /// (e.g. lob* transitive closure for ARM). Default: no-op.
+  virtual void refineInitialOrderMatrix(OrderMatrix &matrix) const {}
 };
 
 /// Assign sequential orb.event_id attributes to all memory events in `module`.

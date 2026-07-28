@@ -14,6 +14,7 @@
 #include "mlir/IR/SymbolTable.h"
 #include "mlir/Interfaces/CallInterfaces.h"
 #include "mlir/Pass/AnalysisManager.h"
+#include "llvm/ADT/BitVector.h"
 #include <cstring>
 
 using namespace mlir;
@@ -47,6 +48,19 @@ void OrderMatrix::applyAcqUpgrade(unsigned aIdx) {
   for (unsigned x = 0; x < n; ++x)
     if (row[x] == EventOrder::Unordered)
       row[x] = EventOrder::Ordered;
+}
+
+void OrderMatrix::applyAcqPCUpgrade(
+    unsigned aIdx, llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces) {
+  // [R & ACQPC];po;[W] — only set Unordered write entries in row aIdx → Ordered.
+  EventOrder *row = &matrix[aIdx * n];
+  for (unsigned x = 0; x < n; ++x) {
+    if (row[x] != EventOrder::Unordered)
+      continue;
+    Operation *op = idToOp[ids[x]];
+    for (auto *iface : ifaces)
+      if (iface->isWriteEvent(op)) { row[x] = EventOrder::Ordered; break; }
+  }
 }
 
 void OrderMatrix::applyRelUpgrade(unsigned bIdx) {
@@ -128,6 +142,46 @@ void OrderMatrix::addFence(Operation *f,
       }
     }
   }
+}
+
+void OrderMatrix::closeTransitively() {
+  if (n == 0)
+    return;
+  // Build orderedAfter[a]: bitset of all b where matrix[a*n+b] == Ordered.
+  llvm::SmallVector<llvm::BitVector> orderedAfter(n, llvm::BitVector(n));
+  for (unsigned a = 0; a < n; ++a)
+    for (unsigned b = 0; b < n; ++b)
+      if (matrix[a * n + b] == EventOrder::Ordered)
+        orderedAfter[a].set(b);
+
+  unsigned added = 0;
+  bool changed = true;
+  while (changed) {
+    changed = false;
+    // Reverse walk order ≈ reverse topological: by the time we process c,
+    // orderedAfter[c] already contains the full reachable set from c,
+    // so one pass suffices for a DAG.
+    for (int c = (int)n - 1; c >= 0; --c) {
+      for (unsigned a = 0; a < n; ++a) {
+        if ((unsigned)c == a || !orderedAfter[a].test(c))
+          continue;
+        // (a,c) Ordered: propagate c's orderings to a for Unordered cells.
+        for (int b = orderedAfter[c].find_first(); b != -1;
+             b = orderedAfter[c].find_next(b)) {
+          if ((unsigned)b == a || orderedAfter[a].test(b))
+            continue;
+          if (matrix[a * n + b] == EventOrder::Unordered) {
+            matrix[a * n + b] = EventOrder::Ordered;
+            orderedAfter[a].set(b);
+            ++added;
+            changed = true;
+          }
+        }
+      }
+    }
+  }
+  llvm::errs() << "[FenceSynthesis] lob* closure: n=" << n
+               << " added=" << added << "\n";
 }
 
 void OrderMatrix::applyFenceUpgrade(
