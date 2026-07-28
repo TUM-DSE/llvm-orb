@@ -440,18 +440,29 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       // DMB SY (AcqRel) is a full barrier (2× hardware cost vs partial fences).
       const auto &fa = std::get<orb::Promotion::FenceAction>(p.action);
       auto fmo = static_cast<arm_atomic::MemoryOrder>(fa.memoryOrder);
-      // Fence coverage: sum of the column (events that need ordering before fence)
-      // and row (events that need ordering after fence). The sum is a better proxy
-      // for required-pair coverage than the product (col*row), which would count
-      // non-required cross-product pairs and cause the synthesis to overuse fences.
+      // Fence coverage: pairs this fence type actually resolves, minus deferred
+      // pairs it cannot resolve due to its type filter.
+      // DMB LD: resolves [R];po;[*] — colWritePressure pairs (writes before B)
+      //   are deferred because getOrderThroughFence requires the "before" to be
+      //   a read. Subtract them so their future promotion cost is reflected here.
+      // DMB ST: resolves [W];po;[W] — colReadPressure pairs are deferred.
+      // DMB SY: resolves any;po;any — no type filter, no deferral.
       unsigned cov, hw;
       switch (fmo) {
-      case arm_atomic::MemoryOrder::Acquire: // DMB LD: [R];po;[*]
+      case arm_atomic::MemoryOrder::Acquire: // DMB LD
         cov = std::max(ctx.rowPressure + ctx.colReadPressure, 1u);
+        if (ctx.colWritePressure < cov)
+          cov -= ctx.colWritePressure;
+        else
+          cov = 1u;
         hw = 1;
         break;
-      case arm_atomic::MemoryOrder::Release: // DMB ST: [W];po;[W]
+      case arm_atomic::MemoryOrder::Release: // DMB ST
         cov = std::max(ctx.rowWritePressure + ctx.colWritePressure, 1u);
+        if (ctx.colReadPressure < cov)
+          cov -= ctx.colReadPressure;
+        else
+          cov = 1u;
         hw = 1;
         break;
       default: // DMB SY (AcqRel): any;po;any — full barrier, 2× hardware cost
@@ -472,10 +483,16 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (isa<arm_atomic::AtomicFenceOp>(ua->op)) {
       unsigned cov, hw;
       switch (mo) {
-      case arm_atomic::MemoryOrder::Acquire:
-        cov = std::max(ctx.rowPressure + ctx.colReadPressure, 1u); hw = 1; break;
-      case arm_atomic::MemoryOrder::Release:
-        cov = std::max(ctx.rowWritePressure + ctx.colWritePressure, 1u); hw = 1; break;
+      case arm_atomic::MemoryOrder::Acquire: {
+        cov = std::max(ctx.rowPressure + ctx.colReadPressure, 1u);
+        if (ctx.colWritePressure < cov) cov -= ctx.colWritePressure; else cov = 1u;
+        hw = 1; break;
+      }
+      case arm_atomic::MemoryOrder::Release: {
+        cov = std::max(ctx.rowWritePressure + ctx.colWritePressure, 1u);
+        if (ctx.colReadPressure < cov) cov -= ctx.colReadPressure; else cov = 1u;
+        hw = 1; break;
+      }
       default: // AcqRel
         cov = std::max(ctx.rowPressure + ctx.colPressure, 1u); hw = 2; break;
       }
@@ -520,6 +537,41 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
             static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder));
     }
     return nullptr;
+  }
+
+  /// ctrl;[W] across a direct function call: if a load in the caller controls
+  /// (via a conditional branch) whether a call to the callee executes, then
+  /// all stores in the callee are dependency-ordered after the load.
+  orb::EventOrder getOrderCrossRegion(Operation *a, Operation *b,
+                                      AliasAnalysis &aa, DominanceInfo &dom,
+                                      const orb::CallReachability &reach) const override {
+    if (!isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a))
+      return orb::EventOrder::Unordered;
+    if (!isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b))
+      return orb::EventOrder::Unordered;
+
+    Region *fromRegion = a->getBlock()->getParent();
+    Region *toRegion   = b->getBlock()->getParent();
+    auto it = reach.directCalls.find({fromRegion, toRegion});
+    if (it == reach.directCalls.end())
+      return orb::EventOrder::Unordered;
+
+    ValueRange sources = a->getResults();
+    if (sources.empty())
+      return orb::EventOrder::Unordered;
+
+    // For each direct call from a's function to b's function that a dominates:
+    // check whether a ctrl-deps the call site. transitivelyReaches(sources,
+    // Value{}, callOp) stays within fromRegion (its canReachTarget BFS starts
+    // from callOp->getBlock()), correctly answering "does a's value control
+    // whether this call executes?" without crossing into b's function.
+    for (Operation *callOp : it->second) {
+      if (!dom.dominates(a, callOp))
+        continue;
+      if (transitivelyReaches(sources, Value{}, callOp))
+        return orb::EventOrder::Ordered;
+    }
+    return orb::EventOrder::Unordered;
   }
 
   /// ARM's lob* relation is transitive: close the initial target matrix under

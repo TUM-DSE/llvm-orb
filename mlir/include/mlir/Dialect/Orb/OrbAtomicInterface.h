@@ -225,6 +225,16 @@ public:
   /// before synthesis begins. Dialects may apply model-specific derived orderings
   /// (e.g. lob* transitive closure for ARM). Default: no-op.
   virtual void refineInitialOrderMatrix(OrderMatrix &matrix) const {}
+
+  /// Called for cross-region (cross-function) pairs where opCanReach() returned
+  /// true but getOrder() returned Unordered. Dialects may detect dependency
+  /// orderings that cross function-call boundaries (e.g. ctrl;[W] when a load
+  /// in the caller controls whether a call executes). Default: Unordered.
+  virtual EventOrder getOrderCrossRegion(Operation *a, Operation *b,
+                                         AliasAnalysis &aa, DominanceInfo &dom,
+                                         const CallReachability &reach) const {
+    return EventOrder::Unordered;
+  }
 };
 
 /// Assign sequential orb.event_id attributes to all memory events in `module`.

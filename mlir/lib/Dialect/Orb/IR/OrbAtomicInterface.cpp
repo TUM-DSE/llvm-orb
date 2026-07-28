@@ -396,9 +396,22 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
     result.idToIdx[result.ids[i]] = i;
 
   auto queryOrder = [&](Operation *a, Operation *b) -> EventOrder {
-    for (auto *iface : allIfaces)
-      if (iface->isMemoryEvent(a) && iface->isMemoryEvent(b))
-        return iface->getOrder(a, b, aliasAnalysis, dominance);
+    for (auto *iface : allIfaces) {
+      if (iface->isMemoryEvent(a) && iface->isMemoryEvent(b)) {
+        EventOrder order = iface->getOrder(a, b, aliasAnalysis, dominance);
+        // For cross-region pairs that are Unordered under intra-region rules,
+        // also check cross-function dependency ordering (e.g. ctrl;[W] via calls).
+        if (order == EventOrder::Unordered &&
+            a->getBlock()->getParent() != b->getBlock()->getParent()) {
+          for (auto *iface2 : allIfaces) {
+            if (iface2->getOrderCrossRegion(a, b, aliasAnalysis, dominance,
+                                             reach) == EventOrder::Ordered)
+              return EventOrder::Ordered;
+          }
+        }
+        return order;
+      }
+    }
     return EventOrder::Unreachable;
   };
 
