@@ -18,6 +18,11 @@
 #include "mlir/Conversion/ControlFlowToLLVM/ControlFlowToLLVM.h"
 #include "mlir/Dialect/ControlFlow/Transforms/StructuralTypeConversions.h"
 #include "mlir/Conversion/Passes.h"
+// Bring FenceSynthesisPassOptions into scope (emitted under GEN_PASS_DECL).
+namespace mlir {
+#define GEN_PASS_DECL_FENCESYNTHESISPASS
+#include "mlir/Conversion/Passes.h.inc"
+} // namespace mlir
 #include "mlir/Conversion/FuncToLLVM/ConvertFuncToLLVM.h"
 #include "mlir/Conversion/OpenMPToLLVM/ConvertOpenMPToLLVM.h"
 #include "mlir/Conversion/PtrToLLVM/PtrToLLVM.h"
@@ -29,6 +34,7 @@
 #include "mlir/Dialect/LLVMIR/LLVMTypes.h"
 #include "mlir/Dialect/OpenMP/OpenMPDialect.h"
 #include "mlir/Dialect/OpenMP/Transforms/Passes.h"
+#include "mlir/Transforms/Passes.h"
 #include "mlir/Dialect/Ptr/IR/MemorySpaceInterfaces.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/IR/BuiltinAttributes.h"
@@ -4926,13 +4932,22 @@ void populateCIRToLLVMPasses(mlir::OpPassManager &pm) {
   pm.addPass(createConvertCIRToLLVMPass());
 }
 
-void populateOrbPasses(mlir::OpPassManager &pm) {
+void populateOrbPasses(mlir::OpPassManager &pm, unsigned fenceCostBase = 2) {
   mlir::populateCIRPreLoweringPasses(pm);
 
   pm.addPass(mlir::createCIRToCFPass());
   pm.addPass(mlir::createCIRToPtrPass());
   pm.addPass(mlir::createCIRToCppAtomicPass());
+  // NOTE: SymbolDCEPass is intentionally omitted here. The MLIR SymbolDCE
+  // does not check CIR module-level attributes (cir.global_ctors /
+  // cir.global_dtors), so it incorrectly removes functions that are only
+  // referenced through those attributes (e.g. urcu_bp_exit_destructor).
+  // Those removed symbols then fail 'llvm.mlir.addressof' verification
+  // during CIR→LLVM lowering.
+  pm.addPass(mlir::createOrderAnalysisPass());
   pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
+  pm.addPass(mlir::createFenceSynthesisPass(
+      mlir::FenceSynthesisPassOptions{fenceCostBase}));
 
   pm.addPass(createConvertCIRToLLVMPass());
   pm.addPass(mlir::createConvertArmAtomicToLLVMPass());
@@ -5018,7 +5033,8 @@ std::unique_ptr<llvm::Module>
 lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
                              StringRef mlirSaveTempsOutFile,
                              llvm::vfs::FileSystem *fs,
-                             bool useOrb) {
+                             bool useOrb,
+                             unsigned orbFenceCostBase = 2) {
   llvm::TimeTraceScope scope("lower from CIR to LLVM directly");
 
   mlir::MLIRContext *mlirCtx = mlirModule.getContext();
@@ -5037,7 +5053,7 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
     mlir::vector::registerConvertVectorToLLVMInterface(registry);
 
     mlirCtx->appendDialectRegistry(registry);
-    populateOrbPasses(pm);
+    populateOrbPasses(pm, orbFenceCostBase);
   } else
     populateCIRToLLVMPasses(pm);
 

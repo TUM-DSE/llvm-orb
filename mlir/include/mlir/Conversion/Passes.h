@@ -90,6 +90,8 @@
 #include "mlir/Conversion/XeGPUToXeVM/XeGPUToXeVM.h"
 #include "mlir/Conversion/XeVMToLLVM/XeVMToLLVM.h"
 #include "mlir/Conversion/ArmAtomicToLLVM/ArmAtomicToLLVM.h"
+#include "mlir/Conversion/ArmAtomicToLLVM/FenceSynthesis.h"
+#include "mlir/Conversion/CppAtomicToArmAtomic/OrderAnalysis.h"
 #include "mlir/Conversion/CppAtomicToArmAtomic/CppAtomicToArmAtomic.h"
 
 namespace mlir {

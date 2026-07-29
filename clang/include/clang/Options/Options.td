@@ -6446,6 +6446,10 @@ def object_file_name : Separate<["-"], "object-file-name">,
 def orb: Flag<["-"], "orb">, HelpText<"Enable robust lowering through Orb">,
   Visibility<[ClangOption, CC1Option]>,
   MarshallingInfoFlag<CodeGenOpts<"UseOrb">>;
+def orb_fence_cost_base : Joined<["-"], "orb-fence-cost-base=">,
+  HelpText<"Base cost for fence insertion vs access upgrade in Orb synthesis (default: 2)">,
+  Visibility<[ClangOption, CC1Option]>,
+  MarshallingInfoInt<CodeGenOpts<"OrbFenceCostBase">, "2">;
 def pagezero__size : JoinedOrSeparate<["-"], "pagezero_size">;
 def pass_exit_codes : Flag<["-", "--"], "pass-exit-codes">, Flags<[Unsupported]>;
 def pedantic_errors : Flag<["-", "--"], "pedantic-errors">, Group<pedantic_Group>,

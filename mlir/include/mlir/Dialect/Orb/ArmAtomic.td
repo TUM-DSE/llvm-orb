@@ -16,6 +16,7 @@
 include "mlir/Dialect/LLVMIR/LLVMOpBase.td"
 include "mlir/IR/OpBase.td"
 include "mlir/IR/EnumAttr.td"
+include "mlir/Interfaces/SideEffectInterfaces.td"
 
 // Type predicate for !ptr.ptr<space> (from the MLIR ptr dialect)
 def ArmAtomic_AnyPtrType : Type<
@@ -39,15 +40,16 @@ def ArmAtomic_Dialect : Dialect {
 // ArmAtomic Enum definition
 //===----------------------------------------------------------------------===//
 
-def ArmMemoryOrderRelaxed : I32EnumAttrCase<"Relaxed", 0, "relaxed">;
-def ArmMemoryOrderAcquire : I32EnumAttrCase<"Acquire", 1, "acquire">;
-def ArmMemoryOrderRelease : I32EnumAttrCase<"Release", 2, "release">;
-def ArmMemoryOrderAcqRel  : I32EnumAttrCase<"AcqRel",  3, "acq_rel">;
-// ARM does not have a native SeqCst instruction, so it is omitted here!
+def ArmMemoryOrderRelaxed   : I32EnumAttrCase<"Relaxed", 0, "relaxed">;
+def ArmMemoryOrderAcquirePC : I32EnumAttrCase<"AcquirePC", 1, "acquirePC">;
+def ArmMemoryOrderAcquire   : I32EnumAttrCase<"Acquire", 2, "acquire">;
+def ArmMemoryOrderRelease   : I32EnumAttrCase<"Release", 3, "release">;
+def ArmMemoryOrderAcqRel    : I32EnumAttrCase<"AcqRel",  4, "acq_rel">;
 
 def ArmMemoryOrder : I32EnumAttr<
     "MemoryOrder", "ARM memory ordering for atomic operations", [
       ArmMemoryOrderRelaxed,
+      ArmMemoryOrderAcquirePC,
       ArmMemoryOrderAcquire,
       ArmMemoryOrderRelease,
       ArmMemoryOrderAcqRel
@@ -69,7 +71,8 @@ def ArmMemoryOrderAttr : EnumAttr<ArmAtomic_Dialect, ArmMemoryOrder, "memory_ord
 // AtomicLoadOp
 //===----------------------------------------------------------------------===//
 
-def AtomicLoadOp : Op<ArmAtomic_Dialect, "atomic_load", []> {
+def AtomicLoadOp : Op<ArmAtomic_Dialect, "atomic_load",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "ARM atomic load operation (LDR/LDAR)";
 
   let arguments = (ins
@@ -107,7 +110,8 @@ def AtomicLoadOp : Op<ArmAtomic_Dialect, "atomic_load", []> {
 // AtomicStoreOp
 //===----------------------------------------------------------------------===//
 
-def AtomicStoreOp : Op<ArmAtomic_Dialect, "atomic_store", []> {
+def AtomicStoreOp : Op<ArmAtomic_Dialect, "atomic_store",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "ARM atomic store operation (STR/STLR)";
 
   let arguments = (ins AnyType:$value,
@@ -145,7 +149,8 @@ def AtomicStoreOp : Op<ArmAtomic_Dialect, "atomic_store", []> {
 // AtomicFenceOp
 //===----------------------------------------------------------------------===//
 
-def AtomicFenceOp : Op<ArmAtomic_Dialect, "atomic_fence"> {
+def AtomicFenceOp : Op<ArmAtomic_Dialect, "atomic_fence",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "ARM atomic fence operation (DMB)";
 
   let description = [{

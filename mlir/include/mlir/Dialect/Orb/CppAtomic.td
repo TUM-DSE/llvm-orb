@@ -15,6 +15,7 @@
 
 include "mlir/IR/OpBase.td"
 include "mlir/IR/EnumAttr.td"
+include "mlir/Interfaces/SideEffectInterfaces.td"
 
 // Type predicate for !ptr.ptr<space> (from the MLIR ptr dialect)
 def CppAtomic_AnyPtrType : Type<
@@ -31,6 +32,7 @@ def CppAtomic_Dialect : Dialect {
 
   let summary = "A high-level dialect for analyzing atomics under the RC11 memory model";
 
+  let useDefaultAttributePrinterParser = 1;
 
   // Note: this does not need to depend on LLVMDialect as long as functions in
   // this dialect (such as canonicalization) do not produce entities belonging
@@ -41,14 +43,16 @@ def CppAtomic_Dialect : Dialect {
 // CppAtomic enum definitions
 //===----------------------------------------------------------------------===//
 
-def MemoryOrderRelaxed   : I32EnumAttrCase<"Relaxed", 0, "relaxed">;
-def MemoryOrderAcquire   : I32EnumAttrCase<"Acquire", 1, "acquire">;
-def MemoryOrderRelease   : I32EnumAttrCase<"Release", 2, "release">;
-def MemoryOrderAcqRel    : I32EnumAttrCase<"AcqRel", 3, "acq_rel">;
-def MemoryOrderSeqCst    : I32EnumAttrCase<"SeqCst", 4, "seq_cst">;
+def MemoryOrderNA        : I32EnumAttrCase<"NA", 0, "plain">;
+def MemoryOrderRelaxed   : I32EnumAttrCase<"Relaxed", 1, "relaxed">;
+def MemoryOrderAcquire   : I32EnumAttrCase<"Acquire", 2, "acquire">;
+def MemoryOrderRelease   : I32EnumAttrCase<"Release", 3, "release">;
+def MemoryOrderAcqRel    : I32EnumAttrCase<"AcqRel", 4, "acq_rel">;
+def MemoryOrderSeqCst    : I32EnumAttrCase<"SeqCst", 5, "seq_cst">;
 
 def MemoryOrder : I32EnumAttr<
     "MemoryOrder", "memory ordering for atomic operations", [
+      MemoryOrderNA,
       MemoryOrderRelaxed,
       MemoryOrderAcquire,
       MemoryOrderRelease,
@@ -75,7 +79,8 @@ class CppAtomic_Op<string mnemonic, list<Trait> traits = []>
 // AtomicLoadOp
 //===----------------------------------------------------------------------===//
 
-def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", []> {
+def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "atomic load operation";
   let description = [{
     The `atomic_load` op reads a value through a `!ptr.ptr<>` using the provided
@@ -121,7 +126,8 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load", []> {
 // AtomicStoreOp
 //===----------------------------------------------------------------------===//
 
-def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", []> {
+def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "atomic store operation";
   let description = [{
     The `atomic_store` op writes a value through a `!ptr.ptr<>` using the provided
@@ -167,7 +173,8 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store", []> {
 // AtomicFenceOp
 //===----------------------------------------------------------------------===//
 
-def AtomicFenceOp : Op<CppAtomic_Dialect, "atomic_fence"> {
+def AtomicFenceOp : Op<CppAtomic_Dialect, "atomic_fence",
+    [DeclareOpInterfaceMethods<MemoryEffectsOpInterface>]> {
   let summary = "C++ atomic fence operation";
   let description = [{
     Represents a std::atomic_thread_fence. It establishes memory synchronization 

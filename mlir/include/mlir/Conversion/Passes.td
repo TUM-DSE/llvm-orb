@@ -452,6 +452,21 @@ def ConvertControlFlowToSPIRVPass : Pass<"convert-cf-to-spirv"> {
 // ArmAtomicToLLVM
 //===----------------------------------------------------------------------===//
 
+def FenceSynthesisPass : Pass<"fence-synthesis", "ModuleOp"> {
+  let summary = "Insert fences to satisfy required orderings via OrbAtomicDialectInterface";
+  let description = [{
+    Reads orb.required_orderings from the module (set by OrderAnalysisPass),
+    then iteratively promotes unordered event pairs by inserting fences or
+    upgrading memory orders until all required orderings are satisfied.
+    Dialect-specific logic is delegated to OrbAtomicDialectInterface.
+  }];
+  let options = [
+    Option<"fenceCostBase", "fence-cost-base", "unsigned", /*default=*/"2",
+           "Base cost multiplier for fence insertion relative to access upgrade "
+           "(higher values prefer access upgrades over new fences)">
+  ];
+}
+
 def ConvertArmAtomicToLLVMPass : Pass<"arm-atomic-to-llvm", "ModuleOp"> {
   let summary = "Lower ArmAtomic dialect to LLVM dialect";
   let description = [{
@@ -466,6 +481,16 @@ def ConvertArmAtomicToLLVMPass : Pass<"arm-atomic-to-llvm", "ModuleOp"> {
 //===----------------------------------------------------------------------===//
 // CppAtomicToArmAtomic
 //===----------------------------------------------------------------------===//
+
+def OrderAnalysisPass : Pass<"order-analysis", "ModuleOp"> {
+  let summary = "Compute required ordering matrix via OrbAtomicDialectInterface";
+  let description = [{
+    Assigns stable orb.event_id attributes to all memory events, then computes
+    the ordering matrix required by the RC11 memory model using AliasAnalysis
+    and DominanceInfo. Encodes required Ordered pairs as the module attribute
+    orb.required_orderings for use by the ArmAtomic fence synthesis pass.
+  }];
+}
 
 def ConvertCppAtomicToArmAtomicPass : Pass<"cpp-atomic-to-arm-atomic", "ModuleOp"> {
   let summary = "Lower CppAtomic dialect to ArmAtomic dialect";
