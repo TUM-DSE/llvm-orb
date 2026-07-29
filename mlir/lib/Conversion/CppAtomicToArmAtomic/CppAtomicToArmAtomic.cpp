@@ -37,6 +37,7 @@ using namespace mlir;
 
 static arm_atomic::MemoryOrder convertFenceMemoryOrder(cpp_atomic::MemoryOrder cppOrder) {
   switch (cppOrder) {
+    case cpp_atomic::MemoryOrder::NA: return arm_atomic::MemoryOrder::Relaxed;
     case cpp_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
     case cpp_atomic::MemoryOrder::Acquire: return arm_atomic::MemoryOrder::Acquire;
     case cpp_atomic::MemoryOrder::Release: return arm_atomic::MemoryOrder::Release;
@@ -88,10 +89,13 @@ struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
 
   LogicalResult matchAndRewrite(cpp_atomic::AtomicLoadOp loadOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
+    bool isDeref = false;
+    bool isVolatile = loadOp.getIsVolatileAttr() != nullptr;
+
     Attribute eventId = loadOp->getAttr(orb::kEventIdAttr);
     auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicLoadOp>(
         loadOp, loadOp.getResult().getType(), adaptor.getAddr(),
-        arm_atomic::MemoryOrder::Relaxed, loadOp.getAlignmentAttr());
+        arm_atomic::MemoryOrder::Relaxed, loadOp.getAlignment(), isDeref, isVolatile);
     if (eventId)
       newOp->setAttr(orb::kEventIdAttr, eventId);
     return success();
@@ -105,10 +109,12 @@ struct StoreRewriter : public OpConversionPattern<cpp_atomic::AtomicStoreOp> {
 
   LogicalResult matchAndRewrite(cpp_atomic::AtomicStoreOp storeOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
+    bool isVolatile = storeOp.getIsVolatileAttr() != nullptr;
+
     Attribute eventId = storeOp->getAttr(orb::kEventIdAttr);
     auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicStoreOp>(
         storeOp, adaptor.getValue(), adaptor.getAddr(),
-        arm_atomic::MemoryOrder::Relaxed, storeOp.getAlignmentAttr());
+        arm_atomic::MemoryOrder::Relaxed, storeOp.getAlignment(), isVolatile);
     if (eventId)
       newOp->setAttr(orb::kEventIdAttr, eventId);
     return success();
