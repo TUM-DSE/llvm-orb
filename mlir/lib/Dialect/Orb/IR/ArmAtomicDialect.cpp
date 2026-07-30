@@ -317,13 +317,18 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return {};
     llvm::SmallVector<orb::Promotion> options;
 
+    bool bIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b);
+
     // a is a load → offer ACQPC (cheap, orders before writes only) and/or ACQ (orders all).
+    // AcquirePC is only offered when b is a write: applyAcqPCUpgrade only marks write
+    // successors as ordered, so it cannot satisfy a load→read pair. Offering it for
+    // load→read pairs wastes an iteration and prematurely upgrades unrelated write successors.
     if (isa<arm_atomic::AtomicLoadOp>(a)) {
       auto mo = getArmMemoryOrder(a);
       if (mo == arm_atomic::MemoryOrder::Relaxed) {
-        // Offer both: synthesis picks ACQPC first (cheaper); upgrades to ACQ if reads need ordering.
-        options.push_back(
-            {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::AcquirePC}});
+        if (bIsWrite)
+          options.push_back(
+              {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::AcquirePC}});
         options.push_back(
             {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::Acquire}});
       } else if (mo == arm_atomic::MemoryOrder::AcquirePC) {
@@ -371,7 +376,6 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     // Offering all applicable types lets cost() pick the cheapest per fc.
     bool aIsRead  = isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a);
     bool aIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(a);
-    bool bIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b);
 
     llvm::SmallVector<arm_atomic::MemoryOrder, 3> fenceMOs;
     if (aIsRead)
@@ -462,19 +466,42 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return (int)std::min(raw, (long long)std::numeric_limits<int>::max());
     }
 
-    // Access upgrades (load/store → stronger MO): fixed hardware cost ~1 unit.
-    unsigned cov;
+    // Access upgrades (load/store → stronger MO).
+    // Two normalized penalty terms, both in [0, 1000] — same scale as the 1000/cov base:
+    //
+    //   collateral(covered): fraction of all events ordered beyond the required set.
+    //     = 1000 * max(0, numEvents-1 - covered) / (numEvents-1)
+    //     High when the upgrade orders many non-required events (Acquire on a small required set).
+    //
+    //   deficiency (AcquirePC only): fraction of required row-pairs AcquirePC cannot satisfy
+    //     because they are read-successors (applyAcqPCUpgrade only marks writes).
+    //     = 1000 * (rowPressure - rowWritePressure) / rowPressure
+    //     High when most required successors are reads → AcquirePC would not close them.
+    //
+    // Together these make AcquirePC preferred over Acquire when most required successors
+    // are writes (deficiency low, collateral of Acquire high), and Acquire preferred when
+    // most required successors are reads (deficiency dominates AcquirePC cost).
+    auto collateral = [&](unsigned covered) -> int {
+      if (ctx.numEvents <= 1) return 0;
+      int waste = (int)ctx.numEvents - 1 - (int)covered;
+      return waste > 0 ? 1000 * waste / ((int)ctx.numEvents - 1) : 0;
+    };
     switch (mo) {
-    case arm_atomic::MemoryOrder::AcquirePC:
-      cov = std::max(ctx.rowWritePressure, 1u); break;
-    case arm_atomic::MemoryOrder::Acquire:
-      cov = std::max(ctx.rowPressure, 1u); break;
-    case arm_atomic::MemoryOrder::Release:
-      cov = std::max(ctx.colPressure, 1u); break;
-    default: // AcqRel
-      cov = std::max(ctx.rowPressure + ctx.colPressure, 1u); break;
+    case arm_atomic::MemoryOrder::AcquirePC: {
+      int deficiency = ctx.rowPressure > 0
+          ? 1000 * (int)(ctx.rowPressure - ctx.rowWritePressure) / (int)ctx.rowPressure
+          : 0;
+      return 1000 / (int)std::max(ctx.rowWritePressure, 1u) + deficiency;
     }
-    return 1000 / (int)cov;
+    case arm_atomic::MemoryOrder::Acquire:
+      return 1000 / (int)std::max(ctx.rowPressure, 1u) + collateral(ctx.rowPressure);
+    case arm_atomic::MemoryOrder::Release:
+      return 1000 / (int)std::max(ctx.colPressure, 1u) + collateral(ctx.colPressure);
+    default: { // AcqRel
+      unsigned cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
+      return 1000 / (int)cov + collateral(cov);
+    }
+    }
   }
 
   Operation *applyPromotion(const orb::Promotion &p,

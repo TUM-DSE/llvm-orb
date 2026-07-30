@@ -220,7 +220,8 @@ struct FenceSynthesisPass
           int bestScore = std::numeric_limits<int>::max();
           orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
                                colPressure[idB], colReadPressure[idB],
-                               colWritePressure[idB], fenceCostBase};
+                               colWritePressure[idB], fenceCostBase,
+                               (unsigned)mb.eventIds().size()};
           for (auto *iface : allIfaces) {
             for (auto &p : iface->promote(idA, a, idB, b)) {
               int score = iface->cost(p, ctx);

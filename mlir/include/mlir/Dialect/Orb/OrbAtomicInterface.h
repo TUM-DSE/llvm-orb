@@ -66,6 +66,7 @@ struct CostContext {
   unsigned colReadPressure;  ///< Subset of colPressure where c is a read.
   unsigned colWritePressure; ///< Subset of colPressure where c is a write.
   unsigned fenceCostBase = 2; ///< Base cost multiplier for FenceAction.
+  unsigned numEvents = 1;     ///< Total events in the OrderMatrix (for collateral estimate).
 };
 
 class OrbAtomicDialectInterface; // forward declaration for OrderMatrix::addFence
