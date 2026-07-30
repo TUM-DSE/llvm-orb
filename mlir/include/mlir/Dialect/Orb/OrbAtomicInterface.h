@@ -22,7 +22,6 @@
 #include "mlir/IR/Dominance.h"
 #include "mlir/IR/Operation.h"
 #include "llvm/ADT/ArrayRef.h"
-#include "llvm/ADT/BitVector.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/StringRef.h"
@@ -110,15 +109,13 @@ public:
   unsigned idxOf(uint64_t id) const;
 
   void applyAcqUpgrade(unsigned aIdx);
-  void applyAcqPCUpgrade(unsigned aIdx,
-                         llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces);
+  // ARM-specific — called by ArmAtomicDialect.
+  void applyAcqPCUpgrade(unsigned aIdx, OrbAtomicDialectInterface *iface);
   void applyRelUpgrade(unsigned bIdx);
-  void addFence(Operation *f,
-                llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces,
+  void addFence(Operation *f, OrbAtomicDialectInterface *iface,
                 AliasAnalysis &aa, DominanceInfo &dom,
                 const CallReachability &reach);
-  void applyFenceUpgrade(unsigned fIdx,
-                         llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces,
+  void applyFenceUpgrade(unsigned fIdx, OrbAtomicDialectInterface *iface,
                          AliasAnalysis &aa, DominanceInfo &dom,
                          const CallReachability &reach);
   /// Close the Ordered relation transitively; call once on the initial matrix.
@@ -127,6 +124,7 @@ public:
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &,
+                                    OrbAtomicDialectInterface *,
                                     const CallReachability &);
   // Flat n×n array of EventOrder (uint8_t), indexed by consecutive event indices.
   std::vector<EventOrder> matrix;
@@ -139,10 +137,9 @@ private:
     matrix[aIdx * n + bIdx] = order;
   }
   EventOrder queryOrder(Operation *a, Operation *b,
-                        llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces,
+                        OrbAtomicDialectInterface *iface,
                         AliasAnalysis &aa, DominanceInfo &dom) const;
-  void applyFenceClosure(unsigned fIdx,
-                         llvm::ArrayRef<OrbAtomicDialectInterface *> ifaces);
+  void applyFenceClosure(unsigned fIdx, OrbAtomicDialectInterface *iface);
 };
 
 /// Per-dialect interface for atomic memory ordering analysis.
@@ -180,9 +177,14 @@ public:
 
 void assignEventIds(ModuleOp module);
 CallReachability computeCallReachability(ModuleOp module);
+/// Build the order matrix using `iface` as the sole dialect interface.
+/// Use this overload from passes that have already resolved the interface.
 OrderMatrix getOrderMatrix(ModuleOp module, AliasAnalysis &aliasAnalysis,
                            DominanceInfo &dominance,
+                           OrbAtomicDialectInterface *iface,
                            const CallReachability &reach);
+/// Auto-discovers the single registered OrbAtomicDialectInterface.
+/// Use this overload from dialect-agnostic analyses (e.g. OrderAnalysis).
 OrderMatrix getOrderMatrix(ModuleOp module, AliasAnalysis &aliasAnalysis,
                            DominanceInfo &dominance);
 

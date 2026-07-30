@@ -50,6 +50,24 @@ struct FenceSynthesisPass
     // Precomputed reachability — stable across synthesis iterations.
     auto reach = orb::computeCallReachability(module);
 
+    // Find the single OrbAtomicDialectInterface registered in this module.
+    orb::OrbAtomicDialectInterface *iface = nullptr;
+    module.walk([&](Operation *op) -> WalkResult {
+      if (!op->hasAttr(orb::kEventIdAttr))
+        return WalkResult::advance();
+      if (auto *i = op->getDialect()
+                       ->getRegisteredInterface<orb::OrbAtomicDialectInterface>()) {
+        iface = i;
+        return WalkResult::interrupt();
+      }
+      return WalkResult::advance();
+    });
+    if (!iface) {
+      llvm::errs() << "[FenceSynthesis] ERROR: no OrbAtomicDialectInterface found\n";
+      signalPassFailure();
+      return;
+    }
+
     // Assign IDs for synthesized fences above all source IDs.
     uint64_t nextSynthId = 0;
     module.walk([&](Operation *op) {
@@ -58,32 +76,15 @@ struct FenceSynthesisPass
                                static_cast<uint64_t>(id.getInt()) + 1);
     });
 
-    // Collect all OrbAtomic interfaces present in this module.
-    llvm::SmallDenseSet<orb::OrbAtomicDialectInterface *> ifaceSet;
-    module.walk([&](Operation *op) {
-      if (!op->hasAttr(orb::kEventIdAttr))
-        return;
-      if (auto *iface =
-              op->getDialect()
-                  ->getRegisteredInterface<orb::OrbAtomicDialectInterface>())
-        ifaceSet.insert(iface);
-    });
-    llvm::SmallVector<orb::OrbAtomicDialectInterface *> allIfaces(
-        ifaceSet.begin(), ifaceSet.end());
-
     // M_B: current ArmAtomic ordering matrix — built once, updated incrementally.
-    auto mb = orb::getOrderMatrix(module, aa, dom, reach);
+    auto mb = orb::getOrderMatrix(module, aa, dom, iface, reach);
     // Let the target dialect apply model-specific derived orderings (e.g. lob* for ARM).
-    for (auto *iface : allIfaces)
-      iface->refineInitialOrderMatrix(mb);
+    iface->refineInitialOrderMatrix(mb);
 
-    // isEventFence: true if id refers to a fence op in any registered dialect.
-    auto isEventFence = [&](uint64_t id) {
+    // isEventFence: true if id refers to a fence op in the target dialect.
+    auto isEventFence = [&](uint64_t id) -> bool {
       Operation *op = mb.getOpForId(id);
-      if (!op) return false;
-      for (auto *iface : allIfaces)
-        if (iface->isFenceEvent(op)) return true;
-      return false;
+      return op && iface->isFenceEvent(op);
     };
 
     // F_ign: source fence IDs whose mediated access-access pairs are all
@@ -113,15 +114,11 @@ struct FenceSynthesisPass
         rowPressure[c]++;
         colPressure[d]++;
         Operation *dOp = mb.getOpForId(d);
-        if (dOp && llvm::any_of(allIfaces, [&](orb::OrbAtomicDialectInterface *iface) {
-              return iface->isWriteEvent(dOp);
-            }))
+        if (dOp && iface->isWriteEvent(dOp))
           rowWritePressure[c]++;
         Operation *cOp = mb.getOpForId(c);
-        bool cIsWrite = cOp && llvm::any_of(allIfaces, [&](orb::OrbAtomicDialectInterface *iface) {
-              return iface->isWriteEvent(cOp); });
-        bool cIsFence = cOp && llvm::any_of(allIfaces, [&](orb::OrbAtomicDialectInterface *iface) {
-              return iface->isFenceEvent(cOp); });
+        bool cIsWrite = cOp && iface->isWriteEvent(cOp);
+        bool cIsFence = cOp && iface->isFenceEvent(cOp);
         if (!cIsWrite && !cIsFence)
           colReadPressure[d]++;
         else if (cIsWrite)
@@ -215,51 +212,47 @@ struct FenceSynthesisPass
           // Pick the promotion with the best coverage-adjusted cost.
           // Lower score is better; dialect's cost() encodes both base cost and
           // coverage via the CostContext.
-          orb::OrbAtomicDialectInterface *bestIface = nullptr;
           orb::Promotion bestPromotion;
           int bestScore = std::numeric_limits<int>::max();
           orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
                                colPressure[idB], colReadPressure[idB],
                                colWritePressure[idB], fenceCostBase,
                                (unsigned)mb.eventIds().size()};
-          for (auto *iface : allIfaces) {
-            for (auto &p : iface->promote(idA, a, idB, b)) {
-              int score = iface->cost(p, ctx);
-              if (score < bestScore) {
-                bestScore = score;
-                bestIface = iface;
-                bestPromotion = p;
-              }
+          for (auto &p : iface->promote(idA, a, idB, b)) {
+            int score = iface->cost(p, ctx);
+            if (score < bestScore) {
+              bestScore = score;
+              bestPromotion = p;
             }
           }
-          if (!bestIface) {
+          if (bestScore == std::numeric_limits<int>::max()) {
             llvm::errs() << "[FenceSynthesis] ERROR: no promotion for pair ("
                          << idA << ", " << idB << ") — aborting\n";
             signalPassFailure();
             return;
           }
 
-          Operation *newOp = bestIface->applyPromotion(bestPromotion, builder);
+          Operation *newOp = iface->applyPromotion(bestPromotion, builder);
 
           if (const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(
                   &bestPromotion.action)) {
             if (isa<arm_atomic::AtomicLoadOp>(ua->op)) {
               auto targetMO = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
               if (targetMO == arm_atomic::MemoryOrder::AcquirePC)
-                mb.applyAcqPCUpgrade(mb.idxOf(idA), allIfaces);
+                mb.applyAcqPCUpgrade(mb.idxOf(idA), iface);
               else
                 mb.applyAcqUpgrade(mb.idxOf(idA));
             } else if (isa<arm_atomic::AtomicStoreOp>(ua->op))
               mb.applyRelUpgrade(mb.idxOf(idB));
             else { // fence upgrade
               uint64_t fId = (ua->op == a) ? idA : idB;
-              mb.applyFenceUpgrade(mb.idxOf(fId), allIfaces, aa, dom, reach);
+              mb.applyFenceUpgrade(mb.idxOf(fId), iface, aa, dom, reach);
             }
           } else {
             assert(newOp && "applyPromotion must return the created fence op");
             newOp->setAttr(orb::kEventIdAttr,
                            builder.getI64IntegerAttr(nextSynthId++));
-            mb.addFence(newOp, allIfaces, aa, dom, reach);
+            mb.addFence(newOp, iface, aa, dom, reach);
           }
 
           rebuildPressure();
