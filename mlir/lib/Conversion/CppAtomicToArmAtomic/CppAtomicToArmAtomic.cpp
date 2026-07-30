@@ -35,41 +35,6 @@ using namespace mlir;
 // Rewrite patterns
 //===----------------------------------------------------------------------===//
 
-static arm_atomic::MemoryOrder convertFenceMemoryOrder(cpp_atomic::MemoryOrder cppOrder) {
-  switch (cppOrder) {
-    case cpp_atomic::MemoryOrder::NA: return arm_atomic::MemoryOrder::Relaxed;
-    case cpp_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
-    case cpp_atomic::MemoryOrder::Acquire: return arm_atomic::MemoryOrder::Acquire;
-    case cpp_atomic::MemoryOrder::Release: return arm_atomic::MemoryOrder::Release;
-    
-    case cpp_atomic::MemoryOrder::AcqRel:
-    case cpp_atomic::MemoryOrder::SeqCst:
-    return arm_atomic::MemoryOrder::AcqRel;
-  }
-  llvm_unreachable("Unknown CppAtomic memory order for fence");
-}
-
-static std::pair<arm_atomic::MemoryOrder, arm_atomic::MemoryOrder>
-convertCASMemoryOrders(cpp_atomic::MemoryOrder succ, cpp_atomic::MemoryOrder fail) {
-  // cas = compare and swap = relaxed
-  // casl = release
-  // casa = acquire
-  // casal = acquire release
-  
-  using Cpp = cpp_atomic::MemoryOrder;
-  using Arm = arm_atomic::MemoryOrder;
-  
-  if (succ == Cpp::SeqCst || fail == Cpp::SeqCst || succ == Cpp::AcqRel || (succ == Cpp::Release && fail == Cpp::Acquire)) {
-    return {Arm::AcqRel, Arm::Relaxed};
-  }
-  
-  if (succ == Cpp::Acquire || fail == Cpp::Acquire) return {Arm::Acquire, Arm::Relaxed};
-
-  if (succ == Cpp::Release) return {Arm::Release, Arm::Relaxed};
-
-  return {Arm::Relaxed, Arm::Relaxed};
-}
-
 static arm_atomic::BinOp convertBinOp(cpp_atomic::BinOp op) {
   switch (op) {
     case cpp_atomic::BinOp::Add: return arm_atomic::BinOp::Add;
@@ -95,7 +60,7 @@ struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
     Attribute eventId = loadOp->getAttr(orb::kEventIdAttr);
     auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicLoadOp>(
         loadOp, loadOp.getResult().getType(), adaptor.getAddr(),
-        arm_atomic::MemoryOrder::Relaxed, loadOp.getAlignment(), isDeref, isVolatile);
+        arm_atomic::MemoryOrder::Relaxed, loadOp.getAlignment(), isDeref, isVolatile);   
     if (eventId)
       newOp->setAttr(orb::kEventIdAttr, eventId);
     return success();
@@ -127,9 +92,11 @@ struct FenceRewriter : public OpConversionPattern<cpp_atomic::AtomicFenceOp> {
   LogicalResult matchAndRewrite(cpp_atomic::AtomicFenceOp fenceOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
     Attribute eventId = fenceOp->getAttr(orb::kEventIdAttr);
+
     StringAttr syncscope;
     if (auto scope = fenceOp.getSyncscope())
       syncscope = StringAttr::get(rewriter.getContext(), *scope);
+
     auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicFenceOp>(
         fenceOp, arm_atomic::MemoryOrder::Relaxed, syncscope);
     if (eventId)
@@ -146,30 +113,27 @@ struct CmpXchgRewriter : public OpConversionPattern<cpp_atomic::AtomicCmpXchgOp>
   LogicalResult matchAndRewrite(cpp_atomic::AtomicCmpXchgOp cmpOp, OpAdaptor adaptor,
                               ConversionPatternRewriter &rewriter) const override {
 
-    auto [armSuccess, armFailure] = convertCASMemoryOrders(
-      cmpOp.getSuccessOrder(), 
-      cmpOp.getFailureOrder()
-    );
-
-    uint64_t alignment = cmpOp.getAlignment();
-
     bool isWeak = cmpOp.getWeakAttr() != nullptr;
     bool isVolatile = cmpOp.getIsVolatileAttr() != nullptr;
 
     Type successType = cmpOp.getSuccess().getType();
 
-    rewriter.replaceOpWithNewOp<arm_atomic::AtomicCmpXchgOp>(
+    Attribute eventId = cmpOp->getAttr(orb::kEventIdAttr);
+
+    auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicCmpXchgOp>(
         cmpOp, 
         successType,
         adaptor.getAddr(), 
         adaptor.getExpected(), 
         adaptor.getDesired(), 
-        armSuccess, 
-        armFailure, 
-        alignment,
+        arm_atomic::MemoryOrder::Relaxed, 
+        arm_atomic::MemoryOrder::Relaxed, 
+        cmpOp.getAlignment(),
         isWeak,
         isVolatile
     );
+    if (eventId)
+      newOp->setAttr(orb::kEventIdAttr, eventId);
         
     return success();
   }
@@ -183,21 +147,24 @@ struct FetchRewriter : public OpConversionPattern<cpp_atomic::AtomicFetchOp> {
   LogicalResult matchAndRewrite(cpp_atomic::AtomicFetchOp fetchOp, OpAdaptor adaptor,
                               ConversionPatternRewriter &rewriter) const override {
 
-    auto memOrder = convertFenceMemoryOrder(fetchOp.getMemoryOrder());
     auto binOp = convertBinOp(fetchOp.getBinop());
 
     bool isVolatile = fetchOp.getIsVolatileAttr() != nullptr;
     bool fetchFirst = fetchOp.getFetchFirstAttr() != nullptr;
 
-    rewriter.replaceOpWithNewOp<arm_atomic::AtomicFetchOp>(
+    Attribute eventId = fetchOp->getAttr(orb::kEventIdAttr);    
+
+    auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicFetchOp>(
         fetchOp,
         adaptor.getValue(),
         adaptor.getAddr(),
         binOp,
-        memOrder,
+        arm_atomic::MemoryOrder::Relaxed, 
         isVolatile,
         fetchFirst
     );
+    if (eventId)
+      newOp->setAttr(orb::kEventIdAttr, eventId);
 
     return success();
   }
@@ -211,16 +178,19 @@ struct XchgRewriter : public OpConversionPattern<cpp_atomic::AtomicXchgOp> {
   LogicalResult matchAndRewrite(cpp_atomic::AtomicXchgOp xchgOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
 
-    auto memOrder = convertFenceMemoryOrder(xchgOp.getMemoryOrder());
     bool isVolatile = xchgOp.getIsVolatileAttr() != nullptr;
 
-    rewriter.replaceOpWithNewOp<arm_atomic::AtomicXchgOp>(
+    Attribute eventId = xchgOp->getAttr(orb::kEventIdAttr);
+        
+    auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicXchgOp>(
         xchgOp,
         adaptor.getValue(), 
         adaptor.getAddr(),
-        memOrder,
+        arm_atomic::MemoryOrder::Relaxed, 
         isVolatile
     );
+    if (eventId)
+      newOp->setAttr(orb::kEventIdAttr, eventId);
     return success();
   }
 };

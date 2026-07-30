@@ -31,9 +31,8 @@ EventOrder OrderMatrix::getOrder(uint64_t idA, uint64_t idB) const {
   return matrix[itA->second * n + itB->second];
 }
 
-Operation *OrderMatrix::getOpForId(uint64_t id) const {
-  auto it = idToOp.find(id);
-  return it != idToOp.end() ? it->second : nullptr;
+llvm::ArrayRef<uint64_t> OrderMatrix::eventIds() const { 
+    return iface ? llvm::ArrayRef<uint64_t>(iface->ids) : llvm::ArrayRef<uint64_t>(); 
 }
 
 unsigned OrderMatrix::idxOf(uint64_t id) const {
@@ -71,20 +70,23 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
   }
 
   n = nNew;
-  ids.push_back(fId);
   idToIdx[fId] = fIdx;
-  idToOp[fId] = f;
+  iface->ids.push_back(fId);
+  iface->idToOp[fId] = f;
 
   Region *rF = f->getBlock()->getParent();
   for (unsigned evIdx = 0; evIdx < nOld; ++evIdx) {
-    Operation *ev = idToOp.lookup(ids[evIdx]);
+    uint64_t evId = iface->ids[evIdx];
+    Operation *ev = iface->getOpForId(evId);
+    if (!ev) continue;
+
     Region *rEv = ev->getBlock()->getParent();
     if (rEv == rF || reach.reaches(rEv, rF))
-      matrix[evIdx * n + fIdx] = queryOrder(ev, f, iface, aa, dom);
+      matrix[evIdx * n + fIdx] = queryOrder(evId, fId, aa, dom);
     if (reach.opCanReach(f, rEv, dom))
-      matrix[fIdx * n + evIdx] = queryOrder(f, ev, iface, aa, dom);
+      matrix[fIdx * n + evIdx] = queryOrder(fId, evId, aa, dom);
   }
-  applyFenceClosure(fIdx, iface);
+  applyFenceClosure(fIdx);
 }
 
 void OrderMatrix::closeTransitively() {
@@ -126,22 +128,29 @@ void OrderMatrix::closeTransitively() {
   llvm::errs() << "[FenceSynthesis] lob* closure: n=" << n << " added=" << added << "\n";
 }
 
-void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
-                                    AliasAnalysis &aa, DominanceInfo &dom,
-                                    const CallReachability &reach) {
-  Operation *f = idToOp.lookup(ids[fIdx]);
+void OrderMatrix::applyFenceUpgrade(
+    unsigned fIdx, AliasAnalysis &aa, 
+    DominanceInfo &dom, const CallReachability &reach) {
+  
+  uint64_t fId = iface->ids[fIdx];
+  Operation *f = iface->getOpForId(fId);
+  if (!f) return;
+
   Region *rF = f->getBlock()->getParent();
   for (unsigned evIdx = 0; evIdx < n; ++evIdx) {
-    if (evIdx == fIdx)
-      continue;
-    Operation *ev = idToOp.lookup(ids[evIdx]);
+    if (evIdx == fIdx) continue;
+
+    uint64_t evId = iface->ids[evIdx];
+    Operation *ev = iface->getOpForId(evId);
+    if (!ev) continue;
+
     Region *rEv = ev->getBlock()->getParent();
     if (rEv == rF || reach.reaches(rEv, rF))
-      matrix[evIdx * n + fIdx] = queryOrder(ev, f, iface, aa, dom);
+      matrix[evIdx * n + fIdx] = queryOrder(evId, fId, aa, dom);
     if (reach.opCanReach(f, rEv, dom))
-      matrix[fIdx * n + evIdx] = queryOrder(f, ev, iface, aa, dom);
+      matrix[fIdx * n + evIdx] = queryOrder(fId, evId, aa, dom);
   }
-  applyFenceClosure(fIdx, iface);
+  applyFenceClosure(fIdx);
 }
 
 //===----------------------------------------------------------------------===//
@@ -151,12 +160,35 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
 void mlir::orb::assignEventIds(ModuleOp module) {
   uint64_t nextId = 0;
   OpBuilder b(module->getContext());
+
   module.walk([&](Operation *op) {
     auto *iface =
         op->getDialect()->getRegisteredInterface<OrbAtomicDialectInterface>();
-    if ((iface && iface->isMemoryEvent(op)) ||
-        isa<ptr::LoadOp, ptr::StoreOp>(op))
+       
+    bool isMem = iface && iface->isMemoryEvent(op);
+    bool isRmw = iface && iface->isRMWEvent(op);     
+
+    if (isRmw) {
+      uint64_t baseId;
+
+      if ((nextId & 1) == 0) {
+        baseId = nextId;
+      } else {
+        baseId = ++nextId;
+      }
+      nextId++;
+      
+      uint64_t readId = baseId | kRmwMask;       // Ends in 0, high bit set
+      uint64_t writeId = (baseId + 1) | kRmwMask; // Ends in 1, high bit set
+      
+      op->setAttr(kEventIdAttr, b.getArrayAttr({
+        b.getI64IntegerAttr(readId),
+        b.getI64IntegerAttr(writeId)
+      }));
+
+    } else if (isMem) {
       op->setAttr(kEventIdAttr, b.getI64IntegerAttr(nextId++));
+    }  
   });
 }
 
@@ -182,11 +214,22 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
   llvm::errs() << "[OrderAnalysis] computing (recompute or first-time)\n";
   auto &aa  = am.getAnalysis<AliasAnalysis>();
   auto &dom = am.getAnalysis<DominanceInfo>();
-  OrderMatrix matrix = getOrderMatrix(module, aa, dom);
-  for (uint64_t idA : matrix.eventIds())
-    for (uint64_t idB : matrix.eventIds())
-      if (idA != idB && matrix.getOrder(idA, idB) == EventOrder::Ordered)
-        pairs.emplace_back(idA, idB);
+
+  llvm::SmallDenseSet<OrbAtomicDialectInterface *> ifaceSet;
+  module.walk([&](Operation *op) {
+    if (auto *iface = op->getDialect()->getRegisteredInterface<OrbAtomicDialectInterface>())
+      ifaceSet.insert(iface);
+  });
+
+  const CallReachability reach = computeCallReachability(module);
+
+  for (auto *iface : ifaceSet) {
+    OrderMatrix matrix = getOrderMatrix(iface, module, aa, dom, reach);
+    for (uint64_t idA : matrix.eventIds())
+      for (uint64_t idB : matrix.eventIds())
+        if (idA != idB && matrix.getOrder(idA, idB) == EventOrder::Ordered)
+          pairs.emplace_back(idA, idB);
+  }        
 }
 
 //===----------------------------------------------------------------------===//
@@ -261,21 +304,24 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
 // OrderMatrix private helpers
 //===----------------------------------------------------------------------===//
 
-EventOrder OrderMatrix::queryOrder(Operation *a, Operation *b,
-                                   const OrbAtomicDialectInterface *iface,
-                                   AliasAnalysis &aa, DominanceInfo &dom) const {
-  if (iface && iface->isMemoryEvent(a) && iface->isMemoryEvent(b))
-    return iface->getOrder(a, b, aa, dom);
+EventOrder OrderMatrix::queryOrder(
+    uint64_t idA, uint64_t idB,
+    AliasAnalysis &aa, DominanceInfo &dom) const {
+
+  Operation *a = iface->getOpForId(idA);
+  Operation *b = iface->getOpForId(idB);
+  if (a && b)
+    return iface->getOrder(idA, idB, aa, dom);    
+
   return EventOrder::Unreachable;
 }
 
-void OrderMatrix::applyFenceClosure(unsigned fIdx,
-                                    const OrbAtomicDialectInterface *iface) {
-  Operation *f = idToOp.lookup(ids[fIdx]);
+void OrderMatrix::applyFenceClosure(unsigned fIdx) {
+  uint64_t idF = iface->ids[fIdx];
   for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
     if (aIdx == fIdx || matrix[aIdx * n + fIdx] != EventOrder::Ordered)
       continue;
-    Operation *a = idToOp.lookup(ids[aIdx]);
+    uint64_t idA = iface->ids[aIdx];
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
       if (bIdx == fIdx || bIdx == aIdx)
         continue;
@@ -283,9 +329,10 @@ void OrderMatrix::applyFenceClosure(unsigned fIdx,
         continue;
       if (matrix[fIdx * n + bIdx] != EventOrder::Ordered)
         continue;
-      Operation *b = idToOp.lookup(ids[bIdx]);
-      if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
+      uint64_t idB = iface->ids[bIdx];
+      if (iface->getOrderThroughFence(idA, idF, idB) == EventOrder::Ordered) {
         matrix[aIdx * n + bIdx] = EventOrder::Ordered;
+      }
     }
   }
 }
@@ -294,7 +341,7 @@ void OrderMatrix::applyFenceClosure(unsigned fIdx,
 // getOrderMatrix
 //===----------------------------------------------------------------------===//
 
-OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
+OrderMatrix mlir::orb::getOrderMatrix(OrbAtomicDialectInterface *iface, ModuleOp module,
                                       AliasAnalysis &aliasAnalysis,
                                       DominanceInfo &dominance,
                                       const OrbAtomicDialectInterface *iface,
@@ -302,38 +349,63 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   OrderMatrix result;
 
   module.walk([&](Operation *op) {
-    auto idAttr = op->getAttrOfType<IntegerAttr>(kEventIdAttr);
-    if (!idAttr)
+    if (op->getDialect()->getRegisteredInterface<OrbAtomicDialectInterface>() != iface) 
       return;
-    uint64_t id = idAttr.getInt();
-    result.ids.push_back(id);
-    result.idToOp[id] = op;
+
+    if (iface->isRMWEvent(op)) {
+      auto arrAttr = op->getAttrOfType<ArrayAttr>(kEventIdAttr);
+      if (arrAttr && arrAttr.size() == 2) {
+
+        uint64_t idRead = cast<IntegerAttr>(arrAttr[0]).getInt();
+        uint64_t idWrite = cast<IntegerAttr>(arrAttr[1]).getInt();
+
+        iface->ids.push_back(idRead);
+        iface->ids.push_back(idWrite);
+        iface->idToOp[idRead] = op;
+        iface->idToOp[idWrite] = op;
+      }
+    } else {
+      auto idAttr = op->getAttrOfType<IntegerAttr>(kEventIdAttr);
+
+      if (idAttr) {
+        uint64_t id = idAttr.getInt();
+        iface->ids.push_back(id);
+  
+        iface->idToOp[id] = op;
+      }
+    }
   });
 
-  result.n = result.ids.size();
+  result.n = iface->ids.size();
   unsigned n = result.n;
   llvm::errs() << "[getOrderMatrix] n=" << n << "\n";
   result.matrix.assign(n * n, EventOrder::Unreachable);
   for (unsigned i = 0; i < n; ++i)
-    result.idToIdx[result.ids[i]] = i;
+    result.idToIdx[iface->ids[i]] = i;
 
   // Pairwise pass; cross-region pairs also check cross-function deps.
   for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
-    Operation *a = result.idToOp.lookup(result.ids[aIdx]);
+    uint64_t idA = iface->ids[aIdx];
+    Operation *a = iface->getOpForId(idA);
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
       if (aIdx == bIdx)
         continue;
-      Operation *b = result.idToOp.lookup(result.ids[bIdx]);
+
+      uint64_t idB = iface->ids[bIdx];
+      Operation *b = iface->getOpForId(idB);
+
       if (!reach.opCanReach(a, b->getBlock()->getParent(), dominance)) {
         result.setOrder(aIdx, bIdx, EventOrder::Unreachable);
         continue;
       }
-      EventOrder order = result.queryOrder(a, b, iface, aliasAnalysis, dominance);
-      if (iface && order == EventOrder::Unordered &&
+      EventOrder order = result.queryOrder(idA, idB, aliasAnalysis, dominance);
+      if (order == EventOrder::Unordered &&
           a->getBlock()->getParent() != b->getBlock()->getParent()) {
-        if (iface->getOrderCrossRegion(a, b, aliasAnalysis, dominance, reach) ==
-            EventOrder::Ordered)
+
+        if (iface->getOrderCrossRegion(idA, idB, aliasAnalysis, dominance, reach) ==
+            EventOrder::Ordered) {
           order = EventOrder::Ordered;
+        }
       }
       result.setOrder(aIdx, bIdx, order);
     }
@@ -344,12 +416,9 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
 
   llvm::SmallVector<unsigned> fenceIdxs;
   for (unsigned i = 0; i < n; ++i) {
-    Operation *op = result.idToOp.lookup(result.ids[i]);
-    if (iface->isFenceEvent(op))
-      fenceIdxs.push_back(i);
+    if (iface->isFenceEvent(iface->ids[i])) fenceIdxs.push_back(i);
   }
-  if (fenceIdxs.empty())
-    return result;
+  if (fenceIdxs.empty()) return result;
 
   unsigned nF = fenceIdxs.size();
   llvm::SmallVector<llvm::BitVector> fencesAfter(n, llvm::BitVector(nF));
@@ -368,13 +437,19 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
     if (fencesAfter[aIdx].none())
       continue;
-    Operation *a = result.idToOp.lookup(result.ids[aIdx]);
+
+    uint64_t idA = iface->ids[aIdx];
+    Operation *a = iface->getOpForId(idA);
+
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
       if (bIdx == aIdx || result.matrix[aIdx * n + bIdx] == EventOrder::Ordered)
         continue;
       if (fencesBefore[bIdx].none())
         continue;
-      Operation *b = result.idToOp.lookup(result.ids[bIdx]);
+
+      uint64_t idB = iface->ids[bIdx];
+      Operation *b = iface->getOpForId(idB);
+
       if (a->getBlock()->getParent() == b->getBlock()->getParent() &&
           !dominance.dominates(a, b))
         continue;
@@ -385,8 +460,8 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
       [&] {
         for (int fi = candidates.find_first(); fi != -1;
              fi = candidates.find_next(fi)) {
-          Operation *f = result.idToOp.lookup(result.ids[fenceIdxs[fi]]);
-          if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered) {
+          uint64_t idF = iface->ids[fenceIdxs[fi]];
+          if (iface->getOrderThroughFence(idA, idF, idB) == EventOrder::Ordered) {
             result.matrix[aIdx * n + bIdx] = EventOrder::Ordered;
             return;
           }
@@ -398,7 +473,7 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   return result;
 }
 
-OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
+OrderMatrix mlir::orb::getOrderMatrix(OrbAtomicDialectInterface *iface, ModuleOp module,
                                       AliasAnalysis &aliasAnalysis,
                                       DominanceInfo &dominance) {
   // Auto-discover the single registered OrbAtomicDialectInterface.

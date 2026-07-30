@@ -34,6 +34,24 @@ class AnalysisManager;
 
 namespace mlir::orb {
 
+
+/// Helper Functions for RMWOps to find there PartnerIDs and know which ID belongs to the read and which to the write  
+constexpr uint64_t kRmwMask = 1ULL << 63;
+
+inline bool isRmwId(uint64_t id) { 
+  return (id & kRmwMask) != 0; 
+}
+inline bool isRmwReadId(uint64_t id) { 
+  return isRmwId(id) && (id & 1) == 0; 
+}
+inline bool isRmwWriteId(uint64_t id) { 
+  return isRmwId(id) && (id & 1) == 1; 
+}
+inline uint64_t getPartnerId(uint64_t id) { 
+  assert(isRmwId(id));
+  return id ^ 1;
+}  
+
 /// Attribute key for stable per-event integer IDs; propagated across dialect conversions.
 constexpr llvm::StringLiteral kEventIdAttr = "orb.event_id";
 
@@ -97,14 +115,16 @@ struct CallReachability {
       return dom.dominates(a, callOp);
     });
   }
+
 };
 
 class OrderMatrix {
 public:
+  OrbAtomicDialectInterface *iface = nullptr;
+
   EventOrder getOrder(uint64_t idA, uint64_t idB) const;
-  /// Look up the current Operation* for a given event ID.
-  Operation *getOpForId(uint64_t id) const;
-  llvm::ArrayRef<uint64_t> eventIds() const { return ids; }
+
+  llvm::ArrayRef<uint64_t> eventIds() const;
   /// Map event ID → matrix index. Asserts if id is not present.
   unsigned idxOf(uint64_t id) const;
 
@@ -127,8 +147,6 @@ private:
   // Flat n×n array of EventOrder (uint8_t), indexed by consecutive event indices.
   std::vector<EventOrder> matrix;
   llvm::DenseMap<uint64_t, unsigned> idToIdx;
-  llvm::DenseMap<uint64_t, Operation *> idToOp;
-  llvm::SmallVector<uint64_t> ids;
   unsigned n = 0;
 
   void setOrder(unsigned aIdx, unsigned bIdx, EventOrder order) {
@@ -147,18 +165,33 @@ class OrbAtomicDialectInterface
 public:
   using Base::Base;
 
-  virtual bool isMemoryEvent(Operation *op) const = 0;
-  virtual bool isFenceEvent(Operation *op) const { return false; }
-  virtual bool isWriteEvent(Operation *op) const { return false; }
-  virtual EventOrder getOrder(Operation *a, Operation *b,
+  llvm::DenseMap<uint64_t, Operation *> idToOp;
+  llvm::SmallVector<uint64_t> ids;
+
+  Operation *getOpForId(uint64_t id) const {
+    auto it = idToOp.find(id);
+    return it != idToOp.end() ? it->second : nullptr;
+  }
+
+  virtual bool isMemoryEvent(Operation* op) const = 0;
+  virtual bool isFenceEvent(uint64_t id) const { return false; }
+  virtual bool isReadEvent(uint64_t id) const { return false; }
+  virtual bool isWriteEvent(uint64_t id) const { return false; }
+  virtual bool isRMWEvent(Operation* op) const { return false; }
+
+  // virtual int getSuccessOrder(uint64_t id) const { return 0; }
+  // virtual int getFailureOrder(uint64_t id) const { return 0; }
+  // virtual int getReadOrder(uint64_t id) const { return 0; }
+  // virtual int getWriteOrder(uint64_t id) const { return 0; }
+
+  virtual EventOrder getOrder(uint64_t idA, uint64_t idB,
                               AliasAnalysis &aliasAnalysis,
                               DominanceInfo &dominance) const = 0;
   /// Returns Ordered if `f` (a fence op) orders (a, b) per dialect fence rules.
-  virtual EventOrder getOrderThroughFence(Operation *a, Operation *f,
-                                          Operation *b) const = 0;
-  virtual llvm::SmallVector<Promotion> promote(uint64_t idA, Operation *a,
-                                               uint64_t idB,
-                                               Operation *b) const = 0;
+  virtual EventOrder getOrderThroughFence(uint64_t idA, uint64_t idF,
+                                          uint64_t idB) const = 0;
+  virtual llvm::SmallVector<Promotion> promote(uint64_t idA,
+                                               uint64_t idB) const = 0;
   virtual int cost(const Promotion &p, const CostContext &ctx) const = 0;
   /// FenceAction: creates and returns the fence op. UpgradeAction: mutates in-place, returns nullptr.
   virtual Operation *applyPromotion(const Promotion &p,
@@ -173,7 +206,7 @@ public:
   /// Apply model-specific derived orderings to the initial target matrix (e.g. lob* for ARM).
   virtual void refineInitialOrderMatrix(OrderMatrix &matrix) const {}
   /// Ordering for cross-region pairs where opCanReach() is true but getOrder() returned Unordered.
-  virtual EventOrder getOrderCrossRegion(Operation *a, Operation *b,
+  virtual EventOrder getOrderCrossRegion(uint64_t idA, uint64_t idB,
                                          AliasAnalysis &aa, DominanceInfo &dom,
                                          const CallReachability &reach) const {
     return EventOrder::Unordered;

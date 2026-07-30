@@ -67,6 +67,10 @@ static cpp_atomic::MemoryOrder getCppMemoryOrder(Operation *op) {
     return store.getMemoryOrder();
   if (auto fence = dyn_cast<cpp_atomic::AtomicFenceOp>(op))
     return fence.getMemoryOrder();
+  if (auto fetch = dyn_cast<cpp_atomic::AtomicFetchOp>(op))
+    return fetch.getMemoryOrder();  
+  if (auto xchg = dyn_cast<cpp_atomic::AtomicXchgOp>(op))
+    return xchg.getMemoryOrder();  
   llvm_unreachable("not a cpp_atomic memory event");
 }
 
@@ -75,13 +79,98 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
   bool isMemoryEvent(Operation *op) const override {
     return isa<cpp_atomic::AtomicLoadOp, cpp_atomic::AtomicStoreOp,
-               cpp_atomic::AtomicFenceOp, ptr::LoadOp, ptr::StoreOp>(op);
+               cpp_atomic::AtomicFenceOp, ptr::LoadOp, ptr::StoreOp,
+               cpp_atomic::AtomicFetchOp, cpp_atomic::AtomicXchgOp,
+               cpp_atomic::AtomicCmpXchgOp>(op);
+  }
+  
+  bool isRMWEvent(Operation *op) const override {
+    return isa<cpp_atomic::AtomicFetchOp, cpp_atomic::AtomicXchgOp,
+               cpp_atomic::AtomicCmpXchgOp>(op);
   }
 
-  bool isFenceEvent(Operation *op) const override {
-    return isa<cpp_atomic::AtomicFenceOp>(op);
+  bool isFenceEvent(uint64_t id) const override {
+    Operation *op = getOpForId(id);
+    return op && isa<cpp_atomic::AtomicFenceOp>(op);
   }
 
+  bool isReadEvent(uint64_t id) const override {
+    Operation *op = getOpForId(id);
+    if (!op) return false;
+    if (isRMWEvent(op)) return orb::isRmwReadId(id);
+    return isa<cpp_atomic::AtomicLoadOp, ptr::LoadOp>(op);
+  }
+
+  bool isWriteEvent(uint64_t id) const override {
+    Operation *op = getOpForId(id);
+    if (!op) return false;
+    if (isRMWEvent(op)) return orb::isRmwWriteId(id);
+    return isa<cpp_atomic::AtomicStoreOp, ptr::StoreOp>(op);
+  }
+
+  // TODO: Ask what return type the methods should have, if not int, then they can't be declared in OrbAtomicInterface.h
+  // TODO: Ask what should be returned in case of failure: NA?
+  cpp_atomic::MemoryOrder getSuccessOrder(uint64_t id) {
+    Operation *op = getOpForId(id);
+    if (!op) return cpp_atomic::MemoryOrder::NA;
+    
+    if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op))
+      return cmpxchg.getSuccessOrder();
+
+    return cpp_atomic::MemoryOrder::NA;
+  }
+
+  cpp_atomic::MemoryOrder getFailureOrder(uint64_t id) {
+    Operation *op = getOpForId(id);
+    if (!op) return cpp_atomic::MemoryOrder::NA;
+    
+    if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op))
+      return cmpxchg.getFailureOrder();
+
+    return cpp_atomic::MemoryOrder::NA;
+  }
+
+  cpp_atomic::MemoryOrder getReadOrder(uint64_t id) {
+    Operation *op = getOpForId(id);
+    if (!op || !isReadEvent(id)) return cpp_atomic::MemoryOrder::NA;
+
+    if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op)) // cmpxchg doesn't have a Read order, only Success and Failure
+      return cpp_atomic::MemoryOrder::NA;
+
+    auto memOrder = getCppMemoryOrder(op);
+    // C++ rules: The store part of an RMW only releases if the whole op is Release, AcqRel, or SeqCst
+    switch(memOrder) {
+      case cpp_atomic::MemoryOrder::NA: return cpp_atomic::MemoryOrder::NA;
+      case cpp_atomic::MemoryOrder::Relaxed: return cpp_atomic::MemoryOrder::Relaxed;
+      case cpp_atomic::MemoryOrder::Acquire: return cpp_atomic::MemoryOrder::Acquire;
+      case cpp_atomic::MemoryOrder::Release: return cpp_atomic::MemoryOrder::Relaxed;
+      
+      case cpp_atomic::MemoryOrder::AcqRel:
+      case cpp_atomic::MemoryOrder::SeqCst:
+      return cpp_atomic::MemoryOrder::Acquire;
+    }
+  }
+
+  cpp_atomic::MemoryOrder getWriteOrder(uint64_t id) {
+    Operation *op = getOpForId(id);
+    if (!op || !isWriteEvent(id)) return cpp_atomic::MemoryOrder::NA;
+
+    if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op)) // cmpxchg doesn't have a Write order, only Success and Failure
+      return cpp_atomic::MemoryOrder::NA;
+
+    auto memOrder = getCppMemoryOrder(op);
+    // C++ rules: The store part of an RMW only releases if the whole op is Release, AcqRel, or SeqCst
+    switch(memOrder) {
+      case cpp_atomic::MemoryOrder::NA: return cpp_atomic::MemoryOrder::NA;
+      case cpp_atomic::MemoryOrder::Relaxed: return cpp_atomic::MemoryOrder::Relaxed;
+      case cpp_atomic::MemoryOrder::Acquire: return cpp_atomic::MemoryOrder::Relaxed;
+      case cpp_atomic::MemoryOrder::Release: return cpp_atomic::MemoryOrder::Release;
+      
+      case cpp_atomic::MemoryOrder::AcqRel:
+      case cpp_atomic::MemoryOrder::SeqCst:
+      return cpp_atomic::MemoryOrder::Release;
+    }
+  }
   /// ppo_rc11 for order
 
   /// Local order based on memory order annotations
@@ -177,9 +266,12 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return orb::EventOrder::Unordered;
   }
 
-  orb::EventOrder getOrder(Operation *a, Operation *b,
+  orb::EventOrder getOrder(uint64_t idA, uint64_t idB,
                            AliasAnalysis &aliasAnalysis,
                            DominanceInfo &dominance) const override {
+    Operation *a = getOpForId(idA);
+    Operation *b = getOpForId(idB);
+
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return orb::EventOrder::Unreachable;
 
@@ -206,8 +298,12 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return orb::EventOrder::Unordered;
   }
 
-  orb::EventOrder getOrderThroughFence(Operation *a, Operation *f,
-                                       Operation *b) const override {
+  orb::EventOrder getOrderThroughFence(uint64_t idA, uint64_t idF,
+                                     uint64_t idB) const override {
+    Operation *a = getOpForId(idA);
+    Operation *f = getOpForId(idF);
+    Operation *b = getOpForId(idB);
+
     if (!isa<cpp_atomic::AtomicFenceOp>(f))
       return orb::EventOrder::Unordered;
     auto mof = getCppMemoryOrder(f);
@@ -226,8 +322,7 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return orb::EventOrder::Unordered;
   }
 
-  llvm::SmallVector<orb::Promotion> promote(uint64_t, Operation *, uint64_t,
-                                            Operation *) const override {
+  llvm::SmallVector<orb::Promotion> promote(uint64_t, uint64_t) const override {
     llvm_unreachable("CppAtomic is never the synthesis target");
   }
   int cost(const orb::Promotion &, const orb::CostContext &) const override {

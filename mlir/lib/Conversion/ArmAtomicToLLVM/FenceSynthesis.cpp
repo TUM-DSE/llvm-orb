@@ -97,6 +97,7 @@ struct FenceSynthesisPass
     llvm::DenseMap<uint64_t, unsigned> rowPressure, rowWritePressure,
         colPressure, colReadPressure, colWritePressure;
     unsigned totalUnsatisfied = 0;
+
     auto rebuildPressure = [&]() {
       rowPressure.clear();
       rowWritePressure.clear();
@@ -109,6 +110,7 @@ struct FenceSynthesisPass
           continue;
         if (mb.getOrder(c, d) == orb::EventOrder::Ordered)
           continue;
+
         ++totalUnsatisfied;
         rowPressure[c]++;
         colPressure[d]++;
@@ -193,8 +195,8 @@ struct FenceSynthesisPass
             // mediatedUnordered > 0: fall through to promote().
           }
 
-          Operation *a = mb.getOpForId(idA);
-          Operation *b = mb.getOpForId(idB);
+          Operation *a = targetIface->getOpForId(idA);
+          Operation *b = targetIface->getOpForId(idB);
           if (!a || !b) {
             signalPassFailure();
             return;
@@ -213,6 +215,8 @@ struct FenceSynthesisPass
           // coverage via the CostContext.
           orb::Promotion bestPromotion;
           int bestScore = std::numeric_limits<int>::max();
+          bool foundPromotion = false;
+          
           orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
                                colPressure[idB], colReadPressure[idB],
                                colWritePressure[idB], fenceCostBase,

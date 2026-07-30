@@ -90,6 +90,10 @@ static arm_atomic::MemoryOrder getArmMemoryOrder(Operation *op) {
   // NOTE: we reuse MO_acq for dmb ld, MO_rel for dmb st, and MO_acqrel for dmb (full)
   if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(op))
     return fence.getMemoryOrder();
+  if (auto fetch = dyn_cast<arm_atomic::AtomicFetchOp>(op))
+    return fetch.getMemoryOrder();  
+  if (auto xchg = dyn_cast<arm_atomic::AtomicXchgOp>(op))
+    return xchg.getMemoryOrder();  
   llvm_unreachable("not an arm_atomic memory event");
 }
 
@@ -98,17 +102,93 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
   bool isMemoryEvent(Operation *op) const override {
     return isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp,
-               arm_atomic::AtomicFenceOp, ptr::LoadOp, ptr::StoreOp>(op);
+               arm_atomic::AtomicFenceOp, ptr::LoadOp, ptr::StoreOp,
+               arm_atomic::AtomicFetchOp, arm_atomic::AtomicXchgOp,
+               arm_atomic::AtomicCmpXchgOp>(op);
   }
 
-  bool isFenceEvent(Operation *op) const override {
-    return isa<arm_atomic::AtomicFenceOp>(op);
+  bool isRMWEvent(Operation *op) const override {
+    return isa<arm_atomic::AtomicFetchOp, arm_atomic::AtomicXchgOp,
+               arm_atomic::AtomicCmpXchgOp>(op);
   }
 
-  bool isWriteEvent(Operation *op) const override {
+  bool isFenceEvent(uint64_t id) const override {
+    Operation *op = getOpForId(id);
+    return op && isa<arm_atomic::AtomicFenceOp>(op);
+  }
+
+  bool isReadEvent(uint64_t id) const override {
+    Operation *op = getOpForId(id);
+    if (!op) return false;
+    if (isRMWEvent(op)) return orb::isRmwReadId(id);
+    return isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(op);
+  }
+
+  bool isWriteEvent(uint64_t id) const override {
+    Operation *op = getOpForId(id);
+    if (!op) return false;
+    if (isRMWEvent(op)) return orb::isRmwWriteId(id);
     return isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(op);
   }
 
+  // TODO: Ask what return type the methods should have, if not int, then they can't be declared in OrbAtomicInterface.h
+  // TODO: Ask what should be returned in case of failure: Relaxed?
+  arm_atomic::MemoryOrder getSuccessOrder(uint64_t id) {
+    Operation *op = getOpForId(id);
+    if (!op) return arm_atomic::MemoryOrder::Relaxed;
+    
+    if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op))
+      return cmpxchg.getSuccessOrder();
+
+    return arm_atomic::MemoryOrder::Relaxed;
+  }
+
+  arm_atomic::MemoryOrder getFailureOrder(uint64_t id) {
+    Operation *op = getOpForId(id);
+    if (!op) return arm_atomic::MemoryOrder::Relaxed;
+    
+    if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op))
+      return cmpxchg.getFailureOrder();
+
+    return arm_atomic::MemoryOrder::Relaxed;
+  }
+
+  arm_atomic::MemoryOrder getReadOrder(uint64_t id) {
+    Operation *op = getOpForId(id);
+    if (!op || !isReadEvent(id)) return arm_atomic::MemoryOrder::Relaxed;
+
+    if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op)) // cmpxchg doesn't have a Read order, only Success and Failure
+      return arm_atomic::MemoryOrder::Relaxed;
+
+    auto memOrder = getArmMemoryOrder(op);
+    // C++ rules: The store part of an RMW only releases if the whole op is Release, AcqRel, or SeqCst
+    switch(memOrder) {
+      case arm_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
+      case arm_atomic::MemoryOrder::AcquirePC: return arm_atomic::MemoryOrder::AcquirePC;
+      case arm_atomic::MemoryOrder::Acquire: return arm_atomic::MemoryOrder::Acquire;
+      case arm_atomic::MemoryOrder::Release: return arm_atomic::MemoryOrder::Relaxed;
+      case arm_atomic::MemoryOrder::AcqRel: return arm_atomic::MemoryOrder::Acquire;
+    }
+  }
+
+  arm_atomic::MemoryOrder getWriteOrder(uint64_t id) {
+    Operation *op = getOpForId(id);
+    if (!op || !isWriteEvent(id)) return arm_atomic::MemoryOrder::Relaxed;
+
+    if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op)) // cmpxchg doesn't have a Write order, only Success and Failure
+      return arm_atomic::MemoryOrder::Relaxed;
+
+    auto memOrder = getArmMemoryOrder(op);
+    // C++ rules: The store part of an RMW only releases if the whole op is Release, AcqRel, or SeqCst
+    switch(memOrder) {
+      case arm_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
+      case arm_atomic::MemoryOrder::AcquirePC: return arm_atomic::MemoryOrder::Relaxed;
+      case arm_atomic::MemoryOrder::Acquire: return arm_atomic::MemoryOrder::Relaxed;
+      case arm_atomic::MemoryOrder::Release: return arm_atomic::MemoryOrder::Release;
+      
+      case arm_atomic::MemoryOrder::AcqRel: return arm_atomic::MemoryOrder::Release;
+    }
+  }
   /// ppo_arm = lob | pick-lob for ARMv8
   ///
   /// dtrm: dependency through register or memory
@@ -232,9 +312,12 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return false;
   }
 
-  orb::EventOrder getOrder(Operation *a, Operation *b,
+  orb::EventOrder getOrder(uint64_t idA, uint64_t idB,
                            AliasAnalysis &aliasAnalysis,
-                           DominanceInfo &dominance) const override {
+                           DominanceInfo &dominance) const override {                        
+    Operation *a = getOpForId(idA);
+    Operation *b = getOpForId(idB);
+    
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return orb::EventOrder::Unreachable;
 
@@ -290,8 +373,12 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return orb::EventOrder::Unordered;
   }
 
-  orb::EventOrder getOrderThroughFence(Operation *a, Operation *f,
-                                       Operation *b) const override {
+  orb::EventOrder getOrderThroughFence(uint64_t idA, uint64_t idF,
+                                     uint64_t idB) const override {
+    Operation *a = getOpForId(idA);
+    Operation *f = getOpForId(idF);
+    Operation *b = getOpForId(idB);
+    
     if (!isa<arm_atomic::AtomicFenceOp>(f))
       return orb::EventOrder::Unordered;
     auto mof = getArmMemoryOrder(f);
@@ -310,9 +397,11 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return orb::EventOrder::Unordered;
   }
 
-  llvm::SmallVector<orb::Promotion> promote(uint64_t idA, Operation *a,
-                                            uint64_t idB,
-                                            Operation *b) const override {
+  llvm::SmallVector<orb::Promotion> promote(uint64_t idA,
+                                            uint64_t idB) const override {
+    Operation *a = getOpForId(idA);
+    Operation *b = getOpForId(idB);
+
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return {};
     llvm::SmallVector<orb::Promotion> options;
@@ -528,9 +617,13 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   }
 
   // ctrl;[W] cross-call: load in caller controls (via branch) whether a callee call runs.
-  orb::EventOrder getOrderCrossRegion(Operation *a, Operation *b,
+  orb::EventOrder getOrderCrossRegion(uint64_t idA, uint64_t idB,
                                       AliasAnalysis &aa, DominanceInfo &dom,
                                       const orb::CallReachability &reach) const override {
+    Operation *a = getOpForId(idA);
+    Operation *b = getOpForId(idB);
+    
+          
     if (!isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a))
       return orb::EventOrder::Unordered;
     if (!isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b))
