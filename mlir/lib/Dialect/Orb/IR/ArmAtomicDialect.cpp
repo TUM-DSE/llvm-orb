@@ -131,36 +131,40 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(op);
   }
 
-  // TODO: Ask what return type the methods should have, if not int, then they can't be declared in OrbAtomicInterface.h
-  // TODO: Ask what should be returned in case of failure: Relaxed?
-  arm_atomic::MemoryOrder getSuccessOrder(uint64_t id) {
+  std::optional<arm_atomic::MemoryOrder> getSuccessOrder(uint64_t id) {
     Operation *op = getOpForId(id);
-    if (!op) return arm_atomic::MemoryOrder::Relaxed;
+    if (!op) return std::nullopt;
     
     if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op))
       return cmpxchg.getSuccessOrder();
 
-    return arm_atomic::MemoryOrder::Relaxed;
+    return std::nullopt;
   }
 
-  arm_atomic::MemoryOrder getFailureOrder(uint64_t id) {
+  std::optional<arm_atomic::MemoryOrder> getFailureOrder(uint64_t id) {
     Operation *op = getOpForId(id);
-    if (!op) return arm_atomic::MemoryOrder::Relaxed;
+    if (!op) return std::nullopt;
     
     if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op))
       return cmpxchg.getFailureOrder();
 
-    return arm_atomic::MemoryOrder::Relaxed;
+    return std::nullopt;
   }
 
-  arm_atomic::MemoryOrder getReadOrder(uint64_t id) {
+  std::optional<arm_atomic::MemoryOrder> getReadOrder(uint64_t id) {
     Operation *op = getOpForId(id);
-    if (!op || !isReadEvent(id)) return arm_atomic::MemoryOrder::Relaxed;
+    if (!op || !isReadEvent(id)) return std::nullopt;
 
-    if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op)) // cmpxchg doesn't have a Read order, only Success and Failure
-      return arm_atomic::MemoryOrder::Relaxed;
+    arm_atomic::MemoryOrder memOrder;
+    // If failure order stronger than success --> undefined behavior according to cppreference, 
+    // if equal to success order --> taking success order suffices obviously, 
+    // if failure is weaker than success regarding readOrder --> we take successOrder anyways
+    if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op)) {
+      memOrder = cmpxchg.getSuccessOrder();
+    } else {
+      memOrder = getArmMemoryOrder(op);
+    }
 
-    auto memOrder = getArmMemoryOrder(op);
     // C++ rules: The store part of an RMW only releases if the whole op is Release, AcqRel, or SeqCst
     switch(memOrder) {
       case arm_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
@@ -171,14 +175,17 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     }
   }
 
-  arm_atomic::MemoryOrder getWriteOrder(uint64_t id) {
+  std::optional<arm_atomic::MemoryOrder> getWriteOrder(uint64_t id) {
     Operation *op = getOpForId(id);
     if (!op || !isWriteEvent(id)) return arm_atomic::MemoryOrder::Relaxed;
 
-    if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op)) // cmpxchg doesn't have a Write order, only Success and Failure
-      return arm_atomic::MemoryOrder::Relaxed;
-
-    auto memOrder = getArmMemoryOrder(op);
+    arm_atomic::MemoryOrder memOrder;
+    // FailureOrder is for load only, not RMW --> Write fully covered by SuccessOrder
+    if (auto cmpxchg = dyn_cast<arm_atomic::AtomicCmpXchgOp>(op)) {
+      memOrder = cmpxchg.getSuccessOrder();
+    } else {
+      memOrder = getArmMemoryOrder(op);
+    }
     // C++ rules: The store part of an RMW only releases if the whole op is Release, AcqRel, or SeqCst
     switch(memOrder) {
       case arm_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
@@ -651,9 +658,9 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   void updateOrderMatrix(const orb::Promotion &p, Operation *newOp,
                          uint64_t idA, uint64_t idB, orb::OrderMatrix &mb,
                          AliasAnalysis &aa, DominanceInfo &dom,
-                         const orb::CallReachability &reach) const override {
+                         const orb::CallReachability &reach) override {
     if (std::get_if<orb::Promotion::FenceAction>(&p.action)) {
-      mb.addFence(newOp, this, aa, dom, reach);
+      mb.addFence(newOp, aa, dom, this, reach);
       return;
     }
     const auto &ua = std::get<orb::Promotion::UpgradeAction>(p.action);
@@ -661,22 +668,22 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (isa<arm_atomic::AtomicLoadOp>(ua.op)) {
       if (mo == arm_atomic::MemoryOrder::AcquirePC) {
         // [R & ACQPC];po;[W] — mark write-successors of idA as Ordered.
-        for (uint64_t x : mb.eventIds())
-          if (isWriteEvent(mb.getOpForId(x)))
+        for (uint64_t x : mb.eventIds(this))
+          if (isWriteEvent(x))
             mb.markOrdered(idA, x);
       } else {
         // Acquire/AcqRel — mark all successors of idA as Ordered.
-        for (uint64_t x : mb.eventIds())
+        for (uint64_t x : mb.eventIds(this))
           mb.markOrdered(idA, x);
       }
     } else if (isa<arm_atomic::AtomicStoreOp>(ua.op)) {
       // Release — mark all predecessors of idB as Ordered.
-      for (uint64_t x : mb.eventIds())
+      for (uint64_t x : mb.eventIds(this))
         mb.markOrdered(x, idB);
     } else {
       // Fence upgrade: re-query all pairs involving the fence.
-      uint64_t fId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
-      mb.applyFenceUpgrade(mb.idxOf(fId), this, aa, dom, reach);
+      uint64_t fId = (ua.op == getOpForId(idA)) ? idA : idB;
+      mb.applyFenceUpgrade(mb.idxOf(fId), aa, dom, this, reach);
     }
   }
 

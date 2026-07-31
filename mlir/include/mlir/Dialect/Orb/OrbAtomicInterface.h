@@ -120,29 +120,27 @@ struct CallReachability {
 
 class OrderMatrix {
 public:
-  OrbAtomicDialectInterface *iface = nullptr;
-
   EventOrder getOrder(uint64_t idA, uint64_t idB) const;
 
-  llvm::ArrayRef<uint64_t> eventIds() const;
+  llvm::ArrayRef<uint64_t> eventIds(OrbAtomicDialectInterface *iface) const;
   /// Map event ID → matrix index. Asserts if id is not present.
   unsigned idxOf(uint64_t id) const;
 
   /// Set (idA, idB) to Ordered if currently Unordered; no-op otherwise.
   void markOrdered(uint64_t idA, uint64_t idB);
-  void addFence(Operation *f, const OrbAtomicDialectInterface *iface,
+  void addFence(Operation *f,
                 AliasAnalysis &aa, DominanceInfo &dom,
+                OrbAtomicDialectInterface *iface,
                 const CallReachability &reach);
-  void applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
-                         AliasAnalysis &aa, DominanceInfo &dom,
-                         const CallReachability &reach);
+  void applyFenceUpgrade(unsigned fIdx, AliasAnalysis &aa, DominanceInfo &dom, 
+                          OrbAtomicDialectInterface *iface, 
+                          const CallReachability &reach);
   /// Close the Ordered relation transitively; call once on the initial matrix.
   void closeTransitively();
 
 private:
-  friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
-  friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &,
-                                    const OrbAtomicDialectInterface *,
+  friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &, OrbAtomicDialectInterface *);
+  friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &, OrbAtomicDialectInterface *, 
                                     const CallReachability &);
   // Flat n×n array of EventOrder (uint8_t), indexed by consecutive event indices.
   std::vector<EventOrder> matrix;
@@ -152,10 +150,9 @@ private:
   void setOrder(unsigned aIdx, unsigned bIdx, EventOrder order) {
     matrix[aIdx * n + bIdx] = order;
   }
-  EventOrder queryOrder(Operation *a, Operation *b,
-                        const OrbAtomicDialectInterface *iface,
-                        AliasAnalysis &aa, DominanceInfo &dom) const;
-  void applyFenceClosure(unsigned fIdx, const OrbAtomicDialectInterface *iface);
+  EventOrder queryOrder(uint64_t idA, uint64_t idB,
+                        AliasAnalysis &aa, DominanceInfo &dom, OrbAtomicDialectInterface *iface) const;
+  void applyFenceClosure(unsigned fIdx, OrbAtomicDialectInterface *iface);
 };
 
 /// Per-dialect interface for atomic memory ordering analysis.
@@ -179,11 +176,6 @@ public:
   virtual bool isWriteEvent(uint64_t id) const { return false; }
   virtual bool isRMWEvent(Operation* op) const { return false; }
 
-  // virtual int getSuccessOrder(uint64_t id) const { return 0; }
-  // virtual int getFailureOrder(uint64_t id) const { return 0; }
-  // virtual int getReadOrder(uint64_t id) const { return 0; }
-  // virtual int getWriteOrder(uint64_t id) const { return 0; }
-
   virtual EventOrder getOrder(uint64_t idA, uint64_t idB,
                               AliasAnalysis &aliasAnalysis,
                               DominanceInfo &dominance) const = 0;
@@ -202,7 +194,7 @@ public:
   virtual void updateOrderMatrix(const Promotion &p, Operation *newOp,
                                  uint64_t idA, uint64_t idB, OrderMatrix &mb,
                                  AliasAnalysis &aa, DominanceInfo &dom,
-                                 const CallReachability &reach) const = 0;
+                                 const CallReachability &reach) = 0;
   /// Apply model-specific derived orderings to the initial target matrix (e.g. lob* for ARM).
   virtual void refineInitialOrderMatrix(OrderMatrix &matrix) const {}
   /// Ordering for cross-region pairs where opCanReach() is true but getOrder() returned Unordered.
@@ -219,12 +211,13 @@ CallReachability computeCallReachability(ModuleOp module);
 /// Use this overload from passes that have already resolved the interface.
 OrderMatrix getOrderMatrix(ModuleOp module, AliasAnalysis &aliasAnalysis,
                            DominanceInfo &dominance,
-                           const OrbAtomicDialectInterface *iface,
+                           OrbAtomicDialectInterface *iface,
                            const CallReachability &reach);
 /// Auto-discovers the single registered OrbAtomicDialectInterface.
 /// Use this overload from dialect-agnostic analyses (e.g. OrderAnalysis).
 OrderMatrix getOrderMatrix(ModuleOp module, AliasAnalysis &aliasAnalysis,
-                           DominanceInfo &dominance);
+                           DominanceInfo &dominance,
+                           OrbAtomicDialectInterface *iface);
 
 class OrderAnalysis {
 public:

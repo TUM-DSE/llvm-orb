@@ -50,7 +50,7 @@ struct FenceSynthesisPass
     auto reach = orb::computeCallReachability(module);
 
     // Find the single OrbAtomicDialectInterface registered in this module.
-    const orb::OrbAtomicDialectInterface *iface = nullptr;
+    orb::OrbAtomicDialectInterface *iface = nullptr;
     module.walk([&](Operation *op) -> WalkResult {
       if (!op->hasAttr(orb::kEventIdAttr))
         return WalkResult::advance();
@@ -82,8 +82,7 @@ struct FenceSynthesisPass
 
     // isEventFence: true if id refers to a fence op in the target dialect.
     auto isEventFence = [&](uint64_t id) -> bool {
-      Operation *op = mb.getOpForId(id);
-      return op && iface->isFenceEvent(op);
+      return iface->isFenceEvent(id);
     };
 
     // F_ign: source fence IDs whose mediated access-access pairs are all
@@ -97,7 +96,6 @@ struct FenceSynthesisPass
     llvm::DenseMap<uint64_t, unsigned> rowPressure, rowWritePressure,
         colPressure, colReadPressure, colWritePressure;
     unsigned totalUnsatisfied = 0;
-
     auto rebuildPressure = [&]() {
       rowPressure.clear();
       rowWritePressure.clear();
@@ -110,16 +108,16 @@ struct FenceSynthesisPass
           continue;
         if (mb.getOrder(c, d) == orb::EventOrder::Ordered)
           continue;
-
         ++totalUnsatisfied;
         rowPressure[c]++;
         colPressure[d]++;
-        Operation *dOp = mb.getOpForId(d);
-        if (dOp && iface->isWriteEvent(dOp))
+
+        if (iface->isWriteEvent(d))
           rowWritePressure[c]++;
-        Operation *cOp = mb.getOpForId(c);
-        bool cIsWrite = cOp && iface->isWriteEvent(cOp);
-        bool cIsFence = cOp && iface->isFenceEvent(cOp);
+
+        bool cIsWrite = iface->isWriteEvent(c);
+        bool cIsFence = iface->isFenceEvent(c);
+
         if (!cIsWrite && !cIsFence)
           colReadPressure[d]++;
         else if (cIsWrite)
@@ -135,8 +133,8 @@ struct FenceSynthesisPass
 
     auto countOrdered = [&](unsigned &covered, unsigned &overspecified) {
       covered = overspecified = 0;
-      for (uint64_t c : mb.eventIds()) {
-        for (uint64_t d : mb.eventIds()) {
+      for (uint64_t c : mb.eventIds(iface)) {
+        for (uint64_t d : mb.eventIds(iface)) {
           if (c == d || mb.getOrder(c, d) != orb::EventOrder::Ordered)
             continue;
           if (requiredSet.count({c, d}))
@@ -195,8 +193,8 @@ struct FenceSynthesisPass
             // mediatedUnordered > 0: fall through to promote().
           }
 
-          Operation *a = targetIface->getOpForId(idA);
-          Operation *b = targetIface->getOpForId(idB);
+          Operation *a = iface->getOpForId(idA);
+          Operation *b = iface->getOpForId(idB);
           if (!a || !b) {
             signalPassFailure();
             return;
@@ -215,13 +213,11 @@ struct FenceSynthesisPass
           // coverage via the CostContext.
           orb::Promotion bestPromotion;
           int bestScore = std::numeric_limits<int>::max();
-          bool foundPromotion = false;
-          
           orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
                                colPressure[idB], colReadPressure[idB],
                                colWritePressure[idB], fenceCostBase,
-                               (unsigned)mb.eventIds().size()};
-          for (auto &p : iface->promote(idA, a, idB, b)) {
+                               (unsigned)mb.eventIds(iface).size()};
+          for (auto &p : iface->promote(idA, idB)) {
             int score = iface->cost(p, ctx);
             if (score < bestScore) {
               bestScore = score;

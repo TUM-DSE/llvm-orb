@@ -108,36 +108,40 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return isa<cpp_atomic::AtomicStoreOp, ptr::StoreOp>(op);
   }
 
-  // TODO: Ask what return type the methods should have, if not int, then they can't be declared in OrbAtomicInterface.h
-  // TODO: Ask what should be returned in case of failure: NA?
-  cpp_atomic::MemoryOrder getSuccessOrder(uint64_t id) {
+  std::optional<cpp_atomic::MemoryOrder> getSuccessOrder(uint64_t id) {
     Operation *op = getOpForId(id);
-    if (!op) return cpp_atomic::MemoryOrder::NA;
+    if (!op) return std::nullopt;
     
     if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op))
       return cmpxchg.getSuccessOrder();
 
-    return cpp_atomic::MemoryOrder::NA;
+    return std::nullopt;
   }
 
-  cpp_atomic::MemoryOrder getFailureOrder(uint64_t id) {
+  std::optional<cpp_atomic::MemoryOrder> getFailureOrder(uint64_t id) {
     Operation *op = getOpForId(id);
-    if (!op) return cpp_atomic::MemoryOrder::NA;
+    if (!op) return std::nullopt;
     
     if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op))
       return cmpxchg.getFailureOrder();
 
-    return cpp_atomic::MemoryOrder::NA;
+    return std::nullopt;
   }
 
-  cpp_atomic::MemoryOrder getReadOrder(uint64_t id) {
+  std::optional<cpp_atomic::MemoryOrder> getReadOrder(uint64_t id) {
     Operation *op = getOpForId(id);
-    if (!op || !isReadEvent(id)) return cpp_atomic::MemoryOrder::NA;
+    if (!op || !isReadEvent(id)) return std::nullopt;
 
-    if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op)) // cmpxchg doesn't have a Read order, only Success and Failure
-      return cpp_atomic::MemoryOrder::NA;
+    cpp_atomic::MemoryOrder memOrder;
+    // If failure order stronger than success --> undefined behavior according to cppreference, 
+    // if equal to success order --> taking success order suffices obviously, 
+    // if failure is weaker than success regarding readOrder --> we take successOrder anyways
+    if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op)) {
+      memOrder = cmpxchg.getSuccessOrder();
+    } else {
+      memOrder = getCppMemoryOrder(op);
+    }
 
-    auto memOrder = getCppMemoryOrder(op);
     // C++ rules: The store part of an RMW only releases if the whole op is Release, AcqRel, or SeqCst
     switch(memOrder) {
       case cpp_atomic::MemoryOrder::NA: return cpp_atomic::MemoryOrder::NA;
@@ -146,19 +150,24 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       case cpp_atomic::MemoryOrder::Release: return cpp_atomic::MemoryOrder::Relaxed;
       
       case cpp_atomic::MemoryOrder::AcqRel:
+        return cpp_atomic::MemoryOrder::Acquire;
       case cpp_atomic::MemoryOrder::SeqCst:
-      return cpp_atomic::MemoryOrder::Acquire;
+        return cpp_atomic::MemoryOrder::SeqCst;
     }
   }
 
-  cpp_atomic::MemoryOrder getWriteOrder(uint64_t id) {
+  std::optional<cpp_atomic::MemoryOrder> getWriteOrder(uint64_t id) {
     Operation *op = getOpForId(id);
-    if (!op || !isWriteEvent(id)) return cpp_atomic::MemoryOrder::NA;
+    if (!op || !isWriteEvent(id)) return std::nullopt;
 
-    if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op)) // cmpxchg doesn't have a Write order, only Success and Failure
-      return cpp_atomic::MemoryOrder::NA;
+    cpp_atomic::MemoryOrder memOrder;
+    // FailureOrder is for load only, not RMW --> Write fully covered by SuccessOrder
+    if (auto cmpxchg = dyn_cast<cpp_atomic::AtomicCmpXchgOp>(op)) {
+      memOrder = cmpxchg.getSuccessOrder();
+    } else {
+      memOrder = getCppMemoryOrder(op);
+    }
 
-    auto memOrder = getCppMemoryOrder(op);
     // C++ rules: The store part of an RMW only releases if the whole op is Release, AcqRel, or SeqCst
     switch(memOrder) {
       case cpp_atomic::MemoryOrder::NA: return cpp_atomic::MemoryOrder::NA;
@@ -167,8 +176,9 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       case cpp_atomic::MemoryOrder::Release: return cpp_atomic::MemoryOrder::Release;
       
       case cpp_atomic::MemoryOrder::AcqRel:
+        return cpp_atomic::MemoryOrder::Release;
       case cpp_atomic::MemoryOrder::SeqCst:
-      return cpp_atomic::MemoryOrder::Release;
+        return cpp_atomic::MemoryOrder::SeqCst;
     }
   }
   /// ppo_rc11 for order
@@ -333,7 +343,7 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   }
   void updateOrderMatrix(const orb::Promotion &, Operation *, uint64_t, uint64_t,
                          orb::OrderMatrix &, AliasAnalysis &, DominanceInfo &,
-                         const orb::CallReachability &) const override {
+                         const orb::CallReachability &) override {
     llvm_unreachable("CppAtomic is never the synthesis target");
   }
 };
