@@ -555,6 +555,38 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return orb::EventOrder::Unordered;
   }
 
+  void updateOrderMatrix(const orb::Promotion &p, Operation *newOp,
+                         uint64_t idA, uint64_t idB, orb::OrderMatrix &mb,
+                         AliasAnalysis &aa, DominanceInfo &dom,
+                         const orb::CallReachability &reach) const override {
+    if (std::get_if<orb::Promotion::FenceAction>(&p.action)) {
+      mb.addFence(newOp, this, aa, dom, reach);
+      return;
+    }
+    const auto &ua = std::get<orb::Promotion::UpgradeAction>(p.action);
+    auto mo = static_cast<arm_atomic::MemoryOrder>(ua.targetMemoryOrder);
+    if (isa<arm_atomic::AtomicLoadOp>(ua.op)) {
+      if (mo == arm_atomic::MemoryOrder::AcquirePC) {
+        // [R & ACQPC];po;[W] — mark write-successors of idA as Ordered.
+        for (uint64_t x : mb.eventIds())
+          if (isWriteEvent(mb.getOpForId(x)))
+            mb.markOrdered(idA, x);
+      } else {
+        // Acquire/AcqRel — mark all successors of idA as Ordered.
+        for (uint64_t x : mb.eventIds())
+          mb.markOrdered(idA, x);
+      }
+    } else if (isa<arm_atomic::AtomicStoreOp>(ua.op)) {
+      // Release — mark all predecessors of idB as Ordered.
+      for (uint64_t x : mb.eventIds())
+        mb.markOrdered(x, idB);
+    } else {
+      // Fence upgrade: re-query all pairs involving the fence.
+      uint64_t fId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
+      mb.applyFenceUpgrade(mb.idxOf(fId), this, aa, dom, reach);
+    }
+  }
+
   void refineInitialOrderMatrix(orb::OrderMatrix &matrix) const override {
     matrix.closeTransitively();
   }

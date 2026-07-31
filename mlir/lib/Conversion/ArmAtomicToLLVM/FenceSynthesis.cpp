@@ -8,7 +8,6 @@
 
 #include "mlir/Conversion/ArmAtomicToLLVM/FenceSynthesis.h"
 #include "mlir/Analysis/AliasAnalysis.h"
-#include "mlir/Dialect/Orb/ArmAtomicDialect.h"
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/BuiltinAttributes.h"
@@ -51,7 +50,7 @@ struct FenceSynthesisPass
     auto reach = orb::computeCallReachability(module);
 
     // Find the single OrbAtomicDialectInterface registered in this module.
-    orb::OrbAtomicDialectInterface *iface = nullptr;
+    const orb::OrbAtomicDialectInterface *iface = nullptr;
     module.walk([&](Operation *op) -> WalkResult {
       if (!op->hasAttr(orb::kEventIdAttr))
         return WalkResult::advance();
@@ -233,27 +232,11 @@ struct FenceSynthesisPass
           }
 
           Operation *newOp = iface->applyPromotion(bestPromotion, builder);
-
-          if (const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(
-                  &bestPromotion.action)) {
-            if (isa<arm_atomic::AtomicLoadOp>(ua->op)) {
-              auto targetMO = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
-              if (targetMO == arm_atomic::MemoryOrder::AcquirePC)
-                mb.applyAcqPCUpgrade(mb.idxOf(idA), iface);
-              else
-                mb.applyAcqUpgrade(mb.idxOf(idA));
-            } else if (isa<arm_atomic::AtomicStoreOp>(ua->op))
-              mb.applyRelUpgrade(mb.idxOf(idB));
-            else { // fence upgrade
-              uint64_t fId = (ua->op == a) ? idA : idB;
-              mb.applyFenceUpgrade(mb.idxOf(fId), iface, aa, dom, reach);
-            }
-          } else {
-            assert(newOp && "applyPromotion must return the created fence op");
+          if (newOp)
             newOp->setAttr(orb::kEventIdAttr,
                            builder.getI64IntegerAttr(nextSynthId++));
-            mb.addFence(newOp, iface, aa, dom, reach);
-          }
+          iface->updateOrderMatrix(bestPromotion, newOp, idA, idB,
+                                   mb, aa, dom, reach);
 
           rebuildPressure();
           changed = true;

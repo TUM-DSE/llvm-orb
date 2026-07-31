@@ -108,14 +108,12 @@ public:
   /// Map event ID → matrix index. Asserts if id is not present.
   unsigned idxOf(uint64_t id) const;
 
-  void applyAcqUpgrade(unsigned aIdx);
-  // ARM-specific — called by ArmAtomicDialect.
-  void applyAcqPCUpgrade(unsigned aIdx, OrbAtomicDialectInterface *iface);
-  void applyRelUpgrade(unsigned bIdx);
-  void addFence(Operation *f, OrbAtomicDialectInterface *iface,
+  /// Set (idA, idB) to Ordered if currently Unordered; no-op otherwise.
+  void markOrdered(uint64_t idA, uint64_t idB);
+  void addFence(Operation *f, const OrbAtomicDialectInterface *iface,
                 AliasAnalysis &aa, DominanceInfo &dom,
                 const CallReachability &reach);
-  void applyFenceUpgrade(unsigned fIdx, OrbAtomicDialectInterface *iface,
+  void applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                          AliasAnalysis &aa, DominanceInfo &dom,
                          const CallReachability &reach);
   /// Close the Ordered relation transitively; call once on the initial matrix.
@@ -124,7 +122,7 @@ public:
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &,
-                                    OrbAtomicDialectInterface *,
+                                    const OrbAtomicDialectInterface *,
                                     const CallReachability &);
   // Flat n×n array of EventOrder (uint8_t), indexed by consecutive event indices.
   std::vector<EventOrder> matrix;
@@ -137,9 +135,9 @@ private:
     matrix[aIdx * n + bIdx] = order;
   }
   EventOrder queryOrder(Operation *a, Operation *b,
-                        OrbAtomicDialectInterface *iface,
+                        const OrbAtomicDialectInterface *iface,
                         AliasAnalysis &aa, DominanceInfo &dom) const;
-  void applyFenceClosure(unsigned fIdx, OrbAtomicDialectInterface *iface);
+  void applyFenceClosure(unsigned fIdx, const OrbAtomicDialectInterface *iface);
 };
 
 /// Per-dialect interface for atomic memory ordering analysis.
@@ -165,6 +163,13 @@ public:
   /// FenceAction: creates and returns the fence op. UpgradeAction: mutates in-place, returns nullptr.
   virtual Operation *applyPromotion(const Promotion &p,
                                     OpBuilder &builder) const = 0;
+  /// Update `mb` to reflect all new orderings introduced by `p`.
+  /// For FenceAction, `newOp` is the op returned by applyPromotion() with its
+  /// orb.event_id already set. For UpgradeAction, `newOp` is nullptr.
+  virtual void updateOrderMatrix(const Promotion &p, Operation *newOp,
+                                 uint64_t idA, uint64_t idB, OrderMatrix &mb,
+                                 AliasAnalysis &aa, DominanceInfo &dom,
+                                 const CallReachability &reach) const = 0;
   /// Apply model-specific derived orderings to the initial target matrix (e.g. lob* for ARM).
   virtual void refineInitialOrderMatrix(OrderMatrix &matrix) const {}
   /// Ordering for cross-region pairs where opCanReach() is true but getOrder() returned Unordered.
@@ -181,7 +186,7 @@ CallReachability computeCallReachability(ModuleOp module);
 /// Use this overload from passes that have already resolved the interface.
 OrderMatrix getOrderMatrix(ModuleOp module, AliasAnalysis &aliasAnalysis,
                            DominanceInfo &dominance,
-                           OrbAtomicDialectInterface *iface,
+                           const OrbAtomicDialectInterface *iface,
                            const CallReachability &reach);
 /// Auto-discovers the single registered OrbAtomicDialectInterface.
 /// Use this overload from dialect-agnostic analyses (e.g. OrderAnalysis).
