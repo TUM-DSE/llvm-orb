@@ -32,6 +32,15 @@ using namespace mlir;
 #define DEBUG_TYPE "local-alias-analysis"
 
 //===----------------------------------------------------------------------===//
+// Forward declarations
+//===----------------------------------------------------------------------===//
+
+static LogicalResult
+getAllocEffectFor(Value value,
+                 std::optional<MemoryEffects::EffectInstance> &effect,
+                 Operation *&allocScopeOp);
+
+//===----------------------------------------------------------------------===//
 // Underlying Address Computation
 //===----------------------------------------------------------------------===//
 
@@ -111,6 +120,78 @@ static void collectUnderlyingAddressValues(OpResult result, unsigned maxDepth,
     return collectUnderlyingAddressValues2(branch, RegionSuccessor::parent(),
                                            result, result.getResultNumber(),
                                            maxDepth, visited, output);
+  }
+
+  // Trace through single-store alloca slots: if this op reads from an alloca
+  // that has exactly one store, recurse on the stored value.
+  if (auto memEffect = dyn_cast<MemoryEffectOpInterface>(op)) {
+    SmallVector<MemoryEffects::EffectInstance> effects;
+    memEffect.getEffects(effects);
+    for (const auto &effect : effects) {
+      if (!isa<MemoryEffects::Read>(effect.getEffect()))
+        continue;
+      Value readAddr = effect.getValue();
+      if (!readAddr)
+        continue;
+
+      // Collect underlying addresses of the read address.
+      SmallVector<Value> addrValues;
+      collectUnderlyingAddressValues(readAddr, maxDepth - 1, visited,
+                                     addrValues);
+
+      for (Value addr : addrValues) {
+        // Must be a scoped alloca.
+        std::optional<MemoryEffects::EffectInstance> allocEffect;
+        Operation *allocScope = nullptr;
+        if (failed(getAllocEffectFor(addr, allocEffect, allocScope)))
+          continue;
+        if (!llvm::isa<SideEffects::AutomaticAllocationScopeResource>(
+                allocEffect->getResource()))
+          continue;
+
+        // Collect all values in the ViewLike equivalence class of the alloca.
+        SmallVector<Value> allocaViews;
+        allocaViews.push_back(addr);
+        for (unsigned i = 0; i < allocaViews.size(); ++i) {
+          for (Operation *user : allocaViews[i].getUsers()) {
+            if (auto view = dyn_cast<ViewLikeOpInterface>(user))
+              if (view.getViewSource() == allocaViews[i])
+                allocaViews.push_back(view.getViewDest());
+          }
+        }
+
+        // Find exactly one store to any view of this alloca.
+        Value storedValue;
+        unsigned storeCount = 0;
+        for (Value view : allocaViews) {
+          for (Operation *user : view.getUsers()) {
+            auto userMem = dyn_cast<MemoryEffectOpInterface>(user);
+            if (!userMem)
+              continue;
+            SmallVector<MemoryEffects::EffectInstance> userEffects;
+            userMem.getEffects(userEffects);
+            for (const auto &ue : userEffects) {
+              if (isa<MemoryEffects::Write>(ue.getEffect()) &&
+                  ue.getValue() == view) {
+                ++storeCount;
+                for (Value operand : user->getOperands()) {
+                  if (operand != view) {
+                    storedValue = operand;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if (storeCount == 1 && storedValue) {
+          LDBG() << "  Tracing through single-store alloca to: " << storedValue;
+          return collectUnderlyingAddressValues(storedValue, maxDepth - 1,
+                                                visited, output);
+        }
+      }
+    }
   }
 
   LDBG() << "  Adding result to output: " << result;
