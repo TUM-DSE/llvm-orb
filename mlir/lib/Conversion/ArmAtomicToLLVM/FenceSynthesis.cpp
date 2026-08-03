@@ -52,14 +52,20 @@ struct FenceSynthesisPass
     auto reach = orb::computeCallReachability(module);
 
     // Precompute loop depth per block for loop-aware cost model.
+    // Skip single-block regions (no loops possible) and regions whose
+    // blocks lack terminators (not valid CFG — e.g. CIR structured regions).
     llvm::DenseMap<Block *, unsigned> blockLoopDepth;
     module.walk([&](Operation *op) {
       auto callable = dyn_cast<CallableOpInterface>(op);
       if (!callable)
         return;
       Region *body = callable.getCallableRegion();
-      if (!body || body->empty())
+      if (!body || body->empty() || body->hasOneBlock())
         return;
+      // Verify all blocks have terminators (proper CFG).
+      for (Block &b : *body)
+        if (!b.getTerminator())
+          return;
       CFGLoopInfo li(dom.getDomTree(body));
       for (Block &b : *body)
         if (unsigned d = li.getLoopDepth(&b))
