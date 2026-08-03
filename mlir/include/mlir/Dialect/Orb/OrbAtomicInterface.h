@@ -52,7 +52,14 @@ struct Promotion {
     Operation *op;
     int targetMemoryOrder; ///< Dialect-specific memory order enum value.
   };
-  using Action = std::variant<FenceAction, UpgradeAction>;
+  /// Strengthen two ops at once (e.g. store→REL + load→ACQPC).
+  struct PairUpgradeAction {
+    Operation *op1;
+    int targetMemoryOrder1;
+    Operation *op2;
+    int targetMemoryOrder2;
+  };
+  using Action = std::variant<FenceAction, UpgradeAction, PairUpgradeAction>;
 
   Action action;
 };

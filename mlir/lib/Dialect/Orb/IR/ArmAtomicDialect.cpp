@@ -158,8 +158,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   ///
   /// Barrier ordered before
   /// bob1            = [codom([R & ACQ];amo;[W & REL])];po
-  ///                 | [W & REL];po;[R & ACQ]
-  ///                 | po;[W & REL] | [R & (ACQ | ACQ-PC)];po
+  ///                 | [W & REL];po;[R & ACQPC]
+  ///                 | po;[W & REL] | [R & (ACQ | ACQPC)];po
   ///
   /// NOTE: again split fences
   /// bob2            = po;[F & ACQREL]         // 1
@@ -257,15 +257,13 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
         return ret;
     }
 
-    // bob1: [R & (ACQ|ACQREL)];po — full acquire orders before all po-successors.
-    // bob1: [R & ACQPC];po;[W]   — ACQPC (LDAPR) orders only before writes.
+    // bob1: [R & (ACQ|ACQPC|ACQREL)];po — acquire/acquire-pc orders before all
+    // po-successors.
     if (isa<arm_atomic::AtomicLoadOp>(a)) {
       auto mo = getArmMemoryOrder(a);
       if (mo == arm_atomic::MemoryOrder::Acquire ||
+          mo == arm_atomic::MemoryOrder::AcquirePC ||
           mo == arm_atomic::MemoryOrder::AcqRel)
-        return orb::EventOrder::Ordered;
-      if (mo == arm_atomic::MemoryOrder::AcquirePC &&
-          isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b))
         return orb::EventOrder::Ordered;
     }
     // bob1: po;[W & (REL|ACQREL)]
@@ -275,15 +273,13 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
           mo == arm_atomic::MemoryOrder::AcqRel)
         return orb::EventOrder::Ordered;
     }
-    // stlr→ldar: [W & (REL|ACQREL)];po;[R & (ACQ|ACQPC|ACQREL)]
+    // bob1: [W & (REL|ACQREL)];po;[R & (ACQPC)]
     if (isa<arm_atomic::AtomicStoreOp>(a) && isa<arm_atomic::AtomicLoadOp>(b)) {
       auto moa = getArmMemoryOrder(a);
       auto mob = getArmMemoryOrder(b);
       if ((moa == arm_atomic::MemoryOrder::Release ||
            moa == arm_atomic::MemoryOrder::AcqRel) &&
-          (mob == arm_atomic::MemoryOrder::Acquire ||
-           mob == arm_atomic::MemoryOrder::AcquirePC ||
-           mob == arm_atomic::MemoryOrder::AcqRel))
+          (mob == arm_atomic::MemoryOrder::AcquirePC))
         return orb::EventOrder::Ordered;
     }
 
@@ -317,6 +313,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return {};
     llvm::SmallVector<orb::Promotion> options;
 
+    bool aIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(a);
     bool bIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b);
 
     // a is a load → offer ACQPC (cheap, orders before writes only) and/or ACQ (orders all).
@@ -348,6 +345,37 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
             {orb::Promotion::UpgradeAction{b, (int)arm_atomic::MemoryOrder::Release}});
     }
 
+    // a is a store, b is a load → offer paired REL+ACQPC promotion.
+    // bob1: [W & REL];po;[R & ACQPC] orders the pair in one step.
+    if (isa<arm_atomic::AtomicStoreOp>(a) && isa<arm_atomic::AtomicLoadOp>(b)) {
+      auto moA = getArmMemoryOrder(a);
+      auto moB = getArmMemoryOrder(b);
+      bool aAlreadyREL = moA == arm_atomic::MemoryOrder::Release ||
+                         moA == arm_atomic::MemoryOrder::AcqRel;
+      bool bAlreadyACQPC = moB == arm_atomic::MemoryOrder::AcquirePC ||
+                           moB == arm_atomic::MemoryOrder::Acquire ||
+                           moB == arm_atomic::MemoryOrder::AcqRel;
+      if (!aAlreadyREL && !bAlreadyACQPC) {
+        // Neither side upgraded yet → combined promotion.
+        options.push_back({orb::Promotion::PairUpgradeAction{
+            a, (int)arm_atomic::MemoryOrder::Release,
+            b, (int)arm_atomic::MemoryOrder::AcquirePC}});
+      } else if (!aAlreadyREL) {
+        // b is already ACQPC/ACQ → just upgrade a to REL.
+        options.push_back(
+            {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::Release}});
+      } else if (!bAlreadyACQPC) {
+        // a is already REL → just upgrade b to ACQPC.
+        options.push_back(
+            {orb::Promotion::UpgradeAction{b, (int)arm_atomic::MemoryOrder::AcquirePC}});
+      }
+      // Also offer standalone ACQ on b (stronger, covers all successors).
+      if (moB == arm_atomic::MemoryOrder::Relaxed ||
+          moB == arm_atomic::MemoryOrder::AcquirePC)
+        options.push_back(
+            {orb::Promotion::UpgradeAction{b, (int)arm_atomic::MemoryOrder::Acquire}});
+    }
+
     // Relaxed fence → offer Acquire, Release, and AcqRel upgrades.
     // Offer upgrades for existing fences. Relaxed fences can go to any order;
     // Acquire/Release fences can still be promoted to AcqRel.
@@ -375,7 +403,6 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     // DMB SY (AcqRel):  any;po;any  — always valid.
     // Offering all applicable types lets cost() pick the cheapest per fc.
     bool aIsRead  = isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a);
-    bool aIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(a);
 
     llvm::SmallVector<arm_atomic::MemoryOrder, 3> fenceMOs;
     if (aIsRead)
@@ -400,6 +427,12 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   }
 
   int cost(const orb::Promotion &p, const orb::CostContext &ctx) const override {
+    // PairUpgradeAction (store→REL + load→ACQPC): cheap paired access upgrade.
+    // Cost = 1: always preferred over fences and single-access upgrades that
+    // over-promote (e.g. full Acquire when ACQPC suffices).
+    if (std::get_if<orb::Promotion::PairUpgradeAction>(&p.action))
+      return 1;
+
     const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action);
     if (!ua) {
       // FenceAction: cost = fenceCostBase * hardwareMult * 1000 / coverage.
@@ -514,6 +547,16 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
                                                fa->insertBefore->getLoc(),
                                                mo, /*syncscope=*/StringAttr{});
     }
+    if (const auto *pa =
+            std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
+      if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(pa->op1))
+        store.setMemoryOrder(
+            static_cast<arm_atomic::MemoryOrder>(pa->targetMemoryOrder1));
+      if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(pa->op2))
+        load.setMemoryOrder(
+            static_cast<arm_atomic::MemoryOrder>(pa->targetMemoryOrder2));
+      return nullptr;
+    }
     if (const auto *ua =
             std::get_if<orb::Promotion::UpgradeAction>(&p.action)) {
       auto mo = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
@@ -563,23 +606,56 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       mb.addFence(newOp, this, aa, dom, reach);
       return;
     }
+    // PairUpgradeAction (store→REL + load→ACQPC): apply both sides.
+    if (const auto *pa =
+            std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
+      uint64_t storeId = (pa->op1 == mb.getOpForId(idA)) ? idA : idB;
+      uint64_t loadId  = (pa->op2 == mb.getOpForId(idA)) ? idA : idB;
+      // po;[W & REL] — all predecessors ordered with the store.
+      for (uint64_t x : mb.eventIds())
+        mb.markOrdered(x, storeId);
+      // [R & ACQPC];po — all successors ordered with the load.
+      for (uint64_t x : mb.eventIds())
+        mb.markOrdered(loadId, x);
+      // [W & REL];po;[R & ACQPC] — the pair itself.
+      mb.markOrdered(storeId, loadId);
+      return;
+    }
     const auto &ua = std::get<orb::Promotion::UpgradeAction>(p.action);
     auto mo = static_cast<arm_atomic::MemoryOrder>(ua.targetMemoryOrder);
     if (isa<arm_atomic::AtomicLoadOp>(ua.op)) {
+      uint64_t loadId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
       if (mo == arm_atomic::MemoryOrder::AcquirePC) {
-        // [R & ACQPC];po;[W] — mark write-successors of idA as Ordered.
+        // [R & ACQPC];po — mark all successors as Ordered.
         for (uint64_t x : mb.eventIds())
-          if (isWriteEvent(mb.getOpForId(x)))
-            mb.markOrdered(idA, x);
+          mb.markOrdered(loadId, x);
+        // [W & REL];po;[R & ACQPC] — mark REL/AcqRel store predecessors.
+        for (uint64_t x : mb.eventIds()) {
+          Operation *op = mb.getOpForId(x);
+          if (isa<arm_atomic::AtomicStoreOp>(op)) {
+            auto xmo = getArmMemoryOrder(op);
+            if (xmo == arm_atomic::MemoryOrder::Release ||
+                xmo == arm_atomic::MemoryOrder::AcqRel)
+              mb.markOrdered(x, loadId);
+          }
+        }
       } else {
-        // Acquire/AcqRel — mark all successors of idA as Ordered.
+        // Acquire/AcqRel — mark all successors as Ordered.
         for (uint64_t x : mb.eventIds())
-          mb.markOrdered(idA, x);
+          mb.markOrdered(loadId, x);
       }
     } else if (isa<arm_atomic::AtomicStoreOp>(ua.op)) {
-      // Release — mark all predecessors of idB as Ordered.
+      uint64_t storeId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
+      // po;[W & REL] — mark all predecessors as Ordered.
       for (uint64_t x : mb.eventIds())
-        mb.markOrdered(x, idB);
+        mb.markOrdered(x, storeId);
+      // [W & REL];po;[R & ACQPC] — mark ACQPC load successors.
+      for (uint64_t x : mb.eventIds()) {
+        Operation *op = mb.getOpForId(x);
+        if (isa<arm_atomic::AtomicLoadOp>(op) &&
+            getArmMemoryOrder(op) == arm_atomic::MemoryOrder::AcquirePC)
+          mb.markOrdered(storeId, x);
+      }
     } else {
       // Fence upgrade: re-query all pairs involving the fence.
       uint64_t fId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
