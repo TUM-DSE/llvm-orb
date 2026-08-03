@@ -30,6 +30,7 @@
           ];
 
           hardeningDisable = [ "all" ];
+          enableParallelBuilding = true;
 
           configurePhase = ''
             cmake -S llvm -B build \
