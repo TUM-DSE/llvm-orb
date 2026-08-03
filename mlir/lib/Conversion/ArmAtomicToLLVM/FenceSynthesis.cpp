@@ -8,10 +8,12 @@
 
 #include "mlir/Conversion/ArmAtomicToLLVM/FenceSynthesis.h"
 #include "mlir/Analysis/AliasAnalysis.h"
+#include "mlir/Analysis/CFGLoopInfo.h"
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/Dominance.h"
+#include "mlir/Interfaces/CallInterfaces.h"
 #include "mlir/Pass/Pass.h"
 #include <chrono>
 
@@ -48,6 +50,21 @@ struct FenceSynthesisPass
 
     // Precomputed reachability — stable across synthesis iterations.
     auto reach = orb::computeCallReachability(module);
+
+    // Precompute loop depth per block for loop-aware cost model.
+    llvm::DenseMap<Block *, unsigned> blockLoopDepth;
+    module.walk([&](Operation *op) {
+      auto callable = dyn_cast<CallableOpInterface>(op);
+      if (!callable)
+        return;
+      Region *body = callable.getCallableRegion();
+      if (!body || body->empty())
+        return;
+      CFGLoopInfo li(dom.getDomTree(body));
+      for (Block &b : *body)
+        if (unsigned d = li.getLoopDepth(&b))
+          blockLoopDepth[&b] = d;
+    });
 
     // Find the single OrbAtomicDialectInterface registered in this module.
     const orb::OrbAtomicDialectInterface *iface = nullptr;
@@ -218,6 +235,16 @@ struct FenceSynthesisPass
                                colWritePressure[idB], fenceCostBase,
                                (unsigned)mb.eventIds().size()};
           for (auto &p : iface->promote(idA, a, idB, b)) {
+            // Set loop depth on the promotion from its target operation.
+            if (auto *fa = std::get_if<orb::Promotion::FenceAction>(&p.action))
+              p.loopDepth =
+                  blockLoopDepth.lookup(fa->insertBefore->getBlock());
+            else if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action))
+              p.loopDepth = blockLoopDepth.lookup(ua->op->getBlock());
+            else if (auto *pa = std::get_if<orb::Promotion::PairUpgradeAction>(&p.action))
+              p.loopDepth =
+                  std::max(blockLoopDepth.lookup(pa->op1->getBlock()),
+                           blockLoopDepth.lookup(pa->op2->getBlock()));
             int score = iface->cost(p, ctx);
             if (score < bestScore) {
               bestScore = score;

@@ -62,6 +62,7 @@ struct Promotion {
   using Action = std::variant<FenceAction, UpgradeAction, PairUpgradeAction>;
 
   Action action;
+  unsigned loopDepth = 0; ///< Loop depth of the promotion's target op.
 };
 
 /// Coverage context passed to cost(). Precomputed by FenceSynthesisPass.

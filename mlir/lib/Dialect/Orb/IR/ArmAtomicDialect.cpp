@@ -471,7 +471,10 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       }
       // +1: ensures new fence insertion is always slightly more expensive than
       // upgrading an existing fence to the same memory order (same formula, no +1).
+      // Loop penalty: fences are pipeline drains (~20-60 cycles each), so their
+      // cost scales aggressively with loop depth (K_fence=4).
       long long raw = (long long)ctx.fenceCostBase * hw * 1000 / cov + 1;
+      raw *= (1 + p.loopDepth * 4);
       return (int)std::min(raw, (long long)std::numeric_limits<int>::max());
     }
     auto mo = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
@@ -496,6 +499,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
         cov = std::max(ctx.rowPressure + ctx.colPressure, 1u); hw = 2; break;
       }
       long long raw = (long long)ctx.fenceCostBase * hw * 1000 / cov; // no +1
+      raw *= (1 + p.loopDepth * 4); // fence loop penalty
       return (int)std::min(raw, (long long)std::numeric_limits<int>::max());
     }
 
@@ -519,20 +523,23 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       int waste = (int)ctx.numEvents - 1 - (int)covered;
       return waste > 0 ? 1000 * waste / ((int)ctx.numEvents - 1) : 0;
     };
+    // Access upgrades scale mildly with loop depth (K_access=1): LDAR/STLR
+    // have near-zero extra cost per iteration vs plain LDR/STR.
+    int loopMult = 1 + (int)p.loopDepth;
     switch (mo) {
     case arm_atomic::MemoryOrder::AcquirePC: {
       int deficiency = ctx.rowPressure > 0
           ? 1000 * (int)(ctx.rowPressure - ctx.rowWritePressure) / (int)ctx.rowPressure
           : 0;
-      return 1000 / (int)std::max(ctx.rowWritePressure, 1u) + deficiency;
+      return (1000 / (int)std::max(ctx.rowWritePressure, 1u) + deficiency) * loopMult;
     }
     case arm_atomic::MemoryOrder::Acquire:
-      return 1000 / (int)std::max(ctx.rowPressure, 1u) + collateral(ctx.rowPressure);
+      return (1000 / (int)std::max(ctx.rowPressure, 1u) + collateral(ctx.rowPressure)) * loopMult;
     case arm_atomic::MemoryOrder::Release:
-      return 1000 / (int)std::max(ctx.colPressure, 1u) + collateral(ctx.colPressure);
+      return (1000 / (int)std::max(ctx.colPressure, 1u) + collateral(ctx.colPressure)) * loopMult;
     default: { // AcqRel
       unsigned cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
-      return 1000 / (int)cov + collateral(cov);
+      return (1000 / (int)cov + collateral(cov)) * loopMult;
     }
     }
   }
