@@ -273,13 +273,14 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
           mo == arm_atomic::MemoryOrder::AcqRel)
         return orb::EventOrder::Ordered;
     }
-    // bob1: [W & (REL|ACQREL)];po;[R & (ACQPC)]
+    // bob: [L];po;[A] — STLR→LDAR ordering (aarch64.cat line 129).
     if (isa<arm_atomic::AtomicStoreOp>(a) && isa<arm_atomic::AtomicLoadOp>(b)) {
       auto moa = getArmMemoryOrder(a);
       auto mob = getArmMemoryOrder(b);
       if ((moa == arm_atomic::MemoryOrder::Release ||
            moa == arm_atomic::MemoryOrder::AcqRel) &&
-          (mob == arm_atomic::MemoryOrder::AcquirePC))
+          (mob == arm_atomic::MemoryOrder::Acquire ||
+           mob == arm_atomic::MemoryOrder::AcqRel))
         return orb::EventOrder::Ordered;
     }
 
@@ -618,25 +619,24 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
             std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
       uint64_t storeId = (pa->op1 == mb.getOpForId(idA)) ? idA : idB;
       uint64_t loadId  = (pa->op2 == mb.getOpForId(idA)) ? idA : idB;
-      // po;[W & REL] — all predecessors ordered with the store.
+      // po;[L] — all predecessors ordered with the store.
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(x, storeId);
-      // [R & ACQPC];po — all successors ordered with the load.
+      // [A|Q];po — all successors ordered with the load.
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(loadId, x);
-      // [W & REL];po;[R & ACQPC] — the pair itself.
-      mb.markOrdered(storeId, loadId);
       return;
     }
     const auto &ua = std::get<orb::Promotion::UpgradeAction>(p.action);
     auto mo = static_cast<arm_atomic::MemoryOrder>(ua.targetMemoryOrder);
     if (isa<arm_atomic::AtomicLoadOp>(ua.op)) {
       uint64_t loadId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
-      if (mo == arm_atomic::MemoryOrder::AcquirePC) {
-        // [R & ACQPC];po — mark all successors as Ordered.
-        for (uint64_t x : mb.eventIds())
-          mb.markOrdered(loadId, x);
-        // [W & REL];po;[R & ACQPC] — mark REL/AcqRel store predecessors.
+      // [A|Q];po — mark all successors as Ordered.
+      for (uint64_t x : mb.eventIds())
+        mb.markOrdered(loadId, x);
+      // [L];po;[A] — if upgraded to ACQ/AcqRel, mark REL store predecessors.
+      if (mo == arm_atomic::MemoryOrder::Acquire ||
+          mo == arm_atomic::MemoryOrder::AcqRel) {
         for (uint64_t x : mb.eventIds()) {
           Operation *op = mb.getOpForId(x);
           if (isa<arm_atomic::AtomicStoreOp>(op)) {
@@ -646,22 +646,21 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
               mb.markOrdered(x, loadId);
           }
         }
-      } else {
-        // Acquire/AcqRel — mark all successors as Ordered.
-        for (uint64_t x : mb.eventIds())
-          mb.markOrdered(loadId, x);
       }
     } else if (isa<arm_atomic::AtomicStoreOp>(ua.op)) {
       uint64_t storeId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
       // po;[W & REL] — mark all predecessors as Ordered.
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(x, storeId);
-      // [W & REL];po;[R & ACQPC] — mark ACQPC load successors.
+      // [L];po;[A] — mark ACQ/AcqRel load successors.
       for (uint64_t x : mb.eventIds()) {
         Operation *op = mb.getOpForId(x);
-        if (isa<arm_atomic::AtomicLoadOp>(op) &&
-            getArmMemoryOrder(op) == arm_atomic::MemoryOrder::AcquirePC)
-          mb.markOrdered(storeId, x);
+        if (isa<arm_atomic::AtomicLoadOp>(op)) {
+          auto xmo = getArmMemoryOrder(op);
+          if (xmo == arm_atomic::MemoryOrder::Acquire ||
+              xmo == arm_atomic::MemoryOrder::AcqRel)
+            mb.markOrdered(storeId, x);
+        }
       }
     } else {
       // Fence upgrade: re-query all pairs involving the fence.
