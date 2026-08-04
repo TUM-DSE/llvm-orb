@@ -101,14 +101,10 @@ void OrderMatrix::closeTransitively() {
   bool changed = true;
   while (changed) {
     changed = false;
-    // Reverse walk order ≈ reverse topological: by the time we process c,
-    // orderedAfter[c] already contains the full reachable set from c,
-    // so one pass suffices for a DAG.
     for (int c = (int)n - 1; c >= 0; --c) {
       for (unsigned a = 0; a < n; ++a) {
         if ((unsigned)c == a || !orderedAfter[a].test(c))
           continue;
-        // (a,c) Ordered: propagate c's orderings to a for Unordered cells.
         for (int b = orderedAfter[c].find_first(); b != -1;
              b = orderedAfter[c].find_next(b)) {
           if ((unsigned)b == a || orderedAfter[a].test(b))
@@ -123,7 +119,11 @@ void OrderMatrix::closeTransitively() {
       }
     }
   }
-  llvm::errs() << "[FenceSynthesis] lob* closure: n=" << n << " added=" << added << "\n";
+  if (!closureReported) {
+    llvm::errs() << "[FenceSynthesis] lob* closure: n=" << n
+                 << " added=" << added << "\n";
+    closureReported = true;
+  }
 }
 
 void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,

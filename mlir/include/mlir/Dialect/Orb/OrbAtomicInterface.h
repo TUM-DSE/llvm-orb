@@ -138,6 +138,7 @@ private:
   llvm::DenseMap<uint64_t, Operation *> idToOp;
   llvm::SmallVector<uint64_t> ids;
   unsigned n = 0;
+  bool closureReported = false;
 
   void setOrder(unsigned aIdx, unsigned bIdx, EventOrder order) {
     matrix[aIdx * n + bIdx] = order;
