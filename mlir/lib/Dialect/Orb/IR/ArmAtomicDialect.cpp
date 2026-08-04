@@ -78,6 +78,15 @@ static bool transitivelyReaches(ValueRange sources, Value target, Operation *b,
   return false;
 }
 
+/// Returns the address operand of a memory event, or {} for fences.
+static Value getMemoryAddress(Operation *op) {
+  if (auto ld = dyn_cast<arm_atomic::AtomicLoadOp>(op))  return ld.getAddr();
+  if (auto st = dyn_cast<arm_atomic::AtomicStoreOp>(op)) return st.getAddr();
+  if (auto ld = dyn_cast<ptr::LoadOp>(op))               return ld.getPtr();
+  if (auto st = dyn_cast<ptr::StoreOp>(op))               return st.getPtr();
+  return {};
+}
+
 /// Returns the ArmMemoryOrder of an arm_atomic memory event op.
 static arm_atomic::MemoryOrder getArmMemoryOrder(Operation *op) {
   // There is no MO_na in Arm
@@ -281,6 +290,15 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
            moa == arm_atomic::MemoryOrder::AcqRel) &&
           (mob == arm_atomic::MemoryOrder::Acquire ||
            mob == arm_atomic::MemoryOrder::AcqRel))
+        return orb::EventOrder::Ordered;
+    }
+
+    // lwfs: [M];po-loc;[W] — any memory event before a same-address write.
+    if (isWriteEvent(b)) {
+      Value addrA = getMemoryAddress(a);
+      Value addrB = getMemoryAddress(b);
+      if (addrA && addrB &&
+          (addrA == addrB || aliasAnalysis.alias(addrA, addrB).isMust()))
         return orb::EventOrder::Ordered;
     }
 
