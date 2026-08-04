@@ -16,7 +16,9 @@
 #include "mlir/Interfaces/CallInterfaces.h"
 #include "mlir/Pass/Pass.h"
 #include "llvm/Support/Path.h"
+#include "llvm/Support/raw_ostream.h"
 #include <chrono>
+#include <cstdlib>
 
 namespace mlir {
 
@@ -25,6 +27,19 @@ namespace mlir {
 #include "mlir/Conversion/Passes.h.inc"
 
 namespace {
+
+/// Tee stream: writes to both stderr and an optional file.
+struct SynthLogStream {
+  llvm::raw_ostream *file;
+  const std::string &tag;
+  bool started = false;
+  template <typename T> SynthLogStream &operator<<(const T &v) {
+    if (!started) { llvm::errs() << tag; if (file) *file << tag; started = true; }
+    llvm::errs() << v;
+    if (file) *file << v;
+    return *this;
+  }
+};
 
 struct FenceSynthesisPass
     : impl::FenceSynthesisPassBase<FenceSynthesisPass> {
@@ -53,14 +68,26 @@ struct FenceSynthesisPass
               mlir::SymbolTable::getSymbolAttrName()))
         moduleHash = llvm::hash_combine(moduleHash, sym);
     });
-    std::string tag = "[FenceSynthesis] <" + moduleName.str() + ":" +
-                      llvm::utohexstr(static_cast<uint32_t>(moduleHash) & 0xFFFF,
-                                      /*LowerCase=*/true) +
-                      "> ";
+    std::string tagId = moduleName.str() + ":" +
+                        llvm::utohexstr(static_cast<uint32_t>(moduleHash) & 0xFFFF,
+                                        /*LowerCase=*/true);
+    std::string tag = "[FenceSynthesis] <" + tagId + "> ";
 
-    llvm::errs() << tag << "start fenceCostBase=" << fenceCostBase << "\n";
+    // If ORB_SYNTH_LOG is set, write synthesis log to a per-module file.
+    std::unique_ptr<llvm::raw_fd_ostream> synthLog;
+    if (const char *dir = std::getenv("ORB_SYNTH_LOG")) {
+      std::string path = std::string(dir) + "/" + tagId + ".log";
+      std::error_code ec;
+      synthLog = std::make_unique<llvm::raw_fd_ostream>(path, ec,
+                                                         llvm::sys::fs::OF_Append);
+      if (ec)
+        synthLog.reset();
+    }
+    auto log = [&]() -> SynthLogStream { return {synthLog.get(), tag}; };
+
+    log() << "start fenceCostBase=" << fenceCostBase << "\n";
     auto &required = getAnalysis<orb::OrderAnalysis>();
-    llvm::errs() << tag << "required pairs=" << required.requiredPairs().size() << "\n";
+    log() << "required pairs=" << required.requiredPairs().size() << "\n";
     if (required.empty())
       return;
 
@@ -105,7 +132,7 @@ struct FenceSynthesisPass
       return WalkResult::advance();
     });
     if (!iface) {
-      llvm::errs() << tag << "ERROR: no OrbAtomicDialectInterface found\n";
+      log() << "ERROR: no OrbAtomicDialectInterface found\n";
       signalPassFailure();
       return;
     }
@@ -246,7 +273,7 @@ struct FenceSynthesisPass
           {
             unsigned covered, overspecified;
             countOrdered(covered, overspecified);
-            llvm::errs() << tag << "ordered=" << covered << "/" << total
+            log() << "ordered=" << covered << "/" << total
                          << " overspecified=" << overspecified
                          << " t=" << elapsedMs() << "ms\n";
           }
@@ -278,7 +305,7 @@ struct FenceSynthesisPass
             }
           }
           if (bestScore == std::numeric_limits<int>::max()) {
-            llvm::errs() << tag << "ERROR: no promotion for pair ("
+            log() << "ERROR: no promotion for pair ("
                          << idA << ", " << idB << ") — aborting\n";
             signalPassFailure();
             return;
@@ -306,7 +333,7 @@ struct FenceSynthesisPass
       if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
         ++remaining;
     }
-    llvm::errs() << tag << "done ordered=" << covered << "/" << total
+    log() << "done ordered=" << covered << "/" << total
                  << " overspecified=" << overspecified
                  << " fIgn=" << fIgn.size()
                  << " remaining=" << remaining
