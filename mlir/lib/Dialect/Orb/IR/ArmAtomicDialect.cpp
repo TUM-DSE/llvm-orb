@@ -371,6 +371,17 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       else if (!bIsAcq)
         options.push_back(
             {orb::Promotion::UpgradeAction{b, (int)arm_atomic::MemoryOrder::AcquirePC}});
+      // [L];po;[A]: offer upgrade path toward STLR→LDAR ordering.
+      if (moB != arm_atomic::MemoryOrder::Acquire &&
+          moB != arm_atomic::MemoryOrder::AcqRel) {
+        if (aIsREL)
+          options.push_back(
+              {orb::Promotion::UpgradeAction{b, (int)arm_atomic::MemoryOrder::Acquire}});
+        else
+          options.push_back({orb::Promotion::PairUpgradeAction{
+              a, (int)arm_atomic::MemoryOrder::Release,
+              b, (int)arm_atomic::MemoryOrder::Acquire}});
+      }
     }
 
     // --- Fence upgrades ---
