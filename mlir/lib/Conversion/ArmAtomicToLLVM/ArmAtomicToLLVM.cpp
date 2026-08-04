@@ -81,11 +81,16 @@ struct AtomicLoadLowering
       }
     }
 
+    // AcquirePC → LLVM acquire → LDAPR (with +rcpc).
+    // Acquire   → LLVM seq_cst → LDAR.
+    auto ordering = op.getMemoryOrder() == arm_atomic::MemoryOrder::Acquire
+                        ? LLVM::AtomicOrdering::seq_cst
+                        : toAtomicOrdering(op.getMemoryOrder());
     rewriter.replaceOpWithNewOp<LLVM::LoadOp>(
         op, resultTy, adaptor.getAddr(), align,
         /*isVolatile=*/false, /*isNonTemporal=*/false,
         /*isInvariant=*/false, /*isInvariantGroup=*/false,
-        toAtomicOrdering(op.getMemoryOrder()));
+        ordering);
     return success();
   }
 };
