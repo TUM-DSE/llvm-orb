@@ -481,8 +481,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return (1000 / (int)std::max(ctx.rowPressure, 1u) + collateral(ctx.rowPressure) - 1) * loopMult;
     case arm_atomic::MemoryOrder::Acquire:   // LDAR
       return (1000 / (int)std::max(ctx.rowPressure, 1u) + collateral(ctx.rowPressure)) * loopMult;
-    case arm_atomic::MemoryOrder::Release:   // STLR
-      return (1000 / (int)std::max(ctx.colPressure, 1u) + collateral(ctx.colPressure)) * loopMult;
+    case arm_atomic::MemoryOrder::Release:   // STLR — store buffer drain, costlier than LDAPR
+      return (1000 / (int)std::max(ctx.colPressure, 1u) + collateral(ctx.colPressure)) * loopMult * 3;
     default: { // AcqRel
       unsigned cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
       return (1000 / (int)cov + collateral(cov)) * loopMult;
