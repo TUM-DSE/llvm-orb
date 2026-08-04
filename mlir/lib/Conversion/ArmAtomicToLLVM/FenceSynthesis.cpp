@@ -15,6 +15,7 @@
 #include "mlir/IR/Dominance.h"
 #include "mlir/Interfaces/CallInterfaces.h"
 #include "mlir/Pass/Pass.h"
+#include "llvm/Support/Path.h"
 #include <chrono>
 
 namespace mlir {
@@ -38,9 +39,28 @@ struct FenceSynthesisPass
                  std::chrono::steady_clock::now() - synthStart)
           .count();
     };
-    llvm::errs() << "[FenceSynthesis] start fenceCostBase=" << fenceCostBase << "\n";
+    // Build log tag from source filename + symbol hash for disambiguation.
+    // Same source compiled with different defines (e.g. -DRCU_MB) produces
+    // different symbol sets, so hashing symbol names yields a unique tag.
+    StringRef moduleName = "<unknown>";
+    if (auto name = module.getName())
+      moduleName = llvm::sys::path::filename(*name);
+    else if (auto fileLoc = dyn_cast<FileLineColLoc>(module->getLoc()))
+      moduleName = llvm::sys::path::filename(fileLoc.getFilename());
+    llvm::hash_code moduleHash = llvm::hash_value(moduleName);
+    module.walk([&](Operation *op) {
+      if (auto sym = op->getAttrOfType<StringAttr>(
+              mlir::SymbolTable::getSymbolAttrName()))
+        moduleHash = llvm::hash_combine(moduleHash, sym);
+    });
+    std::string tag = "[FenceSynthesis] <" + moduleName.str() + ":" +
+                      llvm::utohexstr(static_cast<uint32_t>(moduleHash) & 0xFFFF,
+                                      /*LowerCase=*/true) +
+                      "> ";
+
+    llvm::errs() << tag << "start fenceCostBase=" << fenceCostBase << "\n";
     auto &required = getAnalysis<orb::OrderAnalysis>();
-    llvm::errs() << "[FenceSynthesis] required pairs=" << required.requiredPairs().size() << "\n";
+    llvm::errs() << tag << "required pairs=" << required.requiredPairs().size() << "\n";
     if (required.empty())
       return;
 
@@ -85,7 +105,7 @@ struct FenceSynthesisPass
       return WalkResult::advance();
     });
     if (!iface) {
-      llvm::errs() << "[FenceSynthesis] ERROR: no OrbAtomicDialectInterface found\n";
+      llvm::errs() << tag << "ERROR: no OrbAtomicDialectInterface found\n";
       signalPassFailure();
       return;
     }
@@ -226,7 +246,7 @@ struct FenceSynthesisPass
           {
             unsigned covered, overspecified;
             countOrdered(covered, overspecified);
-            llvm::errs() << "[FenceSynthesis] ordered=" << covered << "/" << total
+            llvm::errs() << tag << "ordered=" << covered << "/" << total
                          << " overspecified=" << overspecified
                          << " t=" << elapsedMs() << "ms\n";
           }
@@ -258,7 +278,7 @@ struct FenceSynthesisPass
             }
           }
           if (bestScore == std::numeric_limits<int>::max()) {
-            llvm::errs() << "[FenceSynthesis] ERROR: no promotion for pair ("
+            llvm::errs() << tag << "ERROR: no promotion for pair ("
                          << idA << ", " << idB << ") — aborting\n";
             signalPassFailure();
             return;
@@ -286,7 +306,7 @@ struct FenceSynthesisPass
       if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
         ++remaining;
     }
-    llvm::errs() << "[FenceSynthesis] done ordered=" << covered << "/" << total
+    llvm::errs() << tag << "done ordered=" << covered << "/" << total
                  << " overspecified=" << overspecified
                  << " fIgn=" << fIgn.size()
                  << " remaining=" << remaining
