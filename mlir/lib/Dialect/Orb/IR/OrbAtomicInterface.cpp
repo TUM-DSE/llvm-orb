@@ -46,9 +46,12 @@ void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
   auto itA = idToIdx.find(idA), itB = idToIdx.find(idB);
   if (itA == idToIdx.end() || itB == idToIdx.end())
     return;
-  auto &cell = matrix[itA->second * n + itB->second];
-  if (cell == EventOrder::Unordered)
+  unsigned aIdx = itA->second, bIdx = itB->second;
+  auto &cell = matrix[aIdx * n + bIdx];
+  if (cell == EventOrder::Unordered) {
     cell = EventOrder::Ordered;
+    pendingEdges.push_back({aIdx, bIdx});
+  }
 }
 
 void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
@@ -80,9 +83,9 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     Operation *ev = idToOp.lookup(ids[evIdx]);
     Region *rEv = ev->getBlock()->getParent();
     if (rEv == rF || reach.reaches(rEv, rF))
-      matrix[evIdx * n + fIdx] = queryOrder(ev, f, iface, aa, dom);
+      setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
     if (reach.opCanReach(f, rEv, dom))
-      matrix[fIdx * n + evIdx] = queryOrder(f, ev, iface, aa, dom);
+      setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
   }
   applyFenceClosure(fIdx, iface);
 }
@@ -119,11 +122,38 @@ void OrderMatrix::closeTransitively() {
       }
     }
   }
+  pendingEdges.clear(); // Full closure consumed all edges.
   if (!closureReported) {
     llvm::errs() << "[FenceSynthesis] lob* closure: n=" << n
                  << " added=" << added << "\n";
     closureReported = true;
   }
+}
+
+void OrderMatrix::closeIncrementally() {
+  // Propagate only newly added edges (from markOrdered) transitively.
+  // Each edge is processed at most once; processing is O(n) per edge.
+  unsigned idx = 0;
+  while (idx < pendingEdges.size()) {
+    auto [a, b] = pendingEdges[idx++];
+    // Forward: a→b, b→c ⟹ a→c
+    for (unsigned c = 0; c < n; ++c) {
+      if (c != a && matrix[b * n + c] == EventOrder::Ordered &&
+          matrix[a * n + c] != EventOrder::Ordered) {
+        matrix[a * n + c] = EventOrder::Ordered;
+        pendingEdges.push_back({a, c});
+      }
+    }
+    // Backward: c→a, a→b ⟹ c→b
+    for (unsigned c = 0; c < n; ++c) {
+      if (c != b && matrix[c * n + a] == EventOrder::Ordered &&
+          matrix[c * n + b] != EventOrder::Ordered) {
+        matrix[c * n + b] = EventOrder::Ordered;
+        pendingEdges.push_back({c, b});
+      }
+    }
+  }
+  pendingEdges.clear();
 }
 
 void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
@@ -137,9 +167,9 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
     Operation *ev = idToOp.lookup(ids[evIdx]);
     Region *rEv = ev->getBlock()->getParent();
     if (rEv == rF || reach.reaches(rEv, rF))
-      matrix[evIdx * n + fIdx] = queryOrder(ev, f, iface, aa, dom);
+      setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
     if (reach.opCanReach(f, rEv, dom))
-      matrix[fIdx * n + evIdx] = queryOrder(f, ev, iface, aa, dom);
+      setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
   }
   applyFenceClosure(fIdx, iface);
 }
@@ -285,7 +315,7 @@ void OrderMatrix::applyFenceClosure(unsigned fIdx,
         continue;
       Operation *b = idToOp.lookup(ids[bIdx]);
       if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
-        matrix[aIdx * n + bIdx] = EventOrder::Ordered;
+        setOrderTracked(aIdx, bIdx, EventOrder::Ordered);
     }
   }
 }

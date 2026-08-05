@@ -317,7 +317,7 @@ struct FenceSynthesisPass
                            builder.getI64IntegerAttr(nextSynthId++));
           iface->updateOrderMatrix(bestPromotion, newOp, idA, idB,
                                    mb, aa, dom, reach);
-          mb.closeTransitively();
+          mb.closeIncrementally();
 
           rebuildPressure();
           changed = true;

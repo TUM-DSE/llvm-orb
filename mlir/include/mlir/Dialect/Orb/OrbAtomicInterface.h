@@ -126,6 +126,8 @@ public:
                          const CallReachability &reach);
   /// Close the Ordered relation transitively; call once on the initial matrix.
   void closeTransitively();
+  /// Incrementally propagate only edges added since the last closure call.
+  void closeIncrementally();
 
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
@@ -139,9 +141,20 @@ private:
   llvm::SmallVector<uint64_t> ids;
   unsigned n = 0;
   bool closureReported = false;
+  llvm::SmallVector<std::pair<unsigned, unsigned>> pendingEdges;
 
   void setOrder(unsigned aIdx, unsigned bIdx, EventOrder order) {
     matrix[aIdx * n + bIdx] = order;
+  }
+  /// Set order and track the edge for incremental closure.
+  void setOrderTracked(unsigned aIdx, unsigned bIdx, EventOrder order) {
+    auto &cell = matrix[aIdx * n + bIdx];
+    if (cell != order && order == EventOrder::Ordered) {
+      cell = order;
+      pendingEdges.push_back({aIdx, bIdx});
+    } else {
+      cell = order;
+    }
   }
   EventOrder queryOrder(Operation *a, Operation *b,
                         const OrbAtomicDialectInterface *iface,
