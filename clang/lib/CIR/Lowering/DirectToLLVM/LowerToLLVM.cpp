@@ -5047,12 +5047,10 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
   mlir::MLIRContext *mlirCtx = mlirModule.getContext();
 
   if (useOrb && useNaiveOrb) {
-    llvm::report_fatal_error(
-        "Cannot specify both the advanced ORB pipeline (-use-orb) 
-        and the Naive ORB pipeline (-use-naive-orb)!");
+    llvm::report_fatal_error("Cannot specify both the advanced ORB pipeline (-use-orb) and the Naive ORB pipeline (-use-naive-orb)!");
   }
 
-  bool useAnyOrb = useOrb || UseNaiveOrb;
+  bool useAnyOrb = useOrb || useNaiveOrb;
 
   mlir::PassManager pm(mlirCtx);
   if (useAnyOrb) {

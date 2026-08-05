@@ -77,16 +77,24 @@ convertCIRFenceOrder(cir::MemOrder order) {
 struct LoadRewriter : public OpConversionPattern<ptr::LoadOp> {
   using OpConversionPattern::OpConversionPattern;
 
-  LogicalResult matchAndRewrite(ptr::LoadOp op, OpAdaptor adaptor,
+  LogicalResult matchAndRewrite(ptr::LoadOp loadOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    auto order = convertPtrOrder(op.getOrdering());
-    IntegerAttr alignAttr;
-    if (auto a = op.getAlignment())
-      alignAttr = rewriter.getI64IntegerAttr(*a);
+    auto memOrder = convertPtrOrder(loadOp.getOrdering());
+
+    uint64_t align = loadOp.getAlignment().value_or(0);
+
+    if (align == 0) {
+      return rewriter.notifyMatchFailure(
+          loadOp, "Atomic operations strictly require a non-zero alignment.");
+    }
+
+    // TODO: isDeref was destroyed by the cir-to-ptr pass, so it is always false here
+    bool isDeref = false;
+    bool isVolatile = loadOp.getVolatile_();
 
     // ptr::LoadOp operand is named $ptr
     rewriter.replaceOpWithNewOp<cpp_atomic::AtomicLoadOp>(
-        op, op.getValue().getType(), adaptor.getPtr(), order, alignAttr);
+        loadOp, loadOp.getValue().getType(), adaptor.getPtr(), memOrder, align, isDeref, isVolatile);
     return success();
   }
 };
@@ -95,16 +103,22 @@ struct LoadRewriter : public OpConversionPattern<ptr::LoadOp> {
 struct StoreRewriter : public OpConversionPattern<ptr::StoreOp> {
   using OpConversionPattern::OpConversionPattern;
 
-  LogicalResult matchAndRewrite(ptr::StoreOp op, OpAdaptor adaptor,
+  LogicalResult matchAndRewrite(ptr::StoreOp storeOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    auto order = convertPtrOrder(op.getOrdering());
-    IntegerAttr alignAttr;
-    if (auto a = op.getAlignment())
-      alignAttr = rewriter.getI64IntegerAttr(*a);
+    auto memOrder = convertPtrOrder(storeOp.getOrdering());
+
+    uint64_t align = storeOp.getAlignment().value_or(0);
+    
+    if (align == 0) {
+      return rewriter.notifyMatchFailure(
+          storeOp, "Atomic operations strictly require a non-zero alignment.");
+    }
+
+    bool isVolatile = storeOp.getVolatile_();
 
     // ptr::StoreOp operands are $value and $ptr
     rewriter.replaceOpWithNewOp<cpp_atomic::AtomicStoreOp>(
-        op, adaptor.getValue(), adaptor.getPtr(), order, alignAttr);
+        storeOp, adaptor.getValue(), adaptor.getPtr(), memOrder, align, isVolatile);
     return success();
   }
 };
@@ -113,13 +127,15 @@ struct StoreRewriter : public OpConversionPattern<ptr::StoreOp> {
 struct FenceRewriter : public OpConversionPattern<cir::AtomicFenceOp> {
   using OpConversionPattern::OpConversionPattern;
 
-  LogicalResult matchAndRewrite(cir::AtomicFenceOp op, OpAdaptor adaptor,
+  LogicalResult matchAndRewrite(cir::AtomicFenceOp fenceOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-    auto order = convertCIRFenceOrder(op.getOrdering());
+    auto memOrder = convertCIRFenceOrder(fenceOp.getOrdering());
+
     StringAttr syncscope;
-    if (op.getSyncscope() == cir::SyncScopeKind::SingleThread)
+    if (fenceOp.getSyncscope() == cir::SyncScopeKind::SingleThread)
       syncscope = rewriter.getStringAttr("singlethread");
-    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(op, order, syncscope);
+
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(fenceOp, memOrder, syncscope);
     return success();
   }
 };
