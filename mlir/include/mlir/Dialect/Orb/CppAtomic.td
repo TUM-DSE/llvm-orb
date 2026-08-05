@@ -88,14 +88,17 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load",
     `!ptr.ptr<>` carries no pointee type.
 
     Example:
+
     ```mlir
     %0 = cpp_atomic.atomic_load %ptr memory_order(acquire) : !ptr.ptr<generic> -> i32
     ```
   }];
 
-  let arguments = (ins CppAtomic_AnyPtrType:$addr,
-                       MemoryOrderAttr:$memory_order,
-                       OptionalAttr<I64Attr>:$alignment);
+  let arguments = (ins CppAtomic_AnyPtrType:$addr, 
+                      MemoryOrderAttr:$memory_order,
+                      I64Attr:$alignment,
+                      UnitAttr:$isDeref,
+                      UnitAttr:$is_volatile);
 
   let results = (outs AnyType:$result);
 
@@ -105,19 +108,30 @@ def AtomicLoadOp : Op<CppAtomic_Dialect, "atomic_load",
     OpBuilder<(ins "::mlir::Type":$resultType,
                    "Value":$addr,
                    "::mlir::cpp_atomic::MemoryOrder":$memory_order,
-                   CArg<"::mlir::IntegerAttr", "nullptr">:$alignment), [{
+                   "uint64_t":$alignment,
+                   "bool":$isDeref,
+                   "bool":$is_volatile), [{
+
       $_state.addTypes(resultType);
       $_state.addOperands(addr);
+      
       auto orderAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
           $_builder.getContext(), memory_order);
       $_state.addAttribute("memory_order", orderAttr);
-      if (alignment)
-        $_state.addAttribute("alignment", alignment);
+      
+      auto alignAttr = ::mlir::IntegerAttr::get(
+          ::mlir::IntegerType::get($_builder.getContext(), 64), alignment);
+      $_state.addAttribute("alignment", alignAttr);
+
+      if (isDeref) $_state.addAttribute("isDeref", $_builder.getUnitAttr());
+      if (is_volatile) $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
     }]>
   ];
 
-  let assemblyFormat = [{
-    $addr `memory_order` `(` $memory_order `)` (`align` `(` $alignment^ `)`)?
+  let assemblyFormat = [{ 
+    (`deref` $isDeref^)? 
+    (`volatile` $is_volatile^)? 
+    $addr `memory_order` `(` $memory_order `)` `align` `(` $alignment `)` 
     attr-dict `:` type($addr) `->` type($result)
   }];
 }
@@ -134,38 +148,48 @@ def AtomicStoreOp : Op<CppAtomic_Dialect, "atomic_store",
     memory ordering.
 
     Example:
+
     ```mlir
     cpp_atomic.atomic_store %val, %ptr memory_order(release) : i32, !ptr.ptr<generic>
     ```
   }];
 
   let arguments = (ins AnyType:$value,
-                       CppAtomic_AnyPtrType:$addr,
-                       MemoryOrderAttr:$memory_order,
-                       OptionalAttr<I64Attr>:$alignment);
+                      CppAtomic_AnyPtrType:$addr, 
+                      MemoryOrderAttr:$memory_order,
+                      I64Attr:$alignment,
+                      UnitAttr:$is_volatile);
 
-  let results = (outs);
-
+  let results = (outs);                    
+  
   let skipDefaultBuilders = 1;
 
   let builders = [
     OpBuilder<(ins "Value":$value,
                    "Value":$addr,
                    "::mlir::cpp_atomic::MemoryOrder":$memory_order,
-                   CArg<"::mlir::IntegerAttr", "nullptr">:$alignment), [{
+                   "uint64_t":$alignment,
+                   "bool":$is_volatile), [{
+                   
       $_state.addOperands(value);
       $_state.addOperands(addr);
+      
       auto orderAttr = ::mlir::cpp_atomic::MemoryOrderAttr::get(
           $_builder.getContext(), memory_order);
       $_state.addAttribute("memory_order", orderAttr);
-      if (alignment)
-        $_state.addAttribute("alignment", alignment);
+      
+      auto alignAttr = ::mlir::IntegerAttr::get(
+          ::mlir::IntegerType::get($_builder.getContext(), 64), alignment);
+      $_state.addAttribute("alignment", alignAttr);
+
+      if (is_volatile) $_state.addAttribute("is_volatile", $_builder.getUnitAttr());
     }]>
   ];
 
-  let assemblyFormat = [{
-    $value `,` $addr `memory_order` `(` $memory_order `)` (`align` `(` $alignment^ `)`)?
-    attr-dict `:` type($value) `,` type($addr)
+  let assemblyFormat = [{ 
+    (`volatile` $is_volatile^)? 
+    $value `,` $addr `memory_order` `(` $memory_order `)` `align` `(` $alignment `)` 
+    attr-dict `:` type($value) `,` type($addr) 
   }];
 }
 
@@ -202,6 +226,5 @@ def AtomicFenceOp : Op<CppAtomic_Dialect, "atomic_fence",
     `memory_order` `(` $memory_order `)` (`syncscope` `(` $syncscope^ `)`)? attr-dict
   }];
 }
-
 
 #endif // CPPATOMIC_OPS
