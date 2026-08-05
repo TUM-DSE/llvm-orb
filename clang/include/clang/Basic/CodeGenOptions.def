@@ -534,6 +534,7 @@ CODEGENOPT(DisableOutlining, 1, 0, Benign)
 
 /// Orbs robust lowering for C++ atomics to ARM
 CODEGENOPT(UseOrb, 1, 0, Benign)
+CODEGENOPT(UseNaiveOrb, 1, 0, Benign)
 VALUE_CODEGENOPT(OrbFenceCostBase, 32, 2, Benign)
 
 /// FIXME: Make DebugOptions its own top-level .def file.

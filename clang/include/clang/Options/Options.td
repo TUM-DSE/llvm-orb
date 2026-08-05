@@ -6446,6 +6446,9 @@ def object_file_name : Separate<["-"], "object-file-name">,
 def orb: Flag<["-"], "orb">, HelpText<"Enable robust lowering through Orb">,
   Visibility<[ClangOption, CC1Option]>,
   MarshallingInfoFlag<CodeGenOpts<"UseOrb">>;
+def naive_orb: Flag<["-"], "naive-orb">, HelpText<"Enable the ORB pipeline using the naive atomic mapping">,
+  Visibility<[ClangOption, CC1Option]>,
+  MarshallingInfoFlag<CodeGenOpts<"UseNaiveOrb">>;
 def orb_fence_cost_base : Joined<["-"], "orb-fence-cost-base=">,
   HelpText<"Base cost for fence insertion vs access upgrade in Orb synthesis (default: 2)">,
   Visibility<[ClangOption, CC1Option]>,
