@@ -217,146 +217,132 @@ struct FenceSynthesisPass
 
     // Fixpoint: each iteration either adds a fence to F_ign or adds edges to
     // M_B. Both sets are finite, so the loop always terminates (paper §5).
+    // Independent pairs are batched: pairs (a,b) and (c,d) are independent
+    // if all of {a,b} are Unreachable from all of {c,d} and vice versa.
     bool changed = true;
     unsigned iteration = 0;
     while (changed) {
       changed = false;
 
-      // Two passes: fence-involving pairs first (highest payoff), then
-      // access-access pairs. Fence upgrades establish the most order per action.
-      for (int pass = 0; pass < 2; ++pass) {
-        // Batch independent promotions: pairs (a,b) and (c,d) are independent
-        // if all of {a,b} are Unreachable from all of {c,d} and vice versa.
-        // Independent promotions cannot affect each other's ordering, so we
-        // apply them all and run closure once per batch.
-        struct BatchEntry {
-          uint64_t idA, idB;
-          orb::Promotion promo;
-        };
-        llvm::SmallVector<BatchEntry> batch;
-        llvm::SmallVector<unsigned> touchedIdx; // matrix indices in this batch
+      struct BatchEntry {
+        uint64_t idA, idB;
+        orb::Promotion promo;
+      };
+      llvm::SmallVector<BatchEntry> batch;
+      llvm::SmallVector<unsigned> touchedIdx; // matrix indices in this batch
 
-        for (auto [idA, idB] : required.requiredPairs()) {
-          if (fIgn.count(idA) || fIgn.count(idB))
-            continue;
-          if (mb.getOrder(idA, idB) == orb::EventOrder::Ordered)
-            continue;
+      for (auto [idA, idB] : required.requiredPairs()) {
+        if (fIgn.count(idA) || fIgn.count(idB))
+          continue;
+        if (mb.getOrder(idA, idB) == orb::EventOrder::Ordered)
+          continue;
 
-          bool aIsFence = isEventFence(idA), bIsFence = isEventFence(idB);
-          if (pass == 0 && !(aIsFence || bIsFence))
-            continue;
-          if (pass == 1 && (aIsFence || bIsFence))
-            continue;
-
-          // Paper §5.2: if one endpoint is a source fence f, count how many
-          // access-access pairs it mediates are still unordered.
-          // If 0: f is ignorable. Otherwise fall through to promote() always —
-          // deferring fence pairs causes an infinite loop (pass=1 skips them).
-          if (aIsFence || bIsFence) {
-            uint64_t fId = aIsFence ? idA : idB;
-            llvm::SmallVector<uint64_t> before, after;
-            required.pairsWithFence(fId, before, after);
-            unsigned mediatedUnordered = 0;
-            for (auto c : before) {
-              if (isEventFence(c))
-                continue; // O_B: access-access only
-              for (auto d : after) {
-                if (isEventFence(d))
-                  continue;
-                if (mb.getOrder(c, d) != orb::EventOrder::Ordered)
-                  ++mediatedUnordered;
-              }
-            }
-            if (mediatedUnordered == 0) {
-              fIgn.insert(fId);
-              changed = true;
+        // §5.2: if one endpoint is a source fence f, check if all
+        // access-access pairs it mediates are already ordered → ignorable.
+        bool aIsFence = isEventFence(idA), bIsFence = isEventFence(idB);
+        if (aIsFence || bIsFence) {
+          uint64_t fId = aIsFence ? idA : idB;
+          llvm::SmallVector<uint64_t> before, after;
+          required.pairsWithFence(fId, before, after);
+          unsigned mediatedUnordered = 0;
+          for (auto c : before) {
+            if (isEventFence(c))
               continue;
-            }
-            // mediatedUnordered > 0: fall through to promote().
-          }
-
-          // Check independence with current batch: all touched events must be
-          // Unreachable from both a and b (and vice versa).
-          bool independent = true;
-          for (unsigned t : touchedIdx) {
-            uint64_t tId = mb.eventIds()[t];
-            if (mb.getOrder(tId, idA) != orb::EventOrder::Unreachable ||
-                mb.getOrder(tId, idB) != orb::EventOrder::Unreachable ||
-                mb.getOrder(idA, tId) != orb::EventOrder::Unreachable ||
-                mb.getOrder(idB, tId) != orb::EventOrder::Unreachable) {
-              independent = false;
-              break;
+            for (auto d : after) {
+              if (isEventFence(d))
+                continue;
+              if (mb.getOrder(c, d) != orb::EventOrder::Ordered)
+                ++mediatedUnordered;
             }
           }
-          if (!independent)
-            continue; // will be picked up in the next outer iteration
-
-          Operation *a = mb.getOpForId(idA);
-          Operation *b = mb.getOpForId(idB);
-          if (!a || !b) {
-            signalPassFailure();
-            return;
+          if (mediatedUnordered == 0) {
+            fIgn.insert(fId);
+            changed = true;
+            continue;
           }
-
-          // Pick the promotion with the best coverage-adjusted cost.
-          orb::Promotion bestPromotion;
-          int bestScore = std::numeric_limits<int>::max();
-          orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
-                               colPressure[idB], colReadPressure[idB],
-                               colWritePressure[idB], fenceCostBase,
-                               (unsigned)mb.eventIds().size()};
-          for (auto &p : iface->promote(idA, a, idB, b)) {
-            if (auto *fa = std::get_if<orb::Promotion::FenceAction>(&p.action))
-              p.loopDepth =
-                  blockLoopDepth.lookup(fa->insertBefore->getBlock());
-            else if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action))
-              p.loopDepth = blockLoopDepth.lookup(ua->op->getBlock());
-            else if (auto *pa = std::get_if<orb::Promotion::PairUpgradeAction>(&p.action))
-              p.loopDepth =
-                  std::max(blockLoopDepth.lookup(pa->op1->getBlock()),
-                           blockLoopDepth.lookup(pa->op2->getBlock()));
-            int score = iface->cost(p, ctx);
-            if (score < bestScore) {
-              bestScore = score;
-              bestPromotion = p;
-            }
-          }
-          if (bestScore == std::numeric_limits<int>::max()) {
-            log() << "ERROR: no promotion for pair ("
-                         << idA << ", " << idB << ") — aborting\n";
-            signalPassFailure();
-            return;
-          }
-
-          batch.push_back({idA, idB, bestPromotion});
-          touchedIdx.push_back(mb.idxOf(idA));
-          touchedIdx.push_back(mb.idxOf(idB));
         }
 
-        // Apply the batch: all promotions, then one closure + pressure rebuild.
-        if (!batch.empty()) {
-          {
-            unsigned covered, overspecified;
-            countOrdered(covered, overspecified);
-            log() << "iter=" << iteration
-                         << " pass=" << pass
-                         << " ordered=" << covered << "/" << total
-                         << " overspecified=" << overspecified
-                         << " batched=" << batch.size()
-                         << " t=" << elapsedMs() << "ms\n";
+        // Check independence with current batch.
+        bool independent = true;
+        for (unsigned t : touchedIdx) {
+          uint64_t tId = mb.eventIds()[t];
+          if (mb.getOrder(tId, idA) != orb::EventOrder::Unreachable ||
+              mb.getOrder(tId, idB) != orb::EventOrder::Unreachable ||
+              mb.getOrder(idA, tId) != orb::EventOrder::Unreachable ||
+              mb.getOrder(idB, tId) != orb::EventOrder::Unreachable) {
+            independent = false;
+            break;
           }
-          for (auto &e : batch) {
-            Operation *newOp = iface->applyPromotion(e.promo, builder);
-            if (newOp)
-              newOp->setAttr(orb::kEventIdAttr,
-                             builder.getI64IntegerAttr(nextSynthId++));
-            iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
-                                     mb, aa, dom, reach);
-          }
-          mb.closeIncrementally();
-          rebuildPressure();
-          changed = true;
         }
+        if (!independent)
+          continue;
+
+        Operation *a = mb.getOpForId(idA);
+        Operation *b = mb.getOpForId(idB);
+        if (!a || !b) {
+          signalPassFailure();
+          return;
+        }
+
+        // Pick the promotion with the best coverage-adjusted cost.
+        orb::Promotion bestPromotion;
+        int bestScore = std::numeric_limits<int>::max();
+        orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
+                             colPressure[idB], colReadPressure[idB],
+                             colWritePressure[idB], fenceCostBase,
+                             (unsigned)mb.eventIds().size()};
+        for (auto &p : iface->promote(idA, a, idB, b)) {
+          if (auto *fa = std::get_if<orb::Promotion::FenceAction>(&p.action))
+            p.loopDepth =
+                blockLoopDepth.lookup(fa->insertBefore->getBlock());
+          else if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action))
+            p.loopDepth = blockLoopDepth.lookup(ua->op->getBlock());
+          else if (auto *pa = std::get_if<orb::Promotion::PairUpgradeAction>(&p.action))
+            p.loopDepth =
+                std::max(blockLoopDepth.lookup(pa->op1->getBlock()),
+                         blockLoopDepth.lookup(pa->op2->getBlock()));
+          int score = iface->cost(p, ctx);
+          if (score < bestScore) {
+            bestScore = score;
+            bestPromotion = p;
+          }
+        }
+        if (bestScore == std::numeric_limits<int>::max()) {
+          log() << "ERROR: no promotion for pair ("
+                       << idA << ", " << idB << ") — aborting\n";
+          a->dump();
+          b->dump();
+          signalPassFailure();
+          return;
+        }
+
+        batch.push_back({idA, idB, bestPromotion});
+        touchedIdx.push_back(mb.idxOf(idA));
+        touchedIdx.push_back(mb.idxOf(idB));
+      }
+
+      // Apply the batch: all promotions, then one closure + pressure rebuild.
+      if (!batch.empty()) {
+        {
+          unsigned covered, overspecified;
+          countOrdered(covered, overspecified);
+          log() << "iter=" << iteration
+                       << " ordered=" << covered << "/" << total
+                       << " overspecified=" << overspecified
+                       << " batched=" << batch.size()
+                       << " t=" << elapsedMs() << "ms\n";
+        }
+        for (auto &e : batch) {
+          Operation *newOp = iface->applyPromotion(e.promo, builder);
+          if (newOp)
+            newOp->setAttr(orb::kEventIdAttr,
+                           builder.getI64IntegerAttr(nextSynthId++));
+          iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
+                                   mb, aa, dom, reach);
+        }
+        mb.closeIncrementally();
+        rebuildPressure();
+        changed = true;
       }
       ++iteration;
     }
