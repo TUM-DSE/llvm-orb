@@ -4938,7 +4938,7 @@ void populateOrbPasses(mlir::OpPassManager &pm, unsigned fenceCostBase = 2) {
   pm.addPass(mlir::createCIRToCFPass());
   pm.addPass(mlir::createCIRToPtrPass());
   pm.addPass(mlir::createCIRToCppAtomicPass());
-  pm.addPass(mlir::createSymbolDCEPass());
+  //pm.addPass(mlir::createSymbolDCEPass()); #still bugged
   pm.addPass(mlir::createOrderAnalysisPass());
   pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
   pm.addPass(mlir::createFenceSynthesisPass(
