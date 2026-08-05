@@ -340,7 +340,8 @@ struct FenceSynthesisPass
           iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
                                    mb, aa, dom, reach);
         }
-        mb.closeIncrementally();
+        if (mb.pendingEdgeCount() > 100)
+          mb.closeIncrementally();
         rebuildPressure();
         changed = true;
       }

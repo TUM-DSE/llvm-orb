@@ -128,6 +128,8 @@ public:
   void closeTransitively();
   /// Incrementally propagate only edges added since the last closure call.
   void closeIncrementally();
+  /// Number of edges queued for incremental closure.
+  unsigned pendingEdgeCount() const { return pendingEdges.size(); }
 
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
