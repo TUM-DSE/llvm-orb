@@ -115,6 +115,8 @@ public:
   llvm::ArrayRef<uint64_t> eventIds() const { return ids; }
   /// Map event ID → matrix index. Asserts if id is not present.
   unsigned idxOf(uint64_t id) const;
+  /// Count cells with a given order value.
+  unsigned countCells(EventOrder order) const;
 
   /// Set (idA, idB) to Ordered if currently Unordered; no-op otherwise.
   void markOrdered(uint64_t idA, uint64_t idB);
@@ -124,12 +126,10 @@ public:
   void applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                          AliasAnalysis &aa, DominanceInfo &dom,
                          const CallReachability &reach);
-  /// Close the Ordered relation transitively; call once on the initial matrix.
-  void closeTransitively();
+  /// Close the Ordered relation transitively. maxRounds=0 means no limit.
+  void closeTransitively(unsigned maxRounds = 0);
   /// Incrementally propagate only edges added since the last closure call.
   void closeIncrementally();
-  /// Number of edges queued for incremental closure.
-  unsigned pendingEdgeCount() const { return pendingEdges.size(); }
 
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);

@@ -149,6 +149,12 @@ struct FenceSynthesisPass
     auto mb = orb::getOrderMatrix(module, aa, dom, iface, reach);
     // Let the target dialect apply model-specific derived orderings (e.g. lob* for ARM).
     iface->refineInitialOrderMatrix(mb);
+    unsigned nEvents = mb.eventIds().size();
+    unsigned nUnreachable = mb.countCells(orb::EventOrder::Unreachable);
+    log() << "n=" << nEvents
+          << " unreachable=" << nUnreachable
+          << " reachable=" << (nEvents * nEvents - nEvents - nUnreachable)
+          << "\n";
 
     // isEventFence: true if id refers to a fence op in the target dialect.
     auto isEventFence = [&](uint64_t id) -> bool {
@@ -340,8 +346,7 @@ struct FenceSynthesisPass
           iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
                                    mb, aa, dom, reach);
         }
-        if (mb.pendingEdgeCount() > 100)
-          mb.closeIncrementally();
+        mb.closeTransitively(/*maxRounds=*/2);
         rebuildPressure();
         changed = true;
       }

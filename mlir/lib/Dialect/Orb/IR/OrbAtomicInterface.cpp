@@ -42,6 +42,10 @@ unsigned OrderMatrix::idxOf(uint64_t id) const {
   return it->second;
 }
 
+unsigned OrderMatrix::countCells(EventOrder order) const {
+  return llvm::count(matrix, order);
+}
+
 void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
   auto itA = idToIdx.find(idA), itB = idToIdx.find(idB);
   if (itA == idToIdx.end() || itB == idToIdx.end())
@@ -90,7 +94,7 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
   applyFenceClosure(fIdx, iface);
 }
 
-void OrderMatrix::closeTransitively() {
+void OrderMatrix::closeTransitively(unsigned maxRounds) {
   if (n == 0)
     return;
   // Build orderedAfter[a]: bitset of all b where matrix[a*n+b] == Ordered.
@@ -102,8 +106,10 @@ void OrderMatrix::closeTransitively() {
 
   unsigned added = 0;
   bool changed = true;
-  while (changed) {
+  unsigned rounds = 0;
+  while (changed && (maxRounds == 0 || rounds < maxRounds)) {
     changed = false;
+    ++rounds;
     for (int c = (int)n - 1; c >= 0; --c) {
       for (unsigned a = 0; a < n; ++a) {
         if ((unsigned)c == a || !orderedAfter[a].test(c))
@@ -139,7 +145,7 @@ void OrderMatrix::closeIncrementally() {
     // Forward: a→b, b→c ⟹ a→c
     for (unsigned c = 0; c < n; ++c) {
       if (c != a && matrix[b * n + c] == EventOrder::Ordered &&
-          matrix[a * n + c] != EventOrder::Ordered) {
+          matrix[a * n + c] == EventOrder::Unordered) {
         matrix[a * n + c] = EventOrder::Ordered;
         pendingEdges.push_back({a, c});
       }
@@ -147,7 +153,7 @@ void OrderMatrix::closeIncrementally() {
     // Backward: c→a, a→b ⟹ c→b
     for (unsigned c = 0; c < n; ++c) {
       if (c != b && matrix[c * n + a] == EventOrder::Ordered &&
-          matrix[c * n + b] != EventOrder::Ordered) {
+          matrix[c * n + b] == EventOrder::Unordered) {
         matrix[c * n + b] = EventOrder::Ordered;
         pendingEdges.push_back({c, b});
       }
@@ -309,7 +315,7 @@ void OrderMatrix::applyFenceClosure(unsigned fIdx,
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
       if (bIdx == fIdx || bIdx == aIdx)
         continue;
-      if (matrix[aIdx * n + bIdx] == EventOrder::Ordered)
+      if (matrix[aIdx * n + bIdx] != EventOrder::Unordered)
         continue;
       if (matrix[fIdx * n + bIdx] != EventOrder::Ordered)
         continue;
@@ -400,7 +406,7 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
       continue;
     Operation *a = result.idToOp.lookup(result.ids[aIdx]);
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
-      if (bIdx == aIdx || result.matrix[aIdx * n + bIdx] == EventOrder::Ordered)
+      if (bIdx == aIdx || result.matrix[aIdx * n + bIdx] != EventOrder::Unordered)
         continue;
       if (fencesBefore[bIdx].none())
         continue;
