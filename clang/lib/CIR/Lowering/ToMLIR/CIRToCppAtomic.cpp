@@ -45,8 +45,6 @@ static cpp_atomic::MemoryOrder convertPtrOrder(ptr::AtomicOrdering ord) {
     return cpp_atomic::MemoryOrder::Acquire;
   case ptr::AtomicOrdering::release:
     return cpp_atomic::MemoryOrder::Release;
-  case ptr::AtomicOrdering::acq_rel:
-    return cpp_atomic::MemoryOrder::AcqRel;
   case ptr::AtomicOrdering::seq_cst:
     return cpp_atomic::MemoryOrder::SeqCst;
   default:
@@ -57,19 +55,18 @@ static cpp_atomic::MemoryOrder convertPtrOrder(ptr::AtomicOrdering ord) {
 static cpp_atomic::MemoryOrder
 convertCIRFenceOrder(cir::MemOrder order) {
   switch (order) {
-  case cir::MemOrder::Relaxed:
-    return cpp_atomic::MemoryOrder::Relaxed;
-  case cir::MemOrder::Consume:
-  case cir::MemOrder::Acquire:
-    return cpp_atomic::MemoryOrder::Acquire;
-  case cir::MemOrder::Release:
-    return cpp_atomic::MemoryOrder::Release;
-  case cir::MemOrder::AcquireRelease:
-    return cpp_atomic::MemoryOrder::AcqRel;
-  case cir::MemOrder::SequentiallyConsistent:
-    return cpp_atomic::MemoryOrder::SeqCst;
+    case cir::MemOrder::Relaxed:
+      return cpp_atomic::MemoryOrder::Relaxed;
+    case cir::MemOrder::Consume:
+    case cir::MemOrder::Acquire:
+      return cpp_atomic::MemoryOrder::Acquire;
+    case cir::MemOrder::Release:
+      return cpp_atomic::MemoryOrder::Release;
+    case cir::MemOrder::SequentiallyConsistent:
+      return cpp_atomic::MemoryOrder::SeqCst;
+    default:
+    llvm_unreachable("unknown CIR MemOrder");
   }
-  llvm_unreachable("unknown CIR MemOrder");
 }
 
 //===----------------------------------------------------------------------===//

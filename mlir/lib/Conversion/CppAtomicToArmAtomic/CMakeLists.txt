@@ -1,5 +1,6 @@
 add_mlir_conversion_library(MLIRCppAtomicToArmAtomic
   CppAtomicToArmAtomic.cpp
+  NaiveCppToArmAtomic.cpp
   OrderAnalysis.cpp
 
   ADDITIONAL_HEADER_DIRS

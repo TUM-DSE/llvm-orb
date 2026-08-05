@@ -59,10 +59,11 @@ static std::unique_ptr<llvm::Module>
 lowerFromCIRToLLVMIR(mlir::ModuleOp MLIRModule, llvm::LLVMContext &LLVMCtx,
                      llvm::StringRef mlirSaveTempsOutFile = {},
                      llvm::vfs::FileSystem *fs = nullptr, bool useOrb = false,
+                     bool useNaiveOrb = false,
                      unsigned orbFenceCostBase = 2) {
   return direct::lowerDirectlyFromCIRToLLVMIR(MLIRModule, LLVMCtx,
-                                              mlirSaveTempsOutFile, fs, useOrb,
-                                              orbFenceCostBase);
+                                              mlirSaveTempsOutFile, fs, useOrb, 
+                                              useNaiveOrb, orbFenceCostBase);
 }
 
 class CIRGenConsumer : public clang::ASTConsumer {
@@ -180,6 +181,7 @@ public:
           lowerFromCIRToLLVMIR(MlirModule, LLVMCtx, mlirSaveTempsOutFile,
                                &CI.getVirtualFileSystem(),
                                CI.getCodeGenOpts().UseOrb,
+                               CI.getCodeGenOpts().UseNaiveOrb,
                                CI.getCodeGenOpts().OrbFenceCostBase);
 
       if (linkInModules(*LLVMModule))
