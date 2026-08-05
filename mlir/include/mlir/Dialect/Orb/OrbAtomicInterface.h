@@ -34,6 +34,10 @@ class AnalysisManager;
 
 namespace mlir::orb {
 
+/// True if `op` is a ptr.load/ptr.store whose address is a stack alloca.
+/// Stack-local memory is thread-private and needs no ordering.
+bool isStackSlotAccess(Operation *op);
+
 /// Attribute key for stable per-event integer IDs; propagated across dialect conversions.
 constexpr llvm::StringLiteral kEventIdAttr = "orb.event_id";
 

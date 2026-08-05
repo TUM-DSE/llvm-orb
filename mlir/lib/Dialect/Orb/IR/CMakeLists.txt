@@ -10,7 +10,9 @@ add_mlir_library(MLIROrbAtomicInterface
   MLIRIR
   MLIRAnalysis
   PRIVATE
+  MLIRLLVMDialect
   MLIRPtrDialect
+  MLIRViewLikeInterface
   )
 
 add_mlir_dialect_library(MLIRArmAtomicDialect

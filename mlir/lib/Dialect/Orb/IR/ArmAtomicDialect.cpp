@@ -106,8 +106,12 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   explicit ArmAtomicOrbInterface(Dialect *d) : OrbAtomicDialectInterface(d) {}
 
   bool isMemoryEvent(Operation *op) const override {
-    return isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp,
-               arm_atomic::AtomicFenceOp, ptr::LoadOp, ptr::StoreOp>(op);
+    if (isa<arm_atomic::AtomicLoadOp, arm_atomic::AtomicStoreOp,
+            arm_atomic::AtomicFenceOp>(op))
+      return true;
+    if (isa<ptr::LoadOp, ptr::StoreOp>(op))
+      return !orb::isStackSlotAccess(op);
+    return false;
   }
 
   bool isFenceEvent(Operation *op) const override {

@@ -74,8 +74,12 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   explicit CppAtomicOrbInterface(Dialect *d) : OrbAtomicDialectInterface(d) {}
 
   bool isMemoryEvent(Operation *op) const override {
-    return isa<cpp_atomic::AtomicLoadOp, cpp_atomic::AtomicStoreOp,
-               cpp_atomic::AtomicFenceOp, ptr::LoadOp, ptr::StoreOp>(op);
+    if (isa<cpp_atomic::AtomicLoadOp, cpp_atomic::AtomicStoreOp,
+            cpp_atomic::AtomicFenceOp>(op))
+      return true;
+    if (isa<ptr::LoadOp, ptr::StoreOp>(op))
+      return !orb::isStackSlotAccess(op);
+    return false;
   }
 
   bool isFenceEvent(Operation *op) const override {
@@ -153,8 +157,14 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
   orb::EventOrder tryOrderFromStore(Operation *a, Operation *b,
                                     AliasAnalysis &aa) const {
-    // ppo_rs: must-alias writes
     if (auto sb = dyn_cast<cpp_atomic::AtomicStoreOp>(b)) {
+      // ppo_fence1: po;[W & (REL | ACQREL | SC)]
+      auto mo = getCppMemoryOrder(b);
+      if (mo == cpp_atomic::MemoryOrder::Release ||
+          mo == cpp_atomic::MemoryOrder::AcqRel ||
+          mo == cpp_atomic::MemoryOrder::SeqCst)
+        return orb::EventOrder::Ordered;
+      // ppo_rs: must-alias writes
       auto sa = cast<cpp_atomic::AtomicStoreOp>(a);
       if (aa.alias(sa.getAddr(), sb.getAddr()) != AliasResult::NoAlias)
         return orb::EventOrder::Ordered;
@@ -168,10 +178,28 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
   orb::EventOrder tryOrderFromPlainStore(Operation *a, Operation *b,
                                          AliasAnalysis &aa) const {
-    // ppo_rs
     if (auto sb = dyn_cast<cpp_atomic::AtomicStoreOp>(b)) {
+      // ppo_fence1: po;[W & (REL | ACQREL | SC)]
+      auto mo = getCppMemoryOrder(b);
+      if (mo == cpp_atomic::MemoryOrder::Release ||
+          mo == cpp_atomic::MemoryOrder::AcqRel ||
+          mo == cpp_atomic::MemoryOrder::SeqCst)
+        return orb::EventOrder::Ordered;
+      // ppo_rs: [W];po-loc;[W \ NA]
       auto sa = cast<ptr::StoreOp>(a);
       if (aa.alias(sa.getPtr(), sb.getAddr()) != AliasResult::NoAlias)
+        return orb::EventOrder::Ordered;
+    }
+    return orb::EventOrder::Unordered;
+  }
+
+  orb::EventOrder tryOrderFromPlainLoad(Operation *a, Operation *b) const {
+    // ppo_release: plain load before a release/acqrel/sc store is ordered
+    if (isa<cpp_atomic::AtomicStoreOp>(b)) {
+      auto mo = getCppMemoryOrder(b);
+      if (mo == cpp_atomic::MemoryOrder::Release ||
+          mo == cpp_atomic::MemoryOrder::AcqRel ||
+          mo == cpp_atomic::MemoryOrder::SeqCst)
         return orb::EventOrder::Ordered;
     }
     return orb::EventOrder::Unordered;
@@ -203,6 +231,8 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return tryOrderFromStore(a, b, aliasAnalysis);
     if (isa<ptr::StoreOp>(a))
       return tryOrderFromPlainStore(a, b, aliasAnalysis);
+    if (isa<ptr::LoadOp>(a))
+      return tryOrderFromPlainLoad(a, b);
     return orb::EventOrder::Unordered;
   }
 

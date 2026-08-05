@@ -4938,12 +4938,7 @@ void populateOrbPasses(mlir::OpPassManager &pm, unsigned fenceCostBase = 2) {
   pm.addPass(mlir::createCIRToCFPass());
   pm.addPass(mlir::createCIRToPtrPass());
   pm.addPass(mlir::createCIRToCppAtomicPass());
-  // NOTE: SymbolDCEPass is intentionally omitted here. The MLIR SymbolDCE
-  // does not check CIR module-level attributes (cir.global_ctors /
-  // cir.global_dtors), so it incorrectly removes functions that are only
-  // referenced through those attributes (e.g. urcu_bp_exit_destructor).
-  // Those removed symbols then fail 'llvm.mlir.addressof' verification
-  // during CIR→LLVM lowering.
+  pm.addPass(mlir::createSymbolDCEPass());
   pm.addPass(mlir::createOrderAnalysisPass());
   pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
   pm.addPass(mlir::createFenceSynthesisPass(

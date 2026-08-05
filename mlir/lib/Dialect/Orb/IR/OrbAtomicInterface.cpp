@@ -8,17 +8,36 @@
 
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
 #include "mlir/Analysis/AliasAnalysis.h"
+#include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/IR/Builders.h"
 #include "mlir/IR/Dominance.h"
 #include "mlir/IR/SymbolTable.h"
 #include "mlir/Interfaces/CallInterfaces.h"
+#include "mlir/Interfaces/ViewLikeInterface.h"
 #include "mlir/Pass/AnalysisManager.h"
 #include "llvm/ADT/BitVector.h"
+#include "llvm/Support/Debug.h"
 #include <algorithm>
+
+#define DEBUG_TYPE "order-analysis"
 
 using namespace mlir;
 using namespace mlir::orb;
+
+bool mlir::orb::isStackSlotAccess(Operation *op) {
+  Value addr;
+  if (auto load = dyn_cast<ptr::LoadOp>(op))
+    addr = load.getPtr();
+  else if (auto store = dyn_cast<ptr::StoreOp>(op))
+    addr = store.getPtr();
+  else
+    return false;
+  while (auto view =
+             dyn_cast_or_null<ViewLikeOpInterface>(addr.getDefiningOp()))
+    addr = view.getViewSource();
+  return isa_and_nonnull<LLVM::AllocaOp>(addr.getDefiningOp());
+}
 
 //===----------------------------------------------------------------------===//
 // OrderMatrix
@@ -223,6 +242,28 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
     for (uint64_t idB : matrix.eventIds())
       if (idA != idB && matrix.getOrder(idA, idB) == EventOrder::Ordered)
         pairs.emplace_back(idA, idB);
+
+  LLVM_DEBUG({
+    auto funcName = [](Operation *op) -> StringRef {
+      for (auto *parent = op->getParentOp(); parent;
+           parent = parent->getParentOp())
+        if (auto sym = parent->getAttrOfType<StringAttr>(
+                mlir::SymbolTable::getSymbolAttrName()))
+          return sym.getValue();
+      return "<unknown>";
+    };
+    llvm::dbgs() << "[OrderAnalysis] events=" << matrix.eventIds().size()
+                 << " required_pairs=" << pairs.size() << "\n";
+    for (auto [idA, idB] : pairs) {
+      Operation *a = matrix.getOpForId(idA);
+      Operation *b = matrix.getOpForId(idB);
+      llvm::dbgs() << "  (" << idA << ", " << idB << ") "
+                   << a->getName() << " @ " << a->getLoc()
+                   << " [" << funcName(a) << "]"
+                   << " -> " << b->getName() << " @ " << b->getLoc()
+                   << " [" << funcName(b) << "]\n";
+    }
+  });
 }
 
 //===----------------------------------------------------------------------===//
