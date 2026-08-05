@@ -69,17 +69,9 @@ struct AtomicLoadLowering
     if (!resultTy)
       return rewriter.notifyMatchFailure(op, "unconvertible result type");
 
-    unsigned align = 0;
-    if (op.getAlignment()) {
-      align = static_cast<unsigned>(*op.getAlignment());
-    } else {
-      // If missing, calculate the byte width from the converted type
-      if (resultTy.isIntOrFloat()) {
-        align = std::max(1u, resultTy.getIntOrFloatBitWidth() / 8);
-      } else {
-        align = 8; // in case of pointers
-      }
-    }
+    unsigned align = op.getAlignment(); 
+    
+    bool isVolatile = op.getIsVolatileAttr() != nullptr;
 
     // AcquirePC → LLVM acquire → LDAPR (with +rcpc).
     // Acquire   → LLVM seq_cst → LDAR.
@@ -88,7 +80,7 @@ struct AtomicLoadLowering
                         : toAtomicOrdering(op.getMemoryOrder());
     rewriter.replaceOpWithNewOp<LLVM::LoadOp>(
         op, resultTy, adaptor.getAddr(), align,
-        /*isVolatile=*/false, /*isNonTemporal=*/false,
+        isVolatile, /*isNonTemporal=*/false,
         /*isInvariant=*/false, /*isInvariantGroup=*/false,
         ordering);
     return success();
@@ -103,23 +95,13 @@ struct AtomicStoreLowering
   matchAndRewrite(arm_atomic::AtomicStoreOp op, OpAdaptor adaptor,
                   ConversionPatternRewriter &rewriter) const override {
 
-    Type valTy = adaptor.getValue().getType();
+    unsigned align = op.getAlignment();
 
-    unsigned align = 0;
-    if (op.getAlignment()) {
-      align = static_cast<unsigned>(*op.getAlignment());
-    } else {
-      // If missing, calculate the byte width from the converted type
-      if (valTy.isIntOrFloat()) {
-        align = std::max(1u, valTy.getIntOrFloatBitWidth() / 8);
-      } else {
-        align = 8; // in case of pointers
-      }
-    }
+    bool isVolatile = op.getIsVolatileAttr() != nullptr;
 
     rewriter.replaceOpWithNewOp<LLVM::StoreOp>(
         op, adaptor.getValue(), adaptor.getAddr(), align,
-        /*isVolatile=*/false, /*isNonTemporal=*/false,
+        isVolatile, /*isNonTemporal=*/false,
         /*isInvariantGroup=*/false,
         toAtomicOrdering(op.getMemoryOrder()));
     return success();

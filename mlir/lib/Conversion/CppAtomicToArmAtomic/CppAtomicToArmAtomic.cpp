@@ -14,6 +14,11 @@
 #include "mlir/IR/PatternMatch.h"
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Transforms/DialectConversion.h"
+#include "llvm/ADT/SmallVector.h"
+#include "mlir/IR/Region.h"
+#include "mlir/Support/LogicalResult.h"
+#include "mlir/Transforms/GreedyPatternRewriteDriver.h"
+#include "mlir/Transforms/WalkPatternRewriteDriver.h"
 
 
 namespace mlir {
@@ -32,10 +37,13 @@ struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
 
   LogicalResult matchAndRewrite(cpp_atomic::AtomicLoadOp loadOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
+    bool isDeref = false;
+    bool isVolatile = loadOp.getIsVolatileAttr() != nullptr;
+
     Attribute eventId = loadOp->getAttr(orb::kEventIdAttr);
     auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicLoadOp>(
         loadOp, loadOp.getResult().getType(), adaptor.getAddr(),
-        arm_atomic::MemoryOrder::Relaxed, loadOp.getAlignmentAttr());
+        arm_atomic::MemoryOrder::Relaxed, loadOp.getAlignment(), isDeref, isVolatile);   
     if (eventId)
       newOp->setAttr(orb::kEventIdAttr, eventId);
     return success();
@@ -43,14 +51,18 @@ struct LoadRewriter : public OpConversionPattern<cpp_atomic::AtomicLoadOp> {
 };
 
 struct StoreRewriter : public OpConversionPattern<cpp_atomic::AtomicStoreOp> {
-  using OpConversionPattern::OpConversionPattern;
+
+  StoreRewriter(MLIRContext *context) 
+      : OpConversionPattern<cpp_atomic::AtomicStoreOp>(context) {}
 
   LogicalResult matchAndRewrite(cpp_atomic::AtomicStoreOp storeOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
+    bool isVolatile = storeOp.getIsVolatileAttr() != nullptr;
+
     Attribute eventId = storeOp->getAttr(orb::kEventIdAttr);
     auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicStoreOp>(
         storeOp, adaptor.getValue(), adaptor.getAddr(),
-        arm_atomic::MemoryOrder::Relaxed, storeOp.getAlignmentAttr());
+        arm_atomic::MemoryOrder::Relaxed, storeOp.getAlignment(), isVolatile);
     if (eventId)
       newOp->setAttr(orb::kEventIdAttr, eventId);
     return success();
@@ -63,9 +75,11 @@ struct FenceRewriter : public OpConversionPattern<cpp_atomic::AtomicFenceOp> {
   LogicalResult matchAndRewrite(cpp_atomic::AtomicFenceOp fenceOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
     Attribute eventId = fenceOp->getAttr(orb::kEventIdAttr);
+
     StringAttr syncscope;
     if (auto scope = fenceOp.getSyncscope())
       syncscope = StringAttr::get(rewriter.getContext(), *scope);
+
     auto newOp = rewriter.replaceOpWithNewOp<arm_atomic::AtomicFenceOp>(
         fenceOp, arm_atomic::MemoryOrder::Relaxed, syncscope);
     if (eventId)
