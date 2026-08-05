@@ -1,4 +1,4 @@
-//===-- Passes.td - Conversion pass definition file --------*- tablegen -*-===//
+//===-- <Passes.td> - Conversion pass definition file --------*- tablegen -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -497,6 +497,16 @@ def ConvertCppAtomicToArmAtomicPass : Pass<"cpp-atomic-to-arm-atomic", "ModuleOp
   let description = [{
     This pass converts hardware-agnostic C++ atomic memory operations into 
     ARM-specific atomic instructions, correctly mapping SeqCst and AcqRel 
+    to their appropriate ARM fallbacks (LDAR/STLR).
+  }];
+  let dependentDialects = ["arm_atomic::ArmAtomicDialect"];
+}
+
+def ConvertCppAtomicToArmAtomicNaivePass : Pass<"cpp-atomic-to-arm-atomic-naive", "ModuleOp"> {
+  let summary = "Naive 1:1 mapping of Cpp atomics to ARM atomics";
+  let description = [{
+    This pass converts hardware-agnostic C++ atomic memory operations into 
+    ARM-specific atomic instructions, naively mapping SeqCst and AcqRel 
     to their appropriate ARM fallbacks (LDAR/STLR).
   }];
   let dependentDialects = ["arm_atomic::ArmAtomicDialect"];

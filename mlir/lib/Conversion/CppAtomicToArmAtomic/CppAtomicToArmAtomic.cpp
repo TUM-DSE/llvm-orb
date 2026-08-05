@@ -12,7 +12,6 @@
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
 #include "mlir/Pass/Pass.h"
 #include "mlir/IR/PatternMatch.h"
-#include "mlir/Pass/Pass.h"
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Transforms/DialectConversion.h"
 

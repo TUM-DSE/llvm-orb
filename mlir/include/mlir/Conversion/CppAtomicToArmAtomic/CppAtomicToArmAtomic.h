@@ -16,6 +16,7 @@ class Pass;
 class RewritePatternSet;
 
 #define GEN_PASS_DECL_CONVERTCPPATOMICTOARMATOMICPASS
+#define GEN_PASS_DECL_CONVERTCPPATOMICTOARMATOMICNAIVEPASS
 #include "mlir/Conversion/Passes.h.inc"
 
 } // namespace mlir

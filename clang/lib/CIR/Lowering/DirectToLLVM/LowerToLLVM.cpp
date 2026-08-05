@@ -4932,7 +4932,7 @@ void populateCIRToLLVMPasses(mlir::OpPassManager &pm) {
   pm.addPass(createConvertCIRToLLVMPass());
 }
 
-void populateOrbPasses(mlir::OpPassManager &pm, unsigned fenceCostBase = 2) {
+void populateOrbPasses(mlir::OpPassManager &pm, bool isNaive, unsigned fenceCostBase = 2) {
   mlir::populateCIRPreLoweringPasses(pm);
 
   pm.addPass(mlir::createCIRToCFPass());
@@ -4945,7 +4945,13 @@ void populateOrbPasses(mlir::OpPassManager &pm, unsigned fenceCostBase = 2) {
   // Those removed symbols then fail 'llvm.mlir.addressof' verification
   // during CIR→LLVM lowering.
   pm.addPass(mlir::createOrderAnalysisPass());
-  pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
+
+  if (isNaive) {
+    pm.addPass(mlir::createConvertCppAtomicToArmAtomicNaivePass());
+  } else {
+    pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
+  }
+
   pm.addPass(mlir::createFenceSynthesisPass(
       mlir::FenceSynthesisPassOptions{fenceCostBase}));
 
@@ -5034,13 +5040,22 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
                              StringRef mlirSaveTempsOutFile,
                              llvm::vfs::FileSystem *fs,
                              bool useOrb,
+                             bool useNaiveOrb,
                              unsigned orbFenceCostBase = 2) {
   llvm::TimeTraceScope scope("lower from CIR to LLVM directly");
 
   mlir::MLIRContext *mlirCtx = mlirModule.getContext();
 
+  if (useOrb && useNaiveOrb) {
+    llvm::report_fatal_error(
+        "Cannot specify both the advanced ORB pipeline (-use-orb) 
+        and the Naive ORB pipeline (-use-naive-orb)!");
+  }
+
+  bool useAnyOrb = useOrb || UseNaiveOrb;
+
   mlir::PassManager pm(mlirCtx);
-  if (useOrb) {
+  if (useAnyOrb) {
     mlir::DialectRegistry registry;
     mlir::ptr::registerConvertPtrToLLVMInterface(registry);
     mlir::ub::registerConvertUBToLLVMInterface(registry);
@@ -5053,7 +5068,7 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
     mlir::vector::registerConvertVectorToLLVMInterface(registry);
 
     mlirCtx->appendDialectRegistry(registry);
-    populateOrbPasses(pm, orbFenceCostBase);
+    populateOrbPasses(pm, useNaiveOrb, orbFenceCostBase);
   } else
     populateCIRToLLVMPasses(pm);
 
@@ -5065,7 +5080,7 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
         "The pass manager failed to lower CIR to LLVMIR dialect!");
   }
 
-  if (!useOrb)
+  if (!useAnyOrb)
     fixLargeStructCallArgsDirect(mlirModule);
 
   if (!mlirSaveTempsOutFile.empty()) {
