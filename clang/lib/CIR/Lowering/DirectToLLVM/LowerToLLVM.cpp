@@ -4942,13 +4942,16 @@ void populateOrbPasses(mlir::OpPassManager &pm, bool isNaive, unsigned fenceCost
   pm.addPass(mlir::createOrderAnalysisPass());
 
   if (isNaive) {
-    pm.addPass(mlir::createConvertCppAtomicToArmAtomicNaivePass());
-  } else {
-    pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
-  }
 
-  pm.addPass(mlir::createFenceSynthesisPass(
-      mlir::FenceSynthesisPassOptions{fenceCostBase}));
+    pm.addPass(mlir::createConvertCppAtomicToArmAtomicNaivePass());
+
+  } else {
+
+    pm.addPass(mlir::createConvertCppAtomicToArmAtomicPass());
+    pm.addPass(mlir::createFenceSynthesisPass(
+        mlir::FenceSynthesisPassOptions{fenceCostBase}));
+
+  }
 
   pm.addPass(createConvertCIRToLLVMPass());
   pm.addPass(mlir::createConvertArmAtomicToLLVMPass());
