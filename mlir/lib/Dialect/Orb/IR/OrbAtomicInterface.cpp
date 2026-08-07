@@ -331,6 +331,24 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
         worklist.push_back(caller);
     }
   }
+
+  // Precompute return+call pairs: for each callee rA, find all rB reachable
+  // via return to a common parent rMid then call to rB.
+  // For each rMid that calls rA: for each rB that rMid also calls (rB != rA):
+  //   if any callToA dominates callToB in rMid, record the pair.
+  for (auto &[keyA, callsToA] : reach.directCalls) {
+    Region *rMid = keyA.first;
+    Region *rA = keyA.second;
+    for (auto &[keyB, callsToB] : reach.directCalls) {
+      if (keyB.first != rMid || keyB.second == rA)
+        continue;
+      Region *rB = keyB.second;
+      // Note: we only need to know IF a path exists; dominance of specific
+      // ops is checked later. Store one representative pair.
+      reach.returnCallPairs[{rA, rB}]; // insert empty entry = path exists
+    }
+  }
+
   return reach;
 }
 
@@ -401,7 +419,7 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
       if (aIdx == bIdx)
         continue;
       Operation *b = result.idToOp.lookup(result.ids[bIdx]);
-      if (!reach.opCanReach(a, b->getBlock()->getParent(), dominance)) {
+      if (!reach.opCanReachOp(a, b, dominance)) {
         result.setOrder(aIdx, bIdx, EventOrder::Unreachable);
         continue;
       }
