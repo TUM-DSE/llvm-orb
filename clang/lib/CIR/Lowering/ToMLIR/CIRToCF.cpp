@@ -43,16 +43,39 @@ struct BrCondRewriter : public OpConversionPattern<cir::BrCondOp> {
 
   LogicalResult matchAndRewrite(cir::BrCondOp cbrOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
-
-
     auto cir_cond_bool = adaptor.getCond();
-    auto *cir_true = cbrOp.getDestTrue();
-    auto *cir_false = cbrOp.getDestFalse();
+    Block *destTrue = cbrOp.getDestTrue();
+    Block *destFalse = cbrOp.getDestFalse();
+    ValueRange trueOps = adaptor.getDestOperandsTrue();
+    ValueRange falseOps = adaptor.getDestOperandsFalse();
 
-    auto cf_br = cf::CondBranchOp::create(rewriter, cbrOp.getLoc(), cir_cond_bool, cir_true, cir_false);
-    rewriter.eraseOp(cbrOp);
-    //rewriter.replaceOpWithNewOp<cf::CondBranchOp>(cbrOp, cir_cond_bool, cir_true,
-    //    cir_false);
+    // Convert destination block argument types to match converted operands.
+    auto convertBlockArgs = [&](Block *dest, ValueRange ops) -> Block * {
+      if (ops.empty())
+        return dest;
+      bool needsConversion = false;
+      for (auto [idx, val] : llvm::enumerate(ops)) {
+        if (dest->getArgument(idx).getType() != val.getType()) {
+          needsConversion = true;
+          break;
+        }
+      }
+      if (needsConversion) {
+        TypeConverter::SignatureConversion sigConv(dest->getNumArguments());
+        for (auto [idx, val] : llvm::enumerate(ops))
+          sigConv.addInputs(idx, val.getType());
+        return rewriter.applySignatureConversion(dest, sigConv,
+                                                 getTypeConverter());
+      }
+      return dest;
+    };
+
+    destTrue = convertBlockArgs(destTrue, trueOps);
+    destFalse = convertBlockArgs(destFalse, falseOps);
+
+    rewriter.replaceOpWithNewOp<cf::CondBranchOp>(cbrOp, cir_cond_bool,
+                                                   destTrue, trueOps,
+                                                   destFalse, falseOps);
     return success();
   }
 };
@@ -68,14 +91,20 @@ struct BrRewriter : public OpConversionPattern<cir::BrOp> {
     ValueRange convertedOps = adaptor.getDestOperands();
 
     // Convert destination block argument types to match the converted operands.
-    // Only convert if types don't already match (avoids double-conversion when
-    // multiple predecessors branch to the same block).
-    if (!convertedOps.empty() &&
-        dest->getArgument(0).getType() != convertedOps[0].getType()) {
-      TypeConverter::SignatureConversion sigConv(dest->getNumArguments());
-      for (auto [idx, val] : llvm::enumerate(convertedOps))
-        sigConv.addInputs(idx, val.getType());
-      dest = rewriter.applySignatureConversion(dest, sigConv, getTypeConverter());
+    if (!convertedOps.empty()) {
+      bool needsConversion = false;
+      for (auto [idx, val] : llvm::enumerate(convertedOps)) {
+        if (dest->getArgument(idx).getType() != val.getType()) {
+          needsConversion = true;
+          break;
+        }
+      }
+      if (needsConversion) {
+        TypeConverter::SignatureConversion sigConv(dest->getNumArguments());
+        for (auto [idx, val] : llvm::enumerate(convertedOps))
+          sigConv.addInputs(idx, val.getType());
+        dest = rewriter.applySignatureConversion(dest, sigConv, getTypeConverter());
+      }
     }
 
     rewriter.replaceOpWithNewOp<cf::BranchOp>(brOp, dest, convertedOps);
