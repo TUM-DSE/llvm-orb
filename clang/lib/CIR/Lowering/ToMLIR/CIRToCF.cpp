@@ -202,6 +202,48 @@ void populateTypeConversions(TypeConverter &typeConverter, MLIRContext *context)
   });
 }
 
+/// Lower cir.try_call → cir.call + cf.br, and cir.try_throw → cf.br.
+/// This eliminates terminators-with-results before applyPartialConversion
+/// runs, preventing materialization casts from being inserted after terminators
+/// in this and ALL subsequent passes.
+static void lowerTryTerminators(Operation *root) {
+  OpBuilder builder(root->getContext());
+
+  // Collect first to avoid modifying while walking.
+  SmallVector<cir::TryCallOp> tryCalls;
+  SmallVector<cir::TryThrowOp> tryThrows;
+  root->walk([&](cir::TryCallOp op) { tryCalls.push_back(op); });
+  root->walk([&](cir::TryThrowOp op) { tryThrows.push_back(op); });
+
+  for (auto tryCallOp : tryCalls) {
+    builder.setInsertionPoint(tryCallOp);
+    auto loc = tryCallOp.getLoc();
+
+    // Create cir.call with same callee, args, result type.
+    Type resTy = tryCallOp.getNumResults() > 0
+                     ? tryCallOp.getResult().getType()
+                     : cir::VoidType::get(builder.getContext());
+    // Use all operands (includes indirect call target if present).
+    auto callOp = cir::CallOp::create(builder, loc, tryCallOp.getCalleeAttr(),
+                                      resTy, tryCallOp->getOperands());
+
+    // Replace uses of try_call result with call result.
+    if (tryCallOp.getNumResults() > 0)
+      tryCallOp.getResult().replaceAllUsesWith(callOp.getResult());
+
+    // Replace terminator with cf.br to normal destination.
+    cf::BranchOp::create(builder, loc, tryCallOp.getNormalDest(), ValueRange{});
+    tryCallOp.erase();
+  }
+
+  for (auto tryThrowOp : tryThrows) {
+    builder.setInsertionPoint(tryThrowOp);
+    cf::BranchOp::create(builder, tryThrowOp.getLoc(),
+                         tryThrowOp.getNormalDest(), ValueRange{});
+    tryThrowOp.erase();
+  }
+}
+
 //===----------------------------------------------------------------------===//
 // Pass definition
 // ===----------------------------------------------------------------------===//
@@ -212,6 +254,11 @@ struct CIRToCFPass : public impl::CIRToCFBase<CIRToCFPass> {
 };
 
 void CIRToCFPass::runOnOperation() {
+  // First, eliminate cir.try_call/cir.try_throw terminators that define results.
+  // This must happen before applyPartialConversion, which would otherwise try
+  // to insert materialization casts after these terminators, producing invalid IR.
+  lowerTryTerminators(getOperation());
+
   MLIRContext *context = &getContext();
   ConversionTarget target(*context);
   target.addLegalDialect<cf::ControlFlowDialect>();

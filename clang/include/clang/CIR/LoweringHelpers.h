@@ -66,4 +66,5 @@ mlir::Value createAnd(mlir::OpBuilder &bld, mlir::Value lhs,
                       const llvm::APInt &rhs);
 
 mlir::Value createLShR(mlir::OpBuilder &bld, mlir::Value lhs, unsigned rhs);
+
 #endif

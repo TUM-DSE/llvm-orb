@@ -350,6 +350,7 @@ struct CIRToPtrPass : public mlir::impl::CIRToPtrBase<CIRToPtrPass> {
     if (failed(applyPartialConversion(getOperation(), target,
                                       std::move(patterns))))
       signalPassFailure();
+
   }
 };
 
