@@ -7,13 +7,19 @@
 //===----------------------------------------------------------------------===//
 
 #include "mlir/Conversion/CppAtomicToArmAtomic/CppAtomicToArmAtomic.h"
+#include "mlir/Analysis/AliasAnalysis.h"
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h"
 #include "mlir/Dialect/Orb/CppAtomicDialect.h"
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
-#include "mlir/Pass/Pass.h"
+#include "mlir/IR/Dominance.h"
 #include "mlir/IR/PatternMatch.h"
+#include "mlir/Pass/Pass.h"
 #include "mlir/Support/LogicalResult.h"
 #include "mlir/Transforms/DialectConversion.h"
+#include "llvm/Support/Path.h"
+#include "llvm/Support/raw_ostream.h"
+#include <chrono>
+#include <cstdlib>
 
 
 namespace mlir {
@@ -32,8 +38,9 @@ static arm_atomic::MemoryOrder convertLoadMemoryOrder(cpp_atomic::MemoryOrder cp
     case cpp_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
      
     case cpp_atomic::MemoryOrder::Acquire:
+    case cpp_atomic::MemoryOrder::AcqRel:
       return arm_atomic::MemoryOrder::AcquirePC;
-    case cpp_atomic::MemoryOrder::SeqCst: 
+    case cpp_atomic::MemoryOrder::SeqCst:
       return arm_atomic::MemoryOrder::Acquire;
     default:
       llvm_unreachable("Unknown CppAtomic memory order for atomic_load");
@@ -46,7 +53,8 @@ static arm_atomic::MemoryOrder convertStoreMemoryOrder(cpp_atomic::MemoryOrder c
     case cpp_atomic::MemoryOrder::Relaxed: return arm_atomic::MemoryOrder::Relaxed;
 
     case cpp_atomic::MemoryOrder::Release:
-    case cpp_atomic::MemoryOrder::SeqCst: 
+    case cpp_atomic::MemoryOrder::AcqRel:
+    case cpp_atomic::MemoryOrder::SeqCst:
       return arm_atomic::MemoryOrder::Release;
     default:
       llvm_unreachable("Unknown CppAtomic memory order for atomic_store");
@@ -148,6 +156,26 @@ void populateNaiveCppToArmPatterns(RewritePatternSet &patterns) {
 }
 
 //===----------------------------------------------------------------------===//
+// Logging helper (mirrors FenceSynthesis)
+//===----------------------------------------------------------------------===//
+
+namespace {
+
+struct SynthLogStream {
+  llvm::raw_ostream *file;
+  const std::string &tag;
+  bool started = false;
+  template <typename T> SynthLogStream &operator<<(const T &v) {
+    if (!started) { llvm::errs() << tag; if (file) *file << tag; started = true; }
+    llvm::errs() << v;
+    if (file) *file << v;
+    return *this;
+  }
+};
+
+} // namespace
+
+//===----------------------------------------------------------------------===//
 // Pass Definition
 //===----------------------------------------------------------------------===//
 
@@ -159,21 +187,119 @@ class ConvertCppAtomicToArmAtomicNaivePass : public impl::ConvertCppAtomicToArmA
 }
 
 void ConvertCppAtomicToArmAtomicNaivePass::runOnOperation() {
-    MLIRContext *context = &getContext();
-    ConversionTarget target(*context);
+    auto synthStart = std::chrono::steady_clock::now();
+    auto elapsedMs = [&]() {
+      return std::chrono::duration_cast<std::chrono::milliseconds>(
+                 std::chrono::steady_clock::now() - synthStart)
+          .count();
+    };
 
+    ModuleOp module = cast<ModuleOp>(getOperation());
+    MLIRContext *context = &getContext();
+
+    // ---- Build log tag (same scheme as FenceSynthesis) ----
+    StringRef moduleName = "<unknown>";
+    if (auto name = module.getName())
+      moduleName = llvm::sys::path::filename(*name);
+    else if (auto fileLoc = dyn_cast<FileLineColLoc>(module->getLoc()))
+      moduleName = llvm::sys::path::filename(fileLoc.getFilename());
+    llvm::hash_code moduleHash = llvm::hash_value(moduleName);
+    module.walk([&](Operation *op) {
+      if (auto sym = op->getAttrOfType<StringAttr>(
+              mlir::SymbolTable::getSymbolAttrName()))
+        moduleHash = llvm::hash_combine(moduleHash, sym);
+    });
+    std::string tagId = moduleName.str() + ":" +
+                        llvm::utohexstr(static_cast<uint32_t>(moduleHash) & 0xFFFF,
+                                        /*LowerCase=*/true);
+    std::string tag = "[NaiveCppToArm] <" + tagId + "> ";
+
+    std::unique_ptr<llvm::raw_fd_ostream> synthLog;
+    if (const char *dir = std::getenv("ORB_SYNTH_LOG")) {
+      std::string path = std::string(dir) + "/" + tagId + ".log";
+      std::error_code ec;
+      synthLog = std::make_unique<llvm::raw_fd_ostream>(path, ec,
+                                                         llvm::sys::fs::OF_Append);
+      if (ec)
+        synthLog.reset();
+    }
+    auto log = [&]() -> SynthLogStream { return {synthLog.get(), tag}; };
+
+    log() << "start\n";
+
+    // ---- 1:1 conversion ----
+    ConversionTarget target(*context);
     target.addLegalDialect<arm_atomic::ArmAtomicDialect>();
     target.addLegalOp<mlir::UnrealizedConversionCastOp>();
     target.addIllegalDialect<cpp_atomic::CppAtomicDialect>();
 
     RewritePatternSet patterns(context);
-
     populateNaiveCppToArmPatterns(patterns);
 
-    if (failed(applyPartialConversion(getOperation(), target, std::move(patterns))))
+    if (failed(applyPartialConversion(getOperation(), target, std::move(patterns)))) {
       signalPassFailure();
+      return;
+    }
 
     // OrderAnalysis stores only stable event-ID pairs (no op pointers), so it
     // remains valid after ops are replaced.
     markAnalysesPreserved<orb::OrderAnalysis>();
+
+    // ---- Verify ordering coverage and log ----
+    auto &required = getAnalysis<orb::OrderAnalysis>();
+    log() << "required pairs=" << required.requiredPairs().size() << "\n";
+    if (required.empty())
+      return;
+
+    auto &aa  = getAnalysis<AliasAnalysis>();
+    auto &dom = getAnalysis<DominanceInfo>();
+
+    const orb::OrbAtomicDialectInterface *iface = nullptr;
+    module.walk([&](Operation *op) -> WalkResult {
+      if (!op->hasAttr(orb::kEventIdAttr))
+        return WalkResult::advance();
+      if (auto *i = op->getDialect()
+                       ->getRegisteredInterface<orb::OrbAtomicDialectInterface>()) {
+        iface = i;
+        return WalkResult::interrupt();
+      }
+      return WalkResult::advance();
+    });
+    if (!iface) {
+      log() << "ERROR: no OrbAtomicDialectInterface found\n";
+      return;
+    }
+
+    auto reach = orb::computeCallReachability(module);
+    auto mb = orb::getOrderMatrix(module, aa, dom, iface, reach);
+    iface->refineInitialOrderMatrix(mb);
+
+    unsigned nEvents = mb.eventIds().size();
+    unsigned nUnreachable = mb.countCells(orb::EventOrder::Unreachable);
+    log() << "n=" << nEvents
+          << " unreachable=" << nUnreachable
+          << " reachable=" << (nEvents * nEvents - nEvents - nUnreachable)
+          << "\n";
+
+    llvm::DenseSet<std::pair<uint64_t,uint64_t>> requiredSet(
+        required.requiredPairs().begin(), required.requiredPairs().end());
+    unsigned total = required.requiredPairs().size();
+    unsigned covered = 0, overspecified = 0, remaining = 0;
+    for (uint64_t c : mb.eventIds())
+      for (uint64_t d : mb.eventIds()) {
+        if (c == d || mb.getOrder(c, d) != orb::EventOrder::Ordered)
+          continue;
+        if (requiredSet.count({c, d}))
+          ++covered;
+        else
+          ++overspecified;
+      }
+    for (auto [idA, idB] : required.requiredPairs())
+      if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
+        ++remaining;
+
+    log() << "done ordered=" << covered << "/" << total
+          << " overspecified=" << overspecified
+          << " remaining=" << remaining
+          << " t=" << elapsedMs() << "ms\n";
 }
