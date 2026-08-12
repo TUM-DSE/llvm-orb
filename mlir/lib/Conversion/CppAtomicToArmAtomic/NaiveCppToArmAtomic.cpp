@@ -278,7 +278,7 @@ void ConvertCppAtomicToArmAtomicNaivePass::runOnOperation() {
     unsigned nUnreachable = mb.countCells(orb::EventOrder::Unreachable);
     log() << "n=" << nEvents
           << " unreachable=" << nUnreachable
-          << " reachable=" << (nEvents * nEvents - nEvents - nUnreachable)
+          << " reachable=" << (nEvents * nEvents - nUnreachable)
           << "\n";
 
     llvm::DenseSet<std::pair<uint64_t,uint64_t>> requiredSet(

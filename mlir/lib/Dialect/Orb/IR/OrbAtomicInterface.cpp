@@ -191,9 +191,14 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
       continue;
     Operation *ev = idToOp.lookup(ids[evIdx]);
     Region *rEv = ev->getBlock()->getParent();
-    if (rEv == rF || reach.reaches(rEv, rF))
+    // Only re-evaluate reachable pairs. The coarse reaches() check can
+    // consider pairs reachable that opCanReach() (used by getOrderMatrix)
+    // marked as Unreachable. Overwriting those inflates overspecification.
+    if (matrix[evIdx * n + fIdx] != EventOrder::Unreachable &&
+        (rEv == rF || reach.reaches(rEv, rF)))
       setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
-    if (reach.opCanReach(f, rEv, dom))
+    if (matrix[fIdx * n + evIdx] != EventOrder::Unreachable &&
+        reach.opCanReach(f, rEv, dom))
       setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
   }
   applyFenceClosure(fIdx, iface);
