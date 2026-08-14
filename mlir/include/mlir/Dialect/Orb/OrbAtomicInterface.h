@@ -63,7 +63,11 @@ struct Promotion {
     Operation *op2;
     int targetMemoryOrder2;
   };
-  using Action = std::variant<FenceAction, UpgradeAction, PairUpgradeAction>;
+  /// No IR change; prior upgrades already satisfy the ordering rule but the
+  /// matrix hasn't caught up. Cost 0.
+  struct EmptyUpgradeAction {};
+  using Action = std::variant<FenceAction, UpgradeAction, PairUpgradeAction,
+                              EmptyUpgradeAction>;
 
   Action action;
   unsigned loopDepth = 0; ///< Loop depth of the promotion's target op.

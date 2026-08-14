@@ -403,6 +403,11 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
           options.push_back({orb::Promotion::PairUpgradeAction{
               a, (int)arm_atomic::MemoryOrder::Release,
               b, (int)arm_atomic::MemoryOrder::Acquire}});
+      } else if (aIsREL) {
+        // [L];po;[A] already satisfied but matrix may not reflect it
+        // (upgrades arrived in separate iterations). Empty upgrade lets
+        // the synthesis loop fix the matrix at cost 0.
+        options.push_back({orb::Promotion::EmptyUpgradeAction{}});
       }
     }
 
@@ -455,8 +460,11 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   ///   New insertion gets +1 over upgrade (prefer upgrading existing fences).
   ///   Scale aggressively with loop depth (K=4).
   ///
-  /// PairUpgrade: cost = 1 (always cheapest).
+  /// EmptyUpgrade: cost = 0 (matrix catch-up, no IR change).
+  /// PairUpgrade: cost = 1 (always cheapest real change).
   int cost(const orb::Promotion &p, const orb::CostContext &ctx) const override {
+    if (std::get_if<orb::Promotion::EmptyUpgradeAction>(&p.action))
+      return 0;
     if (std::get_if<orb::Promotion::PairUpgradeAction>(&p.action))
       return 1;
 
@@ -514,6 +522,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
   Operation *applyPromotion(const orb::Promotion &p,
                             OpBuilder &builder) const override {
+    if (std::get_if<orb::Promotion::EmptyUpgradeAction>(&p.action))
+      return nullptr;
     if (const auto *fa =
             std::get_if<orb::Promotion::FenceAction>(&p.action)) {
       auto mo = static_cast<arm_atomic::MemoryOrder>(fa->memoryOrder);
@@ -583,6 +593,11 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
                          uint64_t idA, uint64_t idB, orb::OrderMatrix &mb,
                          AliasAnalysis &aa, DominanceInfo &dom,
                          const orb::CallReachability &reach) const override {
+    if (std::get_if<orb::Promotion::EmptyUpgradeAction>(&p.action)) {
+      // Matrix catch-up: mark (idA, idB) ordered.
+      mb.markOrdered(idA, idB);
+      return;
+    }
     if (std::get_if<orb::Promotion::FenceAction>(&p.action)) {
       mb.addFence(newOp, this, aa, dom, reach);
       return;
