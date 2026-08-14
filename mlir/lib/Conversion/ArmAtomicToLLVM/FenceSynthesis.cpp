@@ -221,16 +221,12 @@ struct FenceSynthesisPass
       }
     };
 
-    // Two-phase synthesis: first exhaust all access upgrades (LDAPR/STLR/
-    // PairUpgrade) across ALL required pairs, then allow fence insertions
-    // for remaining unsatisfied pairs. This ensures atomic upgrades have
-    // full transitive coverage before blunt fences are considered.
-    bool allowFences = false;
-
     // Fixpoint: each iteration either adds a fence to F_ign or adds edges to
     // M_B. Both sets are finite, so the loop always terminates (paper §5).
     // Independent pairs are batched: pairs (a,b) and (c,d) are independent
     // if all of {a,b} are Unreachable from all of {c,d} and vice versa.
+    // Fences and upgrades compete on cost from the start; fenceCostBase
+    // controls the tradeoff.
     bool changed = true;
     unsigned iteration = 0;
     while (changed) {
@@ -305,8 +301,6 @@ struct FenceSynthesisPass
                              colWritePressure[idB], fenceCostBase,
                              (unsigned)mb.eventIds().size()};
         for (auto &p : iface->promote(idA, a, idB, b)) {
-          if (!allowFences && std::get_if<orb::Promotion::FenceAction>(&p.action))
-            continue;
           if (auto *fa = std::get_if<orb::Promotion::FenceAction>(&p.action))
             p.loopDepth =
                 blockLoopDepth.lookup(fa->insertBefore->getBlock());
@@ -339,7 +333,6 @@ struct FenceSynthesisPass
                        << " ordered=" << covered << "/" << total
                        << " overspecified=" << overspecified
                        << " batched=" << batch.size()
-                       << " fences=" << (allowFences ? "yes" : "no")
                        << " t=" << elapsedMs() << "ms\n";
         }
         for (auto &e : batch) {
@@ -352,13 +345,6 @@ struct FenceSynthesisPass
         }
         mb.closeTransitively(/*maxRounds=*/2);
         rebuildPressure();
-        changed = true;
-      } else if (!allowFences) {
-        // Upgrade phase exhausted — run full transitive closure so that
-        // atomic upgrades propagate completely, then allow fences.
-        mb.closeTransitively();
-        rebuildPressure();
-        allowFences = true;
         changed = true;
       }
       ++iteration;

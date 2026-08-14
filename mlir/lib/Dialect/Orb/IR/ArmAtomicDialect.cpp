@@ -461,12 +461,27 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   ///   Scale aggressively with loop depth (K=4).
   ///
   /// EmptyUpgrade: cost = 0 (matrix catch-up, no IR change).
-  /// PairUpgrade: cost = 1 (always cheapest real change).
+  /// PairUpgrade: cost = sum of the two component upgrade costs.
   int cost(const orb::Promotion &p, const orb::CostContext &ctx) const override {
     if (std::get_if<orb::Promotion::EmptyUpgradeAction>(&p.action))
       return 0;
-    if (std::get_if<orb::Promotion::PairUpgradeAction>(&p.action))
-      return 1;
+
+    // --- Shared helpers ---
+    auto collateral = [&](unsigned covered) -> int {
+      if (ctx.numEvents <= 1) return 0;
+      int waste = (int)ctx.numEvents - 1 - (int)covered;
+      return waste > 0 ? 1000 * waste / ((int)ctx.numEvents - 1) : 0;
+    };
+    int loopMult = 1 + (int)p.loopDepth;
+
+    // --- PairUpgrade: combined cost of store→REL + load→ACQPC ---
+    if (std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
+      int loadCost = (1000 / (int)std::max(ctx.rowPressure, 1u)
+                      + collateral(ctx.rowPressure) - 1) * loopMult;
+      int storeCost = (1000 / (int)std::max(ctx.colPressure, 1u)
+                       + collateral(ctx.colPressure)) * loopMult * 3;
+      return loadCost + storeCost;
+    }
 
     const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action);
 
@@ -500,12 +515,6 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return fenceCost(mo, false);
 
     // --- Access upgrade cost ---
-    auto collateral = [&](unsigned covered) -> int {
-      if (ctx.numEvents <= 1) return 0;
-      int waste = (int)ctx.numEvents - 1 - (int)covered;
-      return waste > 0 ? 1000 * waste / ((int)ctx.numEvents - 1) : 0;
-    };
-    int loopMult = 1 + (int)p.loopDepth;
     switch (mo) {
     case arm_atomic::MemoryOrder::AcquirePC: // LDAPR — cheaper than LDAR
       return (1000 / (int)std::max(ctx.rowPressure, 1u) + collateral(ctx.rowPressure) - 1) * loopMult;
