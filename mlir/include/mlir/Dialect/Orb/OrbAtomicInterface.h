@@ -101,65 +101,27 @@ struct CallReachability {
                  llvm::SmallVector<Operation *>>
       directCalls;
 
-  /// True if `a` can reach `toRegion` via call or return edges.
-  bool opCanReach(Operation *a, Region *toRegion, DominanceInfo &dom) const {
+  /// True if `a` can reach `b` via program order across function boundaries.
+  /// Caller→Callee: a dominates a call from a's region to b's region.
+  /// Callee→Caller: b's region calls a's region and the call dominates b.
+  bool opCanReach(Operation *a, Operation *b, DominanceInfo &dom) const {
     Region *fromRegion = a->getBlock()->getParent();
+    Region *toRegion = b->getBlock()->getParent();
     if (fromRegion == toRegion)
       return true;
-    if (!reaches(fromRegion, toRegion))
-      return false;
-    // Forward: a's region calls toRegion, a dominates the call site.
-    auto it = directCalls.find({fromRegion, toRegion});
-    if (it != directCalls.end() &&
-        llvm::any_of(it->second, [&](Operation *cs) {
-          return dom.dominates(a, cs);
+    // Caller→Callee: a dominates a call to b's region.
+    auto fwd = directCalls.find({fromRegion, toRegion});
+    if (fwd != directCalls.end() &&
+        llvm::any_of(fwd->second, [&](Operation *callOp) {
+          return dom.dominates(a, callOp);
         }))
       return true;
-    // Return: toRegion calls fromRegion (a returns into toRegion).
-    if (directCalls.count({toRegion, fromRegion}))
-      return true;
-    // Return+call: fromRegion returns to a common parent that calls toRegion.
-    return returnCallPairs.count({fromRegion, toRegion});
-  }
-
-  /// Precomputed return+call pairs: for each (rA, rB), the set of
-  /// (callToA, callToB) pairs in a common parent rMid where callToA
-  /// dominates callToB. Populated by computeCallReachability.
-  struct RetCallPair {
-    Operation *callToA;
-    Operation *callToB;
-  };
-  llvm::DenseMap<std::pair<Region *, Region *>,
-                 llvm::SmallVector<RetCallPair>>
-      returnCallPairs;
-
-  /// True if `a` can reach `b` via call, return, or return+call paths.
-  bool opCanReachOp(Operation *a, Operation *b, DominanceInfo &dom) const {
-    Region *rA = a->getBlock()->getParent();
-    Region *rB = b->getBlock()->getParent();
-    if (rA == rB)
-      return true;
-    if (!reaches(rA, rB))
-      return false;
-    // 1. Forward call: rA directly calls rB, a dominates the call site.
-    auto itFwd = directCalls.find({rA, rB});
-    if (itFwd != directCalls.end() &&
-        llvm::any_of(itFwd->second, [&](Operation *cs) {
-          return dom.dominates(a, cs);
-        }))
-      return true;
-    // 2. Direct return: rB calls rA, call site in rB dominates b.
-    auto itRet = directCalls.find({rB, rA});
-    if (itRet != directCalls.end() &&
-        llvm::any_of(itRet->second, [&](Operation *cs) {
-          return dom.dominates(cs, b);
-        }))
-      return true;
-    // 3. Return+call through common parent (precomputed).
-    auto itRC = returnCallPairs.find({rA, rB});
-    if (itRC != returnCallPairs.end())
-      return true;
-    return false;
+    // Callee→Caller: b's region calls a's region; call dominates b.
+    auto rev = directCalls.find({toRegion, fromRegion});
+    return rev != directCalls.end() &&
+           llvm::any_of(rev->second, [&](Operation *callOp) {
+             return dom.dominates(callOp, b);
+           });
   }
 };
 

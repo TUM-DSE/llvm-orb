@@ -107,7 +107,7 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     Region *rEv = ev->getBlock()->getParent();
     if (rEv == rF || reach.reaches(rEv, rF))
       setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
-    if (reach.opCanReach(f, rEv, dom))
+    if (reach.opCanReach(f, ev, dom))
       setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
   }
   applyFenceClosure(fIdx, iface);
@@ -198,7 +198,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
         (rEv == rF || reach.reaches(rEv, rF)))
       setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
     if (matrix[fIdx * n + evIdx] != EventOrder::Unreachable &&
-        reach.opCanReach(f, rEv, dom))
+        reach.opCanReach(f, ev, dom))
       setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
   }
   applyFenceClosure(fIdx, iface);
@@ -424,7 +424,7 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
       if (aIdx == bIdx)
         continue;
       Operation *b = result.idToOp.lookup(result.ids[bIdx]);
-      if (!reach.opCanReachOp(a, b, dominance)) {
+      if (!reach.opCanReach(a, b, dominance)) {
         result.setOrder(aIdx, bIdx, EventOrder::Unreachable);
         continue;
       }

@@ -263,7 +263,7 @@ struct FenceSynthesisPass
                 ++mediatedUnordered;
             }
           }
-          if (mediatedUnordered == 0) {
+          if (mediatedUnordered == 0 && !before.empty() && !after.empty()) {
             fIgn.insert(fId);
             changed = true;
             continue;
