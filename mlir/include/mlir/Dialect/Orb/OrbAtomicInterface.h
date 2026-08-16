@@ -101,26 +101,47 @@ struct CallReachability {
                  llvm::SmallVector<Operation *>>
       directCalls;
 
+  /// True if `from` can reach `to` via CFG successor edges within one region.
+  /// Same-block: `from` must appear before `to`.
+  static bool blockCanReach(Operation *from, Operation *to) {
+    Block *src = from->getBlock();
+    Block *dst = to->getBlock();
+    if (src == dst)
+      return from->isBeforeInBlock(to);
+    llvm::DenseSet<Block *> visited;
+    llvm::SmallVector<Block *> worklist(src->succ_begin(), src->succ_end());
+    while (!worklist.empty()) {
+      Block *b = worklist.pop_back_val();
+      if (b == dst)
+        return true;
+      if (!visited.insert(b).second)
+        continue;
+      for (Block *succ : b->getSuccessors())
+        worklist.push_back(succ);
+    }
+    return false;
+  }
+
   /// True if `a` can reach `b` via program order across function boundaries.
-  /// Caller→Callee: a dominates a call from a's region to b's region.
-  /// Callee→Caller: b's region calls a's region and the call dominates b.
-  bool opCanReach(Operation *a, Operation *b, DominanceInfo &dom) const {
+  /// Caller→Callee: a's block can reach a call from a's region to b's region.
+  /// Callee→Caller: a call from b's region to a's region can reach b.
+  bool opCanReach(Operation *a, Operation *b, DominanceInfo &) const {
     Region *fromRegion = a->getBlock()->getParent();
     Region *toRegion = b->getBlock()->getParent();
     if (fromRegion == toRegion)
       return true;
-    // Caller→Callee: a dominates a call to b's region.
+    // Caller→Callee: a's block can reach the call to b's region.
     auto fwd = directCalls.find({fromRegion, toRegion});
     if (fwd != directCalls.end() &&
         llvm::any_of(fwd->second, [&](Operation *callOp) {
-          return dom.dominates(a, callOp);
+          return blockCanReach(a, callOp);
         }))
       return true;
-    // Callee→Caller: b's region calls a's region; call dominates b.
+    // Callee→Caller: the call to a's region can reach b.
     auto rev = directCalls.find({toRegion, fromRegion});
     return rev != directCalls.end() &&
            llvm::any_of(rev->second, [&](Operation *callOp) {
-             return dom.dominates(callOp, b);
+             return blockCanReach(callOp, b);
            });
   }
 };
