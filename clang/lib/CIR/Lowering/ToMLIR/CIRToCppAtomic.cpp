@@ -129,13 +129,17 @@ struct FenceRewriter : public OpConversionPattern<cir::AtomicFenceOp> {
 
   LogicalResult matchAndRewrite(cir::AtomicFenceOp fenceOp, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
+    // Single-thread fences are compiler barriers only — not memory ordering
+    // events. Converting them would make the ordering analysis treat them as
+    // real fences, causing subsequent system fences to be dropped as redundant.
+    if (fenceOp.getSyncscope() == cir::SyncScopeKind::SingleThread) {
+      rewriter.eraseOp(fenceOp);
+      return success();
+    }
+
     auto memOrder = convertCIRFenceOrder(fenceOp.getOrdering());
-
-    StringAttr syncscope;
-    if (fenceOp.getSyncscope() == cir::SyncScopeKind::SingleThread)
-      syncscope = rewriter.getStringAttr("singlethread");
-
-    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(fenceOp, memOrder, syncscope);
+    rewriter.replaceOpWithNewOp<cpp_atomic::AtomicFenceOp>(fenceOp, memOrder,
+                                                            /*syncscope=*/StringAttr{});
     return success();
   }
 };
@@ -161,7 +165,9 @@ struct CIRToCppAtomicPass : public impl::CIRToCppAtomicBase<CIRToCppAtomicPass> 
     target.addDynamicallyLegalOp<ptr::StoreOp>([](ptr::StoreOp op) {
       return op.getOrdering() == ptr::AtomicOrdering::not_atomic;
     });
-    target.addIllegalOp<cir::AtomicFenceOp>();
+    target.addDynamicallyLegalOp<cir::AtomicFenceOp>([](cir::AtomicFenceOp op) {
+      return op.getSyncscope() == cir::SyncScopeKind::SingleThread;
+    });
 
     RewritePatternSet patterns(context);
     patterns.add<LoadRewriter, StoreRewriter, FenceRewriter>(context);
