@@ -394,7 +394,7 @@ struct FenceSynthesisPass
           iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
                                    mb, aa, dom, reach);
         }
-        mb.closeIncrementally();
+        // mb.closeIncrementally(); // disabled temporarily
         rebuildPressure();
         changed = true;
       }

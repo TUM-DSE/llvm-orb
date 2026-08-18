@@ -664,7 +664,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   }
 
   void refineInitialOrderMatrix(orb::OrderMatrix &matrix) const override {
-    matrix.closeTransitively(4);
+    // matrix.closeTransitively(4); // disabled temporarily
   }
 };
 
