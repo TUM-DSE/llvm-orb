@@ -100,7 +100,6 @@ struct FenceSynthesisPass
 
     // Precomputed reachability — stable across synthesis iterations.
     auto reach = orb::computeCallReachability(module);
-    reach.blockReach = &getAnalysis<orb::BlockReachabilityAnalysis>();
 
     // Precompute loop depth per block for loop-aware cost model.
     // Skip single-block regions (no loops possible) and regions whose
@@ -160,10 +159,15 @@ struct FenceSynthesisPass
           << " reachable=" << (nEvents * nEvents - nUnreachable)
           << "\n";
 
-    // isEventFence: true if id refers to a fence op in the target dialect.
-    auto isEventFence = [&](uint64_t id) -> bool {
+    // Precomputed set of fence event IDs for O(1) lookup.
+    llvm::DenseSet<uint64_t> fenceIds;
+    for (uint64_t id : mb.eventIds()) {
       Operation *op = mb.getOpForId(id);
-      return op && iface->isFenceEvent(op);
+      if (op && iface->isFenceEvent(op))
+        fenceIds.insert(id);
+    }
+    auto isEventFence = [&](uint64_t id) -> bool {
+      return fenceIds.count(id);
     };
 
     // F_ign: source fence IDs whose mediated access-access pairs are all
@@ -219,6 +223,21 @@ struct FenceSynthesisPass
         unsatisfied.push_back({idA, idB});
     }
 
+    // Precomputed fence pred/succ sets: for each fence ID f,
+    // fencePairs[f] = { before: events a where (a,f) required,
+    //                   after:  events b where (f,b) required }.
+    // Updated when new fences are inserted during synthesis.
+    llvm::DenseMap<uint64_t,
+                   std::pair<llvm::SmallVector<uint64_t>,
+                             llvm::SmallVector<uint64_t>>>
+        fencePairs;
+    for (auto [a, b] : required.requiredPairs()) {
+      if (isEventFence(a))
+        fencePairs[a].second.push_back(b);
+      if (isEventFence(b))
+        fencePairs[b].first.push_back(a);
+    }
+
     // Fixpoint: each iteration either adds a fence to F_ign or adds edges to
     // M_B. Both sets are finite, so the loop always terminates (paper §5).
     // Independent pairs are batched: pairs (a,b) and (c,d) are independent
@@ -229,6 +248,38 @@ struct FenceSynthesisPass
     unsigned iteration = 0;
     while (changed) {
       changed = false;
+
+      // §5.2: precompute fence ignorability. For each fence f, check if
+      // all access-access pairs it mediates are already ordered.
+      for (auto &[fId, fp] : fencePairs) {
+        if (fIgn.count(fId))
+          continue;
+        auto &[before, after] = fp;
+        if (before.empty() || after.empty())
+          continue;
+        bool allOrdered = true;
+        for (auto c : before) {
+          if (isEventFence(c))
+            continue;
+          for (auto d : after) {
+            if (isEventFence(d))
+              continue;
+            if (mb.getOrder(c, d) != orb::EventOrder::Ordered) {
+              allOrdered = false;
+              break;
+            }
+          }
+          if (!allOrdered)
+            break;
+        }
+        if (allOrdered) {
+          LLVM_DEBUG(llvm::dbgs() << "fIgn fence id=" << fId
+                << " before=" << before.size()
+                << " after=" << after.size() << "\n");
+          fIgn.insert(fId);
+          changed = true;
+        }
+      }
 
       struct BatchEntry {
         uint64_t idA, idB;
@@ -247,34 +298,6 @@ struct FenceSynthesisPass
         if (mb.getOrder(idA, idB) == orb::EventOrder::Ordered) {
           idA = UINT64_MAX; // mark resolved
           continue;
-        }
-
-        // §5.2: if one endpoint is a source fence f, check if all
-        // access-access pairs it mediates are already ordered → ignorable.
-        bool aIsFence = isEventFence(idA), bIsFence = isEventFence(idB);
-        if (aIsFence || bIsFence) {
-          uint64_t fId = aIsFence ? idA : idB;
-          llvm::SmallVector<uint64_t> before, after;
-          required.pairsWithFence(fId, before, after);
-          unsigned mediatedUnordered = 0;
-          for (auto c : before) {
-            if (isEventFence(c))
-              continue;
-            for (auto d : after) {
-              if (isEventFence(d))
-                continue;
-              if (mb.getOrder(c, d) != orb::EventOrder::Ordered)
-                ++mediatedUnordered;
-            }
-          }
-          if (mediatedUnordered == 0 && !before.empty() && !after.empty()) {
-            LLVM_DEBUG(llvm::dbgs() << "fIgn fence id=" << fId
-                  << " before=" << before.size()
-                  << " after=" << after.size() << "\n");
-            fIgn.insert(fId);
-            changed = true;
-            continue;
-          }
         }
 
         // Check independence with current batch.
@@ -363,13 +386,19 @@ struct FenceSynthesisPass
         }
         for (auto &e : batch) {
           Operation *newOp = iface->applyPromotion(e.promo, builder);
-          if (newOp)
+          if (newOp) {
+            uint64_t newId = nextSynthId++;
             newOp->setAttr(orb::kEventIdAttr,
-                           builder.getI64IntegerAttr(nextSynthId++));
+                           builder.getI64IntegerAttr(newId));
+            if (iface->isFenceEvent(newOp)) {
+              fencePairs[newId]; // empty entry — no required pairs
+              fenceIds.insert(newId);
+            }
+          }
           iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
                                    mb, aa, dom, reach);
         }
-        mb.closeTransitively(/*maxRounds=*/2);
+        mb.closeIncrementally();
         rebuildPressure();
         changed = true;
       }

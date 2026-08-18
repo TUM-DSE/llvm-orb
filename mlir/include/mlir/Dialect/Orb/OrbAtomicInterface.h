@@ -87,22 +87,8 @@ struct CostContext {
 
 class OrbAtomicDialectInterface; // forward declaration for OrderMatrix::addFence
 
-/// Precomputed cross-function block-level reachability (call+return+CFG edges).
-/// Retrieved via getAnalysis<BlockReachabilityAnalysis>().
-class BlockReachabilityAnalysis {
-public:
-  explicit BlockReachabilityAnalysis(Operation *op, AnalysisManager &am);
-  /// Can block `from` reach block `to` across function boundaries?
-  /// `from` must be a block containing an annotated event op.
-  bool canReach(Block *from, Block *to) const;
-
-private:
-  llvm::DenseMap<Block *, unsigned> blockIndex;    ///< All blocks → column index.
-  llvm::DenseMap<Block *, unsigned> eventRowIndex; ///< Event blocks → row index.
-  std::vector<llvm::BitVector> reachMatrix;        ///< Sparse: rows = event blocks.
-};
-
-/// Interprocedural region reachability via call+return edges.
+/// Interprocedural reachability via call+return+CFG edges.
+/// Computed by computeCallReachability().
 struct CallReachability {
   /// Region-level reachability (bidirectional: call + return edges).
   llvm::DenseMap<Region *, llvm::DenseSet<Region *>> data;
@@ -117,57 +103,18 @@ struct CallReachability {
                  llvm::SmallVector<Operation *>>
       directCalls;
 
-  /// Optional cross-function block reachability analysis.
-  const BlockReachabilityAnalysis *blockReach = nullptr;
+  /// Block-level interprocedural reachability (precomputed, no depth limit).
+  llvm::DenseMap<Block *, unsigned> blockIndex; ///< All blocks → dense index.
+  llvm::SmallVector<Block *> allBlocks;         ///< Dense index → block.
+  /// Sparse reachability: only event blocks (containing orb.event_id ops) have
+  /// rows.  blockReachRows[eventRowIndex[block]] is a BitVector over blockIndex.
+  llvm::DenseMap<Block *, unsigned> eventRowIndex;
+  std::vector<llvm::BitVector> blockReachRows;
 
-  /// True if `from` can reach `to` via CFG successor edges within one region.
-  /// Same-block: `from` must appear before `to`.
-  static bool blockCanReach(Operation *from, Operation *to) {
-    Block *src = from->getBlock();
-    Block *dst = to->getBlock();
-    if (src == dst)
-      return from->isBeforeInBlock(to);
-    llvm::DenseSet<Block *> visited;
-    llvm::SmallVector<Block *> worklist(src->succ_begin(), src->succ_end());
-    while (!worklist.empty()) {
-      Block *b = worklist.pop_back_val();
-      if (b == dst)
-        return true;
-      if (!visited.insert(b).second)
-        continue;
-      for (Block *succ : b->getSuccessors())
-        worklist.push_back(succ);
-    }
-    return false;
-  }
-
-  /// True if `a` can reach `b` via program order across function boundaries.
-  bool opCanReach(Operation *a, Operation *b, DominanceInfo &) const {
-    Region *fromRegion = a->getBlock()->getParent();
-    Region *toRegion = b->getBlock()->getParent();
-    if (fromRegion == toRegion)
-      return true;
-    // Caller→Callee: a's block can reach the call to b's region.
-    auto fwd = directCalls.find({fromRegion, toRegion});
-    if (fwd != directCalls.end() &&
-        llvm::any_of(fwd->second, [&](Operation *callOp) {
-          return blockCanReach(a, callOp);
-        }))
-      return true;
-    // Callee→Caller: the call to a's region can reach b.
-    auto rev = directCalls.find({toRegion, fromRegion});
-    if (rev != directCalls.end() &&
-        llvm::any_of(rev->second, [&](Operation *callOp) {
-          return blockCanReach(callOp, b);
-        }))
-      return true;
-    // Multi-hop (e.g. sibling callees): use block reachability.
-    // Return edges only go to caller block successors, so single-hop
-    // callee→caller is handled above via directCalls.
-    if (blockReach)
-      return blockReach->canReach(a->getBlock(), b->getBlock());
-    return false;
-  }
+  /// Can `from` reach `to` via program order across function boundaries?
+  /// Handles same-block ordering, intra-function CFG, and interprocedural
+  /// call/return edges.  Both ops must reside in blocks known to blockIndex.
+  bool canReach(Operation *from, Operation *to) const;
 };
 
 class OrderMatrix {
@@ -218,8 +165,8 @@ private:
                                     const CallReachability &);
   // Flat n×n array of EventOrder (uint8_t), indexed by consecutive event indices.
   std::vector<EventOrder> matrix;
-  llvm::DenseMap<uint64_t, unsigned> idToIdx;
-  llvm::DenseMap<uint64_t, Operation *> idToOp;
+  std::vector<unsigned> idToIdx;   // indexed by event ID → matrix row/col
+  std::vector<Operation *> idToOp; // indexed by event ID → Operation*
   llvm::SmallVector<uint64_t> ids;
   unsigned n = 0;
   bool closureReported = false;
@@ -289,7 +236,7 @@ public:
                                  const CallReachability &reach) const = 0;
   /// Apply model-specific derived orderings to the initial target matrix (e.g. lob* for ARM).
   virtual void refineInitialOrderMatrix(OrderMatrix &matrix) const {}
-  /// Ordering for cross-region pairs where opCanReach() is true but getOrder() returned Unordered.
+  /// Ordering for cross-region pairs where canReach() is true but getOrder() returned Unordered.
   virtual EventOrder getOrderCrossRegion(Operation *a, Operation *b,
                                          AliasAnalysis &aa, DominanceInfo &dom,
                                          const CallReachability &reach) const {
@@ -318,11 +265,6 @@ public:
     return pairs;
   }
   bool empty() const { return pairs.empty(); }
-
-  /// Fills `before`/`after` with IDs paired with fence `idF` in required pairs.
-  void pairsWithFence(uint64_t idF,
-                      llvm::SmallVectorImpl<uint64_t> &before,
-                      llvm::SmallVectorImpl<uint64_t> &after) const;
 
 private:
   llvm::SmallVector<std::pair<uint64_t, uint64_t>> pairs;

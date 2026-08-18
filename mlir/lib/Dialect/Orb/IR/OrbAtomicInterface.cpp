@@ -44,21 +44,24 @@ bool mlir::orb::isStackSlotAccess(Operation *op) {
 //===----------------------------------------------------------------------===//
 
 EventOrder OrderMatrix::getOrder(uint64_t idA, uint64_t idB) const {
-  auto itA = idToIdx.find(idA), itB = idToIdx.find(idB);
-  if (itA == idToIdx.end() || itB == idToIdx.end())
+  if (idA >= idToIdx.size() || idB >= idToIdx.size())
     return EventOrder::Unreachable;
-  return matrix[itA->second * n + itB->second];
+  unsigned a = idToIdx[idA], b = idToIdx[idB];
+  if (a == UINT_MAX || b == UINT_MAX)
+    return EventOrder::Unreachable;
+  return matrix[a * n + b];
 }
 
 Operation *OrderMatrix::getOpForId(uint64_t id) const {
-  auto it = idToOp.find(id);
-  return it != idToOp.end() ? it->second : nullptr;
+  if (id >= idToOp.size())
+    return nullptr;
+  return idToOp[id];
 }
 
 unsigned OrderMatrix::idxOf(uint64_t id) const {
-  auto it = idToIdx.find(id);
-  assert(it != idToIdx.end() && "event ID not in matrix");
-  return it->second;
+  assert(id < idToIdx.size() && idToIdx[id] != UINT_MAX &&
+         "event ID not in matrix");
+  return idToIdx[id];
 }
 
 unsigned OrderMatrix::countCells(EventOrder order) const {
@@ -66,10 +69,11 @@ unsigned OrderMatrix::countCells(EventOrder order) const {
 }
 
 void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
-  auto itA = idToIdx.find(idA), itB = idToIdx.find(idB);
-  if (itA == idToIdx.end() || itB == idToIdx.end())
+  if (idA >= idToIdx.size() || idB >= idToIdx.size())
     return;
-  unsigned aIdx = itA->second, bIdx = itB->second;
+  unsigned aIdx = idToIdx[idA], bIdx = idToIdx[idB];
+  if (aIdx == UINT_MAX || bIdx == UINT_MAX)
+    return;
   auto &cell = matrix[aIdx * n + bIdx];
   if (cell == EventOrder::Unordered) {
     cell = EventOrder::Ordered;
@@ -99,16 +103,18 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
 
   n = nNew;
   ids.push_back(fId);
+  if (fId >= idToIdx.size())
+    idToIdx.resize(fId + 1, UINT_MAX);
   idToIdx[fId] = fIdx;
+  if (fId >= idToOp.size())
+    idToOp.resize(fId + 1, nullptr);
   idToOp[fId] = f;
 
-  Region *rF = f->getBlock()->getParent();
   for (unsigned evIdx = 0; evIdx < nOld; ++evIdx) {
-    Operation *ev = idToOp.lookup(ids[evIdx]);
-    Region *rEv = ev->getBlock()->getParent();
-    if (rEv == rF || reach.reaches(rEv, rF))
+    Operation *ev = idToOp[ids[evIdx]];
+    if (reach.canReach(ev, f))
       setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
-    if (reach.opCanReach(f, ev, dom))
+    if (reach.canReach(f, ev))
       setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
   }
   applyFenceClosure(fIdx, iface);
@@ -117,12 +123,18 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
 void OrderMatrix::closeTransitively(unsigned maxRounds) {
   if (n == 0)
     return;
-  // Build orderedAfter[a]: bitset of all b where matrix[a*n+b] == Ordered.
+  // orderedAfter[a]: bitset of b where matrix[a*n+b] == Ordered.
+  // unordered[a]: bitset of b where matrix[a*n+b] == Unordered.
+  // Iterating only set bits avoids O(n²) scans of the sparse matrix.
   llvm::SmallVector<llvm::BitVector> orderedAfter(n, llvm::BitVector(n));
+  llvm::SmallVector<llvm::BitVector> unordered(n, llvm::BitVector(n));
   for (unsigned a = 0; a < n; ++a)
-    for (unsigned b = 0; b < n; ++b)
+    for (unsigned b = 0; b < n; ++b) {
       if (matrix[a * n + b] == EventOrder::Ordered)
         orderedAfter[a].set(b);
+      else if (matrix[a * n + b] == EventOrder::Unordered)
+        unordered[a].set(b);
+    }
 
   unsigned added = 0;
   bool changed = true;
@@ -130,26 +142,29 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
   while (changed && (maxRounds == 0 || rounds < maxRounds)) {
     changed = false;
     ++rounds;
-    for (int c = (int)n - 1; c >= 0; --c) {
-      for (unsigned a = 0; a < n; ++a) {
-        if ((unsigned)c == a || !orderedAfter[a].test(c))
+    for (unsigned a = 0; a < n; ++a) {
+      // For each c where a→c is Ordered, propagate c's ordered set to a.
+      for (int c = orderedAfter[a].find_first(); c != -1;
+           c = orderedAfter[a].find_next(c)) {
+        // newBits = orderedAfter[c] ∩ unordered[a] — bits where c→b is Ordered
+        // but a→b is only Unordered (not yet Ordered, not Unreachable).
+        llvm::BitVector newBits = orderedAfter[c];
+        newBits &= unordered[a];
+        newBits.reset(a);
+        if (newBits.none())
           continue;
-        for (int b = orderedAfter[c].find_first(); b != -1;
-             b = orderedAfter[c].find_next(b)) {
-          if ((unsigned)b == a || orderedAfter[a].test(b))
-            continue;
-          if (matrix[a * n + b] == EventOrder::Unordered) {
-            matrix[a * n + b] = EventOrder::Ordered;
-            orderedAfter[a].set(b);
-            trackNewOrdered(a, b);
-            ++added;
-            changed = true;
-          }
+        orderedAfter[a] |= newBits;
+        unordered[a].reset(newBits);
+        for (int b = newBits.find_first(); b != -1; b = newBits.find_next(b)) {
+          matrix[a * n + b] = EventOrder::Ordered;
+          trackNewOrdered(a, b);
+          ++added;
         }
+        changed = true;
       }
     }
   }
-  pendingEdges.clear(); // Full closure consumed all edges.
+  pendingEdges.clear();
   if (!closureReported) {
     llvm::errs() << "[FenceSynthesis] lob* closure: n=" << n
                  << " added=" << added << "\n";
@@ -169,6 +184,7 @@ void OrderMatrix::closeIncrementally() {
           matrix[a * n + c] == EventOrder::Unordered) {
         matrix[a * n + c] = EventOrder::Ordered;
         pendingEdges.push_back({a, c});
+        trackNewOrdered(a, c);
       }
     }
     // Backward: c→a, a→b ⟹ c→b
@@ -177,6 +193,7 @@ void OrderMatrix::closeIncrementally() {
           matrix[c * n + b] == EventOrder::Unordered) {
         matrix[c * n + b] = EventOrder::Ordered;
         pendingEdges.push_back({c, b});
+        trackNewOrdered(c, b);
       }
     }
   }
@@ -186,21 +203,16 @@ void OrderMatrix::closeIncrementally() {
 void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                                     AliasAnalysis &aa, DominanceInfo &dom,
                                     const CallReachability &reach) {
-  Operation *f = idToOp.lookup(ids[fIdx]);
-  Region *rF = f->getBlock()->getParent();
+  Operation *f = idToOp[ids[fIdx]];
   for (unsigned evIdx = 0; evIdx < n; ++evIdx) {
     if (evIdx == fIdx)
       continue;
-    Operation *ev = idToOp.lookup(ids[evIdx]);
-    Region *rEv = ev->getBlock()->getParent();
-    // Only re-evaluate reachable pairs. The coarse reaches() check can
-    // consider pairs reachable that opCanReach() (used by getOrderMatrix)
-    // marked as Unreachable. Overwriting those inflates overspecification.
+    Operation *ev = idToOp[ids[evIdx]];
     if (matrix[evIdx * n + fIdx] != EventOrder::Unreachable &&
-        (rEv == rF || reach.reaches(rEv, rF)))
+        reach.canReach(ev, f))
       setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
     if (matrix[fIdx * n + evIdx] != EventOrder::Unreachable &&
-        reach.opCanReach(f, ev, dom))
+        reach.canReach(f, ev))
       setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
   }
   applyFenceClosure(fIdx, iface);
@@ -226,17 +238,6 @@ void mlir::orb::assignEventIds(ModuleOp module) {
 // OrderAnalysis
 //===----------------------------------------------------------------------===//
 
-void mlir::orb::OrderAnalysis::pairsWithFence(
-    uint64_t idF, llvm::SmallVectorImpl<uint64_t> &before,
-    llvm::SmallVectorImpl<uint64_t> &after) const {
-  for (auto [a, b] : pairs) {
-    if (b == idF)
-      before.push_back(a);
-    if (a == idF)
-      after.push_back(b);
-  }
-}
-
 mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
   auto module = dyn_cast<ModuleOp>(op);
   if (!module)
@@ -244,8 +245,6 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
   llvm::errs() << "[OrderAnalysis] computing (recompute or first-time)\n";
   auto &aa  = am.getAnalysis<AliasAnalysis>();
   auto &dom = am.getAnalysis<DominanceInfo>();
-  auto &blockReachAnalysis = am.getAnalysis<BlockReachabilityAnalysis>();
-  // Use explicit overload so we can wire up block reachability.
   const OrbAtomicDialectInterface *iface = nullptr;
   module.walk([&](Operation *op) -> WalkResult {
     if (auto *i =
@@ -257,7 +256,6 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
     return WalkResult::advance();
   });
   auto reach = computeCallReachability(module);
-  reach.blockReach = &blockReachAnalysis;
   OrderMatrix matrix = getOrderMatrix(module, aa, dom, iface, reach);
   for (uint64_t idA : matrix.eventIds())
     for (uint64_t idB : matrix.eventIds())
@@ -293,10 +291,12 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
 
 CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
   // Build call edges by walking CallOpInterface ops.
-  // Avoids mlir::CallGraph which asserts on ops with empty getCallableForCallee().
   llvm::DenseMap<Region *, llvm::SmallVector<Region *>> callEdges;
   llvm::DenseMap<Region *, llvm::SmallVector<Region *>> callerEdges;
   CallReachability reach;
+
+  // Cross-function block edges for interprocedural BFS.
+  llvm::DenseMap<Block *, llvm::SmallVector<Block *>> crossEdges;
 
   module.walk([&](Operation *op) {
     auto call = dyn_cast<CallOpInterface>(op);
@@ -325,18 +325,31 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
     }
     if (!callerRegion)
       return;
+
+    // Region-level edges.
     callEdges[callerRegion].push_back(calleeRegion);
     callerEdges[calleeRegion].push_back(callerRegion);
-    // Record the direct call op for position-aware reachability.
     reach.directCalls[{callerRegion, calleeRegion}].push_back(op);
+
+    // Block-level cross-function edges.
+    if (calleeRegion->empty())
+      return;
+    Block *callerBlock = op->getBlock();
+    Block &calleeEntry = calleeRegion->front();
+    crossEdges[callerBlock].push_back(&calleeEntry);
+    for (Block &b : *calleeRegion) {
+      if (b.hasNoSuccessors() || b.getNumSuccessors() == 0) {
+        crossEdges[&b].push_back(callerBlock);
+        for (Block *succ : callerBlock->getSuccessors())
+          crossEdges[&b].push_back(succ);
+      }
+    }
   });
 
-  // Collect all regions that appear in any edge.
+  // Region-level transitive closure.
   llvm::DenseSet<Region *> allRegions;
   for (auto &[r, _] : callEdges) allRegions.insert(r);
   for (auto &[r, _] : callerEdges) allRegions.insert(r);
-
-  // BFS per region: reachable via call+return edges, with cycle safety.
   for (Region *startRegion : allRegions) {
     auto &reachable = reach.data[startRegion];
     llvm::DenseSet<Region *> visited;
@@ -353,73 +366,7 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
     }
   }
 
-  // Precompute return+call pairs: for each callee rA, find all rB reachable
-  // via return to a common parent rMid then call to rB.
-  // For each rMid that calls rA: for each rB that rMid also calls (rB != rA):
-  //   if any callToA dominates callToB in rMid, record the pair.
-  for (auto &[keyA, callsToA] : reach.directCalls) {
-    Region *rMid = keyA.first;
-    Region *rA = keyA.second;
-    for (auto &[keyB, callsToB] : reach.directCalls) {
-      if (keyB.first != rMid || keyB.second == rA)
-        continue;
-      Region *rB = keyB.second;
-      // Note: we only need to know IF a path exists; dominance of specific
-      // ops is checked later. Store one representative pair.
-      reach.returnCallPairs[{rA, rB}]; // insert empty entry = path exists
-    }
-  }
-
-  return reach;
-}
-
-//===----------------------------------------------------------------------===//
-// BlockReachabilityAnalysis
-//===----------------------------------------------------------------------===//
-
-BlockReachabilityAnalysis::BlockReachabilityAnalysis(Operation *op,
-                                                     AnalysisManager &am) {
-  auto module = cast<ModuleOp>(op);
-
-  // Cross-function edges (call/return) — these increment the depth counter.
-  llvm::DenseMap<Block *, llvm::SmallVector<Block *>> crossEdges;
-
-  module.walk([&](Operation *op) {
-    auto call = dyn_cast<CallOpInterface>(op);
-    if (!call)
-      return;
-    CallInterfaceCallable callable = call.getCallableForCallee();
-    if (callable.isNull())
-      return;
-    auto symRef = dyn_cast<SymbolRefAttr>(callable);
-    if (!symRef)
-      return;
-    auto *calleeOp = SymbolTable::lookupNearestSymbolFrom(op, symRef);
-    auto calleeCallable = dyn_cast_or_null<CallableOpInterface>(calleeOp);
-    if (!calleeCallable)
-      return;
-    Region *calleeRegion = calleeCallable.getCallableRegion();
-    if (!calleeRegion || calleeRegion->empty())
-      return;
-
-    Block *callerBlock = op->getBlock();
-    Block &calleeEntry = calleeRegion->front();
-
-    // Call edge: callerBlock → callee entry block.
-    crossEdges[callerBlock].push_back(&calleeEntry);
-
-    // Return edges: callee exit blocks → callerBlock and its CFG successors.
-    for (Block &b : *calleeRegion) {
-      if (b.hasNoSuccessors() || b.getNumSuccessors() == 0) {
-        crossEdges[&b].push_back(callerBlock);
-        for (Block *succ : callerBlock->getSuccessors())
-          crossEdges[&b].push_back(succ);
-      }
-    }
-  });
-
-  // Collect all blocks into a dense index (needed for BFS traversal).
-  llvm::SmallVector<Block *> allBlocks;
+  // Collect all blocks into a dense index.
   module.walk([&](Operation *op) {
     auto callable = dyn_cast<CallableOpInterface>(op);
     if (!callable)
@@ -428,93 +375,85 @@ BlockReachabilityAnalysis::BlockReachabilityAnalysis(Operation *op,
     if (!body)
       return;
     for (Block &b : *body) {
-      blockIndex[&b] = allBlocks.size();
-      allBlocks.push_back(&b);
+      reach.blockIndex[&b] = reach.allBlocks.size();
+      reach.allBlocks.push_back(&b);
     }
   });
 
-  unsigned numBlocks = allBlocks.size();
+  unsigned numBlocks = reach.allBlocks.size();
   if (numBlocks == 0)
-    return;
+    return reach;
 
-  // Only blocks containing annotated memory events need BFS as starting points.
+  // Identify event blocks (containing ops with orb.event_id).
   llvm::DenseSet<Block *> eventBlocks;
   module.walk([&](Operation *op) {
     if (op->hasAttr(kEventIdAttr))
       eventBlocks.insert(op->getBlock());
   });
 
-  LLVM_DEBUG(llvm::dbgs() << "[BlockReachability] numBlocks=" << numBlocks
+  LLVM_DEBUG(llvm::dbgs() << "[Reachability] numBlocks=" << numBlocks
                           << " eventBlocks=" << eventBlocks.size()
                           << " crossEdges=" << crossEdges.size() << "\n");
 
-  // Sparse matrix: only event blocks get a reachability row.
-  // eventRowIndex maps block* → row in reachMatrix.
+  // Sparse matrix: only event blocks get a row.
   llvm::SmallVector<Block *> eventBlockList(eventBlocks.begin(),
                                             eventBlocks.end());
   for (unsigned i = 0; i < eventBlockList.size(); ++i)
-    eventRowIndex[eventBlockList[i]] = i;
+    reach.eventRowIndex[eventBlockList[i]] = i;
 
   unsigned numRows = eventBlockList.size();
-  reachMatrix.assign(numRows, llvm::BitVector(numBlocks, false));
+  reach.blockReachRows.assign(numRows, llvm::BitVector(numBlocks, false));
 
-  // Bounded BFS from each event block: CFG edges don't count toward depth,
-  // call/return edges increment depth.  Stop at maxFunctionDepth.
-  constexpr unsigned maxFunctionDepth = 2;
+  // BFS from each event block: CFG + cross-function edges, no depth limit.
   for (unsigned row = 0; row < numRows; ++row) {
-    auto &reach = reachMatrix[row];
-    unsigned startIdx = blockIndex[eventBlockList[row]];
-    reach.set(startIdx);
-    // Worklist: (blockIndex, functionBoundaryDepth).
-    llvm::SmallVector<std::pair<unsigned, unsigned>> worklist;
-    llvm::DenseMap<unsigned, unsigned> bestDepth;
-    worklist.push_back({startIdx, 0});
-    bestDepth[startIdx] = 0;
+    auto &bv = reach.blockReachRows[row];
+    unsigned startIdx = reach.blockIndex[eventBlockList[row]];
+    bv.set(startIdx);
+    llvm::SmallVector<unsigned> worklist = {startIdx};
     while (!worklist.empty()) {
-      auto [cur, depth] = worklist.pop_back_val();
-      Block *curBlock = allBlocks[cur];
-      // CFG successors — same depth (intra-region).
+      unsigned cur = worklist.pop_back_val();
+      Block *curBlock = reach.allBlocks[cur];
+      // CFG successors (intra-region).
       for (Block *succ : curBlock->getSuccessors()) {
-        auto it = blockIndex.find(succ);
-        if (it == blockIndex.end())
+        auto it = reach.blockIndex.find(succ);
+        if (it == reach.blockIndex.end())
           continue;
         unsigned si = it->second;
-        auto [dit, inserted] = bestDepth.try_emplace(si, depth);
-        if (!inserted && dit->second <= depth)
-          continue;
-        dit->second = depth;
-        reach.set(si);
-        worklist.push_back({si, depth});
+        if (!bv.test(si)) {
+          bv.set(si);
+          worklist.push_back(si);
+        }
       }
-      // Call/return edges — depth + 1.
-      if (depth < maxFunctionDepth) {
-        auto ceIt = crossEdges.find(curBlock);
-        if (ceIt == crossEdges.end())
+      // Cross-function edges (call/return).
+      auto ceIt = crossEdges.find(curBlock);
+      if (ceIt == crossEdges.end())
+        continue;
+      for (Block *target : ceIt->second) {
+        auto it = reach.blockIndex.find(target);
+        if (it == reach.blockIndex.end())
           continue;
-        for (Block *target : ceIt->second) {
-          auto it = blockIndex.find(target);
-          if (it == blockIndex.end())
-            continue;
-          unsigned ti = it->second;
-          unsigned newDepth = depth + 1;
-          auto [dit, inserted] = bestDepth.try_emplace(ti, newDepth);
-          if (!inserted && dit->second <= newDepth)
-            continue;
-          dit->second = newDepth;
-          reach.set(ti);
-          worklist.push_back({ti, newDepth});
+        unsigned ti = it->second;
+        if (!bv.test(ti)) {
+          bv.set(ti);
+          worklist.push_back(ti);
         }
       }
     }
   }
+
+  return reach;
 }
 
-bool BlockReachabilityAnalysis::canReach(Block *from, Block *to) const {
-  auto rowIt = eventRowIndex.find(from);
-  auto colIt = blockIndex.find(to);
+bool CallReachability::canReach(Operation *from, Operation *to) const {
+  Block *srcBlock = from->getBlock();
+  Block *dstBlock = to->getBlock();
+  if (srcBlock == dstBlock)
+    return from->isBeforeInBlock(to);
+  auto rowIt = eventRowIndex.find(srcBlock);
+  auto colIt = blockIndex.find(dstBlock);
   if (rowIt == eventRowIndex.end() || colIt == blockIndex.end())
     return false;
-  return reachMatrix[rowIt->second].test(colIt->second);
+  return blockReachRows[rowIt->second].test(colIt->second);
 }
 
 //===----------------------------------------------------------------------===//
@@ -531,11 +470,11 @@ EventOrder OrderMatrix::queryOrder(Operation *a, Operation *b,
 
 void OrderMatrix::applyFenceClosure(unsigned fIdx,
                                     const OrbAtomicDialectInterface *iface) {
-  Operation *f = idToOp.lookup(ids[fIdx]);
+  Operation *f = idToOp[ids[fIdx]];
   for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
     if (aIdx == fIdx || matrix[aIdx * n + fIdx] != EventOrder::Ordered)
       continue;
-    Operation *a = idToOp.lookup(ids[aIdx]);
+    Operation *a = idToOp[ids[aIdx]];
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
       if (bIdx == fIdx || bIdx == aIdx)
         continue;
@@ -543,7 +482,7 @@ void OrderMatrix::applyFenceClosure(unsigned fIdx,
         continue;
       if (matrix[fIdx * n + bIdx] != EventOrder::Ordered)
         continue;
-      Operation *b = idToOp.lookup(ids[bIdx]);
+      Operation *b = idToOp[ids[bIdx]];
       if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
         setOrderTracked(aIdx, bIdx, EventOrder::Ordered);
     }
@@ -567,24 +506,40 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
       return;
     uint64_t id = idAttr.getInt();
     result.ids.push_back(id);
-    result.idToOp[id] = op;
   });
 
   result.n = result.ids.size();
   unsigned n = result.n;
   llvm::errs() << "[getOrderMatrix] n=" << n << "\n";
   result.matrix.assign(n * n, EventOrder::Unreachable);
+
+  // Size flat lookup vectors. IDs are sequential 0..maxId, but we
+  // allocate for the max ID seen to handle any gaps.
+  uint64_t maxId = 0;
+  for (uint64_t id : result.ids)
+    maxId = std::max(maxId, id);
+  result.idToIdx.assign(maxId + 1, UINT_MAX);
+  result.idToOp.assign(maxId + 1, nullptr);
+
+  // Populate: walk again to get the Operation* for each ID.
+  module.walk([&](Operation *op) {
+    auto idAttr = op->getAttrOfType<IntegerAttr>(kEventIdAttr);
+    if (!idAttr)
+      return;
+    uint64_t id = idAttr.getInt();
+    result.idToOp[id] = op;
+  });
   for (unsigned i = 0; i < n; ++i)
     result.idToIdx[result.ids[i]] = i;
 
   // Pairwise pass; cross-region pairs also check cross-function deps.
   for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
-    Operation *a = result.idToOp.lookup(result.ids[aIdx]);
+    Operation *a = result.idToOp[result.ids[aIdx]];
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
       if (aIdx == bIdx)
         continue;
-      Operation *b = result.idToOp.lookup(result.ids[bIdx]);
-      if (!reach.opCanReach(a, b, dominance)) {
+      Operation *b = result.idToOp[result.ids[bIdx]];
+      if (!reach.canReach(a, b)) {
         result.setOrder(aIdx, bIdx, EventOrder::Unreachable);
         continue;
       }
@@ -604,7 +559,7 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
 
   llvm::SmallVector<unsigned> fenceIdxs;
   for (unsigned i = 0; i < n; ++i) {
-    Operation *op = result.idToOp.lookup(result.ids[i]);
+    Operation *op = result.idToOp[result.ids[i]];
     if (iface->isFenceEvent(op))
       fenceIdxs.push_back(i);
   }
@@ -628,13 +583,13 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
     if (fencesAfter[aIdx].none())
       continue;
-    Operation *a = result.idToOp.lookup(result.ids[aIdx]);
+    Operation *a = result.idToOp[result.ids[aIdx]];
     for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
       if (bIdx == aIdx || result.matrix[aIdx * n + bIdx] != EventOrder::Unordered)
         continue;
       if (fencesBefore[bIdx].none())
         continue;
-      Operation *b = result.idToOp.lookup(result.ids[bIdx]);
+      Operation *b = result.idToOp[result.ids[bIdx]];
       if (a->getBlock()->getParent() == b->getBlock()->getParent() &&
           !dominance.dominates(a, b))
         continue;
@@ -645,7 +600,7 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
       [&] {
         for (int fi = candidates.find_first(); fi != -1;
              fi = candidates.find_next(fi)) {
-          Operation *f = result.idToOp.lookup(result.ids[fenceIdxs[fi]]);
+          Operation *f = result.idToOp[result.ids[fenceIdxs[fi]]];
           if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered) {
             result.matrix[aIdx * n + bIdx] = EventOrder::Ordered;
             return;
