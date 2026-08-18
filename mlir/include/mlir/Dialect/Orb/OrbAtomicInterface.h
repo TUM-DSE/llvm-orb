@@ -169,6 +169,11 @@ private:
   std::vector<Operation *> idToOp; // indexed by event ID → Operation*
   llvm::SmallVector<uint64_t> ids;
   unsigned n = 0;
+  /// backEdge[aIdx] has bit bIdx set when (a,b) reaches b through a loop back
+  /// edge (i.e. b dominates a within the same region). These Ordered entries
+  /// represent cross-iteration orderings and must not participate in transitive
+  /// closure, which would otherwise conflate iteration N with iteration N+1.
+  llvm::SmallVector<llvm::BitVector> backEdge;
   bool closureReported = false;
   llvm::SmallVector<std::pair<unsigned, unsigned>> pendingEdges;
   const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *requiredSet = nullptr;
