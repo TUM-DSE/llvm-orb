@@ -271,6 +271,7 @@ void ConvertCppAtomicToArmAtomicNaivePass::runOnOperation() {
     }
 
     auto reach = orb::computeCallReachability(module);
+    reach.blockReach = &getAnalysis<orb::BlockReachabilityAnalysis>();
     auto mb = orb::getOrderMatrix(module, aa, dom, iface, reach);
     iface->refineInitialOrderMatrix(mb);
 

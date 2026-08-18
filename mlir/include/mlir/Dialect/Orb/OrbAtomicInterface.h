@@ -23,6 +23,7 @@
 #include "mlir/IR/Operation.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/DenseMap.h"
+#include "llvm/ADT/BitVector.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/StringRef.h"
 #include <variant>
@@ -86,6 +87,21 @@ struct CostContext {
 
 class OrbAtomicDialectInterface; // forward declaration for OrderMatrix::addFence
 
+/// Precomputed cross-function block-level reachability (call+return+CFG edges).
+/// Retrieved via getAnalysis<BlockReachabilityAnalysis>().
+class BlockReachabilityAnalysis {
+public:
+  explicit BlockReachabilityAnalysis(Operation *op, AnalysisManager &am);
+  /// Can block `from` reach block `to` across function boundaries?
+  /// `from` must be a block containing an annotated event op.
+  bool canReach(Block *from, Block *to) const;
+
+private:
+  llvm::DenseMap<Block *, unsigned> blockIndex;    ///< All blocks → column index.
+  llvm::DenseMap<Block *, unsigned> eventRowIndex; ///< Event blocks → row index.
+  std::vector<llvm::BitVector> reachMatrix;        ///< Sparse: rows = event blocks.
+};
+
 /// Interprocedural region reachability via call+return edges.
 struct CallReachability {
   /// Region-level reachability (bidirectional: call + return edges).
@@ -100,6 +116,9 @@ struct CallReachability {
   llvm::DenseMap<std::pair<Region *, Region *>,
                  llvm::SmallVector<Operation *>>
       directCalls;
+
+  /// Optional cross-function block reachability analysis.
+  const BlockReachabilityAnalysis *blockReach = nullptr;
 
   /// True if `from` can reach `to` via CFG successor edges within one region.
   /// Same-block: `from` must appear before `to`.
@@ -123,8 +142,6 @@ struct CallReachability {
   }
 
   /// True if `a` can reach `b` via program order across function boundaries.
-  /// Caller→Callee: a's block can reach a call from a's region to b's region.
-  /// Callee→Caller: a call from b's region to a's region can reach b.
   bool opCanReach(Operation *a, Operation *b, DominanceInfo &) const {
     Region *fromRegion = a->getBlock()->getParent();
     Region *toRegion = b->getBlock()->getParent();
@@ -139,10 +156,17 @@ struct CallReachability {
       return true;
     // Callee→Caller: the call to a's region can reach b.
     auto rev = directCalls.find({toRegion, fromRegion});
-    return rev != directCalls.end() &&
-           llvm::any_of(rev->second, [&](Operation *callOp) {
-             return blockCanReach(callOp, b);
-           });
+    if (rev != directCalls.end() &&
+        llvm::any_of(rev->second, [&](Operation *callOp) {
+          return blockCanReach(callOp, b);
+        }))
+      return true;
+    // Multi-hop (e.g. sibling callees): use block reachability.
+    // Return edges only go to caller block successors, so single-hop
+    // callee→caller is handled above via directCalls.
+    if (blockReach)
+      return blockReach->canReach(a->getBlock(), b->getBlock());
+    return false;
   }
 };
 
@@ -156,6 +180,23 @@ public:
   unsigned idxOf(uint64_t id) const;
   /// Count cells with a given order value.
   unsigned countCells(EventOrder order) const;
+
+  /// Set the required-pair set for incremental ordered/overspecified tracking.
+  void setRequiredSet(
+      const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *s) {
+    requiredSet = s;
+    coveredCount = 0;
+    overspecifiedCount = 0;
+    // Count existing Ordered cells against the required set.
+    for (unsigned a = 0; a < n; ++a)
+      for (unsigned b = 0; b < n; ++b)
+        if (a != b && matrix[a * n + b] == EventOrder::Ordered)
+          trackNewOrdered(a, b);
+  }
+  /// Return (covered, overspecified) counts accumulated since setRequiredSet.
+  std::pair<unsigned, unsigned> orderedCounts() const {
+    return {coveredCount, overspecifiedCount};
+  }
 
   /// Set (idA, idB) to Ordered if currently Unordered; no-op otherwise.
   void markOrdered(uint64_t idA, uint64_t idB);
@@ -183,6 +224,18 @@ private:
   unsigned n = 0;
   bool closureReported = false;
   llvm::SmallVector<std::pair<unsigned, unsigned>> pendingEdges;
+  const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *requiredSet = nullptr;
+  unsigned coveredCount = 0;
+  unsigned overspecifiedCount = 0;
+
+  void trackNewOrdered(unsigned aIdx, unsigned bIdx) {
+    if (!requiredSet)
+      return;
+    if (requiredSet->count({ids[aIdx], ids[bIdx]}))
+      ++coveredCount;
+    else
+      ++overspecifiedCount;
+  }
 
   void setOrder(unsigned aIdx, unsigned bIdx, EventOrder order) {
     matrix[aIdx * n + bIdx] = order;
@@ -193,6 +246,7 @@ private:
     if (cell != order && order == EventOrder::Ordered) {
       cell = order;
       pendingEdges.push_back({aIdx, bIdx});
+      trackNewOrdered(aIdx, bIdx);
     } else {
       cell = order;
     }

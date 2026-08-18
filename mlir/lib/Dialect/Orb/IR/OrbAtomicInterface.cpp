@@ -74,6 +74,7 @@ void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
   if (cell == EventOrder::Unordered) {
     cell = EventOrder::Ordered;
     pendingEdges.push_back({aIdx, bIdx});
+    trackNewOrdered(aIdx, bIdx);
   }
 }
 
@@ -140,6 +141,7 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
           if (matrix[a * n + b] == EventOrder::Unordered) {
             matrix[a * n + b] = EventOrder::Ordered;
             orderedAfter[a].set(b);
+            trackNewOrdered(a, b);
             ++added;
             changed = true;
           }
@@ -242,7 +244,21 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
   llvm::errs() << "[OrderAnalysis] computing (recompute or first-time)\n";
   auto &aa  = am.getAnalysis<AliasAnalysis>();
   auto &dom = am.getAnalysis<DominanceInfo>();
-  OrderMatrix matrix = getOrderMatrix(module, aa, dom);
+  auto &blockReachAnalysis = am.getAnalysis<BlockReachabilityAnalysis>();
+  // Use explicit overload so we can wire up block reachability.
+  const OrbAtomicDialectInterface *iface = nullptr;
+  module.walk([&](Operation *op) -> WalkResult {
+    if (auto *i =
+            op->getDialect()
+                ->getRegisteredInterface<OrbAtomicDialectInterface>()) {
+      iface = i;
+      return WalkResult::interrupt();
+    }
+    return WalkResult::advance();
+  });
+  auto reach = computeCallReachability(module);
+  reach.blockReach = &blockReachAnalysis;
+  OrderMatrix matrix = getOrderMatrix(module, aa, dom, iface, reach);
   for (uint64_t idA : matrix.eventIds())
     for (uint64_t idB : matrix.eventIds())
       if (idA != idB && matrix.getOrder(idA, idB) == EventOrder::Ordered)
@@ -355,6 +371,150 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
   }
 
   return reach;
+}
+
+//===----------------------------------------------------------------------===//
+// BlockReachabilityAnalysis
+//===----------------------------------------------------------------------===//
+
+BlockReachabilityAnalysis::BlockReachabilityAnalysis(Operation *op,
+                                                     AnalysisManager &am) {
+  auto module = cast<ModuleOp>(op);
+
+  // Cross-function edges (call/return) — these increment the depth counter.
+  llvm::DenseMap<Block *, llvm::SmallVector<Block *>> crossEdges;
+
+  module.walk([&](Operation *op) {
+    auto call = dyn_cast<CallOpInterface>(op);
+    if (!call)
+      return;
+    CallInterfaceCallable callable = call.getCallableForCallee();
+    if (callable.isNull())
+      return;
+    auto symRef = dyn_cast<SymbolRefAttr>(callable);
+    if (!symRef)
+      return;
+    auto *calleeOp = SymbolTable::lookupNearestSymbolFrom(op, symRef);
+    auto calleeCallable = dyn_cast_or_null<CallableOpInterface>(calleeOp);
+    if (!calleeCallable)
+      return;
+    Region *calleeRegion = calleeCallable.getCallableRegion();
+    if (!calleeRegion || calleeRegion->empty())
+      return;
+
+    Block *callerBlock = op->getBlock();
+    Block &calleeEntry = calleeRegion->front();
+
+    // Call edge: callerBlock → callee entry block.
+    crossEdges[callerBlock].push_back(&calleeEntry);
+
+    // Return edges: callee exit blocks → callerBlock and its CFG successors.
+    for (Block &b : *calleeRegion) {
+      if (b.hasNoSuccessors() || b.getNumSuccessors() == 0) {
+        crossEdges[&b].push_back(callerBlock);
+        for (Block *succ : callerBlock->getSuccessors())
+          crossEdges[&b].push_back(succ);
+      }
+    }
+  });
+
+  // Collect all blocks into a dense index (needed for BFS traversal).
+  llvm::SmallVector<Block *> allBlocks;
+  module.walk([&](Operation *op) {
+    auto callable = dyn_cast<CallableOpInterface>(op);
+    if (!callable)
+      return;
+    Region *body = callable.getCallableRegion();
+    if (!body)
+      return;
+    for (Block &b : *body) {
+      blockIndex[&b] = allBlocks.size();
+      allBlocks.push_back(&b);
+    }
+  });
+
+  unsigned numBlocks = allBlocks.size();
+  if (numBlocks == 0)
+    return;
+
+  // Only blocks containing annotated memory events need BFS as starting points.
+  llvm::DenseSet<Block *> eventBlocks;
+  module.walk([&](Operation *op) {
+    if (op->hasAttr(kEventIdAttr))
+      eventBlocks.insert(op->getBlock());
+  });
+
+  LLVM_DEBUG(llvm::dbgs() << "[BlockReachability] numBlocks=" << numBlocks
+                          << " eventBlocks=" << eventBlocks.size()
+                          << " crossEdges=" << crossEdges.size() << "\n");
+
+  // Sparse matrix: only event blocks get a reachability row.
+  // eventRowIndex maps block* → row in reachMatrix.
+  llvm::SmallVector<Block *> eventBlockList(eventBlocks.begin(),
+                                            eventBlocks.end());
+  for (unsigned i = 0; i < eventBlockList.size(); ++i)
+    eventRowIndex[eventBlockList[i]] = i;
+
+  unsigned numRows = eventBlockList.size();
+  reachMatrix.assign(numRows, llvm::BitVector(numBlocks, false));
+
+  // Bounded BFS from each event block: CFG edges don't count toward depth,
+  // call/return edges increment depth.  Stop at maxFunctionDepth.
+  constexpr unsigned maxFunctionDepth = 2;
+  for (unsigned row = 0; row < numRows; ++row) {
+    auto &reach = reachMatrix[row];
+    unsigned startIdx = blockIndex[eventBlockList[row]];
+    reach.set(startIdx);
+    // Worklist: (blockIndex, functionBoundaryDepth).
+    llvm::SmallVector<std::pair<unsigned, unsigned>> worklist;
+    llvm::DenseMap<unsigned, unsigned> bestDepth;
+    worklist.push_back({startIdx, 0});
+    bestDepth[startIdx] = 0;
+    while (!worklist.empty()) {
+      auto [cur, depth] = worklist.pop_back_val();
+      Block *curBlock = allBlocks[cur];
+      // CFG successors — same depth (intra-region).
+      for (Block *succ : curBlock->getSuccessors()) {
+        auto it = blockIndex.find(succ);
+        if (it == blockIndex.end())
+          continue;
+        unsigned si = it->second;
+        auto [dit, inserted] = bestDepth.try_emplace(si, depth);
+        if (!inserted && dit->second <= depth)
+          continue;
+        dit->second = depth;
+        reach.set(si);
+        worklist.push_back({si, depth});
+      }
+      // Call/return edges — depth + 1.
+      if (depth < maxFunctionDepth) {
+        auto ceIt = crossEdges.find(curBlock);
+        if (ceIt == crossEdges.end())
+          continue;
+        for (Block *target : ceIt->second) {
+          auto it = blockIndex.find(target);
+          if (it == blockIndex.end())
+            continue;
+          unsigned ti = it->second;
+          unsigned newDepth = depth + 1;
+          auto [dit, inserted] = bestDepth.try_emplace(ti, newDepth);
+          if (!inserted && dit->second <= newDepth)
+            continue;
+          dit->second = newDepth;
+          reach.set(ti);
+          worklist.push_back({ti, newDepth});
+        }
+      }
+    }
+  }
+}
+
+bool BlockReachabilityAnalysis::canReach(Block *from, Block *to) const {
+  auto rowIt = eventRowIndex.find(from);
+  auto colIt = blockIndex.find(to);
+  if (rowIt == eventRowIndex.end() || colIt == blockIndex.end())
+    return false;
+  return reachMatrix[rowIt->second].test(colIt->second);
 }
 
 //===----------------------------------------------------------------------===//

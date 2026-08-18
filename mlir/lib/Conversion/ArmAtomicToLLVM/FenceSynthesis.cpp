@@ -16,8 +16,11 @@
 #include "mlir/Interfaces/CallInterfaces.h"
 #include "mlir/Pass/Pass.h"
 #include "llvm/Support/Path.h"
+#include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include <chrono>
+
+#define DEBUG_TYPE "fence-synthesis"
 #include <cstdlib>
 
 namespace mlir {
@@ -97,6 +100,7 @@ struct FenceSynthesisPass
 
     // Precomputed reachability — stable across synthesis iterations.
     auto reach = orb::computeCallReachability(module);
+    reach.blockReach = &getAnalysis<orb::BlockReachabilityAnalysis>();
 
     // Precompute loop depth per block for loop-aware cost model.
     // Skip single-block regions (no loops possible) and regions whose
@@ -202,24 +206,18 @@ struct FenceSynthesisPass
     };
     rebuildPressure();
 
-    // O(1) required-pair lookup for overspecified counter.
+    // O(1) required-pair lookup for incremental ordered/overspecified tracking.
     llvm::DenseSet<std::pair<uint64_t,uint64_t>> requiredSet(
         required.requiredPairs().begin(), required.requiredPairs().end());
     unsigned total = required.requiredPairs().size();
+    mb.setRequiredSet(&requiredSet);
 
-    auto countOrdered = [&](unsigned &covered, unsigned &overspecified) {
-      covered = overspecified = 0;
-      for (uint64_t c : mb.eventIds()) {
-        for (uint64_t d : mb.eventIds()) {
-          if (c == d || mb.getOrder(c, d) != orb::EventOrder::Ordered)
-            continue;
-          if (requiredSet.count({c, d}))
-            ++covered;
-          else
-            ++overspecified;
-        }
-      }
-    };
+    // Worklist of unsatisfied required pairs — avoids re-scanning all pairs.
+    llvm::SmallVector<std::pair<uint64_t, uint64_t>> unsatisfied;
+    for (auto [idA, idB] : required.requiredPairs()) {
+      if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
+        unsatisfied.push_back({idA, idB});
+    }
 
     // Fixpoint: each iteration either adds a fence to F_ign or adds edges to
     // M_B. Both sets are finite, so the loop always terminates (paper §5).
@@ -239,11 +237,17 @@ struct FenceSynthesisPass
       llvm::SmallVector<BatchEntry> batch;
       llvm::SmallVector<unsigned> touchedIdx; // matrix indices in this batch
 
-      for (auto [idA, idB] : required.requiredPairs()) {
-        if (fIgn.count(idA) || fIgn.count(idB))
+      for (auto &[idA, idB] : unsatisfied) {
+        if (idA == UINT64_MAX) // already resolved
           continue;
-        if (mb.getOrder(idA, idB) == orb::EventOrder::Ordered)
+        if (fIgn.count(idA) || fIgn.count(idB)) {
+          idA = UINT64_MAX; // mark resolved
           continue;
+        }
+        if (mb.getOrder(idA, idB) == orb::EventOrder::Ordered) {
+          idA = UINT64_MAX; // mark resolved
+          continue;
+        }
 
         // §5.2: if one endpoint is a source fence f, check if all
         // access-access pairs it mediates are already ordered → ignorable.
@@ -264,6 +268,9 @@ struct FenceSynthesisPass
             }
           }
           if (mediatedUnordered == 0 && !before.empty() && !after.empty()) {
+            LLVM_DEBUG(llvm::dbgs() << "fIgn fence id=" << fId
+                  << " before=" << before.size()
+                  << " after=" << after.size() << "\n");
             fIgn.insert(fId);
             changed = true;
             continue;
@@ -319,6 +326,26 @@ struct FenceSynthesisPass
         if (bestScore == std::numeric_limits<int>::max())
           continue; // no eligible promotion in this phase
 
+        LLVM_DEBUG({
+          llvm::dbgs() << "promote (" << idA << "," << idB << ") cost=" << bestScore;
+          if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&bestPromotion.action)) {
+            auto uaId = ua->op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
+            llvm::dbgs() << " upgrade id=" << (uaId ? uaId.getInt() : -1)
+                         << " to=" << ua->targetMemoryOrder;
+          } else if (std::get_if<orb::Promotion::FenceAction>(&bestPromotion.action)) {
+            llvm::dbgs() << " fence-insert";
+          } else if (auto *pa = std::get_if<orb::Promotion::PairUpgradeAction>(&bestPromotion.action)) {
+            auto id1 = pa->op1->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
+            auto id2 = pa->op2->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
+            llvm::dbgs() << " pair id1=" << (id1 ? id1.getInt() : -1)
+                         << " mo1=" << pa->targetMemoryOrder1
+                         << " id2=" << (id2 ? id2.getInt() : -1)
+                         << " mo2=" << pa->targetMemoryOrder2;
+          } else {
+            llvm::dbgs() << " empty";
+          }
+          llvm::dbgs() << "\n";
+        });
         batch.push_back({idA, idB, bestPromotion});
         touchedIdx.push_back(mb.idxOf(idA));
         touchedIdx.push_back(mb.idxOf(idB));
@@ -327,8 +354,7 @@ struct FenceSynthesisPass
       // Apply the batch: all promotions, then one closure + pressure rebuild.
       if (!batch.empty()) {
         {
-          unsigned covered, overspecified;
-          countOrdered(covered, overspecified);
+          auto [covered, overspecified] = mb.orderedCounts();
           log() << "iter=" << iteration
                        << " ordered=" << covered << "/" << total
                        << " overspecified=" << overspecified
@@ -350,13 +376,10 @@ struct FenceSynthesisPass
       ++iteration;
     }
 
-    unsigned covered, overspecified;
-    countOrdered(covered, overspecified);
+    auto [covered, overspecified] = mb.orderedCounts();
     unsigned remaining = 0;
-    for (auto [idA, idB] : required.requiredPairs()) {
-      if (fIgn.count(idA) || fIgn.count(idB))
-        continue;
-      if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
+    for (auto [idA, idB] : unsatisfied) {
+      if (idA != UINT64_MAX)
         ++remaining;
     }
     log() << "done ordered=" << covered << "/" << total
