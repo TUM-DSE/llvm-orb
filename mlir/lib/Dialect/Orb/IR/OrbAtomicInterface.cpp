@@ -49,7 +49,8 @@ EventOrder OrderMatrix::getOrder(uint64_t idA, uint64_t idB) const {
   unsigned a = idToIdx[idA], b = idToIdx[idB];
   if (a == UINT_MAX || b == UINT_MAX)
     return EventOrder::Unreachable;
-  return matrix[a * n + b];
+  // Same-iteration view: even indices (2a, 2b).
+  return matrix[2 * a * n + 2 * b];
 }
 
 Operation *OrderMatrix::getOpForId(uint64_t id) const {
@@ -71,15 +72,24 @@ unsigned OrderMatrix::countCells(EventOrder order) const {
 void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
   if (idA >= idToIdx.size() || idB >= idToIdx.size())
     return;
-  unsigned aIdx = idToIdx[idA], bIdx = idToIdx[idB];
-  if (aIdx == UINT_MAX || bIdx == UINT_MAX)
+  unsigned a = idToIdx[idA], b = idToIdx[idB];
+  if (a == UINT_MAX || b == UINT_MAX)
     return;
-  auto &cell = matrix[aIdx * n + bIdx];
-  if (cell == EventOrder::Unordered) {
-    cell = EventOrder::Ordered;
-    pendingEdges.push_back({aIdx, bIdx});
-    trackNewOrdered(aIdx, bIdx);
-  }
+  // Mark up to 3 doubled cells (skip Unreachable, skip (odd,even)):
+  //   (2a, 2b)     — same iteration
+  //   (2a+1, 2b+1) — shifted iteration copy
+  //   (2a, 2b+1)   — cross iteration
+  auto mark = [&](unsigned r, unsigned c) {
+    auto &cell = matrix[r * n + c];
+    if (cell == EventOrder::Unordered) {
+      cell = EventOrder::Ordered;
+      pendingEdges.push_back({r, c});
+      trackNewOrdered(r, c);
+    }
+  };
+  mark(2 * a, 2 * b);
+  mark(2 * a + 1, 2 * b + 1);
+  mark(2 * a, 2 * b + 1);
 }
 
 void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
@@ -89,69 +99,78 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
   assert(idAttr && "fence must have orb.event_id before addFence");
   uint64_t fId = idAttr.getInt();
 
-  unsigned nOld = n;
-  unsigned nNew = n + 1;
-  unsigned fIdx = nOld;
+  unsigned fOrigIdx = nEvents; // original index for the new fence
+  unsigned dimOld = n;         // old matrix dimension (2 * nEvents)
+  unsigned dimNew = n + 2;     // new dimension (2 * (nEvents + 1))
 
-  // Expand matrix from nOld×nOld to nNew×nNew in-place (backward to avoid overwrite).
-  matrix.resize(nNew * nNew, EventOrder::Unreachable);
-  for (int i = (int)nOld - 1; i >= 0; --i) {
-    auto *row = &matrix[i * nNew];
-    std::copy_backward(&matrix[i * nOld], &matrix[i * nOld] + nOld, row + nOld);
-    row[nOld] = EventOrder::Unreachable;
+  // Expand matrix from dimOld×dimOld to dimNew×dimNew in-place.
+  matrix.resize(dimNew * dimNew, EventOrder::Unreachable);
+  for (int i = (int)dimOld - 1; i >= 0; --i) {
+    auto *row = &matrix[i * dimNew];
+    std::copy_backward(&matrix[i * dimOld], &matrix[i * dimOld] + dimOld,
+                        row + dimOld);
+    row[dimOld] = EventOrder::Unreachable;
+    row[dimOld + 1] = EventOrder::Unreachable;
   }
 
-  n = nNew;
+  n = dimNew;
+  ++nEvents;
   ids.push_back(fId);
   if (fId >= idToIdx.size())
     idToIdx.resize(fId + 1, UINT_MAX);
-  idToIdx[fId] = fIdx;
+  idToIdx[fId] = fOrigIdx;
   if (fId >= idToOp.size())
     idToOp.resize(fId + 1, nullptr);
   idToOp[fId] = f;
 
-  // Grow backEdge for the new fence column/row.
-  for (auto &bv : backEdge)
-    bv.resize(nNew);
-  backEdge.push_back(llvm::BitVector(nNew));
   Region *fRegion = f->getBlock()->getParent();
-  for (unsigned evIdx = 0; evIdx < nOld; ++evIdx) {
-    Operation *ev = idToOp[ids[evIdx]];
-    if (ev->getBlock()->getParent() != fRegion)
-      continue;
-    if (dom.dominates(f, ev))
-      backEdge[evIdx].set(fIdx);
-    if (dom.dominates(ev, f))
-      backEdge[fIdx].set(evIdx);
-  }
+  unsigned f0 = 2 * fOrigIdx;     // same-iteration doubled index
+  unsigned f1 = 2 * fOrigIdx + 1; // cross-iteration doubled index
 
-  for (unsigned evIdx = 0; evIdx < nOld; ++evIdx) {
+  for (unsigned evIdx = 0; evIdx < nEvents - 1; ++evIdx) {
     Operation *ev = idToOp[ids[evIdx]];
-    if (reach.canReach(ev, f))
-      setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
-    if (reach.canReach(f, ev))
-      setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
+    unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
+    bool sameRegion = ev->getBlock()->getParent() == fRegion;
+
+    if (reach.canReach(ev, f)) {
+      EventOrder order = queryOrder(ev, f, iface, aa, dom);
+      bool isBackEdge = sameRegion && dom.dominates(f, ev);
+      if (isBackEdge) {
+        setOrderTracked(ev0, f1, order); // cross-iteration
+      } else {
+        setOrderTracked(ev0, f0, order); // same-iteration
+        setOrderTracked(ev1, f1, order); // shifted copy
+      }
+    }
+    if (reach.canReach(f, ev)) {
+      EventOrder order = queryOrder(f, ev, iface, aa, dom);
+      bool isBackEdge = sameRegion && dom.dominates(ev, f);
+      if (isBackEdge) {
+        setOrderTracked(f0, ev1, order); // cross-iteration
+      } else {
+        setOrderTracked(f0, ev0, order); // same-iteration
+        setOrderTracked(f1, ev1, order); // shifted copy
+      }
+    }
   }
-  applyFenceClosure(fIdx, iface);
+  // applyFenceClosure uses doubled indices internally.
+  applyFenceClosure(fOrigIdx, iface);
 }
 
 void OrderMatrix::closeTransitively(unsigned maxRounds) {
   if (n == 0)
     return;
-  // forwardOrdered[a]: bitset of b where matrix[a*n+b] == Ordered AND
-  // (a,b) is NOT a back-edge pair.  Back-edge orderings represent
-  // cross-iteration relationships and must not be used as stepping stones
-  // in transitive closure (they would conflate iteration N with N+1).
-  llvm::SmallVector<llvm::BitVector> forwardOrdered(n, llvm::BitVector(n));
+  // With doubled matrix, the Unreachable (odd,even) quadrant structurally
+  // prevents cross-iteration orderings from conflating with same-iteration.
+  // No back-edge exclusion needed.
+  llvm::SmallVector<llvm::BitVector> ordered(n, llvm::BitVector(n));
   llvm::SmallVector<llvm::BitVector> unordered(n, llvm::BitVector(n));
   for (unsigned a = 0; a < n; ++a)
     for (unsigned b = 0; b < n; ++b) {
-      if (matrix[a * n + b] == EventOrder::Ordered) {
-        if (a < backEdge.size() && !backEdge[a].test(b))
-          forwardOrdered[a].set(b);
-      } else if (matrix[a * n + b] == EventOrder::Unordered) {
+      if (matrix[a * n + b] == EventOrder::Ordered)
+        ordered[a].set(b);
+      else if (matrix[a * n + b] == EventOrder::Unordered)
         unordered[a].set(b);
-      }
     }
 
   unsigned added = 0;
@@ -161,15 +180,14 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
     changed = false;
     ++rounds;
     for (unsigned a = 0; a < n; ++a) {
-      for (int c = forwardOrdered[a].find_first(); c != -1;
-           c = forwardOrdered[a].find_next(c)) {
-        // newBits = forwardOrdered[c] ∩ unordered[a]
-        llvm::BitVector newBits = forwardOrdered[c];
+      for (int c = ordered[a].find_first(); c != -1;
+           c = ordered[a].find_next(c)) {
+        llvm::BitVector newBits = ordered[c];
         newBits &= unordered[a];
         newBits.reset(a);
         if (newBits.none())
           continue;
-        forwardOrdered[a] |= newBits;
+        ordered[a] |= newBits;
         unordered[a].reset(newBits);
         for (int b = newBits.find_first(); b != -1; b = newBits.find_next(b)) {
           matrix[a * n + b] = EventOrder::Ordered;
@@ -182,34 +200,30 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
   }
   pendingEdges.clear();
   if (!closureReported) {
-    llvm::errs() << "[FenceSynthesis] lob* closure: n=" << n
-                 << " added=" << added << "\n";
+    llvm::errs() << "[FenceSynthesis] lob* closure: nEvents=" << nEvents
+                 << " dim=" << n << " added=" << added << "\n";
     closureReported = true;
   }
 }
 
 void OrderMatrix::closeIncrementally() {
-  // Propagate only newly added edges transitively, skipping back-edge pairs.
+  // Propagate only newly added edges transitively.
+  // Doubled matrix structurally prevents cross-iteration conflation.
   unsigned idx = 0;
   while (idx < pendingEdges.size()) {
     auto [a, b] = pendingEdges[idx++];
-    // Skip back-edge ordered entries as stepping stones.
-    if (a < backEdge.size() && backEdge[a].test(b))
-      continue;
-    // Forward: a→b, b→c ⟹ a→c (only if b→c is not back-edge)
+    // Forward: a→b, b→c ⟹ a→c
     for (unsigned c = 0; c < n; ++c) {
       if (c != a && matrix[b * n + c] == EventOrder::Ordered &&
-          !(b < backEdge.size() && backEdge[b].test(c)) &&
           matrix[a * n + c] == EventOrder::Unordered) {
         matrix[a * n + c] = EventOrder::Ordered;
         pendingEdges.push_back({a, c});
         trackNewOrdered(a, c);
       }
     }
-    // Backward: c→a, a→b ⟹ c→b (only if c→a is not back-edge)
+    // Backward: c→a, a→b ⟹ c→b
     for (unsigned c = 0; c < n; ++c) {
       if (c != b && matrix[c * n + a] == EventOrder::Ordered &&
-          !(c < backEdge.size() && backEdge[c].test(a)) &&
           matrix[c * n + b] == EventOrder::Unordered) {
         matrix[c * n + b] = EventOrder::Ordered;
         pendingEdges.push_back({c, b});
@@ -223,17 +237,37 @@ void OrderMatrix::closeIncrementally() {
 void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                                     AliasAnalysis &aa, DominanceInfo &dom,
                                     const CallReachability &reach) {
+  // fIdx is original event index; use doubled indices internally.
   Operation *f = idToOp[ids[fIdx]];
-  for (unsigned evIdx = 0; evIdx < n; ++evIdx) {
+  unsigned f0 = 2 * fIdx, f1 = 2 * fIdx + 1;
+  Region *fRegion = f->getBlock()->getParent();
+  for (unsigned evIdx = 0; evIdx < nEvents; ++evIdx) {
     if (evIdx == fIdx)
       continue;
     Operation *ev = idToOp[ids[evIdx]];
-    if (matrix[evIdx * n + fIdx] != EventOrder::Unreachable &&
-        reach.canReach(ev, f))
-      setOrderTracked(evIdx, fIdx, queryOrder(ev, f, iface, aa, dom));
-    if (matrix[fIdx * n + evIdx] != EventOrder::Unreachable &&
-        reach.canReach(f, ev))
-      setOrderTracked(fIdx, evIdx, queryOrder(f, ev, iface, aa, dom));
+    unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
+    bool sameRegion = ev->getBlock()->getParent() == fRegion;
+
+    if (reach.canReach(ev, f)) {
+      EventOrder order = queryOrder(ev, f, iface, aa, dom);
+      bool isBackEdge = sameRegion && dom.dominates(f, ev);
+      if (isBackEdge) {
+        setOrderTracked(ev0, f1, order);
+      } else {
+        setOrderTracked(ev0, f0, order);
+        setOrderTracked(ev1, f1, order);
+      }
+    }
+    if (reach.canReach(f, ev)) {
+      EventOrder order = queryOrder(f, ev, iface, aa, dom);
+      bool isBackEdge = sameRegion && dom.dominates(ev, f);
+      if (isBackEdge) {
+        setOrderTracked(f0, ev1, order);
+      } else {
+        setOrderTracked(f0, ev0, order);
+        setOrderTracked(f1, ev1, order);
+      }
+    }
   }
   applyFenceClosure(fIdx, iface);
 }
@@ -488,29 +522,28 @@ EventOrder OrderMatrix::queryOrder(Operation *a, Operation *b,
   return EventOrder::Unreachable;
 }
 
-void OrderMatrix::applyFenceClosure(unsigned fIdx,
+void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
                                     const OrbAtomicDialectInterface *iface) {
-  Operation *f = idToOp[ids[fIdx]];
-  for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
-    if (aIdx == fIdx || matrix[aIdx * n + fIdx] != EventOrder::Ordered)
-      continue;
-    // Skip if a→f is a back-edge pair.
-    if (aIdx < backEdge.size() && backEdge[aIdx].test(fIdx))
-      continue;
-    Operation *a = idToOp[ids[aIdx]];
-    for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
-      if (bIdx == fIdx || bIdx == aIdx)
+  // fOrigIdx is the original event index. Iterate over all doubled indices.
+  Operation *f = idToOp[ids[fOrigIdx]];
+  unsigned f0 = 2 * fOrigIdx, f1 = 2 * fOrigIdx + 1;
+  // Check both doubled fence indices as stepping stones.
+  for (unsigned fD : {f0, f1}) {
+    for (unsigned aD = 0; aD < n; ++aD) {
+      if (aD == fD || matrix[aD * n + fD] != EventOrder::Ordered)
         continue;
-      if (matrix[aIdx * n + bIdx] != EventOrder::Unordered)
-        continue;
-      if (matrix[fIdx * n + bIdx] != EventOrder::Ordered)
-        continue;
-      // Skip if f→b is a back-edge pair.
-      if (fIdx < backEdge.size() && backEdge[fIdx].test(bIdx))
-        continue;
-      Operation *b = idToOp[ids[bIdx]];
-      if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
-        setOrderTracked(aIdx, bIdx, EventOrder::Ordered);
+      Operation *a = idToOp[ids[aD / 2]];
+      for (unsigned bD = 0; bD < n; ++bD) {
+        if (bD == fD || bD == aD)
+          continue;
+        if (matrix[aD * n + bD] != EventOrder::Unordered)
+          continue;
+        if (matrix[fD * n + bD] != EventOrder::Ordered)
+          continue;
+        Operation *b = idToOp[ids[bD / 2]];
+        if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
+          setOrderTracked(aD, bD, EventOrder::Ordered);
+      }
     }
   }
 }
@@ -534,20 +567,20 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
     result.ids.push_back(id);
   });
 
-  result.n = result.ids.size();
-  unsigned n = result.n;
-  llvm::errs() << "[getOrderMatrix] n=" << n << "\n";
-  result.matrix.assign(n * n, EventOrder::Unreachable);
+  result.nEvents = result.ids.size();
+  unsigned nEv = result.nEvents;
+  result.n = 2 * nEv; // doubled matrix dimension
+  unsigned dim = result.n;
+  llvm::errs() << "[getOrderMatrix] n=" << nEv << "\n";
+  result.matrix.assign(dim * dim, EventOrder::Unreachable);
 
-  // Size flat lookup vectors. IDs are sequential 0..maxId, but we
-  // allocate for the max ID seen to handle any gaps.
+  // Size flat lookup vectors.
   uint64_t maxId = 0;
   for (uint64_t id : result.ids)
     maxId = std::max(maxId, id);
   result.idToIdx.assign(maxId + 1, UINT_MAX);
   result.idToOp.assign(maxId + 1, nullptr);
 
-  // Populate: walk again to get the Operation* for each ID.
   module.walk([&](Operation *op) {
     auto idAttr = op->getAttrOfType<IntegerAttr>(kEventIdAttr);
     if (!idAttr)
@@ -555,45 +588,49 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
     uint64_t id = idAttr.getInt();
     result.idToOp[id] = op;
   });
-  for (unsigned i = 0; i < n; ++i)
+  for (unsigned i = 0; i < nEv; ++i)
     result.idToIdx[result.ids[i]] = i;
 
-  // Pairwise pass; cross-region pairs also check cross-function deps.
-  // Also compute back-edge flags: (a,b) is back-edge if b dominates a
-  // within the same region (path from a to b goes through a loop back edge).
-  result.backEdge.resize(n, llvm::BitVector(n));
-  for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
+  // Pairwise pass with doubled indices.
+  // (2a, 2b) + (2a+1, 2b+1) = same-iteration (forward reachable)
+  // (2a, 2b+1) = cross-iteration (back-edge reachable: same region, b dom a)
+  // (2a+1, 2b) = always Unreachable
+  for (unsigned aIdx = 0; aIdx < nEv; ++aIdx) {
     Operation *a = result.idToOp[result.ids[aIdx]];
     Region *aRegion = a->getBlock()->getParent();
-    for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
+    for (unsigned bIdx = 0; bIdx < nEv; ++bIdx) {
       if (aIdx == bIdx)
         continue;
       Operation *b = result.idToOp[result.ids[bIdx]];
-      if (!reach.canReach(a, b)) {
-        result.setOrder(aIdx, bIdx, EventOrder::Unreachable);
-        continue;
-      }
-      // Mark back-edge: same region and b dominates a.
-      if (b->getBlock()->getParent() == aRegion &&
-          dominance.dominates(b, a))
-        result.backEdge[aIdx].set(bIdx);
+      if (!reach.canReach(a, b))
+        continue; // all 4 cells stay Unreachable
 
       EventOrder order = result.queryOrder(a, b, iface, aliasAnalysis, dominance);
-      if (iface && order == EventOrder::Unordered &&
-          b->getBlock()->getParent() != aRegion) {
+      bool sameRegion = b->getBlock()->getParent() == aRegion;
+      if (iface && order == EventOrder::Unordered && !sameRegion) {
         if (iface->getOrderCrossRegion(a, b, aliasAnalysis, dominance, reach) ==
             EventOrder::Ordered)
           order = EventOrder::Ordered;
       }
-      result.setOrder(aIdx, bIdx, order);
+
+      bool isBackEdge = sameRegion && dominance.dominates(b, a);
+      if (isBackEdge) {
+        // Cross-iteration only.
+        result.setOrder(2 * aIdx, 2 * bIdx + 1, order);
+      } else {
+        // Same-iteration + shifted copy.
+        result.setOrder(2 * aIdx, 2 * bIdx, order);
+        result.setOrder(2 * aIdx + 1, 2 * bIdx + 1, order);
+      }
     }
   }
 
   if (!iface)
     return result;
 
-  llvm::SmallVector<unsigned> fenceIdxs;
-  for (unsigned i = 0; i < n; ++i) {
+  // Fence closure: find fences, then check a→f→b orderings.
+  llvm::SmallVector<unsigned> fenceIdxs; // original indices of fence events
+  for (unsigned i = 0; i < nEv; ++i) {
     Operation *op = result.idToOp[result.ids[i]];
     if (iface->isFenceEvent(op))
       fenceIdxs.push_back(i);
@@ -601,26 +638,31 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   if (fenceIdxs.empty())
     return result;
 
+  // Build fence reachability over doubled indices (same-iteration view).
   unsigned nF = fenceIdxs.size();
-  llvm::SmallVector<llvm::BitVector> fencesAfter(n, llvm::BitVector(nF));
-  llvm::SmallVector<llvm::BitVector> fencesBefore(n, llvm::BitVector(nF));
+  llvm::SmallVector<llvm::BitVector> fencesAfter(nEv, llvm::BitVector(nF));
+  llvm::SmallVector<llvm::BitVector> fencesBefore(nEv, llvm::BitVector(nF));
   for (unsigned fi = 0; fi < nF; ++fi) {
-    unsigned fMat = fenceIdxs[fi];
-    for (unsigned ei = 0; ei < n; ++ei) {
-      if (result.matrix[ei * n + fMat] == EventOrder::Ordered)
+    unsigned fOrig = fenceIdxs[fi];
+    for (unsigned ei = 0; ei < nEv; ++ei) {
+      // Same-iteration: (2*ei, 2*f) ordered means ei→f in same iter.
+      if (result.matrix[2 * ei * dim + 2 * fOrig] == EventOrder::Ordered)
         fencesAfter[ei].set(fi);
-      if (result.matrix[fMat * n + ei] == EventOrder::Ordered)
+      if (result.matrix[2 * fOrig * dim + 2 * ei] == EventOrder::Ordered)
         fencesBefore[ei].set(fi);
     }
   }
 
   llvm::BitVector candidates(nF);
-  for (unsigned aIdx = 0; aIdx < n; ++aIdx) {
+  for (unsigned aIdx = 0; aIdx < nEv; ++aIdx) {
     if (fencesAfter[aIdx].none())
       continue;
     Operation *a = result.idToOp[result.ids[aIdx]];
-    for (unsigned bIdx = 0; bIdx < n; ++bIdx) {
-      if (bIdx == aIdx || result.matrix[aIdx * n + bIdx] != EventOrder::Unordered)
+    for (unsigned bIdx = 0; bIdx < nEv; ++bIdx) {
+      if (bIdx == aIdx)
+        continue;
+      // Check same-iteration cell.
+      if (result.matrix[2 * aIdx * dim + 2 * bIdx] != EventOrder::Unordered)
         continue;
       if (fencesBefore[bIdx].none())
         continue;
@@ -637,7 +679,10 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
              fi = candidates.find_next(fi)) {
           Operation *f = result.idToOp[result.ids[fenceIdxs[fi]]];
           if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered) {
-            result.matrix[aIdx * n + bIdx] = EventOrder::Ordered;
+            // Mark same-iteration + shifted.
+            result.matrix[2 * aIdx * dim + 2 * bIdx] = EventOrder::Ordered;
+            result.matrix[(2 * aIdx + 1) * dim + 2 * bIdx + 1] =
+                EventOrder::Ordered;
             return;
           }
         }

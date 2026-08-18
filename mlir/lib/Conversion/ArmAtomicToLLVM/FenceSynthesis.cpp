@@ -152,12 +152,8 @@ struct FenceSynthesisPass
     auto mb = orb::getOrderMatrix(module, aa, dom, iface, reach);
     // Let the target dialect apply model-specific derived orderings (e.g. lob* for ARM).
     iface->refineInitialOrderMatrix(mb);
-    unsigned nEvents = mb.eventIds().size();
-    unsigned nUnreachable = mb.countCells(orb::EventOrder::Unreachable);
-    log() << "n=" << nEvents
-          << " unreachable=" << nUnreachable
-          << " reachable=" << (nEvents * nEvents - nUnreachable)
-          << "\n";
+    unsigned nEvents = mb.numEvents();
+    log() << "n=" << nEvents << "\n";
 
     // Precomputed set of fence event IDs for O(1) lookup.
     llvm::DenseSet<uint64_t> fenceIds;
@@ -329,7 +325,7 @@ struct FenceSynthesisPass
         orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
                              colPressure[idB], colReadPressure[idB],
                              colWritePressure[idB], fenceCostBase,
-                             (unsigned)mb.eventIds().size()};
+                             mb.numEvents()};
         for (auto &p : iface->promote(idA, a, idB, b)) {
           if (auto *fa = std::get_if<orb::Promotion::FenceAction>(&p.action))
             p.loopDepth =

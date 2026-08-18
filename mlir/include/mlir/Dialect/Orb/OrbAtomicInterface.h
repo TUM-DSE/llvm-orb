@@ -123,6 +123,7 @@ public:
   /// Look up the current Operation* for a given event ID.
   Operation *getOpForId(uint64_t id) const;
   llvm::ArrayRef<uint64_t> eventIds() const { return ids; }
+  unsigned numEvents() const { return nEvents; }
   /// Map event ID → matrix index. Asserts if id is not present.
   unsigned idxOf(uint64_t id) const;
   /// Count cells with a given order value.
@@ -134,11 +135,11 @@ public:
     requiredSet = s;
     coveredCount = 0;
     overspecifiedCount = 0;
-    // Count existing Ordered cells against the required set.
-    for (unsigned a = 0; a < n; ++a)
-      for (unsigned b = 0; b < n; ++b)
-        if (a != b && matrix[a * n + b] == EventOrder::Ordered)
-          trackNewOrdered(a, b);
+    // Count existing same-iteration Ordered cells (even,even) against required set.
+    for (unsigned a = 0; a < nEvents; ++a)
+      for (unsigned b = 0; b < nEvents; ++b)
+        if (a != b && matrix[2 * a * n + 2 * b] == EventOrder::Ordered)
+          trackNewOrdered(2 * a, 2 * b);
   }
   /// Return (covered, overspecified) counts accumulated since setRequiredSet.
   std::pair<unsigned, unsigned> orderedCounts() const {
@@ -169,11 +170,9 @@ private:
   std::vector<Operation *> idToOp; // indexed by event ID → Operation*
   llvm::SmallVector<uint64_t> ids;
   unsigned n = 0;
-  /// backEdge[aIdx] has bit bIdx set when (a,b) reaches b through a loop back
-  /// edge (i.e. b dominates a within the same region). These Ordered entries
-  /// represent cross-iteration orderings and must not participate in transitive
-  /// closure, which would otherwise conflate iteration N with iteration N+1.
-  llvm::SmallVector<llvm::BitVector> backEdge;
+  /// Number of original events. Matrix dimension `n` = 2 * nEvents (doubled).
+  /// Even indices (2i) = same-iteration copy, odd (2i+1) = cross-iteration.
+  unsigned nEvents = 0;
   bool closureReported = false;
   llvm::SmallVector<std::pair<unsigned, unsigned>> pendingEdges;
   const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *requiredSet = nullptr;
@@ -183,7 +182,10 @@ private:
   void trackNewOrdered(unsigned aIdx, unsigned bIdx) {
     if (!requiredSet)
       return;
-    if (requiredSet->count({ids[aIdx], ids[bIdx]}))
+    // Only track same-iteration pairs (even,even) against the required set.
+    if (aIdx % 2 != 0 || bIdx % 2 != 0)
+      return;
+    if (requiredSet->count({ids[aIdx / 2], ids[bIdx / 2]}))
       ++coveredCount;
     else
       ++overspecifiedCount;
@@ -206,7 +208,7 @@ private:
   EventOrder queryOrder(Operation *a, Operation *b,
                         const OrbAtomicDialectInterface *iface,
                         AliasAnalysis &aa, DominanceInfo &dom) const;
-  void applyFenceClosure(unsigned fIdx, const OrbAtomicDialectInterface *iface);
+  void applyFenceClosure(unsigned fOrigIdx, const OrbAtomicDialectInterface *iface);
 };
 
 /// Per-dialect interface for atomic memory ordering analysis.

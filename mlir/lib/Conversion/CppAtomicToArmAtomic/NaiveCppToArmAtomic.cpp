@@ -274,12 +274,8 @@ void ConvertCppAtomicToArmAtomicNaivePass::runOnOperation() {
     auto mb = orb::getOrderMatrix(module, aa, dom, iface, reach);
     iface->refineInitialOrderMatrix(mb);
 
-    unsigned nEvents = mb.eventIds().size();
-    unsigned nUnreachable = mb.countCells(orb::EventOrder::Unreachable);
-    log() << "n=" << nEvents
-          << " unreachable=" << nUnreachable
-          << " reachable=" << (nEvents * nEvents - nUnreachable)
-          << "\n";
+    unsigned nEvents = mb.numEvents();
+    log() << "n=" << nEvents << "\n";
 
     llvm::DenseSet<std::pair<uint64_t,uint64_t>> requiredSet(
         required.requiredPairs().begin(), required.requiredPairs().end());
