@@ -96,6 +96,7 @@ struct FenceSynthesisPass
 
     auto &aa  = getAnalysis<AliasAnalysis>();
     auto &dom = getAnalysis<DominanceInfo>();
+    auto &postDom = getAnalysis<PostDominanceInfo>();
     OpBuilder builder(module->getContext());
 
     // Precomputed reachability — stable across synthesis iterations.
@@ -392,7 +393,7 @@ struct FenceSynthesisPass
             }
           }
           iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
-                                   mb, aa, dom, reach);
+                                   mb, aa, dom, postDom, reach);
         }
         // mb.closeIncrementally(); // disabled temporarily
         rebuildPressure();

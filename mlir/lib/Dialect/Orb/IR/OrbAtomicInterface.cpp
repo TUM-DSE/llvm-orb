@@ -109,6 +109,7 @@ void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
 
 void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
                            AliasAnalysis &aa, DominanceInfo &dom,
+                           PostDominanceInfo &postDom,
                            const CallReachability &reach) {
   auto idAttr = f->getAttrOfType<IntegerAttr>(kEventIdAttr);
   assert(idAttr && "fence must have orb.event_id before addFence");
@@ -147,7 +148,10 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
-    if (reach.canReach(ev, f)) {
+    // Target-side: fence must be on ALL paths from ev to f (post-dominance)
+    // and from f to ev (dominance). Reachability is too weak — a fence on
+    // one branch of a conditional would falsely claim to order all events.
+    if (postDom.postDominates(f, ev)) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
       bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
@@ -157,7 +161,7 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
         setOrderTracked(ev1, f1, order); // shifted copy
       }
     }
-    if (reach.canReach(f, ev)) {
+    if (dom.dominates(f, ev)) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
       bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
@@ -251,6 +255,7 @@ void OrderMatrix::closeIncrementally() {
 
 void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                                     AliasAnalysis &aa, DominanceInfo &dom,
+                                    PostDominanceInfo &postDom,
                                     const CallReachability &reach) {
   // fIdx is original event index; use doubled indices internally.
   Operation *f = idToOp[ids[fIdx]];
@@ -263,7 +268,8 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
     unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
-    if (reach.canReach(ev, f)) {
+    // Target-side: use dominance/post-dominance (see addFence comment).
+    if (postDom.postDominates(f, ev)) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
       bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
@@ -273,7 +279,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
         setOrderTracked(ev1, f1, order);
       }
     }
-    if (reach.canReach(f, ev)) {
+    if (dom.dominates(f, ev)) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
       bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
