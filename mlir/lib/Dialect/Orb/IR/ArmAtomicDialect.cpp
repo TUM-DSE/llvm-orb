@@ -609,6 +609,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     }
     if (std::get_if<orb::Promotion::FenceAction>(&p.action)) {
       mb.addFence(newOp, this, aa, dom, reach);
+      mb.markOrdered(idA, idB);
       return;
     }
     // PairUpgradeAction: apply po;[L] + [A|Q];po.
