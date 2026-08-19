@@ -120,6 +120,10 @@ struct CallReachability {
 class OrderMatrix {
 public:
   EventOrder getOrder(uint64_t idA, uint64_t idB) const;
+  /// Cross-iteration view: returns matrix[2a, 2b+1].
+  EventOrder getCrossIterOrder(uint64_t idA, uint64_t idB) const;
+  /// True if (idA, idB) is Ordered in same-iteration OR cross-iteration view.
+  bool isOrdered(uint64_t idA, uint64_t idB) const;
   /// Look up the current Operation* for a given event ID.
   Operation *getOpForId(uint64_t id) const;
   llvm::ArrayRef<uint64_t> eventIds() const { return ids; }
@@ -135,11 +139,17 @@ public:
     requiredSet = s;
     coveredCount = 0;
     overspecifiedCount = 0;
-    // Count existing same-iteration Ordered cells (even,even) against required set.
+    // Count existing Ordered cells against required set.
     for (unsigned a = 0; a < nEvents; ++a)
-      for (unsigned b = 0; b < nEvents; ++b)
-        if (a != b && matrix[2 * a * n + 2 * b] == EventOrder::Ordered)
+      for (unsigned b = 0; b < nEvents; ++b) {
+        if (a == b) continue;
+        // Same-iteration (even,even)
+        if (matrix[2 * a * n + 2 * b] == EventOrder::Ordered)
           trackNewOrdered(2 * a, 2 * b);
+        // Cross-iteration (even,odd)
+        if (matrix[2 * a * n + 2 * b + 1] == EventOrder::Ordered)
+          trackNewOrdered(2 * a, 2 * b + 1);
+      }
   }
   /// Return (covered, overspecified) counts accumulated since setRequiredSet.
   std::pair<unsigned, unsigned> orderedCounts() const {
@@ -182,10 +192,26 @@ private:
   void trackNewOrdered(unsigned aIdx, unsigned bIdx) {
     if (!requiredSet)
       return;
-    // Only track same-iteration pairs (even,even) against the required set.
-    if (aIdx % 2 != 0 || bIdx % 2 != 0)
+    // Track same-iteration (even,even) and cross-iteration (even,odd) pairs.
+    // Skip (odd,*) — those are shifted copies.
+    if (aIdx % 2 != 0)
       return;
-    if (requiredSet->count({ids[aIdx / 2], ids[bIdx / 2]}))
+    unsigned origA = aIdx / 2;
+    unsigned origB = bIdx / 2;
+    if (origA == origB)
+      return;
+    auto pair = std::make_pair(ids[origA], ids[origB]);
+    bool isRequired = requiredSet->count(pair);
+    // Avoid double-counting: if this is (even,odd) but (even,even) is already
+    // Ordered, the pair was already counted. Vice versa.
+    bool otherAlsoOrdered;
+    if (bIdx % 2 == 0) // same-iter cell being set — check if cross-iter already Ordered
+      otherAlsoOrdered = matrix[aIdx * n + bIdx + 1] == EventOrder::Ordered;
+    else // cross-iter cell being set — check if same-iter already Ordered
+      otherAlsoOrdered = matrix[aIdx * n + bIdx - 1] == EventOrder::Ordered;
+    if (otherAlsoOrdered)
+      return; // already counted via the other cell
+    if (isRequired)
       ++coveredCount;
     else
       ++overspecifiedCount;

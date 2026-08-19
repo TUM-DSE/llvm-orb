@@ -283,7 +283,7 @@ void ConvertCppAtomicToArmAtomicNaivePass::runOnOperation() {
     unsigned covered = 0, overspecified = 0, remaining = 0;
     for (uint64_t c : mb.eventIds())
       for (uint64_t d : mb.eventIds()) {
-        if (c == d || mb.getOrder(c, d) != orb::EventOrder::Ordered)
+        if (c == d || !mb.isOrdered(c, d))
           continue;
         if (requiredSet.count({c, d}))
           ++covered;
@@ -291,7 +291,7 @@ void ConvertCppAtomicToArmAtomicNaivePass::runOnOperation() {
           ++overspecified;
       }
     for (auto [idA, idB] : required.requiredPairs())
-      if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
+      if (!mb.isOrdered(idA, idB))
         ++remaining;
 
     log() << "done ordered=" << covered << "/" << total

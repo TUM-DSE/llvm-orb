@@ -187,7 +187,7 @@ struct FenceSynthesisPass
       for (auto [c, d] : required.requiredPairs()) {
         if (fIgn.count(c) || fIgn.count(d))
           continue;
-        if (mb.getOrder(c, d) == orb::EventOrder::Ordered)
+        if (mb.isOrdered(c, d))
           continue;
         ++totalUnsatisfied;
         rowPressure[c]++;
@@ -215,7 +215,7 @@ struct FenceSynthesisPass
     // Worklist of unsatisfied required pairs — avoids re-scanning all pairs.
     llvm::SmallVector<std::pair<uint64_t, uint64_t>> unsatisfied;
     for (auto [idA, idB] : required.requiredPairs()) {
-      if (mb.getOrder(idA, idB) != orb::EventOrder::Ordered)
+      if (!mb.isOrdered(idA, idB))
         unsatisfied.push_back({idA, idB});
     }
 
@@ -260,7 +260,7 @@ struct FenceSynthesisPass
           for (auto d : after) {
             if (isEventFence(d))
               continue;
-            if (mb.getOrder(c, d) != orb::EventOrder::Ordered) {
+            if (!mb.isOrdered(c, d)) {
               allOrdered = false;
               break;
             }
@@ -291,7 +291,7 @@ struct FenceSynthesisPass
           idA = UINT64_MAX; // mark resolved
           continue;
         }
-        if (mb.getOrder(idA, idB) == orb::EventOrder::Ordered) {
+        if (mb.isOrdered(idA, idB)) {
           idA = UINT64_MAX; // mark resolved
           continue;
         }

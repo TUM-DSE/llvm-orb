@@ -53,6 +53,21 @@ EventOrder OrderMatrix::getOrder(uint64_t idA, uint64_t idB) const {
   return matrix[2 * a * n + 2 * b];
 }
 
+EventOrder OrderMatrix::getCrossIterOrder(uint64_t idA, uint64_t idB) const {
+  if (idA >= idToIdx.size() || idB >= idToIdx.size())
+    return EventOrder::Unreachable;
+  unsigned a = idToIdx[idA], b = idToIdx[idB];
+  if (a == UINT_MAX || b == UINT_MAX)
+    return EventOrder::Unreachable;
+  // Cross-iteration view: (2a, 2b+1).
+  return matrix[2 * a * n + 2 * b + 1];
+}
+
+bool OrderMatrix::isOrdered(uint64_t idA, uint64_t idB) const {
+  return getOrder(idA, idB) == EventOrder::Ordered ||
+         getCrossIterOrder(idA, idB) == EventOrder::Ordered;
+}
+
 Operation *OrderMatrix::getOpForId(uint64_t id) const {
   if (id >= idToOp.size())
     return nullptr;
@@ -311,10 +326,20 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
   });
   auto reach = computeCallReachability(module);
   OrderMatrix matrix = getOrderMatrix(module, aa, dom, iface, reach);
+  unsigned crossIterOnly = 0;
   for (uint64_t idA : matrix.eventIds())
-    for (uint64_t idB : matrix.eventIds())
-      if (idA != idB && matrix.getOrder(idA, idB) == EventOrder::Ordered)
+    for (uint64_t idB : matrix.eventIds()) {
+      if (idA == idB)
+        continue;
+      if (matrix.getOrder(idA, idB) == EventOrder::Ordered)
         pairs.emplace_back(idA, idB);
+      else if (matrix.getCrossIterOrder(idA, idB) == EventOrder::Ordered) {
+        pairs.emplace_back(idA, idB);
+        ++crossIterOnly;
+      }
+    }
+  llvm::errs() << "[OrderAnalysis] required=" << pairs.size()
+               << " crossIterOnly=" << crossIterOnly << "\n";
 
   LLVM_DEBUG({
     auto funcName = [](Operation *op) -> StringRef {
@@ -595,6 +620,7 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   // (2a, 2b) + (2a+1, 2b+1) = same-iteration (forward reachable)
   // (2a, 2b+1) = cross-iteration (back-edge reachable: same region, b dom a)
   // (2a+1, 2b) = always Unreachable
+  unsigned backEdgeOrdered = 0, forwardOrdered = 0;
   for (unsigned aIdx = 0; aIdx < nEv; ++aIdx) {
     Operation *a = result.idToOp[result.ids[aIdx]];
     Region *aRegion = a->getBlock()->getParent();
@@ -617,13 +643,19 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
       if (isBackEdge) {
         // Cross-iteration only.
         result.setOrder(2 * aIdx, 2 * bIdx + 1, order);
+        if (order == EventOrder::Ordered)
+          ++backEdgeOrdered;
       } else {
         // Same-iteration + shifted copy.
         result.setOrder(2 * aIdx, 2 * bIdx, order);
         result.setOrder(2 * aIdx + 1, 2 * bIdx + 1, order);
+        if (order == EventOrder::Ordered)
+          ++forwardOrdered;
       }
     }
   }
+  llvm::errs() << "[getOrderMatrix] forwardOrdered=" << forwardOrdered
+               << " backEdgeOrdered=" << backEdgeOrdered << "\n";
 
   if (!iface)
     return result;
