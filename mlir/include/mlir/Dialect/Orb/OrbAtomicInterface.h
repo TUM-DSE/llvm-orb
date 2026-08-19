@@ -184,6 +184,7 @@ private:
   /// Even indices (2i) = same-iteration copy, odd (2i+1) = cross-iteration.
   unsigned nEvents = 0;
   bool closureReported = false;
+  llvm::BitVector fenceOrigIndices; // original event indices that are fences
   llvm::SmallVector<std::pair<unsigned, unsigned>> pendingEdges;
   const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *requiredSet = nullptr;
   unsigned coveredCount = 0;

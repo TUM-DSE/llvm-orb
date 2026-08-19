@@ -130,6 +130,8 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
 
   n = dimNew;
   ++nEvents;
+  fenceOrigIndices.resize(nEvents);
+  fenceOrigIndices.set(fOrigIdx);
   ids.push_back(fId);
   if (fId >= idToIdx.size())
     idToIdx.resize(fId + 1, UINT_MAX);
@@ -196,6 +198,11 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
     for (unsigned a = 0; a < n; ++a) {
       for (int c = ordered[a].find_first(); c != -1;
            c = ordered[a].find_next(c)) {
+        // Skip fence events as stepping stones — fence-mediated ordering
+        // is handled by applyFenceClosure with dominance checks.
+        if (fenceOrigIndices.size() > 0 && (unsigned)c / 2 < fenceOrigIndices.size() &&
+            fenceOrigIndices.test(c / 2))
+          continue;
         llvm::BitVector newBits = ordered[c];
         newBits &= unordered[a];
         newBits.reset(a);
@@ -222,26 +229,31 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
 
 void OrderMatrix::closeIncrementally() {
   // Propagate only newly added edges transitively.
-  // Doubled matrix structurally prevents cross-iteration conflation.
+  // Skip fence events as stepping stones — fence-mediated ordering is handled
+  // exclusively by applyFenceClosure with dominance/semantics checks.
   unsigned idx = 0;
   while (idx < pendingEdges.size()) {
     auto [a, b] = pendingEdges[idx++];
-    // Forward: a→b, b→c ⟹ a→c
-    for (unsigned c = 0; c < n; ++c) {
-      if (c != a && matrix[b * n + c] == EventOrder::Ordered &&
-          matrix[a * n + c] == EventOrder::Unordered) {
-        matrix[a * n + c] = EventOrder::Ordered;
-        pendingEdges.push_back({a, c});
-        trackNewOrdered(a, c);
+    // Forward: a→b, b→c ⟹ a→c  (b is stepping stone — skip if fence)
+    if (!fenceOrigIndices.test(b / 2)) {
+      for (unsigned c = 0; c < n; ++c) {
+        if (c != a && matrix[b * n + c] == EventOrder::Ordered &&
+            matrix[a * n + c] == EventOrder::Unordered) {
+          matrix[a * n + c] = EventOrder::Ordered;
+          pendingEdges.push_back({a, c});
+          trackNewOrdered(a, c);
+        }
       }
     }
-    // Backward: c→a, a→b ⟹ c→b
-    for (unsigned c = 0; c < n; ++c) {
-      if (c != b && matrix[c * n + a] == EventOrder::Ordered &&
-          matrix[c * n + b] == EventOrder::Unordered) {
-        matrix[c * n + b] = EventOrder::Ordered;
-        pendingEdges.push_back({c, b});
-        trackNewOrdered(c, b);
+    // Backward: c→a, a→b ⟹ c→b  (a is stepping stone — skip if fence)
+    if (!fenceOrigIndices.test(a / 2)) {
+      for (unsigned c = 0; c < n; ++c) {
+        if (c != b && matrix[c * n + a] == EventOrder::Ordered &&
+            matrix[c * n + b] == EventOrder::Unordered) {
+          matrix[c * n + b] = EventOrder::Ordered;
+          pendingEdges.push_back({c, b});
+          trackNewOrdered(c, b);
+        }
       }
     }
   }
@@ -719,6 +731,10 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
     if (iface->isFenceEvent(op))
       fenceIdxs.push_back(i);
   }
+  result.fenceOrigIndices.resize(nEv);
+  for (unsigned fi : fenceIdxs)
+    result.fenceOrigIndices.set(fi);
+
   if (fenceIdxs.empty())
     return result;
 
