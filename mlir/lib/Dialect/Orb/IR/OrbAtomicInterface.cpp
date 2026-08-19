@@ -168,8 +168,7 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
       }
     }
   }
-  // applyFenceClosure uses doubled indices internally.
-  applyFenceClosure(fOrigIdx, iface, dom);
+  applyFenceClosure(fOrigIdx, iface, dom, reach);
 }
 
 void OrderMatrix::closeTransitively(unsigned maxRounds) {
@@ -284,7 +283,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
       }
     }
   }
-  applyFenceClosure(fIdx, iface, dom);
+  applyFenceClosure(fIdx, iface, dom, reach);
 }
 
 //===----------------------------------------------------------------------===//
@@ -547,12 +546,76 @@ EventOrder OrderMatrix::queryOrder(Operation *a, Operation *b,
   return EventOrder::Unreachable;
 }
 
+/// Check whether the fence f is on ALL paths to b.
+/// Same-region: f's block must dominate b's block.
+/// Cross-region: every call site from b's region (or an ancestor) to f's
+/// region must dominate b's block (or the call to b's region).
+static bool fenceDominatesTarget(Operation *f, Operation *b,
+                                 DominanceInfo &dom,
+                                 const CallReachability &reach) {
+  Block *fBlock = f->getBlock();
+  Block *bBlock = b->getBlock();
+  Region *fRegion = fBlock->getParent();
+  Region *bRegion = bBlock->getParent();
+
+  if (fRegion == bRegion)
+    return dom.dominates(fBlock, bBlock);
+
+  // Cross-region: find a region that calls fRegion and either IS bRegion
+  // or calls bRegion.
+
+  // Case 1: bRegion calls fRegion (f is inside a callee of b's function).
+  // The call returns, then b executes.  All call sites must dominate b.
+  auto it1 = reach.directCalls.find({bRegion, fRegion});
+  if (it1 != reach.directCalls.end()) {
+    for (Operation *callOp : it1->second) {
+      if (!dom.dominates(callOp->getBlock(), bBlock))
+        return false;
+    }
+    return true;
+  }
+
+  // Case 2: a common caller region calls both fRegion and bRegion.
+  // The call to fRegion must dominate the call to bRegion.
+  for (auto &[key, callsToF] : reach.directCalls) {
+    auto [callerRegion, calleeRegion] = key;
+    if (calleeRegion != fRegion)
+      continue;
+    auto it2 = reach.directCalls.find({callerRegion, bRegion});
+    if (it2 == reach.directCalls.end())
+      continue;
+    // callerRegion calls both fRegion and bRegion.
+    // Every call to fRegion must dominate every call to bRegion.
+    for (Operation *callToB : it2->second) {
+      for (Operation *callToF : callsToF) {
+        if (!dom.dominates(callToF->getBlock(), callToB->getBlock()))
+          return false;
+      }
+    }
+    return true;
+  }
+
+  // Case 3: fRegion calls bRegion (b is inside a callee of f's function).
+  // f must dominate the call to bRegion within fRegion.
+  auto it3 = reach.directCalls.find({fRegion, bRegion});
+  if (it3 != reach.directCalls.end()) {
+    for (Operation *callOp : it3->second) {
+      if (!dom.dominates(fBlock, callOp->getBlock()))
+        return false;
+    }
+    return true;
+  }
+
+  // No direct relationship found — conservatively deny.
+  return false;
+}
+
 void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
                                     const OrbAtomicDialectInterface *iface,
-                                    DominanceInfo &dom) {
+                                    DominanceInfo &dom,
+                                    const CallReachability &reach) {
   // fOrigIdx is the original event index. Iterate over all doubled indices.
   Operation *f = idToOp[ids[fOrigIdx]];
-  Block *fBlock = f->getBlock();
   unsigned f0 = 2 * fOrigIdx, f1 = 2 * fOrigIdx + 1;
   // Check both doubled fence indices as stepping stones.
   for (unsigned fD : {f0, f1}) {
@@ -569,10 +632,8 @@ void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
           continue;
         Operation *b = idToOp[ids[bD / 2]];
         // Fence-derived ordering (a,b) through f is only valid when f is on
-        // ALL paths from a to b.  Check: f dominates b (same region).
-        Block *bBlock = b->getBlock();
-        if (fBlock->getParent() == bBlock->getParent() &&
-            !dom.dominates(fBlock, bBlock))
+        // ALL paths from a to b.
+        if (!fenceDominatesTarget(f, b, dom, reach))
           continue;
         if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
           setOrderTracked(aD, bD, EventOrder::Ordered);
@@ -719,10 +780,7 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
              fi = candidates.find_next(fi)) {
           Operation *f = result.idToOp[result.ids[fenceIdxs[fi]]];
           // Fence-derived ordering only valid when fence is on ALL paths to b.
-          Block *fBlock = f->getBlock();
-          Block *bBlock = b->getBlock();
-          if (fBlock->getParent() == bBlock->getParent() &&
-              !dominance.dominates(fBlock, bBlock))
+          if (!fenceDominatesTarget(f, b, dominance, reach))
             continue;
           if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered) {
             // Mark same-iteration + shifted.

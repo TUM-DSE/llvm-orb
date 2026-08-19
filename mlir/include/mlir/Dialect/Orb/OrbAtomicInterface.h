@@ -235,7 +235,7 @@ private:
                         const OrbAtomicDialectInterface *iface,
                         AliasAnalysis &aa, DominanceInfo &dom) const;
   void applyFenceClosure(unsigned fOrigIdx, const OrbAtomicDialectInterface *iface,
-                         DominanceInfo &dom);
+                         DominanceInfo &dom, const CallReachability &reach);
 };
 
 /// Per-dialect interface for atomic memory ordering analysis.

@@ -242,7 +242,7 @@ struct FenceSynthesisPass
     // controls the tradeoff.
     bool changed = true;
     unsigned iteration = 0;
-    unsigned prevUnsatisfied = totalUnsatisfied;
+    unsigned prevCovered = mb.orderedCounts().first;
     while (changed) {
       changed = false;
 
@@ -382,6 +382,18 @@ struct FenceSynthesisPass
                        << " t=" << elapsedMs() << "ms\n";
         }
         for (auto &e : batch) {
+          if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&e.promo.action))
+            log() << "  upgrade id=" << e.idA << "," << e.idB
+                         << " op=" << ua->op->getName().getStringRef()
+                         << " to=" << ua->targetMemoryOrder << "\n";
+          else if (std::get_if<orb::Promotion::FenceAction>(&e.promo.action))
+            log() << "  fence (" << e.idA << "," << e.idB << ")\n";
+          else if (auto *pa = std::get_if<orb::Promotion::PairUpgradeAction>(&e.promo.action))
+            log() << "  pair (" << e.idA << "," << e.idB
+                         << ") mo1=" << pa->targetMemoryOrder1
+                         << " mo2=" << pa->targetMemoryOrder2 << "\n";
+          else
+            log() << "  empty (" << e.idA << "," << e.idB << ")\n";
           Operation *newOp = iface->applyPromotion(e.promo, builder);
           if (newOp) {
             uint64_t newId = nextSynthId++;
@@ -397,9 +409,10 @@ struct FenceSynthesisPass
         }
         mb.closeIncrementally();
         rebuildPressure();
-        if (totalUnsatisfied < prevUnsatisfied) {
+        unsigned curCovered = mb.orderedCounts().first;
+        if (curCovered > prevCovered) {
           changed = true;
-          prevUnsatisfied = totalUnsatisfied;
+          prevCovered = curCovered;
         } else {
           // No progress — promotions didn't satisfy any new pairs.
           log() << "no progress at iter=" << iteration
