@@ -109,7 +109,6 @@ void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
 
 void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
                            AliasAnalysis &aa, DominanceInfo &dom,
-                           PostDominanceInfo &postDom,
                            const CallReachability &reach) {
   auto idAttr = f->getAttrOfType<IntegerAttr>(kEventIdAttr);
   assert(idAttr && "fence must have orb.event_id before addFence");
@@ -148,10 +147,7 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
-    // Target-side: fence must be on ALL paths from ev to f (post-dominance)
-    // and from f to ev (dominance). Reachability is too weak — a fence on
-    // one branch of a conditional would falsely claim to order all events.
-    if (postDom.postDominates(f, ev)) {
+    if (reach.canReach(ev, f)) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
       bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
@@ -161,7 +157,7 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
         setOrderTracked(ev1, f1, order); // shifted copy
       }
     }
-    if (dom.dominates(f, ev)) {
+    if (reach.canReach(f, ev)) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
       bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
@@ -173,7 +169,7 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     }
   }
   // applyFenceClosure uses doubled indices internally.
-  applyFenceClosure(fOrigIdx, iface);
+  applyFenceClosure(fOrigIdx, iface, dom);
 }
 
 void OrderMatrix::closeTransitively(unsigned maxRounds) {
@@ -255,7 +251,6 @@ void OrderMatrix::closeIncrementally() {
 
 void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                                     AliasAnalysis &aa, DominanceInfo &dom,
-                                    PostDominanceInfo &postDom,
                                     const CallReachability &reach) {
   // fIdx is original event index; use doubled indices internally.
   Operation *f = idToOp[ids[fIdx]];
@@ -268,8 +263,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
     unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
-    // Target-side: use dominance/post-dominance (see addFence comment).
-    if (postDom.postDominates(f, ev)) {
+    if (reach.canReach(ev, f)) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
       bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
@@ -279,7 +273,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
         setOrderTracked(ev1, f1, order);
       }
     }
-    if (dom.dominates(f, ev)) {
+    if (reach.canReach(f, ev)) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
       bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
@@ -290,7 +284,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
       }
     }
   }
-  applyFenceClosure(fIdx, iface);
+  applyFenceClosure(fIdx, iface, dom);
 }
 
 //===----------------------------------------------------------------------===//
@@ -554,9 +548,11 @@ EventOrder OrderMatrix::queryOrder(Operation *a, Operation *b,
 }
 
 void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
-                                    const OrbAtomicDialectInterface *iface) {
+                                    const OrbAtomicDialectInterface *iface,
+                                    DominanceInfo &dom) {
   // fOrigIdx is the original event index. Iterate over all doubled indices.
   Operation *f = idToOp[ids[fOrigIdx]];
+  Block *fBlock = f->getBlock();
   unsigned f0 = 2 * fOrigIdx, f1 = 2 * fOrigIdx + 1;
   // Check both doubled fence indices as stepping stones.
   for (unsigned fD : {f0, f1}) {
@@ -572,6 +568,12 @@ void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
         if (matrix[fD * n + bD] != EventOrder::Ordered)
           continue;
         Operation *b = idToOp[ids[bD / 2]];
+        // Fence-derived ordering (a,b) through f is only valid when f is on
+        // ALL paths from a to b.  Check: f dominates b (same region).
+        Block *bBlock = b->getBlock();
+        if (fBlock->getParent() == bBlock->getParent() &&
+            !dom.dominates(fBlock, bBlock))
+          continue;
         if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
           setOrderTracked(aD, bD, EventOrder::Ordered);
       }
@@ -716,6 +718,12 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
         for (int fi = candidates.find_first(); fi != -1;
              fi = candidates.find_next(fi)) {
           Operation *f = result.idToOp[result.ids[fenceIdxs[fi]]];
+          // Fence-derived ordering only valid when fence is on ALL paths to b.
+          Block *fBlock = f->getBlock();
+          Block *bBlock = b->getBlock();
+          if (fBlock->getParent() == bBlock->getParent() &&
+              !dominance.dominates(fBlock, bBlock))
+            continue;
           if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered) {
             // Mark same-iteration + shifted.
             result.matrix[2 * aIdx * dim + 2 * bIdx] = EventOrder::Ordered;

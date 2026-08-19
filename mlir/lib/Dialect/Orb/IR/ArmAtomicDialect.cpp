@@ -443,7 +443,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       int mo = static_cast<int>(fenceMO);
       if (!isa<arm_atomic::AtomicFenceOp>(a) && a->getNextNode())
         options.push_back({orb::Promotion::FenceAction{a->getNextNode(), mo}});
-      if (!isa<arm_atomic::AtomicFenceOp>(b) && b->getPrevNode())
+      if (!isa<arm_atomic::AtomicFenceOp>(b))
         options.push_back({orb::Promotion::FenceAction{b, mo}});
     }
 
@@ -601,7 +601,6 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   void updateOrderMatrix(const orb::Promotion &p, Operation *newOp,
                          uint64_t idA, uint64_t idB, orb::OrderMatrix &mb,
                          AliasAnalysis &aa, DominanceInfo &dom,
-                         PostDominanceInfo &postDom,
                          const orb::CallReachability &reach) const override {
     if (std::get_if<orb::Promotion::EmptyUpgradeAction>(&p.action)) {
       // Matrix catch-up: mark (idA, idB) ordered.
@@ -609,7 +608,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return;
     }
     if (std::get_if<orb::Promotion::FenceAction>(&p.action)) {
-      mb.addFence(newOp, this, aa, dom, postDom, reach);
+      mb.addFence(newOp, this, aa, dom, reach);
       return;
     }
     // PairUpgradeAction: apply po;[L] + [A|Q];po.
@@ -660,12 +659,12 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       }
     } else {
       uint64_t fId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
-      mb.applyFenceUpgrade(mb.idxOf(fId), this, aa, dom, postDom, reach);
+      mb.applyFenceUpgrade(mb.idxOf(fId), this, aa, dom, reach);
     }
   }
 
   void refineInitialOrderMatrix(orb::OrderMatrix &matrix) const override {
-    // matrix.closeTransitively(4); // disabled temporarily
+    matrix.closeTransitively(4);
   }
 };
 

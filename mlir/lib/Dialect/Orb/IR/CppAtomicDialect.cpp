@@ -268,7 +268,6 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   }
   void updateOrderMatrix(const orb::Promotion &, Operation *, uint64_t, uint64_t,
                          orb::OrderMatrix &, AliasAnalysis &, DominanceInfo &,
-                         PostDominanceInfo &,
                          const orb::CallReachability &) const override {
     llvm_unreachable("CppAtomic is never the synthesis target");
   }

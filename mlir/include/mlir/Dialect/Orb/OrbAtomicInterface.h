@@ -160,11 +160,9 @@ public:
   void markOrdered(uint64_t idA, uint64_t idB);
   void addFence(Operation *f, const OrbAtomicDialectInterface *iface,
                 AliasAnalysis &aa, DominanceInfo &dom,
-                PostDominanceInfo &postDom,
                 const CallReachability &reach);
   void applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                          AliasAnalysis &aa, DominanceInfo &dom,
-                         PostDominanceInfo &postDom,
                          const CallReachability &reach);
   /// Close the Ordered relation transitively. maxRounds=0 means no limit.
   void closeTransitively(unsigned maxRounds = 0);
@@ -236,7 +234,8 @@ private:
   EventOrder queryOrder(Operation *a, Operation *b,
                         const OrbAtomicDialectInterface *iface,
                         AliasAnalysis &aa, DominanceInfo &dom) const;
-  void applyFenceClosure(unsigned fOrigIdx, const OrbAtomicDialectInterface *iface);
+  void applyFenceClosure(unsigned fOrigIdx, const OrbAtomicDialectInterface *iface,
+                         DominanceInfo &dom);
 };
 
 /// Per-dialect interface for atomic memory ordering analysis.
@@ -268,7 +267,6 @@ public:
   virtual void updateOrderMatrix(const Promotion &p, Operation *newOp,
                                  uint64_t idA, uint64_t idB, OrderMatrix &mb,
                                  AliasAnalysis &aa, DominanceInfo &dom,
-                                 PostDominanceInfo &postDom,
                                  const CallReachability &reach) const = 0;
   /// Apply model-specific derived orderings to the initial target matrix (e.g. lob* for ARM).
   virtual void refineInitialOrderMatrix(OrderMatrix &matrix) const {}
