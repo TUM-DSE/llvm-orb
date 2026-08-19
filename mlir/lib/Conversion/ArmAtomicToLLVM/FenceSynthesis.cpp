@@ -407,7 +407,8 @@ struct FenceSynthesisPass
           iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
                                    mb, aa, dom, reach);
         }
-        mb.closeIncrementally();
+        // closeIncrementally removed — transitive closure bypasses fence
+        // dominance checks, inflating coverage.
         rebuildPressure();
         unsigned curCovered = mb.orderedCounts().first;
         if (curCovered > prevCovered) {
