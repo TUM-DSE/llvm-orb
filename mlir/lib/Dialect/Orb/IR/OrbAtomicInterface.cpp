@@ -575,25 +575,8 @@ static bool fenceDominatesTarget(Operation *f, Operation *b,
     return true;
   }
 
-  // Case 2: a common caller region calls both fRegion and bRegion.
-  // The call to fRegion must dominate the call to bRegion.
-  for (auto &[key, callsToF] : reach.directCalls) {
-    auto [callerRegion, calleeRegion] = key;
-    if (calleeRegion != fRegion)
-      continue;
-    auto it2 = reach.directCalls.find({callerRegion, bRegion});
-    if (it2 == reach.directCalls.end())
-      continue;
-    // callerRegion calls both fRegion and bRegion.
-    // Every call to fRegion must dominate every call to bRegion.
-    for (Operation *callToB : it2->second) {
-      for (Operation *callToF : callsToF) {
-        if (!dom.dominates(callToF->getBlock(), callToB->getBlock()))
-          return false;
-      }
-    }
-    return true;
-  }
+  // Case 2 (common caller) removed — unsound because other callers of bRegion
+  // may reach b without going through fRegion, so the fence is not on all paths.
 
   // Case 3: fRegion calls bRegion (b is inside a callee of f's function).
   // f must dominate the call to bRegion within fRegion.
