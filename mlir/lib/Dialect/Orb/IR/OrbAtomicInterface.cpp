@@ -219,6 +219,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
   Operation *f = idToOp[ids[fIdx]];
   unsigned f0 = 2 * fIdx, f1 = 2 * fIdx + 1;
   Region *fRegion = f->getBlock()->getParent();
+  unsigned markedFwd = 0, markedBwd = 0, reachFwd = 0, reachBwd = 0;
   for (unsigned evIdx = 0; evIdx < nEvents; ++evIdx) {
     if (evIdx == fIdx)
       continue;
@@ -227,7 +228,9 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
     if (reach.canReach(ev, f)) {
+      ++reachBwd;
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
+      if (order == EventOrder::Ordered) ++markedBwd;
       bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
         setOrderTracked(ev0, f1, order);
@@ -237,7 +240,9 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
       }
     }
     if (reach.canReach(f, ev)) {
+      ++reachFwd;
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
+      if (order == EventOrder::Ordered) ++markedFwd;
       bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
         setOrderTracked(f0, ev1, order);
@@ -247,6 +252,9 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
       }
     }
   }
+  llvm::errs() << "[applyFenceUpgrade] fIdx=" << fIdx << " id=" << ids[fIdx]
+               << " reachFwd=" << reachFwd << " markedFwd=" << markedFwd
+               << " reachBwd=" << reachBwd << " markedBwd=" << markedBwd << "\n";
   applyFenceClosure(fIdx, iface, dom, reach);
 }
 
@@ -261,7 +269,7 @@ void mlir::orb::assignEventIds(ModuleOp module) {
     auto *iface =
         op->getDialect()->getRegisteredInterface<OrbAtomicDialectInterface>();
     if ((iface && iface->isMemoryEvent(op)) ||
-        isa<ptr::LoadOp, ptr::StoreOp>(op))
+        (isa<ptr::LoadOp, ptr::StoreOp>(op) && !isStackSlotAccess(op)))
       op->setAttr(kEventIdAttr, b.getI64IntegerAttr(nextId++));
   });
 }
@@ -673,8 +681,11 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   llvm::errs() << "[getOrderMatrix] forwardOrdered=" << forwardOrdered
                << " backEdgeOrdered=" << backEdgeOrdered << "\n";
 
-  if (!iface)
-    return result;
+  // No fence closure: fence-endpoint pairs (event→fence, fence→event)
+  // are already in the matrix from the pairwise pass. Access-to-access
+  // pairs derived through fences would be redundant — ARM synthesis
+  // re-derives them via applyFenceClosure after upgrading the fence.
+  return result;
 
   // Fence closure: find fences, then check a→f→b orderings.
   llvm::SmallVector<unsigned> fenceIdxs; // original indices of fence events

@@ -219,11 +219,13 @@ private:
   /// Set order and track coverage.
   void setOrderTracked(unsigned aIdx, unsigned bIdx, EventOrder order) {
     auto &cell = matrix[aIdx * n + bIdx];
-    if (cell != order && order == EventOrder::Ordered) {
-      cell = order;
+    // Only upgrade: Unreachable → Unordered → Ordered. Never downgrade.
+    if (order == EventOrder::Ordered && cell != EventOrder::Ordered) {
+      cell = EventOrder::Ordered;
       trackNewOrdered(aIdx, bIdx);
-    } else {
-      cell = order;
+    } else if (order == EventOrder::Unordered &&
+               cell == EventOrder::Unreachable) {
+      cell = EventOrder::Unordered;
     }
   }
   EventOrder queryOrder(Operation *a, Operation *b,

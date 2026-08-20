@@ -476,10 +476,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
     // --- PairUpgrade: combined cost of store→REL + load→ACQPC ---
     if (std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
-      int loadCost = (1000 / (int)std::max(ctx.rowPressure, 1u)
-                      + collateral(ctx.rowPressure) - 1) * loopMult;
-      int storeCost = (1000 / (int)std::max(ctx.colPressure, 1u)
-                       + collateral(ctx.colPressure)) * loopMult * 3;
+      int loadCost = (1000 / (int)std::max(ctx.rowPressure, 1u) - 1) * loopMult;
+      int storeCost = (1000 / (int)std::max(ctx.colPressure, 1u)) * loopMult * 3;
       return loadCost + storeCost;
     }
 
@@ -515,16 +513,18 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return fenceCost(mo, false);
 
     // --- Access upgrade cost ---
+    // No collateral penalty: STLR/LDAR have fixed hardware cost regardless
+    // of how many events they order. The ordering scope is the mechanism.
     switch (mo) {
     case arm_atomic::MemoryOrder::AcquirePC: // LDAPR — cheaper than LDAR
-      return (1000 / (int)std::max(ctx.rowPressure, 1u) + collateral(ctx.rowPressure) - 1) * loopMult;
+      return (1000 / (int)std::max(ctx.rowPressure, 1u) - 1) * loopMult;
     case arm_atomic::MemoryOrder::Acquire:   // LDAR
-      return (1000 / (int)std::max(ctx.rowPressure, 1u) + collateral(ctx.rowPressure)) * loopMult;
-    case arm_atomic::MemoryOrder::Release:   // STLR — store buffer drain, costlier than LDAPR
-      return (1000 / (int)std::max(ctx.colPressure, 1u) + collateral(ctx.colPressure)) * loopMult * 3;
+      return (1000 / (int)std::max(ctx.rowPressure, 1u)) * loopMult;
+    case arm_atomic::MemoryOrder::Release:   // STLR
+      return (1000 / (int)std::max(ctx.colPressure, 1u)) * loopMult * 3;
     default: { // AcqRel
       unsigned cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
-      return (1000 / (int)cov + collateral(cov)) * loopMult;
+      return (1000 / (int)cov) * loopMult;
     }
     }
   }
