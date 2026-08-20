@@ -412,21 +412,42 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     }
 
     // --- Fence upgrades ---
+    // Only offer fence memory orders that can satisfy the triggering pair
+    // per bob2 rules:
+    //   fence=a: Acquire → [F&ACQ];po (any b), Release → [F&REL];po;[W],
+    //            AcqRel → [F&ACQREL];po (any b)
+    //   fence=b: Acquire → [R];po;[F&ACQ] (a must be Read),
+    //            Release → [W];po;[F&REL] (a must be Write),
+    //            AcqRel → po;[F&ACQREL] (any a)
 
     for (Operation *fenceOp : {a, b}) {
       auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(fenceOp);
       if (!fence)
         continue;
+      bool isFenceA = (fenceOp == a);
       auto curMO = fence.getMemoryOrder();
-      if (curMO == arm_atomic::MemoryOrder::Relaxed) {
-        for (auto mo : {arm_atomic::MemoryOrder::Acquire,
-                        arm_atomic::MemoryOrder::Release,
-                        arm_atomic::MemoryOrder::AcqRel})
+      llvm::SmallVector<arm_atomic::MemoryOrder, 3> candidates;
+      if (isFenceA) {
+        // [F&ACQ];po — any b
+        candidates.push_back(arm_atomic::MemoryOrder::Acquire);
+        // [F&REL];po;[W] — only if b is Write
+        if (bIsWrite)
+          candidates.push_back(arm_atomic::MemoryOrder::Release);
+        // [F&ACQREL];po — any b
+        candidates.push_back(arm_atomic::MemoryOrder::AcqRel);
+      } else {
+        // [R];po;[F&ACQ] — only if a is Read
+        if (aIsRead)
+          candidates.push_back(arm_atomic::MemoryOrder::Acquire);
+        // [W];po;[F&REL] — only if a is Write
+        if (aIsWrite)
+          candidates.push_back(arm_atomic::MemoryOrder::Release);
+        // po;[F&ACQREL] — any a
+        candidates.push_back(arm_atomic::MemoryOrder::AcqRel);
+      }
+      for (auto mo : candidates) {
+        if (mo > curMO)
           options.push_back({orb::Promotion::UpgradeAction{fenceOp, (int)mo}});
-      } else if (curMO != arm_atomic::MemoryOrder::AcqRel) {
-        options.push_back(
-            {orb::Promotion::UpgradeAction{fenceOp,
-                                           (int)arm_atomic::MemoryOrder::AcqRel}});
       }
     }
 
