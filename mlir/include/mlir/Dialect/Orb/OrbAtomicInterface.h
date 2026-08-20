@@ -167,6 +167,18 @@ public:
   /// Close the Ordered relation transitively. maxRounds=0 means no limit.
   void closeTransitively(unsigned maxRounds = 0);
 
+  /// Precompute valid intermediate fence BitVectors. Call once after matrix construction.
+  void precomputeIntermediateFences(const OrbAtomicDialectInterface *iface,
+                                    DominanceInfo &dom, PostDominanceInfo &postDom,
+                                    const CallReachability &reach);
+  /// Update BitVectors after inserting a new fence event at fOrigIdx.
+  void addIntermediateFence(unsigned fOrigIdx,
+                            const OrbAtomicDialectInterface *iface,
+                            DominanceInfo &dom, PostDominanceInfo &postDom,
+                            const CallReachability &reach);
+  /// Return fence original-event-indices between a and b (intersect BitVectors).
+  llvm::SmallVector<unsigned> fencesBetween(unsigned aIdx, unsigned bIdx) const;
+
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &,
@@ -184,6 +196,12 @@ private:
   const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *requiredSet = nullptr;
   unsigned coveredCount = 0;
   unsigned overspecifiedCount = 0;
+
+  /// Precomputed intermediate fence data.
+  std::vector<llvm::BitVector> validFencesAfter;  // [evIdx] → fence bits
+  std::vector<llvm::BitVector> validFencesBefore; // [evIdx] → fence bits
+  unsigned nFencesCached = 0;
+  llvm::SmallVector<unsigned> fenceEventIndices;
 
   void trackNewOrdered(unsigned aIdx, unsigned bIdx) {
     if (!requiredSet)
@@ -254,6 +272,12 @@ public:
   virtual llvm::SmallVector<Promotion> promote(uint64_t idA, Operation *a,
                                                uint64_t idB,
                                                Operation *b) const = 0;
+  /// Upgrade options for intermediate fence `f` between events `a` and `b`.
+  virtual llvm::SmallVector<Promotion> promoteViaFence(Operation *a,
+                                                        Operation *f,
+                                                        Operation *b) const {
+    return {};
+  }
   virtual int cost(const Promotion &p, const CostContext &ctx) const = 0;
   /// FenceAction: creates and returns the fence op. UpgradeAction: mutates in-place, returns nullptr.
   virtual Operation *applyPromotion(const Promotion &p,
@@ -277,6 +301,11 @@ public:
 
 void assignEventIds(ModuleOp module);
 CallReachability computeCallReachability(ModuleOp module);
+bool fenceDominatesTarget(Operation *f, Operation *b,
+                          DominanceInfo &dom, const CallReachability &reach);
+bool fencePostDominatesSource(Operation *f, Operation *a,
+                              PostDominanceInfo &postDom,
+                              const CallReachability &reach);
 /// Build the order matrix using `iface` as the sole dialect interface.
 /// Use this overload from passes that have already resolved the interface.
 OrderMatrix getOrderMatrix(ModuleOp module, AliasAnalysis &aliasAnalysis,

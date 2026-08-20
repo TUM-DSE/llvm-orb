@@ -96,6 +96,7 @@ struct FenceSynthesisPass
 
     auto &aa  = getAnalysis<AliasAnalysis>();
     auto &dom = getAnalysis<DominanceInfo>();
+    auto &postDom = getAnalysis<PostDominanceInfo>();
     OpBuilder builder(module->getContext());
 
     // Precomputed reachability — stable across synthesis iterations.
@@ -152,6 +153,7 @@ struct FenceSynthesisPass
     auto mb = orb::getOrderMatrix(module, aa, dom, iface, reach);
     // Let the target dialect apply model-specific derived orderings (e.g. lob* for ARM).
     iface->refineInitialOrderMatrix(mb);
+    mb.precomputeIntermediateFences(iface, dom, postDom, reach);
     unsigned nEvents = mb.numEvents();
     log() << "n=" << nEvents << "\n";
 
@@ -215,7 +217,19 @@ struct FenceSynthesisPass
                            colPressure[idB], colReadPressure[idB],
                            colWritePressure[idB], fenceCostBase,
                            mb.numEvents()};
-      for (auto &p : iface->promote(idA, a, idB, b)) {
+      auto promotions = iface->promote(idA, a, idB, b);
+
+      // Intermediate fence upgrades via precomputed BitVectors.
+      unsigned aIdx = mb.idxOf(idA), bIdx = mb.idxOf(idB);
+      for (unsigned fEvIdx : mb.fencesBetween(aIdx, bIdx)) {
+        Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
+        if (fOp == a || fOp == b)
+          continue;
+        for (auto &fp : iface->promoteViaFence(a, fOp, b))
+          promotions.push_back(fp);
+      }
+
+      for (auto &p : promotions) {
         if (auto *fa = std::get_if<orb::Promotion::FenceAction>(&p.action))
           p.loopDepth =
               blockLoopDepth.lookup(fa->insertBefore->getBlock());
@@ -257,6 +271,14 @@ struct FenceSynthesisPass
         uint64_t newId = nextSynthId++;
         newOp->setAttr(orb::kEventIdAttr,
                        builder.getI64IntegerAttr(newId));
+        // Update intermediate fence BitVectors after addFence expanded the matrix.
+        iface->updateOrderMatrix(bestPromotion, newOp, idA, idB,
+                                 mb, aa, dom, reach);
+        unsigned fOrigIdx = mb.idxOf(newId);
+        mb.addIntermediateFence(fOrigIdx, iface, dom, postDom, reach);
+        mb.markOrdered(idA, idB);
+        ++iteration;
+        continue;
       }
       iface->updateOrderMatrix(bestPromotion, newOp, idA, idB,
                                mb, aa, dom, reach);

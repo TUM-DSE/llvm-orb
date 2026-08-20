@@ -471,6 +471,51 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return options;
   }
 
+  llvm::SmallVector<orb::Promotion> promoteViaFence(Operation *a,
+                                                     Operation *f,
+                                                     Operation *b) const override {
+    auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(f);
+    if (!fence)
+      return {};
+    auto curMO = fence.getMemoryOrder();
+    if (curMO == arm_atomic::MemoryOrder::AcqRel)
+      return {};
+
+    bool aIsRead  = isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a);
+    bool aIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(a);
+    bool bIsWrite = isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b);
+
+    // Partial order: Relaxed < {Acquire, Release} < AcqRel.
+    // Acquire and Release are incomparable.
+    auto isStronger = [](arm_atomic::MemoryOrder from,
+                         arm_atomic::MemoryOrder to) -> bool {
+      if (from == to)
+        return false;
+      if (to == arm_atomic::MemoryOrder::AcqRel)
+        return true;
+      if (from == arm_atomic::MemoryOrder::Relaxed ||
+          from == arm_atomic::MemoryOrder::AcquirePC)
+        return to == arm_atomic::MemoryOrder::Acquire ||
+               to == arm_atomic::MemoryOrder::Release;
+      return false;
+    };
+
+    llvm::SmallVector<orb::Promotion> options;
+    // Acquire fence: orders Read→X (getOrderThroughFence rule 3&4)
+    if (isStronger(curMO, arm_atomic::MemoryOrder::Acquire) && aIsRead)
+      options.push_back(
+          {orb::Promotion::UpgradeAction{f, (int)arm_atomic::MemoryOrder::Acquire}});
+    // Release fence: orders Write→Write (rule 5&6)
+    if (isStronger(curMO, arm_atomic::MemoryOrder::Release) && aIsWrite && bIsWrite)
+      options.push_back(
+          {orb::Promotion::UpgradeAction{f, (int)arm_atomic::MemoryOrder::Release}});
+    // AcqRel fence: orders any→any (rule 1&2)
+    if (isStronger(curMO, arm_atomic::MemoryOrder::AcqRel))
+      options.push_back(
+          {orb::Promotion::UpgradeAction{f, (int)arm_atomic::MemoryOrder::AcqRel}});
+    return options;
+  }
+
   /// Cost model for promotions.
   ///
   /// Access upgrades: base = 1000/coverage + collateral.
@@ -680,7 +725,10 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
           mb.markOrdered(storeId, x);
       }
     } else {
-      uint64_t fId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
+      // Fence upgrade (endpoint or intermediate).
+      auto fIdAttr = ua.op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
+      assert(fIdAttr && "upgraded fence must have orb.event_id");
+      uint64_t fId = fIdAttr.getInt();
       mb.applyFenceUpgrade(mb.idxOf(fId), this, aa, dom, reach);
     }
   }

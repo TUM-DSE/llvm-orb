@@ -258,6 +258,71 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
   applyFenceClosure(fIdx, iface, dom, reach);
 }
 
+void OrderMatrix::precomputeIntermediateFences(
+    const OrbAtomicDialectInterface *iface,
+    DominanceInfo &dom, PostDominanceInfo &postDom,
+    const CallReachability &reach) {
+  fenceEventIndices.clear();
+  for (unsigned i = 0; i < nEvents; ++i)
+    if (iface->isFenceEvent(idToOp[ids[i]]))
+      fenceEventIndices.push_back(i);
+  nFencesCached = fenceEventIndices.size();
+
+  validFencesAfter.assign(nEvents, llvm::BitVector(nFencesCached));
+  validFencesBefore.assign(nEvents, llvm::BitVector(nFencesCached));
+  for (unsigned fi = 0; fi < nFencesCached; ++fi) {
+    Operation *fOp = idToOp[ids[fenceEventIndices[fi]]];
+    for (unsigned ev = 0; ev < nEvents; ++ev) {
+      if (ev == fenceEventIndices[fi])
+        continue;
+      Operation *evOp = idToOp[ids[ev]];
+      if (reach.canReach(evOp, fOp) &&
+          fencePostDominatesSource(fOp, evOp, postDom, reach))
+        validFencesAfter[ev].set(fi);
+      if (reach.canReach(fOp, evOp) &&
+          fenceDominatesTarget(fOp, evOp, dom, reach))
+        validFencesBefore[ev].set(fi);
+    }
+  }
+}
+
+void OrderMatrix::addIntermediateFence(
+    unsigned fOrigIdx, const OrbAtomicDialectInterface *iface,
+    DominanceInfo &dom, PostDominanceInfo &postDom,
+    const CallReachability &reach) {
+  unsigned fi = nFencesCached++;
+  fenceEventIndices.push_back(fOrigIdx);
+  Operation *fOp = idToOp[ids[fOrigIdx]];
+  for (unsigned ev = 0; ev < nEvents; ++ev) {
+    validFencesAfter[ev].resize(nFencesCached);
+    validFencesBefore[ev].resize(nFencesCached);
+    if (ev == fOrigIdx)
+      continue;
+    Operation *evOp = idToOp[ids[ev]];
+    if (reach.canReach(evOp, fOp) &&
+        fencePostDominatesSource(fOp, evOp, postDom, reach))
+      validFencesAfter[ev].set(fi);
+    if (reach.canReach(fOp, evOp) &&
+        fenceDominatesTarget(fOp, evOp, dom, reach))
+      validFencesBefore[ev].set(fi);
+  }
+  // New fence's own rows (no fence is between itself and itself).
+  validFencesAfter.emplace_back(nFencesCached);
+  validFencesBefore.emplace_back(nFencesCached);
+}
+
+llvm::SmallVector<unsigned>
+OrderMatrix::fencesBetween(unsigned aIdx, unsigned bIdx) const {
+  llvm::SmallVector<unsigned> result;
+  if (aIdx >= validFencesAfter.size() || bIdx >= validFencesBefore.size())
+    return result;
+  llvm::BitVector inter = validFencesAfter[aIdx];
+  inter &= validFencesBefore[bIdx];
+  for (int fi = inter.find_first(); fi != -1; fi = inter.find_next(fi))
+    result.push_back(fenceEventIndices[fi]);
+  return result;
+}
+
 //===----------------------------------------------------------------------===//
 // assignEventIds
 //===----------------------------------------------------------------------===//
@@ -522,9 +587,9 @@ EventOrder OrderMatrix::queryOrder(Operation *a, Operation *b,
 /// Same-region: f's block must dominate b's block.
 /// Cross-region: every call site from b's region (or an ancestor) to f's
 /// region must dominate b's block (or the call to b's region).
-static bool fenceDominatesTarget(Operation *f, Operation *b,
-                                 DominanceInfo &dom,
-                                 const CallReachability &reach) {
+bool orb::fenceDominatesTarget(Operation *f, Operation *b,
+                               DominanceInfo &dom,
+                               const CallReachability &reach) {
   Block *fBlock = f->getBlock();
   Block *bBlock = b->getBlock();
   Region *fRegion = fBlock->getParent();
@@ -562,6 +627,37 @@ static bool fenceDominatesTarget(Operation *f, Operation *b,
   }
 
   // No direct relationship found — conservatively deny.
+  return false;
+}
+
+/// Check whether fence f is on ALL paths FROM a (f post-dominates a).
+bool orb::fencePostDominatesSource(Operation *f, Operation *a,
+                                   PostDominanceInfo &postDom,
+                                   const CallReachability &reach) {
+  Block *fBlock = f->getBlock();
+  Block *aBlock = a->getBlock();
+  Region *fRegion = fBlock->getParent();
+  Region *aRegion = aBlock->getParent();
+
+  if (fRegion == aRegion)
+    return postDom.postDominates(fBlock, aBlock);
+
+  // aRegion calls fRegion: call sites must post-dominate a.
+  auto it1 = reach.directCalls.find({aRegion, fRegion});
+  if (it1 != reach.directCalls.end()) {
+    for (Operation *callOp : it1->second)
+      if (!postDom.postDominates(callOp->getBlock(), aBlock))
+        return false;
+    return true;
+  }
+  // fRegion calls aRegion: f must post-dominate the call.
+  auto it2 = reach.directCalls.find({fRegion, aRegion});
+  if (it2 != reach.directCalls.end()) {
+    for (Operation *callOp : it2->second)
+      if (!postDom.postDominates(fBlock, callOp->getBlock()))
+        return false;
+    return true;
+  }
   return false;
 }
 
