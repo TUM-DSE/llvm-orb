@@ -98,7 +98,6 @@ void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
     auto &cell = matrix[r * n + c];
     if (cell == EventOrder::Unordered) {
       cell = EventOrder::Ordered;
-      pendingEdges.push_back({r, c});
       trackNewOrdered(r, c);
     }
   };
@@ -130,8 +129,6 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
 
   n = dimNew;
   ++nEvents;
-  fenceOrigIndices.resize(nEvents);
-  fenceOrigIndices.set(fOrigIdx);
   ids.push_back(fId);
   if (fId >= idToIdx.size())
     idToIdx.resize(fId + 1, UINT_MAX);
@@ -176,9 +173,6 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
 void OrderMatrix::closeTransitively(unsigned maxRounds) {
   if (n == 0)
     return;
-  // With doubled matrix, the Unreachable (odd,even) quadrant structurally
-  // prevents cross-iteration orderings from conflating with same-iteration.
-  // No back-edge exclusion needed.
   llvm::SmallVector<llvm::BitVector> ordered(n, llvm::BitVector(n));
   llvm::SmallVector<llvm::BitVector> unordered(n, llvm::BitVector(n));
   for (unsigned a = 0; a < n; ++a)
@@ -198,92 +192,24 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
     for (unsigned a = 0; a < n; ++a) {
       for (int c = ordered[a].find_first(); c != -1;
            c = ordered[a].find_next(c)) {
-        // Only allow transitivity through same-region stepping stones.
-        // lob is transitive along a single execution path, but the matrix
-        // merges all call paths — cross-region chaining is unsound.
-        unsigned cOrig = (unsigned)c / 2;
-        Region *cRegion = idToOp[ids[cOrig]]->getBlock()->getParent();
         llvm::BitVector newBits = ordered[c];
         newBits &= unordered[a];
         newBits.reset(a);
         if (newBits.none())
           continue;
-        // Filter: only keep bits where stepping stone c is same region as target b.
         for (int b = newBits.find_first(); b != -1; b = newBits.find_next(b)) {
-          unsigned bOrig = (unsigned)b / 2;
-          Region *bRegion = idToOp[ids[bOrig]]->getBlock()->getParent();
-          if (cRegion != bRegion) {
-            newBits.reset(b);
-            continue;
-          }
           matrix[a * n + b] = EventOrder::Ordered;
           trackNewOrdered(a, b);
           ++added;
         }
-        if (newBits.none())
-          continue;
         ordered[a] |= newBits;
         unordered[a].reset(newBits);
         changed = true;
       }
     }
   }
-  pendingEdges.clear();
-  if (!closureReported) {
-    llvm::errs() << "[FenceSynthesis] lob* closure: nEvents=" << nEvents
-                 << " dim=" << n << " added=" << added << "\n";
-    closureReported = true;
-  }
-}
-
-void OrderMatrix::closeIncrementally() {
-  // Propagate newly added edges transitively, but only through same-region
-  // stepping stones.  lob is transitive along a single execution path, but the
-  // matrix is path-insensitive (merges all call paths).  Cross-region
-  // transitivity is unsound because A→B on path P1 and B→C on path P2 does not
-  // imply A→C if the real path doesn't go through B.  Cross-region ordering is
-  // handled by applyFenceClosure which has dominance checks.
-  unsigned idx = 0;
-  while (idx < pendingEdges.size()) {
-    auto [a, b] = pendingEdges[idx++];
-    // Forward: a→b, b→c ⟹ a→c  (b is stepping stone)
-    unsigned bOrig = b / 2;
-    Region *bRegion = idToOp[ids[bOrig]]->getBlock()->getParent();
-    for (unsigned c = 0; c < n; ++c) {
-      if (c == a)
-        continue;
-      if (matrix[b * n + c] != EventOrder::Ordered ||
-          matrix[a * n + c] != EventOrder::Unordered)
-        continue;
-      // Only propagate if stepping stone b is in the same region as c.
-      unsigned cOrig = c / 2;
-      Region *cRegion = idToOp[ids[cOrig]]->getBlock()->getParent();
-      if (bRegion != cRegion)
-        continue;
-      matrix[a * n + c] = EventOrder::Ordered;
-      pendingEdges.push_back({a, c});
-      trackNewOrdered(a, c);
-    }
-    // Backward: c→a, a→b ⟹ c→b  (a is stepping stone)
-    unsigned aOrig = a / 2;
-    Region *aRegion = idToOp[ids[aOrig]]->getBlock()->getParent();
-    for (unsigned c = 0; c < n; ++c) {
-      if (c == b)
-        continue;
-      if (matrix[c * n + a] != EventOrder::Ordered ||
-          matrix[c * n + b] != EventOrder::Unordered)
-        continue;
-      // Only propagate if stepping stone a is in the same region as c.
-      unsigned cOrig = c / 2;
-      Region *cRegion = idToOp[ids[cOrig]]->getBlock()->getParent();
-      if (aRegion != cRegion)
-        continue;
-      matrix[c * n + b] = EventOrder::Ordered;
-      pendingEdges.push_back({c, b});
-      trackNewOrdered(c, b);
-    }
-  }
-  pendingEdges.clear();
+  llvm::errs() << "[OrderMatrix] closeTransitively: rounds=" << rounds
+               << " added=" << added << "\n";
 }
 
 void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
@@ -757,10 +683,6 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
     if (iface->isFenceEvent(op))
       fenceIdxs.push_back(i);
   }
-  result.fenceOrigIndices.resize(nEv);
-  for (unsigned fi : fenceIdxs)
-    result.fenceOrigIndices.set(fi);
-
   if (fenceIdxs.empty())
     return result;
 

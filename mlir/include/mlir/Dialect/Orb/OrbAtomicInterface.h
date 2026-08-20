@@ -166,8 +166,6 @@ public:
                          const CallReachability &reach);
   /// Close the Ordered relation transitively. maxRounds=0 means no limit.
   void closeTransitively(unsigned maxRounds = 0);
-  /// Incrementally propagate only edges added since the last closure call.
-  void closeIncrementally();
 
 private:
   friend OrderMatrix getOrderMatrix(ModuleOp, AliasAnalysis &, DominanceInfo &);
@@ -183,9 +181,6 @@ private:
   /// Number of original events. Matrix dimension `n` = 2 * nEvents (doubled).
   /// Even indices (2i) = same-iteration copy, odd (2i+1) = cross-iteration.
   unsigned nEvents = 0;
-  bool closureReported = false;
-  llvm::BitVector fenceOrigIndices; // original event indices that are fences
-  llvm::SmallVector<std::pair<unsigned, unsigned>> pendingEdges;
   const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *requiredSet = nullptr;
   unsigned coveredCount = 0;
   unsigned overspecifiedCount = 0;
@@ -221,12 +216,11 @@ private:
   void setOrder(unsigned aIdx, unsigned bIdx, EventOrder order) {
     matrix[aIdx * n + bIdx] = order;
   }
-  /// Set order and track the edge for incremental closure.
+  /// Set order and track coverage.
   void setOrderTracked(unsigned aIdx, unsigned bIdx, EventOrder order) {
     auto &cell = matrix[aIdx * n + bIdx];
     if (cell != order && order == EventOrder::Ordered) {
       cell = order;
-      pendingEdges.push_back({aIdx, bIdx});
       trackNewOrdered(aIdx, bIdx);
     } else {
       cell = order;

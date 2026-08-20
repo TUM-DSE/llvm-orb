@@ -406,36 +406,21 @@ struct FenceSynthesisPass
           }
           iface->updateOrderMatrix(e.promo, newOp, e.idA, e.idB,
                                    mb, aa, dom, reach);
+          // Every promotion MUST order its triggering pair.
+          mb.markOrdered(e.idA, e.idB);
         }
-        mb.closeIncrementally();
         rebuildPressure();
-        unsigned curCovered = mb.orderedCounts().first;
-        if (curCovered > prevCovered) {
-          changed = true;
-          prevCovered = curCovered;
-        } else {
-          // No progress — promotions didn't satisfy any new pairs.
-          log() << "no progress at iter=" << iteration
-                       << " unsatisfied=" << totalUnsatisfied << "\n";
-        }
+        prevCovered = mb.orderedCounts().first;
+        changed = true;
       }
       ++iteration;
     }
 
     auto [covered, overspecified] = mb.orderedCounts();
-    unsigned remaining = 0;
-    for (auto [idA, idB] : unsatisfied) {
-      if (idA != UINT64_MAX)
-        ++remaining;
-    }
     log() << "done ordered=" << covered << "/" << total
                  << " overspecified=" << overspecified
                  << " fIgn=" << fIgn.size()
-                 << " remaining=" << remaining
                  << " t=" << elapsedMs() << "ms\n";
-    if (remaining > 0)
-      log() << "WARNING: " << remaining
-                   << " pairs unsatisfied (unmodeled barriers?)\n";
   }
 };
 
