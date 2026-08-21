@@ -103,6 +103,20 @@ struct CallReachability {
                  llvm::SmallVector<Operation *>>
       directCalls;
 
+  /// Forward-call-only transitive reachability (call edges only, no returns).
+  llvm::DenseMap<Region *, llvm::DenseSet<Region *>> forwardCallReach;
+  bool forwardReaches(Region *from, Region *to) const {
+    auto it = forwardCallReach.find(from);
+    return it != forwardCallReach.end() && it->second.count(to);
+  }
+
+  /// Return-only transitive reachability (return edges only, no calls).
+  llvm::DenseMap<Region *, llvm::DenseSet<Region *>> returnReach;
+  bool returnReaches(Region *from, Region *to) const {
+    auto it = returnReach.find(from);
+    return it != returnReach.end() && it->second.count(to);
+  }
+
   /// Block-level interprocedural reachability (precomputed, no depth limit).
   llvm::DenseMap<Block *, unsigned> blockIndex; ///< All blocks → dense index.
   llvm::SmallVector<Block *> allBlocks;         ///< Dense index → block.

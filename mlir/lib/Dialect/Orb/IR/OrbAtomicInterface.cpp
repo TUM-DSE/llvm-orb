@@ -516,6 +516,36 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
     }
   }
 
+  // Forward-call-only transitive closure (call edges only).
+  for (Region *startRegion : allRegions) {
+    auto &fwd = reach.forwardCallReach[startRegion];
+    llvm::SmallVector<Region *> wl;
+    for (Region *callee : callEdges[startRegion])
+      wl.push_back(callee);
+    while (!wl.empty()) {
+      Region *r = wl.pop_back_val();
+      if (!fwd.insert(r).second)
+        continue;
+      for (Region *callee : callEdges[r])
+        wl.push_back(callee);
+    }
+  }
+
+  // Return-only transitive closure (return/caller edges only).
+  for (Region *startRegion : allRegions) {
+    auto &ret = reach.returnReach[startRegion];
+    llvm::SmallVector<Region *> wl;
+    for (Region *caller : callerEdges[startRegion])
+      wl.push_back(caller);
+    while (!wl.empty()) {
+      Region *r = wl.pop_back_val();
+      if (!ret.insert(r).second)
+        continue;
+      for (Region *caller : callerEdges[r])
+        wl.push_back(caller);
+    }
+  }
+
   // Collect all blocks into a dense index.
   module.walk([&](Operation *op) {
     auto callable = dyn_cast<CallableOpInterface>(op);
@@ -662,74 +692,39 @@ bool orb::fenceDominatesTarget(Operation *f, Operation *b,
   }
 
   // Transitive forward: fRegion →+ bRegion through call chain.
-  // If f dominates calls from fRegion to the first hop, and that hop
-  // transitively calls bRegion, then f executes before b.
-  {
-    llvm::DenseSet<Region *> visited;
-    llvm::SmallVector<Region *> worklist;
-    // Seed: callees of fRegion where f dominates all call sites.
-    for (auto &[key, callOps] : reach.directCalls) {
-      if (key.first != fRegion)
-        continue;
-      bool allDom = true;
-      for (Operation *callOp : callOps)
-        if (!dom.dominates(fBlock, callOp->getBlock())) {
-          allDom = false;
-          break;
-        }
-      if (!allDom)
-        continue;
-      if (key.second == bRegion)
-        return true;
-      if (visited.insert(key.second).second)
-        worklist.push_back(key.second);
-    }
-    while (!worklist.empty()) {
-      Region *cur = worklist.pop_back_val();
-      for (auto &[key, _] : reach.directCalls) {
-        if (key.first != cur)
-          continue;
-        if (key.second == bRegion)
-          return true;
-        if (visited.insert(key.second).second)
-          worklist.push_back(key.second);
+  // If f dominates calls from fRegion to a direct callee mid, and mid
+  // forward-reaches bRegion, then f executes before b.
+  for (auto &[key, callOps] : reach.directCalls) {
+    if (key.first != fRegion)
+      continue;
+    if (key.second != bRegion && !reach.forwardReaches(key.second, bRegion))
+      continue;
+    bool allDom = true;
+    for (Operation *callOp : callOps)
+      if (!dom.dominates(fBlock, callOp->getBlock())) {
+        allDom = false;
+        break;
       }
-    }
+    if (allDom)
+      return true;
   }
 
   // Transitive backward: bRegion →+ fRegion through call chain.
-  // If calls from bRegion to the first hop dominate bBlock, and that hop
-  // transitively calls fRegion, then f (inside callee) executes before b.
-  {
-    llvm::DenseSet<Region *> visited;
-    llvm::SmallVector<Region *> worklist;
-    for (auto &[key, callOps] : reach.directCalls) {
-      if (key.first != bRegion)
-        continue;
-      bool allDom = true;
-      for (Operation *callOp : callOps)
-        if (!dom.dominates(callOp->getBlock(), bBlock)) {
-          allDom = false;
-          break;
-        }
-      if (!allDom)
-        continue;
-      if (key.second == fRegion)
-        return true;
-      if (visited.insert(key.second).second)
-        worklist.push_back(key.second);
-    }
-    while (!worklist.empty()) {
-      Region *cur = worklist.pop_back_val();
-      for (auto &[key, _] : reach.directCalls) {
-        if (key.first != cur)
-          continue;
-        if (key.second == fRegion)
-          return true;
-        if (visited.insert(key.second).second)
-          worklist.push_back(key.second);
+  // If calls from bRegion to a direct callee mid dominate bBlock, and mid
+  // forward-reaches fRegion, then f (inside callee) executes before b.
+  for (auto &[key, callOps] : reach.directCalls) {
+    if (key.first != bRegion)
+      continue;
+    if (key.second != fRegion && !reach.forwardReaches(key.second, fRegion))
+      continue;
+    bool allDom = true;
+    for (Operation *callOp : callOps)
+      if (!dom.dominates(callOp->getBlock(), bBlock)) {
+        allDom = false;
+        break;
       }
-    }
+    if (allDom)
+      return true;
   }
 
   return false;
