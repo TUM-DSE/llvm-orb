@@ -146,9 +146,13 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
-    if (reach.canReach(ev, f)) {
+    bool evReachesF = reach.canReach(ev, f);
+    bool fReachesEv = reach.canReach(f, ev);
+    if (evReachesF) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
-      bool isBackEdge = sameRegion && dom.dominates(f, ev);
+      bool isBackEdge = sameRegion
+                            ? dom.dominates(f, ev)
+                            : !fReachesEv;
       if (isBackEdge) {
         setOrderTracked(ev0, f1, order); // cross-iteration
       } else {
@@ -156,15 +160,26 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
         setOrderTracked(ev1, f1, order); // shifted copy
       }
     }
-    if (reach.canReach(f, ev)) {
+    if (fReachesEv) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
-      bool isBackEdge = sameRegion && dom.dominates(ev, f);
+      bool isBackEdge = sameRegion
+                            ? dom.dominates(ev, f)
+                            : !evReachesF;
       if (isBackEdge) {
         setOrderTracked(f0, ev1, order); // cross-iteration
       } else {
         setOrderTracked(f0, ev0, order); // same-iteration
         setOrderTracked(f1, ev1, order); // shifted copy
       }
+    }
+    // Cross-function back edge: set the reverse cross-iteration cell.
+    if (evReachesF && !fReachesEv && !sameRegion) {
+      EventOrder order = queryOrder(f, ev, iface, aa, dom);
+      setOrderTracked(f0, ev1, order);
+    }
+    if (fReachesEv && !evReachesF && !sameRegion) {
+      EventOrder order = queryOrder(ev, f, iface, aa, dom);
+      setOrderTracked(ev0, f1, order);
     }
   }
   applyFenceClosure(fOrigIdx, iface, dom, reach);
@@ -227,11 +242,15 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
     unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
-    if (reach.canReach(ev, f)) {
+    bool evReachesF = reach.canReach(ev, f);
+    bool fReachesEv = reach.canReach(f, ev);
+    if (evReachesF) {
       ++reachBwd;
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
       if (order == EventOrder::Ordered) ++markedBwd;
-      bool isBackEdge = sameRegion && dom.dominates(f, ev);
+      bool isBackEdge = sameRegion
+                            ? dom.dominates(f, ev)
+                            : !fReachesEv; // cross-function back edge
       if (isBackEdge) {
         setOrderTracked(ev0, f1, order);
       } else {
@@ -239,17 +258,30 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
         setOrderTracked(ev1, f1, order);
       }
     }
-    if (reach.canReach(f, ev)) {
+    if (fReachesEv) {
       ++reachFwd;
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
       if (order == EventOrder::Ordered) ++markedFwd;
-      bool isBackEdge = sameRegion && dom.dominates(ev, f);
+      bool isBackEdge = sameRegion
+                            ? dom.dominates(ev, f)
+                            : !evReachesF; // cross-function back edge
       if (isBackEdge) {
         setOrderTracked(f0, ev1, order);
       } else {
         setOrderTracked(f0, ev0, order);
         setOrderTracked(f1, ev1, order);
       }
+    }
+    // Cross-function back edge: ev before f, but f→ev needed cross-iteration.
+    if (evReachesF && !fReachesEv && !sameRegion) {
+      EventOrder order = queryOrder(f, ev, iface, aa, dom);
+      if (order == EventOrder::Ordered) ++markedFwd;
+      setOrderTracked(f0, ev1, order); // f(iter N) → ev(iter N+1)
+    }
+    if (fReachesEv && !evReachesF && !sameRegion) {
+      EventOrder order = queryOrder(ev, f, iface, aa, dom);
+      if (order == EventOrder::Ordered) ++markedBwd;
+      setOrderTracked(ev0, f1, order); // ev(iter N) → f(iter N+1)
     }
   }
   llvm::errs() << "[applyFenceUpgrade] fIdx=" << fIdx << " id=" << ids[fIdx]
