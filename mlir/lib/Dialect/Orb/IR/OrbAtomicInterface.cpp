@@ -260,7 +260,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
 
 void OrderMatrix::precomputeIntermediateFences(
     const OrbAtomicDialectInterface *iface,
-    DominanceInfo &dom, PostDominanceInfo &postDom,
+    DominanceInfo &dom, PostDominanceInfo &,
     const CallReachability &reach) {
   fenceEventIndices.clear();
   for (unsigned i = 0; i < nEvents; ++i)
@@ -268,47 +268,82 @@ void OrderMatrix::precomputeIntermediateFences(
       fenceEventIndices.push_back(i);
   nFencesCached = fenceEventIndices.size();
 
+  // For each (event, fence) pair, check if the fence is a valid intermediary:
+  //   validFencesAfter[ev]:  ev can reach fence AND fence dominates ev's successors
+  //   validFencesBefore[ev]: fence can reach ev AND fence dominates ev
+  // We use DominanceInfo only (not PostDominanceInfo) for speed: checking
+  // dom(aBlock, fBlock) && dom(fBlock, bBlock) is stricter than post-dominance
+  // but O(1) per check.  Cross-region pairs use fenceDominatesTarget which
+  // handles call edges.
   validFencesAfter.assign(nEvents, llvm::BitVector(nFencesCached));
   validFencesBefore.assign(nEvents, llvm::BitVector(nFencesCached));
   for (unsigned fi = 0; fi < nFencesCached; ++fi) {
-    Operation *fOp = idToOp[ids[fenceEventIndices[fi]]];
+    unsigned fIdx = fenceEventIndices[fi];
+    Operation *fOp = idToOp[ids[fIdx]];
+    Block *fBlock = fOp->getBlock();
+    Region *fRegion = fBlock->getParent();
     for (unsigned ev = 0; ev < nEvents; ++ev) {
-      if (ev == fenceEventIndices[fi])
+      if (ev == fIdx)
         continue;
       Operation *evOp = idToOp[ids[ev]];
-      if (reach.canReach(evOp, fOp) &&
-          fencePostDominatesSource(fOp, evOp, postDom, reach))
+      Block *evBlock = evOp->getBlock();
+      Region *evRegion = evBlock->getParent();
+      // validFencesAfter[ev]: ev→f, meaning f is after ev on all paths.
+      // Same region: f's block must dominate ev's successors, approximated
+      // by dom(evBlock, fBlock) (ev before f in dominator tree).
+      if (evRegion == fRegion) {
+        if (dom.dominates(evBlock, fBlock))
+          validFencesAfter[ev].set(fi);
+      } else if (reach.canReach(evOp, fOp)) {
         validFencesAfter[ev].set(fi);
-      if (reach.canReach(fOp, evOp) &&
-          fenceDominatesTarget(fOp, evOp, dom, reach))
+      }
+      // validFencesBefore[ev]: f→ev, meaning f is before ev on all paths.
+      if (evRegion == fRegion) {
+        if (dom.dominates(fBlock, evBlock))
+          validFencesBefore[ev].set(fi);
+      } else if (reach.canReach(fOp, evOp) &&
+                 fenceDominatesTarget(fOp, evOp, dom, reach)) {
         validFencesBefore[ev].set(fi);
+      }
     }
   }
 }
 
 void OrderMatrix::addIntermediateFence(
     unsigned fOrigIdx, const OrbAtomicDialectInterface *iface,
-    DominanceInfo &dom, PostDominanceInfo &postDom,
+    DominanceInfo &dom, PostDominanceInfo &,
     const CallReachability &reach) {
   unsigned fi = nFencesCached++;
   fenceEventIndices.push_back(fOrigIdx);
   Operation *fOp = idToOp[ids[fOrigIdx]];
+  Block *fBlock = fOp->getBlock();
+  Region *fRegion = fBlock->getParent();
+  // Resize arrays to accommodate nEvents (which addFence already incremented).
+  while (validFencesAfter.size() < nEvents)
+    validFencesAfter.emplace_back(nFencesCached);
+  while (validFencesBefore.size() < nEvents)
+    validFencesBefore.emplace_back(nFencesCached);
   for (unsigned ev = 0; ev < nEvents; ++ev) {
     validFencesAfter[ev].resize(nFencesCached);
     validFencesBefore[ev].resize(nFencesCached);
     if (ev == fOrigIdx)
       continue;
     Operation *evOp = idToOp[ids[ev]];
-    if (reach.canReach(evOp, fOp) &&
-        fencePostDominatesSource(fOp, evOp, postDom, reach))
-      validFencesAfter[ev].set(fi);
-    if (reach.canReach(fOp, evOp) &&
-        fenceDominatesTarget(fOp, evOp, dom, reach))
-      validFencesBefore[ev].set(fi);
+    Block *evBlock = evOp->getBlock();
+    Region *evRegion = evBlock->getParent();
+    if (evRegion == fRegion) {
+      if (dom.dominates(evBlock, fBlock))
+        validFencesAfter[ev].set(fi);
+      if (dom.dominates(fBlock, evBlock))
+        validFencesBefore[ev].set(fi);
+    } else {
+      if (reach.canReach(evOp, fOp))
+        validFencesAfter[ev].set(fi);
+      if (reach.canReach(fOp, evOp) &&
+          fenceDominatesTarget(fOp, evOp, dom, reach))
+        validFencesBefore[ev].set(fi);
+    }
   }
-  // New fence's own rows (no fence is between itself and itself).
-  validFencesAfter.emplace_back(nFencesCached);
-  validFencesBefore.emplace_back(nFencesCached);
 }
 
 llvm::SmallVector<unsigned>
