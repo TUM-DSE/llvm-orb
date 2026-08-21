@@ -374,26 +374,13 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
             {orb::Promotion::UpgradeAction{b, (int)arm_atomic::MemoryOrder::Release}});
     }
 
-    // store a, load b → paired REL+ACQPC (po;[L] + [Q];po in one step).
+    // store a, load b → [L];po;[A] (STLR→LDAR ordering).
+    // ACQPC (LDAPR) is NOT sufficient — [L];po;[A] requires full ACQ (LDAR).
     if (isa<arm_atomic::AtomicStoreOp>(a) && isa<arm_atomic::AtomicLoadOp>(b)) {
       auto moA = getArmMemoryOrder(a);
       auto moB = getArmMemoryOrder(b);
       bool aIsREL = moA == arm_atomic::MemoryOrder::Release ||
                     moA == arm_atomic::MemoryOrder::AcqRel;
-      bool bIsAcq = moB == arm_atomic::MemoryOrder::AcquirePC ||
-                    moB == arm_atomic::MemoryOrder::Acquire ||
-                    moB == arm_atomic::MemoryOrder::AcqRel;
-      if (!aIsREL && !bIsAcq)
-        options.push_back({orb::Promotion::PairUpgradeAction{
-            a, (int)arm_atomic::MemoryOrder::Release,
-            b, (int)arm_atomic::MemoryOrder::AcquirePC}});
-      else if (!aIsREL)
-        options.push_back(
-            {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::Release}});
-      else if (!bIsAcq)
-        options.push_back(
-            {orb::Promotion::UpgradeAction{b, (int)arm_atomic::MemoryOrder::AcquirePC}});
-      // [L];po;[A]: offer upgrade path toward STLR→LDAR ordering.
       if (moB != arm_atomic::MemoryOrder::Acquire &&
           moB != arm_atomic::MemoryOrder::AcqRel) {
         if (aIsREL)
@@ -404,9 +391,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
               a, (int)arm_atomic::MemoryOrder::Release,
               b, (int)arm_atomic::MemoryOrder::Acquire}});
       } else if (aIsREL) {
-        // [L];po;[A] already satisfied but matrix may not reflect it
-        // (upgrades arrived in separate iterations). Empty upgrade lets
-        // the synthesis loop fix the matrix at cost 0.
+        // [L];po;[A] already satisfied but matrix may not reflect it.
         options.push_back({orb::Promotion::EmptyUpgradeAction{}});
       }
     }
@@ -445,8 +430,18 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
         // po;[F&ACQREL] — any a
         candidates.push_back(arm_atomic::MemoryOrder::AcqRel);
       }
+      auto isStronger = [](arm_atomic::MemoryOrder from,
+                           arm_atomic::MemoryOrder to) -> bool {
+        if (from == to) return false;
+        if (to == arm_atomic::MemoryOrder::AcqRel) return true;
+        if (from == arm_atomic::MemoryOrder::Relaxed ||
+            from == arm_atomic::MemoryOrder::AcquirePC)
+          return to == arm_atomic::MemoryOrder::Acquire ||
+                 to == arm_atomic::MemoryOrder::Release;
+        return false;
+      };
       for (auto mo : candidates) {
-        if (mo > curMO)
+        if (isStronger(curMO, mo))
           options.push_back({orb::Promotion::UpgradeAction{fenceOp, (int)mo}});
       }
     }
