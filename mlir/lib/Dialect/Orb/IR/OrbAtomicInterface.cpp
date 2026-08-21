@@ -661,7 +661,77 @@ bool orb::fenceDominatesTarget(Operation *f, Operation *b,
     return true;
   }
 
-  // No direct relationship found — conservatively deny.
+  // Transitive forward: fRegion →+ bRegion through call chain.
+  // If f dominates calls from fRegion to the first hop, and that hop
+  // transitively calls bRegion, then f executes before b.
+  {
+    llvm::DenseSet<Region *> visited;
+    llvm::SmallVector<Region *> worklist;
+    // Seed: callees of fRegion where f dominates all call sites.
+    for (auto &[key, callOps] : reach.directCalls) {
+      if (key.first != fRegion)
+        continue;
+      bool allDom = true;
+      for (Operation *callOp : callOps)
+        if (!dom.dominates(fBlock, callOp->getBlock())) {
+          allDom = false;
+          break;
+        }
+      if (!allDom)
+        continue;
+      if (key.second == bRegion)
+        return true;
+      if (visited.insert(key.second).second)
+        worklist.push_back(key.second);
+    }
+    while (!worklist.empty()) {
+      Region *cur = worklist.pop_back_val();
+      for (auto &[key, _] : reach.directCalls) {
+        if (key.first != cur)
+          continue;
+        if (key.second == bRegion)
+          return true;
+        if (visited.insert(key.second).second)
+          worklist.push_back(key.second);
+      }
+    }
+  }
+
+  // Transitive backward: bRegion →+ fRegion through call chain.
+  // If calls from bRegion to the first hop dominate bBlock, and that hop
+  // transitively calls fRegion, then f (inside callee) executes before b.
+  {
+    llvm::DenseSet<Region *> visited;
+    llvm::SmallVector<Region *> worklist;
+    for (auto &[key, callOps] : reach.directCalls) {
+      if (key.first != bRegion)
+        continue;
+      bool allDom = true;
+      for (Operation *callOp : callOps)
+        if (!dom.dominates(callOp->getBlock(), bBlock)) {
+          allDom = false;
+          break;
+        }
+      if (!allDom)
+        continue;
+      if (key.second == fRegion)
+        return true;
+      if (visited.insert(key.second).second)
+        worklist.push_back(key.second);
+    }
+    while (!worklist.empty()) {
+      Region *cur = worklist.pop_back_val();
+      for (auto &[key, _] : reach.directCalls) {
+        if (key.first != cur)
+          continue;
+        if (key.second == fRegion)
+          return true;
+        if (visited.insert(key.second).second)
+          worklist.push_back(key.second);
+      }
+    }
+  }
+
   return false;
 }
 
