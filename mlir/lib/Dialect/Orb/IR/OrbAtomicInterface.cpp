@@ -146,13 +146,9 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
-    bool evReachesF = reach.canReach(ev, f);
-    bool fReachesEv = reach.canReach(f, ev);
-    if (evReachesF) {
+    if (reach.canReach(ev, f)) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
-      bool isBackEdge = sameRegion
-                            ? dom.dominates(f, ev)
-                            : !fReachesEv;
+      bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
         setOrderTracked(ev0, f1, order); // cross-iteration
       } else {
@@ -160,26 +156,15 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
         setOrderTracked(ev1, f1, order); // shifted copy
       }
     }
-    if (fReachesEv) {
+    if (reach.canReach(f, ev)) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
-      bool isBackEdge = sameRegion
-                            ? dom.dominates(ev, f)
-                            : !evReachesF;
+      bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
         setOrderTracked(f0, ev1, order); // cross-iteration
       } else {
         setOrderTracked(f0, ev0, order); // same-iteration
         setOrderTracked(f1, ev1, order); // shifted copy
       }
-    }
-    // Cross-function back edge: set the reverse cross-iteration cell.
-    if (evReachesF && !fReachesEv && !sameRegion) {
-      EventOrder order = queryOrder(f, ev, iface, aa, dom);
-      setOrderTracked(f0, ev1, order);
-    }
-    if (fReachesEv && !evReachesF && !sameRegion) {
-      EventOrder order = queryOrder(ev, f, iface, aa, dom);
-      setOrderTracked(ev0, f1, order);
     }
   }
   applyFenceClosure(fOrigIdx, iface, dom, reach);
@@ -234,7 +219,6 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
   Operation *f = idToOp[ids[fIdx]];
   unsigned f0 = 2 * fIdx, f1 = 2 * fIdx + 1;
   Region *fRegion = f->getBlock()->getParent();
-  unsigned markedFwd = 0, markedBwd = 0, reachFwd = 0, reachBwd = 0;
   for (unsigned evIdx = 0; evIdx < nEvents; ++evIdx) {
     if (evIdx == fIdx)
       continue;
@@ -242,15 +226,9 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
     unsigned ev0 = 2 * evIdx, ev1 = 2 * evIdx + 1;
     bool sameRegion = ev->getBlock()->getParent() == fRegion;
 
-    bool evReachesF = reach.canReach(ev, f);
-    bool fReachesEv = reach.canReach(f, ev);
-    if (evReachesF) {
-      ++reachBwd;
+    if (reach.canReach(ev, f)) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
-      if (order == EventOrder::Ordered) ++markedBwd;
-      bool isBackEdge = sameRegion
-                            ? dom.dominates(f, ev)
-                            : !fReachesEv; // cross-function back edge
+      bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
         setOrderTracked(ev0, f1, order);
       } else {
@@ -258,13 +236,9 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
         setOrderTracked(ev1, f1, order);
       }
     }
-    if (fReachesEv) {
-      ++reachFwd;
+    if (reach.canReach(f, ev)) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
-      if (order == EventOrder::Ordered) ++markedFwd;
-      bool isBackEdge = sameRegion
-                            ? dom.dominates(ev, f)
-                            : !evReachesF; // cross-function back edge
+      bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
         setOrderTracked(f0, ev1, order);
       } else {
@@ -272,21 +246,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
         setOrderTracked(f1, ev1, order);
       }
     }
-    // Cross-function back edge: ev before f, but f→ev needed cross-iteration.
-    if (evReachesF && !fReachesEv && !sameRegion) {
-      EventOrder order = queryOrder(f, ev, iface, aa, dom);
-      if (order == EventOrder::Ordered) ++markedFwd;
-      setOrderTracked(f0, ev1, order); // f(iter N) → ev(iter N+1)
-    }
-    if (fReachesEv && !evReachesF && !sameRegion) {
-      EventOrder order = queryOrder(ev, f, iface, aa, dom);
-      if (order == EventOrder::Ordered) ++markedBwd;
-      setOrderTracked(ev0, f1, order); // ev(iter N) → f(iter N+1)
-    }
   }
-  llvm::errs() << "[applyFenceUpgrade] fIdx=" << fIdx << " id=" << ids[fIdx]
-               << " reachFwd=" << reachFwd << " markedFwd=" << markedFwd
-               << " reachBwd=" << reachBwd << " markedBwd=" << markedBwd << "\n";
   applyFenceClosure(fIdx, iface, dom, reach);
 }
 
@@ -329,12 +289,17 @@ void OrderMatrix::precomputeIntermediateFences(
       } else if (reach.canReach(evOp, fOp)) {
         validFencesAfter[ev].set(fi);
       }
-      // validFencesBefore[ev]: f→ev, meaning f is before ev on all paths.
+      // validFencesBefore[ev]: f→ev, meaning f can reach ev.
+      // Same region: dominance (stricter than post-dominance but O(1)).
+      // Cross region: canReach only — dominance is NOT required here because
+      // this is a candidate filter for promoteViaFence.  The actual ordering
+      // semantics are checked by getOrderThroughFence, and markOrdered marks
+      // only the specific pair (same as FenceAction insertions which also
+      // don't require dominance).
       if (evRegion == fRegion) {
         if (dom.dominates(fBlock, evBlock))
           validFencesBefore[ev].set(fi);
-      } else if (reach.canReach(fOp, evOp) &&
-                 fenceDominatesTarget(fOp, evOp, dom, reach)) {
+      } else if (reach.canReach(fOp, evOp)) {
         validFencesBefore[ev].set(fi);
       }
     }
@@ -371,8 +336,7 @@ void OrderMatrix::addIntermediateFence(
     } else {
       if (reach.canReach(evOp, fOp))
         validFencesAfter[ev].set(fi);
-      if (reach.canReach(fOp, evOp) &&
-          fenceDominatesTarget(fOp, evOp, dom, reach))
+      if (reach.canReach(fOp, evOp))
         validFencesBefore[ev].set(fi);
     }
   }
@@ -548,6 +512,12 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
     }
   }
 
+  // Build callersOf/calleesOf indices from directCalls.
+  for (auto &[key, _] : reach.directCalls) {
+    reach.callersOf[key.second].push_back(key.first);
+    reach.calleesOf[key.first].push_back(key.second);
+  }
+
   // Forward-call-only transitive closure (call edges only).
   for (Region *startRegion : allRegions) {
     auto &fwd = reach.forwardCallReach[startRegion];
@@ -709,8 +679,72 @@ bool orb::fenceDominatesTarget(Operation *f, Operation *b,
     return true;
   }
 
-  // Case 2 (common caller) removed — unsound because other callers of bRegion
-  // may reach b without going through fRegion, so the fence is not on all paths.
+  // Case 2: common caller — fRegion and bRegion are siblings called from the
+  // same parent.  Sound when ALL callers of bRegion also call fRegion (or a
+  // region that forward-reaches fRegion) with those calls dominating the calls
+  // to bRegion.
+  {
+    auto bCallersIt = reach.callersOf.find(bRegion);
+    if (bCallersIt != reach.callersOf.end()) {
+      bool allCallersValid = true;
+      for (Region *callerR : bCallersIt->second) {
+        auto bCallOpsIt = reach.directCalls.find({callerR, bRegion});
+        if (bCallOpsIt == reach.directCalls.end()) {
+          allCallersValid = false;
+          break;
+        }
+        // Find calls from callerR to fRegion (or to a region that forward-reaches fRegion).
+        bool callerCallsF = false;
+        auto fCallOpsIt = reach.directCalls.find({callerR, fRegion});
+        if (fCallOpsIt != reach.directCalls.end()) {
+          // Direct call from caller to fRegion — check dominance.
+          bool allDom = true;
+          for (Operation *bCallOp : bCallOpsIt->second) {
+            bool dominated = false;
+            for (Operation *fCallOp : fCallOpsIt->second)
+              if (dom.dominates(fCallOp->getBlock(), bCallOp->getBlock())) {
+                dominated = true;
+                break;
+              }
+            if (!dominated) { allDom = false; break; }
+          }
+          callerCallsF = allDom;
+        }
+        // Indirect: callerR calls some midRegion that forward-reaches fRegion.
+        if (!callerCallsF) {
+          auto calleesIt = reach.calleesOf.find(callerR);
+          if (calleesIt != reach.calleesOf.end()) {
+            for (Region *mid : calleesIt->second) {
+              if (mid == bRegion || mid == fRegion)
+                continue;
+              if (!reach.forwardReaches(mid, fRegion))
+                continue;
+              auto midCallOpsIt = reach.directCalls.find({callerR, mid});
+              if (midCallOpsIt == reach.directCalls.end())
+                continue;
+              bool allDom = true;
+              for (Operation *bCallOp : bCallOpsIt->second) {
+                bool dominated = false;
+                for (Operation *midCallOp : midCallOpsIt->second)
+                  if (dom.dominates(midCallOp->getBlock(), bCallOp->getBlock())) {
+                    dominated = true;
+                    break;
+                  }
+                if (!dominated) { allDom = false; break; }
+              }
+              if (allDom) { callerCallsF = true; break; }
+            }
+          }
+        }
+        if (!callerCallsF) {
+          allCallersValid = false;
+          break;
+        }
+      }
+      if (allCallersValid)
+        return true;
+    }
+  }
 
   // Case 3: fRegion calls bRegion (b is inside a callee of f's function).
   // f must dominate the call to bRegion within fRegion.
@@ -797,10 +831,18 @@ void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
                                     const OrbAtomicDialectInterface *iface,
                                     DominanceInfo &dom,
                                     const CallReachability &reach) {
-  // fOrigIdx is the original event index. Iterate over all doubled indices.
   Operation *f = idToOp[ids[fOrigIdx]];
   unsigned f0 = 2 * fOrigIdx, f1 = 2 * fOrigIdx + 1;
-  // Check both doubled fence indices as stepping stones.
+
+  // Precompute fenceDominatesTarget for all events (indexed by original event idx).
+  llvm::BitVector fDomTarget(nEvents);
+  for (unsigned ev = 0; ev < nEvents; ++ev) {
+    if (ev == fOrigIdx)
+      continue;
+    if (fenceDominatesTarget(f, idToOp[ids[ev]], dom, reach))
+      fDomTarget.set(ev);
+  }
+
   for (unsigned fD : {f0, f1}) {
     for (unsigned aD = 0; aD < n; ++aD) {
       if (aD == fD || matrix[aD * n + fD] != EventOrder::Ordered)
@@ -813,11 +855,9 @@ void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
           continue;
         if (matrix[fD * n + bD] != EventOrder::Ordered)
           continue;
-        Operation *b = idToOp[ids[bD / 2]];
-        // Fence-derived ordering (a,b) through f is only valid when f is on
-        // ALL paths from a to b.
-        if (!fenceDominatesTarget(f, b, dom, reach))
+        if (!fDomTarget.test(bD / 2))
           continue;
+        Operation *b = idToOp[ids[bD / 2]];
         if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
           setOrderTracked(aD, bD, EventOrder::Ordered);
       }

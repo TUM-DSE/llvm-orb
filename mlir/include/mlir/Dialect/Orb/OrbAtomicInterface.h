@@ -117,6 +117,11 @@ struct CallReachability {
     return it != returnReach.end() && it->second.count(to);
   }
 
+  /// Reverse index of directCalls: callersOf[calleeRegion] → list of caller regions.
+  llvm::DenseMap<Region *, llvm::SmallVector<Region *>> callersOf;
+  /// Forward index: calleesOf[callerRegion] → list of callee regions.
+  llvm::DenseMap<Region *, llvm::SmallVector<Region *>> calleesOf;
+
   /// Block-level interprocedural reachability (precomputed, no depth limit).
   llvm::DenseMap<Block *, unsigned> blockIndex; ///< All blocks → dense index.
   llvm::SmallVector<Block *> allBlocks;         ///< Dense index → block.
