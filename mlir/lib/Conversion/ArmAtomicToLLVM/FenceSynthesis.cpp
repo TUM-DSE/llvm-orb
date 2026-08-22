@@ -225,6 +225,15 @@ struct FenceSynthesisPass
         Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
         if (fOp == a || fOp == b)
           continue;
+        // If this fence already orders the pair AND dominates the target,
+        // the pair is already satisfied — no promotion needed.
+        if (iface->getOrderThroughFence(a, fOp, b) ==
+                orb::EventOrder::Ordered &&
+            orb::fenceDominatesTarget(fOp, b, dom, reach)) {
+          promotions.clear();
+          promotions.push_back({orb::Promotion::EmptyUpgradeAction{}});
+          break;
+        }
         for (auto &fp : iface->promoteViaFence(a, fOp, b))
           promotions.push_back(fp);
       }

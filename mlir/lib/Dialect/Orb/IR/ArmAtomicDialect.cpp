@@ -544,34 +544,54 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
     const auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action);
 
-    // --- Fence cost (insertion or upgrade) ---
-    auto fenceCost = [&](arm_atomic::MemoryOrder fmo, bool isNew) -> int {
-      unsigned cov, hw;
+    // --- Fence cost ---
+    // hw weight per memory order.
+    auto hwWeight = [](arm_atomic::MemoryOrder fmo) -> unsigned {
       switch (fmo) {
-      case arm_atomic::MemoryOrder::Acquire: // DMB LD: [R];po;[*]
-        cov = std::max(ctx.rowPressure + ctx.colReadPressure, 1u);
-        if (ctx.colWritePressure < cov) cov -= ctx.colWritePressure; else cov = 1u;
-        hw = 1; break;
-      case arm_atomic::MemoryOrder::Release: // DMB ST: [W];po;[W]
-        cov = std::max(ctx.rowWritePressure + ctx.colWritePressure, 1u);
-        if (ctx.colReadPressure < cov) cov -= ctx.colReadPressure; else cov = 1u;
-        hw = 1; break;
-      default: // DMB SY: [*];po;[*]
-        cov = std::max(ctx.rowPressure + ctx.colPressure, 1u);
-        hw = 2; break;
+      case arm_atomic::MemoryOrder::Acquire:  return 1; // DMB LD
+      case arm_atomic::MemoryOrder::Release:  return 1; // DMB ST
+      default:                                return 2; // DMB SY
       }
-      long long raw = (long long)ctx.fenceCostBase * hw * 1000 / cov + (isNew ? 1 : 0);
-      raw *= (1 + p.loopDepth * 4);
-      return (int)std::min(raw, (long long)std::numeric_limits<int>::max());
+    };
+    // Coverage estimate for a fence of the given order.
+    auto fenceCoverage = [&](arm_atomic::MemoryOrder fmo) -> unsigned {
+      switch (fmo) {
+      case arm_atomic::MemoryOrder::Acquire: { // [R];po;[*]
+        unsigned c = std::max(ctx.rowPressure + ctx.colReadPressure, 1u);
+        if (ctx.colWritePressure < c) c -= ctx.colWritePressure; else c = 1u;
+        return c;
+      }
+      case arm_atomic::MemoryOrder::Release: { // [W];po;[W]
+        unsigned c = std::max(ctx.rowWritePressure + ctx.colWritePressure, 1u);
+        if (ctx.colReadPressure < c) c -= ctx.colReadPressure; else c = 1u;
+        return c;
+      }
+      default: // [*];po;[*]
+        return std::max(ctx.rowPressure + ctx.colPressure, 1u);
+      }
     };
 
     if (!ua) {
+      // New fence insertion: full hw cost.
       const auto &fa = std::get<orb::Promotion::FenceAction>(p.action);
-      return fenceCost(static_cast<arm_atomic::MemoryOrder>(fa.memoryOrder), true);
+      auto fmo = static_cast<arm_atomic::MemoryOrder>(fa.memoryOrder);
+      unsigned cov = fenceCoverage(fmo);
+      long long raw = (long long)ctx.fenceCostBase * hwWeight(fmo) * 1000 / cov;
+      raw *= (1 + p.loopDepth * 4);
+      return (int)std::min(raw, (long long)std::numeric_limits<int>::max());
     }
     auto mo = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
-    if (isa<arm_atomic::AtomicFenceOp>(ua->op))
-      return fenceCost(mo, false);
+    if (isa<arm_atomic::AtomicFenceOp>(ua->op)) {
+      // Fence upgrade: use target hw cost but no insertion penalty.
+      // Upgrading an existing fence is cheaper than inserting a new one
+      // because there's no new instruction — just a stronger barrier.
+      unsigned cov = fenceCoverage(mo);
+      long long raw = (long long)ctx.fenceCostBase * hwWeight(mo) * 1000 / cov;
+      // Discount: no new instruction inserted.
+      raw = raw * 3 / 4;
+      raw *= (1 + p.loopDepth * 4);
+      return (int)std::min(raw, (long long)std::numeric_limits<int>::max());
+    }
 
     // --- Access upgrade cost ---
     // No collateral penalty: STLR/LDAR have fixed hardware cost regardless
