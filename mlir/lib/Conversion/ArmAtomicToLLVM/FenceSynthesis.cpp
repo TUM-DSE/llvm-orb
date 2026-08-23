@@ -221,7 +221,8 @@ struct FenceSynthesisPass
 
       // Intermediate fence upgrades via precomputed BitVectors.
       unsigned aIdx = mb.idxOf(idA), bIdx = mb.idxOf(idB);
-      for (unsigned fEvIdx : mb.fencesBetween(aIdx, bIdx)) {
+      auto betweenFences = mb.fencesBetween(aIdx, bIdx);
+      for (unsigned fEvIdx : betweenFences) {
         Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
         if (fOp == a || fOp == b)
           continue;

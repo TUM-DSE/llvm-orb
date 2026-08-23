@@ -457,10 +457,13 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
     for (auto fenceMO : fenceMOs) {
       int mo = static_cast<int>(fenceMO);
-      if (!isa<arm_atomic::AtomicFenceOp>(a) && a->getNextNode())
-        options.push_back({orb::Promotion::FenceAction{a->getNextNode(), mo}});
+      // "Before b" first: a fence in b's function trivially dominates b,
+      // so applyFenceClosure can propagate orderings to all events reaching
+      // the fence.  "After a" goes second — it only helps same-function pairs.
       if (!isa<arm_atomic::AtomicFenceOp>(b))
         options.push_back({orb::Promotion::FenceAction{b, mo}});
+      if (!isa<arm_atomic::AtomicFenceOp>(a) && a->getNextNode())
+        options.push_back({orb::Promotion::FenceAction{a->getNextNode(), mo}});
     }
 
     return options;

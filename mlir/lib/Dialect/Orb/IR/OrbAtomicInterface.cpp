@@ -252,7 +252,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
 
 void OrderMatrix::precomputeIntermediateFences(
     const OrbAtomicDialectInterface *iface,
-    DominanceInfo &dom, PostDominanceInfo &,
+    DominanceInfo &dom, PostDominanceInfo &postDom,
     const CallReachability &reach) {
   fenceEventIndices.clear();
   for (unsigned i = 0; i < nEvents; ++i)
@@ -261,12 +261,10 @@ void OrderMatrix::precomputeIntermediateFences(
   nFencesCached = fenceEventIndices.size();
 
   // For each (event, fence) pair, check if the fence is a valid intermediary:
-  //   validFencesAfter[ev]:  ev can reach fence AND fence dominates ev's successors
-  //   validFencesBefore[ev]: fence can reach ev AND fence dominates ev
-  // We use DominanceInfo only (not PostDominanceInfo) for speed: checking
-  // dom(aBlock, fBlock) && dom(fBlock, bBlock) is stricter than post-dominance
-  // but O(1) per check.  Cross-region pairs use fenceDominatesTarget which
-  // handles call edges.
+  //   validFencesAfter[ev]:  fence post-dominates ev (fence is on ALL paths from ev)
+  //   validFencesBefore[ev]: fence dominates ev (fence is on ALL paths to ev)
+  // Using post-dominance for "after" allows fences at merge points to cover
+  // all branches, preventing duplicate fence insertions in sibling blocks.
   validFencesAfter.assign(nEvents, llvm::BitVector(nFencesCached));
   validFencesBefore.assign(nEvents, llvm::BitVector(nFencesCached));
   for (unsigned fi = 0; fi < nFencesCached; ++fi) {
@@ -280,22 +278,18 @@ void OrderMatrix::precomputeIntermediateFences(
       Operation *evOp = idToOp[ids[ev]];
       Block *evBlock = evOp->getBlock();
       Region *evRegion = evBlock->getParent();
-      // validFencesAfter[ev]: ev→f, meaning f is after ev on all paths.
-      // Same region: f's block must dominate ev's successors, approximated
-      // by dom(evBlock, fBlock) (ev before f in dominator tree).
+      // validFencesAfter[ev]: fence is after ev on all paths.
+      // Same region: fence's block post-dominates ev's block.
       if (evRegion == fRegion) {
-        if (dom.dominates(evBlock, fBlock))
+        if (postDom.postDominates(fBlock, evBlock))
           validFencesAfter[ev].set(fi);
       } else if (reach.canReach(evOp, fOp)) {
         validFencesAfter[ev].set(fi);
       }
-      // validFencesBefore[ev]: f→ev, meaning f can reach ev.
-      // Same region: dominance (stricter than post-dominance but O(1)).
-      // Cross region: canReach only — dominance is NOT required here because
-      // this is a candidate filter for promoteViaFence.  The actual ordering
-      // semantics are checked by getOrderThroughFence, and markOrdered marks
-      // only the specific pair (same as FenceAction insertions which also
-      // don't require dominance).
+      // validFencesBefore[ev]: fence is before ev on all paths.
+      // Same region: fence's block dominates ev's block.
+      // Cross region: canReach only — this is a candidate filter;
+      // actual ordering semantics are checked by getOrderThroughFence.
       if (evRegion == fRegion) {
         if (dom.dominates(fBlock, evBlock))
           validFencesBefore[ev].set(fi);
@@ -308,7 +302,7 @@ void OrderMatrix::precomputeIntermediateFences(
 
 void OrderMatrix::addIntermediateFence(
     unsigned fOrigIdx, const OrbAtomicDialectInterface *iface,
-    DominanceInfo &dom, PostDominanceInfo &,
+    DominanceInfo &dom, PostDominanceInfo &postDom,
     const CallReachability &reach) {
   unsigned fi = nFencesCached++;
   fenceEventIndices.push_back(fOrigIdx);
@@ -329,7 +323,7 @@ void OrderMatrix::addIntermediateFence(
     Block *evBlock = evOp->getBlock();
     Region *evRegion = evBlock->getParent();
     if (evRegion == fRegion) {
-      if (dom.dominates(evBlock, fBlock))
+      if (postDom.postDominates(fBlock, evBlock))
         validFencesAfter[ev].set(fi);
       if (dom.dominates(fBlock, evBlock))
         validFencesBefore[ev].set(fi);
