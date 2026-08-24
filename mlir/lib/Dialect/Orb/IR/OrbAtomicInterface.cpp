@@ -8,6 +8,7 @@
 
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
 #include "mlir/Analysis/AliasAnalysis.h"
+#include "mlir/Analysis/CFGLoopInfo.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/IR/Builders.h"
@@ -410,8 +411,6 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
   unsigned crossIterOnly = 0;
   for (uint64_t idA : matrix.eventIds())
     for (uint64_t idB : matrix.eventIds()) {
-      if (idA == idB)
-        continue;
       if (matrix.getOrder(idA, idB) == EventOrder::Ordered)
         pairs.emplace_back(idA, idB);
       else if (matrix.getCrossIterOrder(idA, idB) == EventOrder::Ordered) {
@@ -931,17 +930,109 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   for (unsigned i = 0; i < nEv; ++i)
     result.idToIdx[result.ids[i]] = i;
 
+  // Precompute per-region CFGLoopInfo and forward block reachability.
+  // Forward reachability = BFS skipping back-edges (edges where succ dominates src).
+  llvm::DenseMap<Region *, std::unique_ptr<CFGLoopInfo>> regionLoopInfo;
+  // Map (region, block) -> dense index within that region's block list.
+  llvm::DenseMap<Region *, llvm::DenseMap<Block *, unsigned>> regionBlockIdx;
+  // forwardReach[region][srcBlockIdx] = BitVector of forward-reachable block indices.
+  llvm::DenseMap<Region *, std::vector<llvm::BitVector>> forwardReach;
+
+  // Collect regions containing events.
+  llvm::DenseSet<Region *> eventRegions;
+  for (unsigned i = 0; i < nEv; ++i)
+    eventRegions.insert(
+        result.idToOp[result.ids[i]]->getBlock()->getParent());
+
+  for (Region *region : eventRegions) {
+    if (region->hasOneBlock())
+      continue;
+    // Verify all blocks have terminators (proper CFG).
+    bool valid = true;
+    for (Block &b : *region)
+      if (!b.getTerminator()) { valid = false; break; }
+    if (!valid)
+      continue;
+
+    // Build CFGLoopInfo.
+    auto li = std::make_unique<CFGLoopInfo>(dominance.getDomTree(region));
+
+    // Build dense block index for this region.
+    llvm::DenseMap<Block *, unsigned> &blkIdx = regionBlockIdx[region];
+    llvm::SmallVector<Block *> idxToBlock;
+    unsigned idx = 0;
+    for (Block &b : *region) {
+      blkIdx[&b] = idx++;
+      idxToBlock.push_back(&b);
+    }
+    unsigned numBlocks = idx;
+
+    // Forward BFS from each block, skipping back-edges.
+    std::vector<llvm::BitVector> fwdReach(numBlocks,
+                                           llvm::BitVector(numBlocks, false));
+    for (unsigned src = 0; src < numBlocks; ++src) {
+      auto &bv = fwdReach[src];
+      bv.set(src);
+      llvm::SmallVector<unsigned> worklist = {src};
+      while (!worklist.empty()) {
+        unsigned cur = worklist.pop_back_val();
+        Block *curBlock = idxToBlock[cur];
+        for (Block *succ : curBlock->getSuccessors()) {
+          // Skip back-edges: edge (cur -> succ) where succ dominates cur.
+          if (dominance.dominates(succ, curBlock))
+            continue;
+          auto it = blkIdx.find(succ);
+          if (it == blkIdx.end())
+            continue;
+          unsigned si = it->second;
+          if (!bv.test(si)) {
+            bv.set(si);
+            worklist.push_back(si);
+          }
+        }
+      }
+    }
+
+    forwardReach[region] = std::move(fwdReach);
+    regionLoopInfo[region] = std::move(li);
+  }
+
+  // Helper: check if aBlk forward-reaches bBlk within their region.
+  auto isForwardReachable = [&](Region *region, Block *aBlk,
+                                Block *bBlk) -> bool {
+    auto regIt = regionBlockIdx.find(region);
+    if (regIt == regionBlockIdx.end())
+      return true; // single-block or invalid region — assume forward
+    auto &blkIdx = regIt->second;
+    auto aIt = blkIdx.find(aBlk), bIt = blkIdx.find(bBlk);
+    if (aIt == blkIdx.end() || bIt == blkIdx.end())
+      return true;
+    return forwardReach[region][aIt->second].test(bIt->second);
+  };
+
   // Pairwise pass with doubled indices.
   // (2a, 2b) + (2a+1, 2b+1) = same-iteration (forward reachable)
-  // (2a, 2b+1) = cross-iteration (back-edge reachable: same region, b dom a)
+  // (2a, 2b+1) = cross-iteration (back-edge reachable only)
   // (2a+1, 2b) = always Unreachable
   unsigned backEdgeOrdered = 0, forwardOrdered = 0;
   for (unsigned aIdx = 0; aIdx < nEv; ++aIdx) {
     Operation *a = result.idToOp[result.ids[aIdx]];
     Region *aRegion = a->getBlock()->getParent();
     for (unsigned bIdx = 0; bIdx < nEv; ++bIdx) {
-      if (aIdx == bIdx)
+      if (aIdx == bIdx) {
+        // Self-pair: only cross-iteration cell matters.
+        // Only relevant if the event is in a loop.
+        auto liIt = regionLoopInfo.find(aRegion);
+        if (liIt == regionLoopInfo.end() ||
+            liIt->second->getLoopDepth(a->getBlock()) == 0)
+          continue;
+        EventOrder order =
+            result.queryOrder(a, a, iface, aliasAnalysis, dominance);
+        result.setOrder(2 * aIdx, 2 * aIdx + 1, order);
+        if (order == EventOrder::Ordered)
+          ++backEdgeOrdered;
         continue;
+      }
       Operation *b = result.idToOp[result.ids[bIdx]];
       if (!reach.canReach(a, b))
         continue; // all 4 cells stay Unreachable
@@ -954,9 +1045,9 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
           order = EventOrder::Ordered;
       }
 
-      bool isBackEdge = sameRegion && dominance.dominates(b, a);
-      if (isBackEdge) {
-        // Cross-iteration only.
+      if (sameRegion && !isForwardReachable(aRegion, a->getBlock(),
+                                            b->getBlock())) {
+        // Cross-iteration only (back-edge path).
         result.setOrder(2 * aIdx, 2 * bIdx + 1, order);
         if (order == EventOrder::Ordered)
           ++backEdgeOrdered;
