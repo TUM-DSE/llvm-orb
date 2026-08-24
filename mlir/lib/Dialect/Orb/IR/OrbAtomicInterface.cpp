@@ -176,7 +176,8 @@ void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
   if (n == 0)
     return;
   // Build set of fence doubled-indices to skip as intermediaries.
-  // Ordering through fences requires post-dom/dom checks (applyFenceClosure).
+  // Matrix cells A→F and F→B represent conditional ordering (IF F executes).
+  // Only applyFenceClosure may derive A→B through F (with dom/post-dom checks).
   llvm::BitVector fenceIndices(n);
   if (iface) {
     for (unsigned i = 0; i < nEvents; ++i)
@@ -205,8 +206,9 @@ void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
     for (unsigned a = 0; a < n; ++a) {
       for (int c = ordered[a].find_first(); c != -1;
            c = ordered[a].find_next(c)) {
-        // Skip fence intermediaries — transitivity through fences
-        // requires post-dom/dom checks done by applyFenceClosure.
+        // Skip fence intermediaries — A→F and F→B are conditional
+        // (only if F executes). applyFenceClosure handles this with
+        // dom/post-dom checks.
         if (fenceIndices.test(c))
           continue;
         llvm::BitVector newBits = ordered[c];

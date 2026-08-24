@@ -157,6 +157,12 @@ struct FenceSynthesisPass
     unsigned nEvents = mb.numEvents();
     log() << "n=" << nEvents << "\n";
 
+    // Register required set for incremental ordered/overspecified tracking.
+    llvm::DenseSet<std::pair<uint64_t, uint64_t>> requiredSetForTracking;
+    for (auto [a, b] : required.requiredPairs())
+      requiredSetForTracking.insert({a, b});
+    mb.setRequiredSet(&requiredSetForTracking);
+
     // Pressure maps: count of unsatisfied required pairs per row/column.
     llvm::DenseMap<uint64_t, unsigned> rowPressure, rowWritePressure,
         colPressure, colReadPressure, colWritePressure;
@@ -261,10 +267,11 @@ struct FenceSynthesisPass
         Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
         if (fOp == a || fOp == b)
           continue;
-        // If this fence already orders the pair AND dominates the target,
-        // the pair is already satisfied — no promotion needed.
+        // If this fence already orders the pair AND is on ALL paths
+        // (post-dominates A, dominates B), the pair is already satisfied.
         if (iface->getOrderThroughFence(a, fOp, b) ==
                 orb::EventOrder::Ordered &&
+            orb::fencePostDominatesSource(fOp, a, postDom, reach) &&
             orb::fenceDominatesTarget(fOp, b, dom, reach)) {
           promotions.clear();
           promotions.push_back({orb::Promotion::EmptyUpgradeAction{}});
