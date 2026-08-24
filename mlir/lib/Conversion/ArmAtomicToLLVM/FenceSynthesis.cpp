@@ -327,12 +327,14 @@ struct FenceSynthesisPass
         unsigned fOrigIdx = mb.idxOf(newId);
         mb.addIntermediateFence(fOrigIdx, iface, dom, postDom, reach);
         mb.markOrdered(idA, idB);
+        mb.closeTransitively();
         ++iteration;
         continue;
       }
       iface->updateOrderMatrix(bestPromotion, newOp, idA, idB,
                                mb, aa, dom, reach);
       mb.markOrdered(idA, idB);
+      mb.closeTransitively();
       ++iteration;
     }
 
