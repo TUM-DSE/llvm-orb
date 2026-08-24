@@ -126,6 +126,7 @@ static bool interprocedurallyReaches(
       }
 
       // Cross function boundary: call op → callee entry block args.
+      // v is used as an operand of this call — push the matching block arg.
       if (auto call = dyn_cast<CallOpInterface>(user)) {
         auto symRef = dyn_cast_or_null<SymbolRefAttr>(
             call.getCallableForCallee());
@@ -135,11 +136,13 @@ static bool interprocedurallyReaches(
             Region *calleeRegion = callable.getCallableRegion();
             if (calleeRegion && !calleeRegion->empty()) {
               Block &entry = calleeRegion->front();
-              // Map call operands → entry block arguments.
-              for (auto [callArg, blockArg] :
-                   llvm::zip(call.getArgOperands(), entry.getArguments())) {
-                if (visited.count(callArg))
-                  worklist.push_back(blockArg);
+              auto args = call.getArgOperands();
+              auto blockArgs = entry.getArguments();
+              for (unsigned i = 0, e = std::min((unsigned)args.size(),
+                                                (unsigned)blockArgs.size());
+                   i < e; ++i) {
+                if (args[i] == v)
+                  worklist.push_back(blockArgs[i]);
               }
             }
           }
@@ -723,22 +726,34 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return nullptr;
   }
 
-  /// ctrl;[W] cross-region: load a's value reaches a branch (through any
-  /// chain of return→call edges) that is program-order before store b.
+  /// Cross-region dob: addr dep, data dep, ctrl;[W] through call/return edges.
   orb::EventOrder getOrderCrossRegion(Operation *a, Operation *b,
                                       AliasAnalysis &aa, DominanceInfo &dom,
                                       const orb::CallReachability &reach) const override {
     if (!isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a))
-      return orb::EventOrder::Unordered;
-    if (!isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b))
       return orb::EventOrder::Unordered;
 
     ValueRange sources = a->getResults();
     if (sources.empty())
       return orb::EventOrder::Unordered;
 
-    if (interprocedurallyReaches(sources, Value{}, b, reach))
+    // addr dep: a's result reaches b's address operand
+    Value addr = getMemoryAddress(b);
+    if (addr && interprocedurallyReaches(sources, addr, b, reach))
       return orb::EventOrder::Ordered;
+
+    // data dep: a's result reaches store b's value operand
+    Value data;
+    if (auto op = dyn_cast<arm_atomic::AtomicStoreOp>(b)) data = op.getValue();
+    else if (auto op = dyn_cast<ptr::StoreOp>(b))         data = op.getValue();
+    if (data && interprocedurallyReaches(sources, data, b, reach))
+      return orb::EventOrder::Ordered;
+
+    // ctrl;[W]: a's result reaches a branch before store b
+    if (isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b) &&
+        interprocedurallyReaches(sources, Value{}, b, reach))
+      return orb::EventOrder::Ordered;
+
     return orb::EventOrder::Unordered;
   }
 
