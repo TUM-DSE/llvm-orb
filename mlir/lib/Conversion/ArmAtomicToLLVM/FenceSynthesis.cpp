@@ -323,18 +323,18 @@ struct FenceSynthesisPass
                        builder.getI64IntegerAttr(newId));
         // Update intermediate fence BitVectors after addFence expanded the matrix.
         iface->updateOrderMatrix(bestPromotion, newOp, idA, idB,
-                                 mb, aa, dom, reach);
+                                 mb, aa, dom, postDom, reach);
         unsigned fOrigIdx = mb.idxOf(newId);
         mb.addIntermediateFence(fOrigIdx, iface, dom, postDom, reach);
         mb.markOrdered(idA, idB);
-        mb.closeTransitively();
+        mb.closeTransitively(iface);
         ++iteration;
         continue;
       }
       iface->updateOrderMatrix(bestPromotion, newOp, idA, idB,
-                               mb, aa, dom, reach);
+                               mb, aa, dom, postDom, reach);
       mb.markOrdered(idA, idB);
-      mb.closeTransitively();
+      mb.closeTransitively(iface);
       ++iteration;
     }
 

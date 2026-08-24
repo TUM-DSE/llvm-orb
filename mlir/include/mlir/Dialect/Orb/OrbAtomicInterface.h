@@ -179,12 +179,16 @@ public:
   void markOrdered(uint64_t idA, uint64_t idB);
   void addFence(Operation *f, const OrbAtomicDialectInterface *iface,
                 AliasAnalysis &aa, DominanceInfo &dom,
-                const CallReachability &reach);
+                PostDominanceInfo &postDom, const CallReachability &reach);
   void applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                          AliasAnalysis &aa, DominanceInfo &dom,
+                         PostDominanceInfo &postDom,
                          const CallReachability &reach);
   /// Close the Ordered relation transitively. maxRounds=0 means no limit.
-  void closeTransitively(unsigned maxRounds = 0);
+  /// Skips fence intermediaries when iface is provided — ordering through
+  /// fences requires post-dom/dom checks done by applyFenceClosure.
+  void closeTransitively(const OrbAtomicDialectInterface *iface = nullptr,
+                         unsigned maxRounds = 0);
 
   /// Precompute valid intermediate fence BitVectors. Call once after matrix construction.
   void precomputeIntermediateFences(const OrbAtomicDialectInterface *iface,
@@ -269,7 +273,8 @@ private:
                         const OrbAtomicDialectInterface *iface,
                         AliasAnalysis &aa, DominanceInfo &dom) const;
   void applyFenceClosure(unsigned fOrigIdx, const OrbAtomicDialectInterface *iface,
-                         DominanceInfo &dom, const CallReachability &reach);
+                         DominanceInfo &dom, PostDominanceInfo &postDom,
+                         const CallReachability &reach);
 };
 
 /// Per-dialect interface for atomic memory ordering analysis.
@@ -307,6 +312,7 @@ public:
   virtual void updateOrderMatrix(const Promotion &p, Operation *newOp,
                                  uint64_t idA, uint64_t idB, OrderMatrix &mb,
                                  AliasAnalysis &aa, DominanceInfo &dom,
+                                 PostDominanceInfo &postDom,
                                  const CallReachability &reach) const = 0;
   /// Apply model-specific derived orderings to the initial target matrix (e.g. lob* for ARM).
   virtual void refineInitialOrderMatrix(OrderMatrix &matrix) const {}

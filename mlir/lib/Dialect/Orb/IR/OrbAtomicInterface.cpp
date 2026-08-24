@@ -108,6 +108,7 @@ void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
 
 void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
                            AliasAnalysis &aa, DominanceInfo &dom,
+                           PostDominanceInfo &postDom,
                            const CallReachability &reach) {
   auto idAttr = f->getAttrOfType<IntegerAttr>(kEventIdAttr);
   assert(idAttr && "fence must have orb.event_id before addFence");
@@ -167,12 +168,24 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
       }
     }
   }
-  applyFenceClosure(fOrigIdx, iface, dom, reach);
+  applyFenceClosure(fOrigIdx, iface, dom, postDom, reach);
 }
 
-void OrderMatrix::closeTransitively(unsigned maxRounds) {
+void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
+                                    unsigned maxRounds) {
   if (n == 0)
     return;
+  // Build set of fence doubled-indices to skip as intermediaries.
+  // Ordering through fences requires post-dom/dom checks (applyFenceClosure).
+  llvm::BitVector fenceIndices(n);
+  if (iface) {
+    for (unsigned i = 0; i < nEvents; ++i)
+      if (iface->isFenceEvent(idToOp[ids[i]])) {
+        fenceIndices.set(2 * i);
+        fenceIndices.set(2 * i + 1);
+      }
+  }
+
   llvm::SmallVector<llvm::BitVector> ordered(n, llvm::BitVector(n));
   llvm::SmallVector<llvm::BitVector> unordered(n, llvm::BitVector(n));
   for (unsigned a = 0; a < n; ++a)
@@ -192,6 +205,10 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
     for (unsigned a = 0; a < n; ++a) {
       for (int c = ordered[a].find_first(); c != -1;
            c = ordered[a].find_next(c)) {
+        // Skip fence intermediaries — transitivity through fences
+        // requires post-dom/dom checks done by applyFenceClosure.
+        if (fenceIndices.test(c))
+          continue;
         llvm::BitVector newBits = ordered[c];
         newBits &= unordered[a];
         newBits.reset(a);
@@ -214,6 +231,7 @@ void OrderMatrix::closeTransitively(unsigned maxRounds) {
 
 void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterface *iface,
                                     AliasAnalysis &aa, DominanceInfo &dom,
+                                    PostDominanceInfo &postDom,
                                     const CallReachability &reach) {
   // fIdx is original event index; use doubled indices internally.
   Operation *f = idToOp[ids[fIdx]];
@@ -247,7 +265,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
       }
     }
   }
-  applyFenceClosure(fIdx, iface, dom, reach);
+  applyFenceClosure(fIdx, iface, dom, postDom, reach);
 }
 
 void OrderMatrix::precomputeIntermediateFences(
@@ -824,24 +842,32 @@ bool orb::fencePostDominatesSource(Operation *f, Operation *a,
 void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
                                     const OrbAtomicDialectInterface *iface,
                                     DominanceInfo &dom,
+                                    PostDominanceInfo &postDom,
                                     const CallReachability &reach) {
   Operation *f = idToOp[ids[fOrigIdx]];
   unsigned f0 = 2 * fOrigIdx, f1 = 2 * fOrigIdx + 1;
 
-  // Precompute fenceDominatesTarget for all events (indexed by original event idx).
+  // Precompute dominance/post-dominance for all events.
+  // fDomTarget[ev]: fence dominates ev (fence on ALL paths TO ev).
+  // fPostDomSource[ev]: fence post-dominates ev (fence on ALL paths FROM ev).
+  // Both must hold for A→F→B ordering: F post-dom A AND F dom B.
   llvm::BitVector fDomTarget(nEvents);
+  llvm::BitVector fPostDomSource(nEvents);
   for (unsigned ev = 0; ev < nEvents; ++ev) {
     if (ev == fOrigIdx)
       continue;
     if (fenceDominatesTarget(f, idToOp[ids[ev]], dom, reach))
       fDomTarget.set(ev);
+    if (fencePostDominatesSource(f, idToOp[ids[ev]], postDom, reach))
+      fPostDomSource.set(ev);
   }
 
   for (unsigned fD : {f0, f1}) {
     for (unsigned aD = 0; aD < n; ++aD) {
       if (aD == fD || matrix[aD * n + fD] != EventOrder::Ordered)
         continue;
-      Operation *a = idToOp[ids[aD / 2]];
+      if (!fPostDomSource.test(aD / 2))
+        continue;
       for (unsigned bD = 0; bD < n; ++bD) {
         if (bD == fD || bD == aD)
           continue;
@@ -851,6 +877,7 @@ void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
           continue;
         if (!fDomTarget.test(bD / 2))
           continue;
+        Operation *a = idToOp[ids[aD / 2]];
         Operation *b = idToOp[ids[bD / 2]];
         if (iface->getOrderThroughFence(a, f, b) == EventOrder::Ordered)
           setOrderTracked(aD, bD, EventOrder::Ordered);
