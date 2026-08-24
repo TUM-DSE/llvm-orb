@@ -1045,9 +1045,9 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
           order = EventOrder::Ordered;
       }
 
-      if (sameRegion && !isForwardReachable(aRegion, a->getBlock(),
-                                            b->getBlock())) {
-        // Cross-iteration only (back-edge path).
+      bool isBackEdge = sameRegion && dominance.dominates(b, a);
+      if (isBackEdge) {
+        // Cross-iteration only.
         result.setOrder(2 * aIdx, 2 * bIdx + 1, order);
         if (order == EventOrder::Ordered)
           ++backEdgeOrdered;
