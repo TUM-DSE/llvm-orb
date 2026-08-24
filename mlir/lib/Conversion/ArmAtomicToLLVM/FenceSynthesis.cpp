@@ -186,6 +186,17 @@ struct FenceSynthesisPass
 
     unsigned total = required.requiredPairs().size();
 
+    // Count how many required pairs are already ordered by ARM dependencies
+    // (dob, lwfs, transitive closure) BEFORE synthesis.
+    {
+      unsigned preOrdered = 0;
+      for (auto [c, d] : required.requiredPairs()) {
+        if (mb.isOrdered(c, d))
+          ++preOrdered;
+      }
+      log() << "pre-ordered=" << preOrdered << "/" << total << "\n";
+    }
+
     // Simple greedy loop: pick the first unsatisfied pair, find the
     // cheapest promotion, apply it, update the matrix, repeat.
     unsigned iteration = 0;
@@ -261,10 +272,15 @@ struct FenceSynthesisPass
       }
 
       // Log and apply.
-      if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&bestPromotion.action))
+      if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&bestPromotion.action)) {
+        uint64_t upgId = 0;
+        if (auto idA2 = ua->op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr))
+          upgId = idA2.getInt();
         log() << "iter=" << iteration << " (" << idA << "," << idB
-                     << ") upgrade op=" << ua->op->getName().getStringRef()
+                     << ") upgrade ev=" << upgId
+                     << " op=" << ua->op->getName().getStringRef()
                      << " to=" << ua->targetMemoryOrder << "\n";
+      }
       else if (std::get_if<orb::Promotion::FenceAction>(&bestPromotion.action))
         log() << "iter=" << iteration << " (" << idA << "," << idB
                      << ") fence\n";
