@@ -186,15 +186,39 @@ struct FenceSynthesisPass
 
     unsigned total = required.requiredPairs().size();
 
-    // Count how many required pairs are already ordered by ARM dependencies
-    // (dob, lwfs, transitive closure) BEFORE synthesis.
+    // Count how many required pairs are already ordered by ARM dependencies.
     {
-      unsigned preOrdered = 0;
+      unsigned preOrdered = 0, crossFn = 0, sameFn = 0;
+      // Pair type breakdown: L=load, S=store, F=fence, P=plain load/store.
+      unsigned LL = 0, LS = 0, SL = 0, SS = 0, FL = 0, FS = 0,
+               LF = 0, SF = 0, other = 0;
       for (auto [c, d] : required.requiredPairs()) {
         if (mb.isOrdered(c, d))
           ++preOrdered;
+        Operation *cOp = mb.getOpForId(c);
+        Operation *dOp = mb.getOpForId(d);
+        if (!cOp || !dOp) continue;
+        if (cOp->getBlock()->getParent() != dOp->getBlock()->getParent())
+          ++crossFn;
+        else
+          ++sameFn;
+        bool cS = iface->isWriteEvent(cOp);
+        bool cF = iface->isFenceEvent(cOp);
+        bool cL = !cS && !cF;
+        bool dS = iface->isWriteEvent(dOp);
+        bool dF = iface->isFenceEvent(dOp);
+        bool dL = !dS && !dF;
+        if (cL && dL) ++LL; else if (cL && dS) ++LS;
+        else if (cS && dL) ++SL; else if (cS && dS) ++SS;
+        else if (cF && dL) ++FL; else if (cF && dS) ++FS;
+        else if (cL && dF) ++LF; else if (cS && dF) ++SF;
+        else ++other;
       }
-      log() << "pre-ordered=" << preOrdered << "/" << total << "\n";
+      log() << "pre-ordered=" << preOrdered << "/" << total
+                   << " crossFn=" << crossFn << " sameFn=" << sameFn
+                   << " LL=" << LL << " LS=" << LS << " SL=" << SL
+                   << " SS=" << SS << " FL=" << FL << " FS=" << FS
+                   << " LF=" << LF << " SF=" << SF << "\n";
     }
 
     // Simple greedy loop: pick the first unsatisfied pair, find the

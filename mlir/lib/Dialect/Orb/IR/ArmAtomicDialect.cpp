@@ -12,6 +12,8 @@
 
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
+#include "mlir/Interfaces/CallInterfaces.h"
+#include "mlir/Interfaces/ControlFlowInterfaces.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
 #include <limits>
 
@@ -71,6 +73,79 @@ static bool transitivelyReaches(ValueRange sources, Value target, Operation *b,
       // Pruning 1: ctrl dependency — terminator branches toward b.
       if (user == userBlock->getTerminator() && userBlock != targetBlock)
         return true;
+      for (Value result : user->getResults())
+        worklist.push_back(result);
+    }
+  }
+  return false;
+}
+
+/// Interprocedural version of transitivelyReaches.  Follows SSA def-use
+/// chains AND crosses function boundaries:
+///   - return operand → call result at each call site (via directCalls)
+///   - call argument  → callee entry block argument
+/// Returns true when any value derived from `sources` reaches `target`
+/// (exact match) or a branch terminator on any path to `targetOp`
+/// (ctrl dependency, when target is null).
+static bool interprocedurallyReaches(
+    ValueRange sources, Value target, Operation *targetOp,
+    const orb::CallReachability &reach) {
+  constexpr int kMaxSteps = 512;
+
+  llvm::SmallPtrSet<Value, 32> visited;
+  llvm::SmallVector<Value> worklist(sources.begin(), sources.end());
+  int steps = 0;
+  while (!worklist.empty() && steps < kMaxSteps) {
+    Value v = worklist.pop_back_val();
+    if (!visited.insert(v).second)
+      continue;
+    ++steps;
+    if (v == target)
+      return true;
+    for (Operation *user : v.getUsers()) {
+      // ctrl: user is a terminator with successors (i.e. a branch).
+      if (!target && user->hasTrait<OpTrait::IsTerminator>() &&
+          user->getNumSuccessors() > 0)
+        return true;
+
+      // Cross function boundary: return op → call results at call sites.
+      if (user->hasTrait<OpTrait::ReturnLike>()) {
+        Region *calleeRegion = user->getParentRegion();
+        auto callersIt = reach.callersOf.find(calleeRegion);
+        if (callersIt != reach.callersOf.end()) {
+          for (Region *callerR : callersIt->second) {
+            auto it = reach.directCalls.find({callerR, calleeRegion});
+            if (it == reach.directCalls.end())
+              continue;
+            for (Operation *callOp : it->second)
+              for (Value r : callOp->getResults())
+                worklist.push_back(r);
+          }
+        }
+        continue;
+      }
+
+      // Cross function boundary: call op → callee entry block args.
+      if (auto call = dyn_cast<CallOpInterface>(user)) {
+        auto symRef = dyn_cast_or_null<SymbolRefAttr>(
+            call.getCallableForCallee());
+        if (symRef) {
+          auto *calleeOp = SymbolTable::lookupNearestSymbolFrom(user, symRef);
+          if (auto callable = dyn_cast_or_null<CallableOpInterface>(calleeOp)) {
+            Region *calleeRegion = callable.getCallableRegion();
+            if (calleeRegion && !calleeRegion->empty()) {
+              Block &entry = calleeRegion->front();
+              // Map call operands → entry block arguments.
+              for (auto [callArg, blockArg] :
+                   llvm::zip(call.getArgOperands(), entry.getArguments())) {
+                if (visited.count(callArg))
+                  worklist.push_back(blockArg);
+              }
+            }
+          }
+        }
+      }
+
       for (Value result : user->getResults())
         worklist.push_back(result);
     }
@@ -648,7 +723,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     return nullptr;
   }
 
-  // ctrl;[W] cross-call: load in caller controls (via branch) whether a callee call runs.
+  /// ctrl;[W] cross-region: load a's value reaches a branch (through any
+  /// chain of return→call edges) that is program-order before store b.
   orb::EventOrder getOrderCrossRegion(Operation *a, Operation *b,
                                       AliasAnalysis &aa, DominanceInfo &dom,
                                       const orb::CallReachability &reach) const override {
@@ -657,22 +733,12 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     if (!isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b))
       return orb::EventOrder::Unordered;
 
-    Region *fromRegion = a->getBlock()->getParent();
-    Region *toRegion   = b->getBlock()->getParent();
-    auto it = reach.directCalls.find({fromRegion, toRegion});
-    if (it == reach.directCalls.end())
-      return orb::EventOrder::Unordered;
-
     ValueRange sources = a->getResults();
     if (sources.empty())
       return orb::EventOrder::Unordered;
 
-    for (Operation *callOp : it->second) {
-      if (!dom.dominates(a, callOp))
-        continue;
-      if (transitivelyReaches(sources, Value{}, callOp))
-        return orb::EventOrder::Ordered;
-    }
+    if (interprocedurallyReaches(sources, Value{}, b, reach))
+      return orb::EventOrder::Ordered;
     return orb::EventOrder::Unordered;
   }
 
