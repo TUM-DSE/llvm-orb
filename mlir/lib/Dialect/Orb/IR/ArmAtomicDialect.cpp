@@ -787,6 +787,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
         mb.markOrdered(x, storeId);   // po;[L]
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(loadId, x);    // [Q];po
+      mb.markOrdered(storeId, loadId);
       return;
     }
 

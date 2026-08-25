@@ -267,6 +267,13 @@ struct FenceSynthesisPass
                    << " LF=" << LF << " SF=" << SF << "\n";
     }
 
+    // Log initial ordered/overspecified state before greedy loop.
+    {
+      auto [c, o] = mb.orderedCounts();
+      log() << "ordered=" << c << "/" << total
+                   << " overspecified=" << o << "\n";
+    }
+
     // Simple greedy loop: pick the first unsatisfied pair, find the
     // cheapest promotion, apply it, update the matrix, repeat.
     unsigned iteration = 0;
@@ -376,6 +383,11 @@ struct FenceSynthesisPass
         mb.markOrdered(idA, idB);
         mb.closeTransitively(iface);
         ++iteration;
+        {
+          auto [c, o] = mb.orderedCounts();
+          log() << "ordered=" << c << "/" << total
+                       << " overspecified=" << o << "\n";
+        }
         continue;
       }
       iface->updateOrderMatrix(bestPromotion, newOp, idA, idB,
@@ -383,6 +395,11 @@ struct FenceSynthesisPass
       mb.markOrdered(idA, idB);
       mb.closeTransitively(iface);
       ++iteration;
+      {
+        auto [c, o] = mb.orderedCounts();
+        log() << "ordered=" << c << "/" << total
+                     << " overspecified=" << o << "\n";
+      }
     }
 
     auto [covered, overspecified] = mb.orderedCounts();
