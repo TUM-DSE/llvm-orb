@@ -14,6 +14,7 @@
 #include "mlir/IR/BuiltinAttributes.h"
 #include "mlir/IR/Dominance.h"
 #include "mlir/Interfaces/CallInterfaces.h"
+#include "mlir/Interfaces/FunctionInterfaces.h"
 #include "mlir/Pass/Pass.h"
 #include "llvm/Support/Path.h"
 #include "llvm/Support/Debug.h"
@@ -162,6 +163,45 @@ struct FenceSynthesisPass
     for (auto [a, b] : required.requiredPairs())
       requiredSetForTracking.insert({a, b});
     mb.setRequiredSet(&requiredSetForTracking);
+
+    // Log all events with their parent function and op type.
+    {
+      log() << "=== Event map ===\n";
+      llvm::DenseSet<uint64_t> seenIds;
+      for (auto [a, b] : required.requiredPairs()) {
+        seenIds.insert(a);
+        seenIds.insert(b);
+      }
+      for (uint64_t id : seenIds) {
+        Operation *op = mb.getOpForId(id);
+        if (!op) continue;
+        StringRef funcName = "<unknown>";
+        if (auto parent = op->getParentOfType<mlir::FunctionOpInterface>())
+          if (auto sym = parent.getNameAttr())
+            funcName = sym.getValue();
+        log() << "ev=" << id << "\t" << funcName << "\t"
+              << op->getName().getStringRef() << "\n";
+      }
+      log() << "=== End event map ===\n";
+
+      // Dump all required pairs involving specific events of interest.
+      log() << "=== Required pairs for quiescent_state events ===\n";
+      for (auto [a, b] : required.requiredPairs()) {
+        Operation *aOp = mb.getOpForId(a);
+        Operation *bOp = mb.getOpForId(b);
+        if (!aOp || !bOp) continue;
+        auto aFunc = aOp->getParentOfType<mlir::FunctionOpInterface>();
+        auto bFunc = bOp->getParentOfType<mlir::FunctionOpInterface>();
+        StringRef aName = aFunc ? aFunc.getNameAttr().getValue() : "";
+        StringRef bName = bFunc ? bFunc.getNameAttr().getValue() : "";
+        if (aName.contains("quiescent") || bName.contains("quiescent")) {
+          bool ordered = mb.isOrdered(a, b);
+          log() << "  (" << a << "," << b << ") " << aName << " -> " << bName
+                << (ordered ? " [pre-ordered]" : " [UNSATISFIED]") << "\n";
+        }
+      }
+      log() << "=== End quiescent pairs ===\n";
+    }
 
     // Pressure maps: count of unsatisfied required pairs per row/column.
     llvm::DenseMap<uint64_t, unsigned> rowPressure, rowWritePressure,
@@ -350,6 +390,32 @@ struct FenceSynthesisPass
                  << " overspecified=" << overspecified
                  << " promotions=" << iteration
                  << " t=" << elapsedMs() << "ms\n";
+
+    // Post-synthesis: check if quiescent_state pairs are satisfied.
+    {
+      log() << "=== Post-synthesis quiescent pairs ===\n";
+      unsigned sat = 0, unsat = 0;
+      for (auto [a, b] : required.requiredPairs()) {
+        Operation *aOp = mb.getOpForId(a);
+        Operation *bOp = mb.getOpForId(b);
+        if (!aOp || !bOp) continue;
+        auto aFunc = aOp->getParentOfType<mlir::FunctionOpInterface>();
+        auto bFunc = bOp->getParentOfType<mlir::FunctionOpInterface>();
+        StringRef aName = aFunc ? aFunc.getNameAttr().getValue() : "";
+        StringRef bName = bFunc ? bFunc.getNameAttr().getValue() : "";
+        if (aName.contains("quiescent") || bName.contains("quiescent")) {
+          if (mb.isOrdered(a, b))
+            ++sat;
+          else {
+            ++unsat;
+            log() << "  STILL UNSATISFIED (" << a << "," << b << ") "
+                  << aName << " -> " << bName << "\n";
+          }
+        }
+      }
+      log() << "  quiescent: " << sat << " satisfied, " << unsat << " unsatisfied\n";
+      log() << "=== End post-synthesis ===\n";
+    }
   }
 };
 

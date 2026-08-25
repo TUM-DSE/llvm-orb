@@ -161,11 +161,10 @@ public:
     // Count existing Ordered cells against required set.
     for (unsigned a = 0; a < nEvents; ++a)
       for (unsigned b = 0; b < nEvents; ++b) {
-        if (a == b) continue;
-        // Same-iteration (even,even)
-        if (matrix[2 * a * n + 2 * b] == EventOrder::Ordered)
+        // Same-iteration (even,even) — skip self (2a,2a) as it's meaningless
+        if (a != b && matrix[2 * a * n + 2 * b] == EventOrder::Ordered)
           trackNewOrdered(2 * a, 2 * b);
-        // Cross-iteration (even,odd)
+        // Cross-iteration (even,odd) — include self (2a,2a+1) for loop pairs
         if (matrix[2 * a * n + 2 * b + 1] == EventOrder::Ordered)
           trackNewOrdered(2 * a, 2 * b + 1);
       }
