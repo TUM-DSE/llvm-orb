@@ -471,7 +471,9 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       } else if (aIsREL) {
         // [L];po;[A] already satisfied but matrix may not reflect it.
         options.push_back({orb::Promotion::EmptyUpgradeAction{}});
-      }
+      } else
+          options.push_back(
+              {orb::Promotion::UpgradeAction{a, (int)arm_atomic::MemoryOrder::Release}});
     }
 
     // --- Fence upgrades ---
@@ -778,7 +780,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       mb.markOrdered(idA, idB);
       return;
     }
-    // PairUpgradeAction: apply po;[L] + [A|Q];po.
+    // PairUpgradeAction: apply po;[L] + [A];po.
     if (const auto *pa =
             std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
       uint64_t storeId = (pa->op1 == mb.getOpForId(idA)) ? idA : idB;
@@ -786,7 +788,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(x, storeId);   // po;[L]
       for (uint64_t x : mb.eventIds())
-        mb.markOrdered(loadId, x);    // [Q];po
+        mb.markOrdered(loadId, x);    // [A];po
       mb.markOrdered(storeId, loadId);
       return;
     }

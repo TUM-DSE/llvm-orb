@@ -57,7 +57,7 @@ struct Promotion {
     Operation *op;
     int targetMemoryOrder; ///< Dialect-specific memory order enum value.
   };
-  /// Strengthen two ops at once (e.g. store→REL + load→ACQPC).
+  /// Strengthen two ops at once (e.g. store→REL + load→ACQ).
   struct PairUpgradeAction {
     Operation *op1;
     int targetMemoryOrder1;
