@@ -490,6 +490,9 @@ CallReachability mlir::orb::computeCallReachability(ModuleOp module) {
     callerEdges[calleeRegion].push_back(callerRegion);
     reach.directCalls[{callerRegion, calleeRegion}].push_back(op);
 
+    // Track call ops per block for intra-block position checks in canReach.
+    reach.callsInBlock[op->getBlock()].push_back({op, calleeRegion});
+
     // Block-level cross-function edges.
     if (calleeRegion->empty())
       return;
@@ -648,7 +651,42 @@ bool CallReachability::canReach(Operation *from, Operation *to) const {
   auto colIt = blockIndex.find(dstBlock);
   if (rowIt == eventRowIndex.end() || colIt == blockIndex.end())
     return false;
-  return blockReachRows[rowIt->second].test(colIt->second);
+  if (!blockReachRows[rowIt->second].test(colIt->second))
+    return false;
+
+  // Refine block-level reachability with intra-block call position.
+  // The BFS treats blocks as atomic, but cross-function edges attach to
+  // the call op's position within the block.  Two cases need correction:
+  //
+  // (a) Return edge: from is in a callee, to is in the caller block BEFORE
+  //     the call site → callee cannot reach a point before its own call.
+  // (b) Call edge: from is in the caller block AFTER the call site, to is
+  //     in the callee → the call already returned, from cannot reach callee.
+  Region *fromRegion = srcBlock->getParent();
+  Region *toRegion = dstBlock->getParent();
+  if (fromRegion != toRegion) {
+    // (a) Check dstBlock for calls that lead to from's region.
+    auto dstIt = callsInBlock.find(dstBlock);
+    if (dstIt != callsInBlock.end()) {
+      for (auto &[callOp, calleeRegion] : dstIt->second) {
+        if (calleeRegion == fromRegion || forwardReaches(calleeRegion, fromRegion)) {
+          if (to->isBeforeInBlock(callOp))
+            return false;
+        }
+      }
+    }
+    // (b) Check srcBlock for calls that lead to to's region.
+    auto srcIt = callsInBlock.find(srcBlock);
+    if (srcIt != callsInBlock.end()) {
+      for (auto &[callOp, calleeRegion] : srcIt->second) {
+        if (calleeRegion == toRegion || forwardReaches(calleeRegion, toRegion)) {
+          if (callOp->isBeforeInBlock(from))
+            return false;
+        }
+      }
+    }
+  }
+  return true;
 }
 
 //===----------------------------------------------------------------------===//

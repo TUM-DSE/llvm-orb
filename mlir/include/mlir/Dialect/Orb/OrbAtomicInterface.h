@@ -122,6 +122,11 @@ struct CallReachability {
   /// Forward index: calleesOf[callerRegion] → list of callee regions.
   llvm::DenseMap<Region *, llvm::SmallVector<Region *>> calleesOf;
 
+  /// Call ops in each block: callsInBlock[block] = [(callOp, calleeRegion)].
+  /// Used by canReach to refine block-level reachability to instruction level.
+  llvm::DenseMap<Block *, llvm::SmallVector<std::pair<Operation *, Region *>>>
+      callsInBlock;
+
   /// Block-level interprocedural reachability (precomputed, no depth limit).
   llvm::DenseMap<Block *, unsigned> blockIndex; ///< All blocks → dense index.
   llvm::SmallVector<Block *> allBlocks;         ///< Dense index → block.
