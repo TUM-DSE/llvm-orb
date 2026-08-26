@@ -840,10 +840,13 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return;
     }
     // PairUpgradeAction: apply po;[L] + [A];po.
-    if (const auto *pa =
-            std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
-      uint64_t storeId = (pa->op1 == mb.getOpForId(idA)) ? idA : idB;
-      uint64_t loadId  = (pa->op2 == mb.getOpForId(idA)) ? idA : idB;
+    // Use mb.getOpForId() to resolve ops — ptr ops may have been replaced
+    // by arm_atomic ops in applyPromotion.
+    if (std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
+      Operation *opA = mb.getOpForId(idA);
+      Operation *opB = mb.getOpForId(idB);
+      uint64_t storeId = isa<arm_atomic::AtomicStoreOp>(opA) ? idA : idB;
+      uint64_t loadId  = isa<arm_atomic::AtomicLoadOp>(opA) ? idA : idB;
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(x, storeId);   // po;[L]
       for (uint64_t x : mb.eventIds())
@@ -855,8 +858,19 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     const auto &ua = std::get<orb::Promotion::UpgradeAction>(p.action);
     auto mo = static_cast<arm_atomic::MemoryOrder>(ua.targetMemoryOrder);
 
-    if (isa<arm_atomic::AtomicLoadOp>(ua.op)) {
-      uint64_t loadId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
+    // Resolve the current op via the matrix — ua.op may be stale if a ptr op
+    // was replaced by an arm_atomic op in applyPromotion.
+    Operation *curOpA = mb.getOpForId(idA);
+    Operation *curOpB = mb.getOpForId(idB);
+
+    if (isa<arm_atomic::AtomicLoadOp>(curOpA) || isa<arm_atomic::AtomicLoadOp>(curOpB)) {
+      // Determine which event is the upgraded load.
+      uint64_t loadId;
+      if (isa<arm_atomic::AtomicLoadOp>(curOpA) &&
+          getArmMemoryOrder(curOpA) == mo)
+        loadId = idA;
+      else
+        loadId = idB;
       // [A|Q];po
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(loadId, x);
@@ -872,8 +886,13 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
             mb.markOrdered(x, loadId);
         }
       }
-    } else if (isa<arm_atomic::AtomicStoreOp>(ua.op)) {
-      uint64_t storeId = (ua.op == mb.getOpForId(idA)) ? idA : idB;
+    } else if (isa<arm_atomic::AtomicStoreOp>(curOpA) || isa<arm_atomic::AtomicStoreOp>(curOpB)) {
+      uint64_t storeId;
+      if (isa<arm_atomic::AtomicStoreOp>(curOpA) &&
+          getArmMemoryOrder(curOpA) == mo)
+        storeId = idA;
+      else
+        storeId = idB;
       // po;[L]
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(x, storeId);
@@ -886,9 +905,10 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
             xmo == arm_atomic::MemoryOrder::AcqRel)
           mb.markOrdered(storeId, x);
       }
-    } else {
+    } else if (isa<arm_atomic::AtomicFenceOp>(curOpA) || isa<arm_atomic::AtomicFenceOp>(curOpB)) {
       // Fence upgrade (endpoint or intermediate).
-      auto fIdAttr = ua.op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
+      Operation *fenceOp = isa<arm_atomic::AtomicFenceOp>(curOpA) ? curOpA : curOpB;
+      auto fIdAttr = fenceOp->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
       assert(fIdAttr && "upgraded fence must have orb.event_id");
       uint64_t fId = fIdAttr.getInt();
       mb.applyFenceUpgrade(mb.idxOf(fId), this, aa, dom, postDom, reach);
