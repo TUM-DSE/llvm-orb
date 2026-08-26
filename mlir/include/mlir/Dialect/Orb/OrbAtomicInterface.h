@@ -157,6 +157,9 @@ public:
   /// Count cells with a given order value.
   unsigned countCells(EventOrder order) const;
 
+  /// Update the Operation* for a given event ID (after op replacement).
+  void updateOpForId(uint64_t id, Operation *op);
+
   /// Set the required-pair set for incremental ordered/overspecified tracking.
   void setRequiredSet(
       const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *s) {
@@ -308,8 +311,10 @@ public:
   }
   virtual int cost(const Promotion &p, const CostContext &ctx) const = 0;
   /// FenceAction: creates and returns the fence op. UpgradeAction: mutates in-place, returns nullptr.
+  /// When mb is provided, ptr ops converted to arm_atomic ops update idToOp.
   virtual Operation *applyPromotion(const Promotion &p,
-                                    OpBuilder &builder) const = 0;
+                                    OpBuilder &builder,
+                                    OrderMatrix *mb = nullptr) const = 0;
   /// Update `mb` to reflect all new orderings introduced by `p`.
   /// For FenceAction, `newOp` is the op returned by applyPromotion() with its
   /// orb.event_id already set. For UpgradeAction, `newOp` is nullptr.

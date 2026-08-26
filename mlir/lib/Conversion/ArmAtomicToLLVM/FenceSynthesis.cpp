@@ -370,7 +370,7 @@ struct FenceSynthesisPass
         log() << "iter=" << iteration << " (" << idA << "," << idB
                      << ") empty\n";
 
-      Operation *newOp = iface->applyPromotion(bestPromotion, builder);
+      Operation *newOp = iface->applyPromotion(bestPromotion, builder, &mb);
       if (newOp) {
         uint64_t newId = nextSynthId++;
         newOp->setAttr(orb::kEventIdAttr,

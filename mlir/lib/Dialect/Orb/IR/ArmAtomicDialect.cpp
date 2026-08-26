@@ -430,7 +430,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     // --- Access upgrades ---
 
     // [A|Q];po — load a → ACQPC (LDAPR, cheap) or ACQ (LDAR).
-    if (isa<arm_atomic::AtomicLoadOp>(a)) {
+    if (isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a)) {
       auto mo = getArmMemoryOrder(a);
       if (mo == arm_atomic::MemoryOrder::Relaxed) {
         options.push_back(
@@ -444,7 +444,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     }
 
     // po;[L] — store b → REL (STLR).
-    if (isa<arm_atomic::AtomicStoreOp>(b)) {
+    if (isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b)) {
       auto mo = getArmMemoryOrder(b);
       if (mo != arm_atomic::MemoryOrder::Release &&
           mo != arm_atomic::MemoryOrder::AcqRel)
@@ -454,7 +454,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
     // store a, load b → [L];po;[A] (STLR→LDAR ordering).
     // ACQPC (LDAPR) is NOT sufficient — [L];po;[A] requires full ACQ (LDAR).
-    if (isa<arm_atomic::AtomicStoreOp>(a) && isa<arm_atomic::AtomicLoadOp>(b)) {
+    if (isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(a) &&
+        isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(b)) {
       auto moA = getArmMemoryOrder(a);
       auto moB = getArmMemoryOrder(b);
       bool aIsREL = moA == arm_atomic::MemoryOrder::Release ||
@@ -693,8 +694,56 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     }
   }
 
+  /// Convert a ptr::LoadOp/StoreOp to arm_atomic equivalent with the given
+  /// memory order, or just set the memory order if already arm_atomic.
+  /// Updates the OrderMatrix idToOp mapping. Returns the (possibly new) op.
+  Operation *upgradeOp(Operation *op, arm_atomic::MemoryOrder mo,
+                       OpBuilder &builder, orb::OrderMatrix *mb) const {
+    if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(op)) {
+      load.setMemoryOrder(mo);
+      return op;
+    }
+    if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(op)) {
+      store.setMemoryOrder(mo);
+      return op;
+    }
+    if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(op)) {
+      fence.setMemoryOrder(mo);
+      return op;
+    }
+    // Convert ptr op → arm_atomic op.
+    Attribute eventId = op->getAttr(orb::kEventIdAttr);
+    Operation *newOp = nullptr;
+    if (auto ptrLoad = dyn_cast<ptr::LoadOp>(op)) {
+      builder.setInsertionPoint(ptrLoad);
+      auto created = arm_atomic::AtomicLoadOp::create(
+          builder, ptrLoad.getLoc(), ptrLoad.getResult().getType(),
+          ptrLoad.getPtr(), mo, /*alignment=*/0, /*isDeref=*/false,
+          /*is_volatile=*/ptrLoad.getVolatile_());
+      ptrLoad.replaceAllUsesWith(created.getResult());
+      newOp = created;
+    } else if (auto ptrStore = dyn_cast<ptr::StoreOp>(op)) {
+      builder.setInsertionPoint(ptrStore);
+      auto created = arm_atomic::AtomicStoreOp::create(
+          builder, ptrStore.getLoc(), ptrStore.getValue(), ptrStore.getPtr(),
+          mo, /*alignment=*/0, /*is_volatile=*/ptrStore.getVolatile_());
+      newOp = created;
+    }
+    if (newOp) {
+      if (eventId)
+        newOp->setAttr(orb::kEventIdAttr, eventId);
+      if (mb && eventId) {
+        uint64_t id = cast<IntegerAttr>(eventId).getInt();
+        mb->updateOpForId(id, newOp);
+      }
+      op->erase();
+    }
+    return newOp;
+  }
+
   Operation *applyPromotion(const orb::Promotion &p,
-                            OpBuilder &builder) const override {
+                            OpBuilder &builder,
+                            orb::OrderMatrix *mb) const override {
     if (std::get_if<orb::Promotion::EmptyUpgradeAction>(&p.action))
       return nullptr;
     if (const auto *fa =
@@ -707,23 +756,16 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     }
     if (const auto *pa =
             std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
-      if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(pa->op1))
-        store.setMemoryOrder(
-            static_cast<arm_atomic::MemoryOrder>(pa->targetMemoryOrder1));
-      if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(pa->op2))
-        load.setMemoryOrder(
-            static_cast<arm_atomic::MemoryOrder>(pa->targetMemoryOrder2));
+      auto mo1 = static_cast<arm_atomic::MemoryOrder>(pa->targetMemoryOrder1);
+      auto mo2 = static_cast<arm_atomic::MemoryOrder>(pa->targetMemoryOrder2);
+      upgradeOp(pa->op1, mo1, builder, mb);
+      upgradeOp(pa->op2, mo2, builder, mb);
       return nullptr;
     }
     if (const auto *ua =
             std::get_if<orb::Promotion::UpgradeAction>(&p.action)) {
       auto mo = static_cast<arm_atomic::MemoryOrder>(ua->targetMemoryOrder);
-      if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(ua->op))
-        load.setMemoryOrder(mo);
-      else if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(ua->op))
-        store.setMemoryOrder(mo);
-      else if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(ua->op))
-        fence.setMemoryOrder(mo);
+      upgradeOp(ua->op, mo, builder, mb);
     }
     return nullptr;
   }

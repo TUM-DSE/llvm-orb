@@ -263,7 +263,8 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   int cost(const orb::Promotion &, const orb::CostContext &) const override {
     llvm_unreachable("CppAtomic is never the synthesis target");
   }
-  Operation *applyPromotion(const orb::Promotion &, OpBuilder &) const override {
+  Operation *applyPromotion(const orb::Promotion &, OpBuilder &,
+                            orb::OrderMatrix *) const override {
     llvm_unreachable("CppAtomic is never the synthesis target");
   }
   void updateOrderMatrix(const orb::Promotion &, Operation *, uint64_t, uint64_t,

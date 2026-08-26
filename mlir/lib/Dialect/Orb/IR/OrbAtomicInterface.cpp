@@ -85,6 +85,11 @@ unsigned OrderMatrix::countCells(EventOrder order) const {
   return llvm::count(matrix, order);
 }
 
+void OrderMatrix::updateOpForId(uint64_t id, Operation *op) {
+  if (id < idToOp.size())
+    idToOp[id] = op;
+}
+
 void OrderMatrix::markOrdered(uint64_t idA, uint64_t idB) {
   if (idA >= idToIdx.size() || idB >= idToIdx.size())
     return;
