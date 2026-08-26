@@ -844,7 +844,6 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     // by arm_atomic ops in applyPromotion.
     if (std::get_if<orb::Promotion::PairUpgradeAction>(&p.action)) {
       Operation *opA = mb.getOpForId(idA);
-      Operation *opB = mb.getOpForId(idB);
       uint64_t storeId = isa<arm_atomic::AtomicStoreOp>(opA) ? idA : idB;
       uint64_t loadId  = isa<arm_atomic::AtomicLoadOp>(opA) ? idA : idB;
       for (uint64_t x : mb.eventIds())
@@ -905,10 +904,10 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
             xmo == arm_atomic::MemoryOrder::AcqRel)
           mb.markOrdered(storeId, x);
       }
-    } else if (isa<arm_atomic::AtomicFenceOp>(curOpA) || isa<arm_atomic::AtomicFenceOp>(curOpB)) {
-      // Fence upgrade (endpoint or intermediate).
-      Operation *fenceOp = isa<arm_atomic::AtomicFenceOp>(curOpA) ? curOpA : curOpB;
-      auto fIdAttr = fenceOp->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
+    } else if (isa<arm_atomic::AtomicFenceOp>(ua.op)) {
+      // Fence upgrade (endpoint or intermediate) — ua.op is always valid
+      // for fences since they are never converted from ptr ops.
+      auto fIdAttr = ua.op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
       assert(fIdAttr && "upgraded fence must have orb.event_id");
       uint64_t fId = fIdAttr.getInt();
       mb.applyFenceUpgrade(mb.idxOf(fId), this, aa, dom, postDom, reach);
