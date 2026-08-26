@@ -716,17 +716,34 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     Operation *newOp = nullptr;
     if (auto ptrLoad = dyn_cast<ptr::LoadOp>(op)) {
       builder.setInsertionPoint(ptrLoad);
+      // Use existing alignment or natural alignment (type bit width / 8).
+      uint64_t align = ptrLoad.getAlignment().value_or(0);
+      if (!align) {
+        auto ty = ptrLoad.getResult().getType();
+        if (auto intTy = dyn_cast<IntegerType>(ty))
+          align = intTy.getWidth() / 8;
+        else
+          align = 8; // pointer-sized default on AArch64
+      }
       auto created = arm_atomic::AtomicLoadOp::create(
           builder, ptrLoad.getLoc(), ptrLoad.getResult().getType(),
-          ptrLoad.getPtr(), mo, /*alignment=*/0, /*isDeref=*/false,
+          ptrLoad.getPtr(), mo, align, /*isDeref=*/false,
           /*is_volatile=*/ptrLoad.getVolatile_());
       ptrLoad.replaceAllUsesWith(created.getResult());
       newOp = created;
     } else if (auto ptrStore = dyn_cast<ptr::StoreOp>(op)) {
       builder.setInsertionPoint(ptrStore);
+      uint64_t align = ptrStore.getAlignment().value_or(0);
+      if (!align) {
+        auto ty = ptrStore.getValue().getType();
+        if (auto intTy = dyn_cast<IntegerType>(ty))
+          align = intTy.getWidth() / 8;
+        else
+          align = 8;
+      }
       auto created = arm_atomic::AtomicStoreOp::create(
           builder, ptrStore.getLoc(), ptrStore.getValue(), ptrStore.getPtr(),
-          mo, /*alignment=*/0, /*is_volatile=*/ptrStore.getVolatile_());
+          mo, align, /*is_volatile=*/ptrStore.getVolatile_());
       newOp = created;
     }
     if (newOp) {
