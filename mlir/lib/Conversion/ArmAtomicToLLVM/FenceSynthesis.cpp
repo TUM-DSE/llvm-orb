@@ -8,6 +8,7 @@
 
 #include "mlir/Conversion/ArmAtomicToLLVM/FenceSynthesis.h"
 #include "mlir/Analysis/AliasAnalysis.h"
+#include "mlir/Dialect/Orb/ArmAtomicDialect.h"
 #include "mlir/Analysis/CFGLoopInfo.h"
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
 #include "mlir/IR/Builders.h"
@@ -433,6 +434,22 @@ struct FenceSynthesisPass
       log() << "  quiescent: " << sat << " satisfied, " << unsat << " unsatisfied\n";
       log() << "=== End post-synthesis ===\n";
     }
+
+    // Turn remaining Relaxed fences into compiler barriers (singlethread
+    // syncscope). Per-access upgrades (LDAPR/STLR) satisfy ordering pairs but
+    // don't act as compiler barriers — LLVM O3 may reorder surrounding code.
+    // A singlethread fence prevents compiler reordering without emitting a
+    // hardware barrier.
+    unsigned compilerBarriers = 0;
+    module.walk([&](arm_atomic::AtomicFenceOp fenceOp) {
+      if (fenceOp.getMemoryOrder() == arm_atomic::MemoryOrder::Relaxed) {
+        fenceOp.setSyncscopeAttr(
+            StringAttr::get(fenceOp.getContext(), "singlethread"));
+        ++compilerBarriers;
+      }
+    });
+    if (compilerBarriers)
+      log() << "compiler-barriers=" << compilerBarriers << "\n";
   }
 };
 

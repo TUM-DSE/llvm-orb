@@ -117,7 +117,16 @@ struct AtomicFenceLowering
                   ConversionPatternRewriter &rewriter) const override {
     
     if (op.getMemoryOrder() == arm_atomic::MemoryOrder::Relaxed) {
-      rewriter.eraseOp(op);
+      if (auto syncscope = op.getSyncscope()) {
+        // Relaxed fence with syncscope = compiler barrier (no hardware fence).
+        // Use AcqRel ordering with singlethread syncscope so LLVM treats it
+        // as a compiler-only barrier that prevents reordering.
+        auto fence = rewriter.replaceOpWithNewOp<LLVM::FenceOp>(
+            op, LLVM::AtomicOrdering::acq_rel);
+        fence.setSyncscope(*syncscope);
+      } else {
+        rewriter.eraseOp(op);
+      }
       return success();
     }
 
