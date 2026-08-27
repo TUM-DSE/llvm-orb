@@ -62,10 +62,10 @@ convertCIRFenceOrder(cir::MemOrder order) {
       return cpp_atomic::MemoryOrder::Acquire;
     case cir::MemOrder::Release:
       return cpp_atomic::MemoryOrder::Release;
+    case cir::MemOrder::AcquireRelease:
+      return cpp_atomic::MemoryOrder::AcqRel;
     case cir::MemOrder::SequentiallyConsistent:
       return cpp_atomic::MemoryOrder::SeqCst;
-    default:
-    llvm_unreachable("unknown CIR MemOrder");
   }
 }
 
