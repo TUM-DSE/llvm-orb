@@ -416,6 +416,11 @@ mlir::orb::OrderAnalysis::OrderAnalysis(Operation *op, AnalysisManager &am) {
   unsigned crossIterOnly = 0;
   for (uint64_t idA : matrix.eventIds())
     for (uint64_t idB : matrix.eventIds()) {
+      // Fence-to-fence pairs are never required — fences provide ordering
+      // for memory accesses, they don't need ordering between each other.
+      if (iface && iface->isFenceEvent(matrix.getOpForId(idA)) &&
+          iface->isFenceEvent(matrix.getOpForId(idB)))
+        continue;
       if (matrix.getOrder(idA, idB) == EventOrder::Ordered)
         pairs.emplace_back(idA, idB);
       else if (matrix.getCrossIterOrder(idA, idB) == EventOrder::Ordered) {

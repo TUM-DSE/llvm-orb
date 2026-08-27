@@ -308,6 +308,16 @@ struct FenceSynthesisPass
                            mb.numEvents()};
       auto promotions = iface->promote(idA, a, idB, b);
 
+      // When either endpoint is a fence, inserting a NEW fence is never
+      // correct — the only valid fix is upgrading the existing fence
+      // endpoint.  At AcqRel a fence orders everything before/after it.
+      bool endpointIsFence = iface->isFenceEvent(a) || iface->isFenceEvent(b);
+      if (endpointIsFence) {
+        llvm::erase_if(promotions, [](const orb::Promotion &p) {
+          return std::holds_alternative<orb::Promotion::FenceAction>(p.action);
+        });
+      }
+
       // Intermediate fence upgrades via precomputed BitVectors.
       unsigned aIdx = mb.idxOf(idA), bIdx = mb.idxOf(idB);
       auto betweenFences = mb.fencesBetween(aIdx, bIdx);
