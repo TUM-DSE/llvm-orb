@@ -195,8 +195,17 @@ static void emitDeclDestroy(CIRGenFunction &cgf, const VarDecl *vd,
     mlir::Value globalVal = builder.createGetGlobal(addr);
     globalVal.getDefiningOp<cir::GetGlobalOp>().setStaticLocal(
         addr.getStaticLocalGuard().has_value());
+    // The global may have been created with a narrowed type (e.g. due to a
+    // constant initializer fixing the active union member).  Bitcast to the
+    // declared variable type so that emitDestroy receives the expected type.
+    mlir::Type realVarTy = cgf.convertTypeForMem(type);
+    cir::PointerType realPtrTy = cir::PointerType::get(
+        realVarTy,
+        mlir::cast<cir::PointerType>(globalVal.getType()).getAddrSpace());
+    if (realPtrTy != globalVal.getType())
+      globalVal = builder.createBitcast(globalVal.getLoc(), globalVal, realPtrTy);
     CharUnits alignment = cgf.getContext().getDeclAlign(vd);
-    Address globalAddr{globalVal, cgf.convertTypeForMem(type), alignment};
+    Address globalAddr{globalVal, realVarTy, alignment};
     cgf.emitDestroy(globalAddr, type, cgf.getDestroyer(dtorKind));
   }
 
