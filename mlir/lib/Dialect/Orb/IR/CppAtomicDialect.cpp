@@ -221,6 +221,8 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       }
     }
 
+    if (isa<cpp_atomic::AtomicFenceOp>(a) && isa<cpp_atomic::AtomicFenceOp>(b))
+      return orb::EventOrder::Unreachable;
     if (isa<cpp_atomic::AtomicFenceOp>(a))
       return tryOrderFromFence(a, b);
     if (isa<cpp_atomic::AtomicFenceOp>(b))

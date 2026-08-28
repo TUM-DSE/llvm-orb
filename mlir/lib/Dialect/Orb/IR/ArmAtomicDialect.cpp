@@ -339,6 +339,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       }
     }
 
+    if (isa<arm_atomic::AtomicFenceOp>(a) && isa<arm_atomic::AtomicFenceOp>(b))
+      return orb::EventOrder::Unreachable;
     if (isa<arm_atomic::AtomicFenceOp>(a) || isa<arm_atomic::AtomicFenceOp>(b))
       return tryOrderBob2(a, b);
 

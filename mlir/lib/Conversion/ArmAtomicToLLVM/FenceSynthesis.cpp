@@ -308,11 +308,9 @@ struct FenceSynthesisPass
                            mb.numEvents()};
       auto promotions = iface->promote(idA, a, idB, b);
 
-      // When either endpoint is a fence, inserting a NEW fence is never
-      // correct — the only valid fix is upgrading the existing fence
-      // endpoint.  At AcqRel a fence orders everything before/after it.
-      bool endpointIsFence = iface->isFenceEvent(a) || iface->isFenceEvent(b);
-      if (endpointIsFence) {
+      // When an endpoint is a fence, don't insert a NEW fence next to it —
+      // the existing fence should be upgraded instead.
+      if (iface->isFenceEvent(a) || iface->isFenceEvent(b)) {
         llvm::erase_if(promotions, [](const orb::Promotion &p) {
           return std::holds_alternative<orb::Promotion::FenceAction>(p.action);
         });
@@ -356,8 +354,11 @@ struct FenceSynthesisPass
         }
       }
       if (bestScore == std::numeric_limits<int>::max()) {
-        log() << "no promotion for (" << idA << "," << idB << ")\n";
-        break;
+        log() << "FATAL: no promotion for (" << idA << "," << idB
+              << ") a=" << a->getName().getStringRef()
+              << " b=" << b->getName().getStringRef() << "\n";
+        signalPassFailure();
+        return;
       }
 
       // Log and apply.
