@@ -242,7 +242,8 @@ private:
       return;
     unsigned origA = aIdx / 2;
     unsigned origB = bIdx / 2;
-    if (origA == origB)
+    // Self-pairs are only meaningful for cross-iteration (even,odd).
+    if (origA == origB && bIdx % 2 == 0)
       return;
     auto pair = std::make_pair(ids[origA], ids[origB]);
     bool isRequired = requiredSet->count(pair);
