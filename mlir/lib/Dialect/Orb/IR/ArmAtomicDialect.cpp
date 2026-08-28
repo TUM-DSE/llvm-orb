@@ -423,6 +423,12 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
                                             Operation *b) const override {
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return {};
+
+    // If the pair is already ordered (e.g. fence upgraded by a prior
+    // iteration), return an empty promotion so the caller doesn't fail.
+    if (tryOrderBob2(a, b) == orb::EventOrder::Ordered)
+      return {{orb::Promotion::EmptyUpgradeAction{}}};
+
     llvm::SmallVector<orb::Promotion> options;
 
     bool aIsRead  = isa<arm_atomic::AtomicLoadOp, ptr::LoadOp>(a);
