@@ -9,6 +9,7 @@
 #include "mlir/Conversion/ArmAtomicToLLVM/FenceSynthesis.h"
 #include "mlir/Analysis/AliasAnalysis.h"
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h"
+#include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/Analysis/CFGLoopInfo.h"
 #include "mlir/Dialect/Orb/OrbAtomicInterface.h"
 #include "mlir/IR/Builders.h"
@@ -331,6 +332,25 @@ struct FenceSynthesisPass
       return 0;
     };
 
+    // Sort required pairs: non-plain access pairs first, fence pairs second,
+    // plain-plain pairs last. This ensures tie-breaking favors atomic pairs.
+    auto sortedPairs = llvm::to_vector(required.requiredPairs());
+    auto pairPriority = [&](const std::pair<uint64_t, uint64_t> &p) -> int {
+      Operation *a = mb.getOpForId(p.first);
+      Operation *b = mb.getOpForId(p.second);
+      if (!a || !b) return 3;
+      bool aPlain = isa<ptr::LoadOp, ptr::StoreOp>(a);
+      bool bPlain = isa<ptr::LoadOp, ptr::StoreOp>(b);
+      bool aFence = iface->isFenceEvent(a);
+      bool bFence = iface->isFenceEvent(b);
+      if (!aPlain && !bPlain && !aFence && !bFence) return 0; // atomic-atomic
+      if (aFence || bFence) return 1;                         // fence endpoint
+      return 2;                                               // plain-plain
+    };
+    llvm::sort(sortedPairs, [&](const auto &a, const auto &b) {
+      return pairPriority(a) < pairPriority(b);
+    });
+
     // Greedy loop: evaluate ALL unsatisfied pairs each iteration and pick
     // the promotion with the best waste-adjusted cost.
     unsigned iteration = 0;
@@ -342,7 +362,7 @@ struct FenceSynthesisPass
       int64_t bestEffective = INT64_MAX;
       bool anyUnsatisfied = false;
 
-      for (auto [idA, idB] : required.requiredPairs()) {
+      for (auto [idA, idB] : sortedPairs) {
         if (mb.isOrdered(idA, idB))
           continue;
         anyUnsatisfied = true;
@@ -400,7 +420,7 @@ struct FenceSynthesisPass
 
           int hwCost = iface->cost(p, ctx);
           unsigned waste = estimateWaste(p);
-          int64_t effective = (int64_t)hwCost + 50LL * (int64_t)waste;
+          int64_t effective = (int64_t)hwCost + 500LL * (int64_t)waste;
           if (effective < bestEffective) {
             bestEffective = effective;
             bestPromotion = p;
