@@ -99,8 +99,6 @@ static bool interprocedurallyReaches(
   llvm::errs() << "IPR: from \n";
   while (!worklist.empty() && steps < kMaxSteps) {
     Value v = worklist.pop_back_val();
-    llvm::errs() << "v @ " << v.getLoc() << "\n";
-    v.dump();
     if (!visited.insert(v).second)
       continue;
     ++steps;
@@ -115,10 +113,8 @@ static bool interprocedurallyReaches(
       // Cross function boundary: return op → call results at call sites.
       if (isa<cir::ReturnOp>(user)) {
         Region *calleeRegion = user->getParentRegion();
-        llvm::errs() << "RET\n";
         auto callersIt = reach.callersOf.find(calleeRegion);
         if (callersIt != reach.callersOf.end()) {
-          llvm::errs() << "Caller\n";
           for (Region *callerR : callersIt->second) {
             auto it = reach.directCalls.find({callerR, calleeRegion});
             if (it == reach.directCalls.end())
@@ -861,7 +857,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return orb::EventOrder::Ordered;
 
     // ctrl;[W]: a's result reaches a branch before store b
-    if (isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b) &&
+    if (isa<arm_atomic::AtomicLoadOp>(a) && isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b) &&
         interprocedurallyReaches(sources, Value{}, b, reach, dom)) {
       llvm::errs() << "[CTRL] " << a->getName() << " @ " << a->getLoc() << " : " << b->getName() << " @ " << b->getLoc();
       return orb::EventOrder::Ordered;
