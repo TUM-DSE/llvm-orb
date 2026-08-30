@@ -10,6 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "clang/CIR/Dialect/IR/CIRDialect.h"
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h"
 #include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/Interfaces/CallInterfaces.h"
@@ -89,14 +90,17 @@ static bool transitivelyReaches(ValueRange sources, Value target, Operation *b,
 /// (ctrl dependency, when target is null).
 static bool interprocedurallyReaches(
     ValueRange sources, Value target, Operation *targetOp,
-    const orb::CallReachability &reach) {
+    const orb::CallReachability &reach, DominanceInfo &dom) {
   constexpr int kMaxSteps = 512;
 
   llvm::SmallPtrSet<Value, 32> visited;
   llvm::SmallVector<Value> worklist(sources.begin(), sources.end());
   int steps = 0;
+  llvm::errs() << "IPR: from \n";
   while (!worklist.empty() && steps < kMaxSteps) {
     Value v = worklist.pop_back_val();
+    llvm::errs() << "v @ " << v.getLoc() << "\n";
+    v.dump();
     if (!visited.insert(v).second)
       continue;
     ++steps;
@@ -109,10 +113,12 @@ static bool interprocedurallyReaches(
         return true;
 
       // Cross function boundary: return op → call results at call sites.
-      if (user->hasTrait<OpTrait::ReturnLike>()) {
+      if (isa<cir::ReturnOp>(user)) {
         Region *calleeRegion = user->getParentRegion();
+        llvm::errs() << "RET\n";
         auto callersIt = reach.callersOf.find(calleeRegion);
         if (callersIt != reach.callersOf.end()) {
+          llvm::errs() << "Caller\n";
           for (Region *callerR : callersIt->second) {
             auto it = reach.directCalls.find({callerR, calleeRegion});
             if (it == reach.directCalls.end())
@@ -124,6 +130,42 @@ static bool interprocedurallyReaches(
         }
         continue;
       }
+
+      // Through one load-store hop
+      if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(user)) {
+        auto ptr = store.getAddr();
+        if (store.getValue() == v) {
+          if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(store->getNextNode()))
+            if (load.getAddr() == ptr)
+              worklist.push_back(load->getResult(0));
+          if (auto load = dyn_cast<ptr::LoadOp>(store->getNextNode()))
+            if (load.getPtr() == ptr)
+              worklist.push_back(load->getResult(0));
+        }
+      }
+      if (auto store = dyn_cast<ptr::StoreOp>(user)) {
+        auto ptr = store.getPtr();
+        if (store.getValue() == v) {
+          auto fun = store->getBlock()->getParent();
+          fun->walk([&](Operation *op) {
+            if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(op)) {
+              if (load.getAddr() == ptr && dom.dominates(store, load))
+                worklist.push_back(load->getResult(0));
+            }
+            if (auto load = dyn_cast<ptr::LoadOp>(op)) {
+              if (load.getPtr() == ptr && dom.dominates(store, load))
+                worklist.push_back(load->getResult(0));
+            }
+          });
+        }
+      }
+
+//      // Unrealized conversion cast must be special?
+//      if (auto cast = dyn_cast<mlir::UnrealizedConversionCastOp>(user)) {
+//        worklist.push_back(cast->getResult(0));
+//        continue;
+//      }
+//
 
       // Cross function boundary: call op → callee entry block args.
       // v is used as an operand of this call — push the matching block arg.
@@ -808,20 +850,22 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
     // addr dep: a's result reaches b's address operand
     Value addr = getMemoryAddress(b);
-    if (addr && interprocedurallyReaches(sources, addr, b, reach))
+    if (addr && interprocedurallyReaches(sources, addr, b, reach, dom))
       return orb::EventOrder::Ordered;
 
     // data dep: a's result reaches store b's value operand
     Value data;
     if (auto op = dyn_cast<arm_atomic::AtomicStoreOp>(b)) data = op.getValue();
     else if (auto op = dyn_cast<ptr::StoreOp>(b))         data = op.getValue();
-    if (data && interprocedurallyReaches(sources, data, b, reach))
+    if (data && interprocedurallyReaches(sources, data, b, reach, dom))
       return orb::EventOrder::Ordered;
 
     // ctrl;[W]: a's result reaches a branch before store b
     if (isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b) &&
-        interprocedurallyReaches(sources, Value{}, b, reach))
+        interprocedurallyReaches(sources, Value{}, b, reach, dom)) {
+      llvm::errs() << "[CTRL] " << a->getName() << " @ " << a->getLoc() << " : " << b->getName() << " @ " << b->getLoc();
       return orb::EventOrder::Ordered;
+    }
 
     return orb::EventOrder::Unordered;
   }
