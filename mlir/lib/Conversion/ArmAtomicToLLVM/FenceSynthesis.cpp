@@ -474,7 +474,7 @@ struct FenceSynthesisPass
         unsigned fOrigIdx = mb.idxOf(newId);
         mb.addIntermediateFence(fOrigIdx, iface, dom, postDom, reach);
         mb.markOrdered(bestIdA, bestIdB);
-        mb.closeTransitively(iface);
+        mb.closeTransitively(iface,2);
         ++iteration;
         {
           auto [c, o] = mb.orderedCounts();
@@ -485,7 +485,7 @@ struct FenceSynthesisPass
       }
       iface->updateOrderMatrix(bestPromotion, newOp, bestIdA, bestIdB,
                                mb, aa, dom, postDom, reach);
-      mb.closeTransitively(iface);
+      mb.closeTransitively(iface,2);
       ++iteration;
       {
         auto [c, o] = mb.orderedCounts();
