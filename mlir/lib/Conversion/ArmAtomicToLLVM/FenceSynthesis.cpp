@@ -376,7 +376,7 @@ struct FenceSynthesisPass
                              colPressure[idB], colReadPressure[idB],
                              colWritePressure[idB], fenceCostBase,
                              mb.numEvents()};
-        auto promotions = iface->promote(idA, a, idB, b);
+        auto promotions = iface->promote(idA, a, idB, b, mb);
 
         // When an endpoint is a fence, don't insert a NEW fence next to it.
         if (iface->isFenceEvent(a) || iface->isFenceEvent(b)) {

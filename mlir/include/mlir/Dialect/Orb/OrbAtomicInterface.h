@@ -303,7 +303,8 @@ public:
                                           Operation *b) const = 0;
   virtual llvm::SmallVector<Promotion> promote(uint64_t idA, Operation *a,
                                                uint64_t idB,
-                                               Operation *b) const = 0;
+                                               Operation *b,
+                                               const OrderMatrix &mb) const = 0;
   /// Upgrade options for intermediate fence `f` between events `a` and `b`.
   virtual llvm::SmallVector<Promotion> promoteViaFence(Operation *a,
                                                         Operation *f,

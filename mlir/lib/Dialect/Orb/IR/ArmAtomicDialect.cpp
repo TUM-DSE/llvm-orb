@@ -458,7 +458,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   ///   DMB LD: [R];po;[*]   DMB ST: [W];po;[W]   DMB SY: [*];po;[*]
   llvm::SmallVector<orb::Promotion> promote(uint64_t idA, Operation *a,
                                             uint64_t idB,
-                                            Operation *b) const override {
+                                            Operation *b,
+                                            const orb::OrderMatrix &mb) const override {
     if (!isMemoryEvent(a) || !isMemoryEvent(b))
       return {};
 
@@ -540,8 +541,22 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       auto curMO = fence.getMemoryOrder();
       llvm::SmallVector<arm_atomic::MemoryOrder, 3> candidates;
       if (isFenceA) {
-        // [F&ACQ];po — any b
-        candidates.push_back(arm_atomic::MemoryOrder::Acquire);
+        // [F&ACQ];po — only valid if no required (store → fence) pairs exist,
+        // because dmb ishld (acquire fence) only orders reads before the barrier.
+        bool hasStorePred = false;
+        for (uint64_t otherId : mb.eventIds()) {
+          if (otherId == idA)
+            continue;
+          if (!mb.isOrdered(otherId, idA)) {
+            Operation *other = mb.getOpForId(otherId);
+            if (other && isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(other)) {
+              hasStorePred = true;
+              break;
+            }
+          }
+        }
+        if (!hasStorePred)
+          candidates.push_back(arm_atomic::MemoryOrder::Acquire);
         // [F&REL];po;[W] — only if b is Write
         if (bIsWrite)
           candidates.push_back(arm_atomic::MemoryOrder::Release);

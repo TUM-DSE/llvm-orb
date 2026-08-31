@@ -259,7 +259,8 @@ struct CppAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
   }
 
   llvm::SmallVector<orb::Promotion> promote(uint64_t, Operation *, uint64_t,
-                                            Operation *) const override {
+                                            Operation *,
+                                            const orb::OrderMatrix &) const override {
     llvm_unreachable("CppAtomic is never the synthesis target");
   }
   int cost(const orb::Promotion &, const orb::CostContext &) const override {
