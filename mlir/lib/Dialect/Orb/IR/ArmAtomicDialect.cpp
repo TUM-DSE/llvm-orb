@@ -547,7 +547,7 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
         for (uint64_t otherId : mb.eventIds()) {
           if (otherId == idA)
             continue;
-          if (!mb.isOrdered(otherId, idA)) {
+          if (mb.isRequired(otherId, idA)) {
             Operation *other = mb.getOpForId(otherId);
             if (other && isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(other)) {
               hasStorePred = true;

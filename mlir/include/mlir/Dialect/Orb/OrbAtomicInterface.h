@@ -182,6 +182,11 @@ public:
     return {coveredCount, overspecifiedCount};
   }
 
+  /// True if (idA, idB) is in the required-pair set.
+  bool isRequired(uint64_t idA, uint64_t idB) const {
+    return requiredSet && requiredSet->count({idA, idB});
+  }
+
   /// Set (idA, idB) to Ordered if currently Unordered; no-op otherwise.
   void markOrdered(uint64_t idA, uint64_t idB);
   void addFence(Operation *f, const OrbAtomicDialectInterface *iface,
