@@ -401,7 +401,8 @@ struct FenceSynthesisPass
             promotions.push_back({orb::Promotion::EmptyUpgradeAction{}});
             break;
           }
-          for (auto &fp : iface->promoteViaFence(a, fOp, b))
+          for (auto &fp : iface->promoteViaFence(a, fOp, b,
+                                                   mb.eventIds()[fEvIdx], mb))
             promotions.push_back(fp);
         }
 

@@ -612,7 +612,9 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
   llvm::SmallVector<orb::Promotion> promoteViaFence(Operation *a,
                                                      Operation *f,
-                                                     Operation *b) const override {
+                                                     Operation *b,
+                                                     uint64_t fenceId,
+                                                     const orb::OrderMatrix &mb) const override {
     auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(f);
     if (!fence)
       return {};
@@ -641,9 +643,25 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
 
     llvm::SmallVector<orb::Promotion> options;
     // Acquire fence: orders Read→X (getOrderThroughFence rule 3&4)
-    if (isStronger(curMO, arm_atomic::MemoryOrder::Acquire) && aIsRead)
-      options.push_back(
-          {orb::Promotion::UpgradeAction{f, (int)arm_atomic::MemoryOrder::Acquire}});
+    // Only valid if no required (store → fence) pairs exist,
+    // because dmb ishld (acquire fence) only orders reads before the barrier.
+    if (isStronger(curMO, arm_atomic::MemoryOrder::Acquire) && aIsRead) {
+      bool hasStorePred = false;
+      for (uint64_t otherId : mb.eventIds()) {
+        if (otherId == fenceId)
+          continue;
+        if (mb.isRequired(otherId, fenceId)) {
+          Operation *other = mb.getOpForId(otherId);
+          if (other && isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(other)) {
+            hasStorePred = true;
+            break;
+          }
+        }
+      }
+      if (!hasStorePred)
+        options.push_back(
+            {orb::Promotion::UpgradeAction{f, (int)arm_atomic::MemoryOrder::Acquire}});
+    }
     // Release fence: orders Write→Write (rule 5&6)
     if (isStronger(curMO, arm_atomic::MemoryOrder::Release) && aIsWrite && bIsWrite)
       options.push_back(

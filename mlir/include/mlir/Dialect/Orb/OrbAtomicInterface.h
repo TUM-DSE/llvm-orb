@@ -313,7 +313,9 @@ public:
   /// Upgrade options for intermediate fence `f` between events `a` and `b`.
   virtual llvm::SmallVector<Promotion> promoteViaFence(Operation *a,
                                                         Operation *f,
-                                                        Operation *b) const {
+                                                        Operation *b,
+                                                        uint64_t fenceId,
+                                                        const OrderMatrix &mb) const {
     return {};
   }
   virtual int cost(const Promotion &p, const CostContext &ctx) const = 0;
