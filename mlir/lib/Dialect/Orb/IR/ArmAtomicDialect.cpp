@@ -96,7 +96,6 @@ static bool interprocedurallyReaches(
   llvm::SmallPtrSet<Value, 32> visited;
   llvm::SmallVector<Value> worklist(sources.begin(), sources.end());
   int steps = 0;
-  llvm::errs() << "IPR: from \n";
   while (!worklist.empty() && steps < kMaxSteps) {
     Value v = worklist.pop_back_val();
     if (!visited.insert(v).second)
@@ -165,7 +164,7 @@ static bool interprocedurallyReaches(
 
       // Cross function boundary: call op → callee entry block args.
       // v is used as an operand of this call — push the matching block arg.
-      if (auto call = dyn_cast<CallOpInterface>(user)) {
+      if (auto call = dyn_cast<cir::CallOp>(user)) {
         auto symRef = dyn_cast_or_null<SymbolRefAttr>(
             call.getCallableForCallee());
         if (symRef) {
@@ -872,9 +871,8 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       return orb::EventOrder::Ordered;
 
     // ctrl;[W]: a's result reaches a branch before store b
-    if (isa<arm_atomic::AtomicLoadOp>(a) && isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b) &&
+    if (isa<arm_atomic::AtomicStoreOp, ptr::StoreOp>(b) &&
         interprocedurallyReaches(sources, Value{}, b, reach, dom)) {
-      llvm::errs() << "[CTRL] " << a->getName() << " @ " << a->getLoc() << " : " << b->getName() << " @ " << b->getLoc();
       return orb::EventOrder::Ordered;
     }
 
