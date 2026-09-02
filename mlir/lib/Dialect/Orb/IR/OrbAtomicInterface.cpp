@@ -177,6 +177,54 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
   applyFenceClosure(fOrigIdx, iface, dom, postDom, reach);
 }
 
+void OrderMatrix::precomputeTransitiveDominance(
+    const OrbAtomicDialectInterface *iface, DominanceInfo &dom,
+    PostDominanceInfo &postDom, const CallReachability &reach) {
+  transitivePostDomSource.assign(nEvents, llvm::BitVector(nEvents));
+  transitiveDomTargetDoubled.assign(nEvents, llvm::BitVector(n));
+  transitiveEventRegion.assign(n, nullptr);
+
+  // Build per-event region lookup (doubled indices).
+  for (unsigned i = 0; i < nEvents; ++i) {
+    Region *r = idToOp[ids[i]]->getBlock()->getParent();
+    transitiveEventRegion[2 * i] = r;
+    transitiveEventRegion[2 * i + 1] = r;
+  }
+
+  // For each non-fence event c, precompute which events it post-dominates
+  // and which events it dominates — only for cross-region pairs.
+  for (unsigned c = 0; c < nEvents; ++c) {
+    if (iface && iface->isFenceEvent(idToOp[ids[c]]))
+      continue;
+    Operation *cOp = idToOp[ids[c]];
+    Region *cRegion = cOp->getBlock()->getParent();
+
+    for (unsigned other = 0; other < nEvents; ++other) {
+      if (other == c)
+        continue;
+      Operation *otherOp = idToOp[ids[other]];
+      Region *otherRegion = otherOp->getBlock()->getParent();
+      if (cRegion == otherRegion)
+        continue; // same-region pairs don't need these checks
+
+      // c post-dominates other: c on all paths FROM other.
+      // Used as: if c post-dom a, then c executes whenever a does.
+      if (fencePostDominatesSource(cOp, otherOp, postDom, reach))
+        transitivePostDomSource[c].set(other);
+
+      // c dominates other: c on all paths TO other.
+      // Used as: if c dom b, then c has executed whenever b executes.
+      if (fenceDominatesTarget(cOp, otherOp, dom, reach)) {
+        transitiveDomTargetDoubled[c].set(2 * other);
+        transitiveDomTargetDoubled[c].set(2 * other + 1);
+      }
+    }
+  }
+
+  llvm::errs() << "[OrderMatrix] precomputeTransitiveDominance: nEvents="
+               << nEvents << "\n";
+}
+
 void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
                                     unsigned maxRounds) {
   if (n == 0)
@@ -191,24 +239,6 @@ void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
         fenceIndices.set(2 * i);
         fenceIndices.set(2 * i + 1);
       }
-  }
-
-  // Build per-event region lookup and per-region bitmask.
-  // Used to restrict transitive closure to same-region intermediaries.
-  std::vector<Region *> eventRegion(n, nullptr);
-  for (unsigned i = 0; i < nEvents; ++i) {
-    Region *r = idToOp[ids[i]]->getBlock()->getParent();
-    eventRegion[2 * i] = r;
-    eventRegion[2 * i + 1] = r;
-  }
-  llvm::DenseMap<Region *, llvm::BitVector> regionMask;
-  for (unsigned i = 0; i < n; ++i) {
-    if (!eventRegion[i])
-      continue;
-    auto &bv = regionMask[eventRegion[i]];
-    if (bv.empty())
-      bv.resize(n);
-    bv.set(i);
   }
 
   llvm::SmallVector<llvm::BitVector> ordered(n, llvm::BitVector(n));
@@ -235,22 +265,35 @@ void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
         // dom/post-dom checks.
         if (fenceIndices.test(c))
           continue;
-        // Only chain through c if a and c are in the same region.
-        // Cross-region intermediaries are unsound: c may be in a
-        // conditionally-called function that doesn't execute when both
-        // a and b execute. Cross-region ordering goes through
-        // applyFenceClosure or getOrderCrossRegion instead.
-        if (eventRegion[a] != eventRegion[c])
-          continue;
+
         llvm::BitVector newBits = ordered[c];
         newBits &= unordered[a];
         newBits.reset(a);
-        // Restrict b to the same region as a and c.
-        auto maskIt = regionMask.find(eventRegion[a]);
-        if (maskIt != regionMask.end())
-          newBits &= maskIt->second;
-        else
-          newBits.reset();
+
+        // Cross-region intermediary: c may be in a conditionally-called
+        // function that doesn't execute when both a and b execute.
+        // Sound if:
+        //   (1) c post-dominates a (c on all paths from a → c executes
+        //       whenever a does), OR
+        //   (2) c dominates b (c on all paths to b → c has executed
+        //       whenever b does) — checked per-b via precomputed mask.
+        if (!transitiveEventRegion.empty() &&
+            transitiveEventRegion[a] != transitiveEventRegion[c]) {
+          unsigned cOrig = c / 2;
+          unsigned aOrig = a / 2;
+          if (!transitivePostDomSource.empty() &&
+              transitivePostDomSource[cOrig].test(aOrig)) {
+            // (1) c post-dom a: c guaranteed to execute when a does.
+            //     All b candidates are valid — no restriction needed.
+          } else if (!transitiveDomTargetDoubled.empty()) {
+            // (2) Restrict b to events dominated by c.
+            newBits &= transitiveDomTargetDoubled[cOrig];
+          } else {
+            // No precomputed data — skip cross-region intermediary.
+            continue;
+          }
+        }
+
         if (newBits.none())
           continue;
         for (int b = newBits.find_first(); b != -1; b = newBits.find_next(b)) {

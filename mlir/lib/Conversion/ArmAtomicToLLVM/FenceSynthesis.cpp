@@ -157,6 +157,7 @@ struct FenceSynthesisPass
     // Let the target dialect apply model-specific derived orderings (e.g. lob* for ARM).
     iface->refineInitialOrderMatrix(mb);
     mb.precomputeIntermediateFences(iface, dom, postDom, reach);
+    mb.precomputeTransitiveDominance(iface, dom, postDom, reach);
     unsigned nEvents = mb.numEvents();
     log() << "n=" << nEvents << "\n";
 

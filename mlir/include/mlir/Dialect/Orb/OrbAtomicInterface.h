@@ -199,8 +199,20 @@ public:
   /// Close the Ordered relation transitively. maxRounds=0 means no limit.
   /// Skips fence intermediaries when iface is provided — ordering through
   /// fences requires post-dom/dom checks done by applyFenceClosure.
+  /// Cross-region intermediaries are gated by precomputed dom/post-dom data
+  /// (see precomputeTransitiveDominance).
   void closeTransitively(const OrbAtomicDialectInterface *iface = nullptr,
                          unsigned maxRounds = 0);
+
+  /// Precompute cross-region dominance data for transitive closure.
+  /// For each non-fence event c, computes which events c post-dominates
+  /// (c on all paths FROM a) and which events c dominates (c on all paths
+  /// TO b).  Must be called before the synthesis loop; the results are
+  /// reused across all closeTransitively() calls.
+  void precomputeTransitiveDominance(const OrbAtomicDialectInterface *iface,
+                                     DominanceInfo &dom,
+                                     PostDominanceInfo &postDom,
+                                     const CallReachability &reach);
 
   /// Precompute valid intermediate fence BitVectors. Call once after matrix construction.
   void precomputeIntermediateFences(const OrbAtomicDialectInterface *iface,
@@ -237,6 +249,16 @@ private:
   std::vector<llvm::BitVector> validFencesBefore; // [evIdx] → fence bits
   unsigned nFencesCached = 0;
   llvm::SmallVector<unsigned> fenceEventIndices;
+
+  /// Precomputed cross-region dominance for transitive closure.
+  /// transitivePostDomSource[c] bit a: event c post-dominates event a
+  ///   (c on all paths from a → c executes whenever a does).
+  /// transitiveDomTargetDoubled[c]: doubled-index BitVector where bit set
+  ///   means event c dominates that event (c on all paths to b).
+  std::vector<llvm::BitVector> transitivePostDomSource;
+  std::vector<llvm::BitVector> transitiveDomTargetDoubled;
+  /// Per-event region pointer (doubled-index), for same/cross-region checks.
+  std::vector<Region *> transitiveEventRegion;
 
   void trackNewOrdered(unsigned aIdx, unsigned bIdx) {
     if (!requiredSet)
