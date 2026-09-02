@@ -477,7 +477,18 @@ struct FenceSynthesisPass
                 << " overspecified=" << o
                 << " marked=" << emptyCount << "\n";
         }
-        continue; // back to greedy loop for any remaining real promotions
+        if (emptyCount > 0)
+          continue; // back to greedy loop for any remaining real promotions
+        // emptyCount==0: the greedy loop found this pair satisfiable via a
+        // path not covered by fencesBetween. Apply it individually.
+        mb.markOrdered(bestIdA, bestIdB);
+        ++iteration;
+        {
+          auto [c, o] = mb.orderedCounts();
+          log() << "ordered=" << c << "/" << total
+                << " overspecified=" << o << "\n";
+        }
+        continue;
       }
 
       // Log and apply.
