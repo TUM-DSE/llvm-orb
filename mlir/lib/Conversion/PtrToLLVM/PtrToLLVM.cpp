@@ -347,6 +347,10 @@ LogicalResult TypeOffsetOpConversion::matchAndRewrite(
   if (!type)
     return rewriter.notifyMatchFailure(op, "Couldn't convert the type");
 
+  // GEP cannot compute sizeof(void) or sizeof(function); use i8 instead.
+  if (isa<LLVM::LLVMVoidType>(type) || isa<LLVM::LLVMFunctionType>(type))
+    type = IntegerType::get(getContext(), 8);
+
   // Convert the result type.
   Type rTy = getTypeConverter()->convertType(op.getResult().getType());
   if (!rTy)

@@ -189,6 +189,10 @@ translateTypeOffsetOp(TypeOffsetOp typeOffsetOp, llvm::IRBuilderBase &builder,
   if (!elementType)
     return typeOffsetOp.emitError("Failed to translate the element type");
 
+  // GEP cannot compute sizeof(void) or sizeof(function); use i8 (size 1).
+  if (elementType->isVoidTy() || elementType->isFunctionTy())
+    elementType = builder.getInt8Ty();
+
   // Translate result type
   llvm::Type *resultType =
       moduleTranslation.convertType(typeOffsetOp.getResult().getType());

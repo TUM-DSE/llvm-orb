@@ -609,6 +609,9 @@ mlir::Value CIRAttrToValue::visitCirAttr(cir::GlobalViewAttr globalAttr) {
     }
     mlir::Type resTy = addrOp.getType();
     mlir::Type eltTy = converter->convertType(sourceType);
+    if (mlir::isa<mlir::LLVM::LLVMVoidType>(eltTy) ||
+        mlir::isa<mlir::LLVM::LLVMFunctionType>(eltTy))
+      eltTy = mlir::IntegerType::get(eltTy.getContext(), 8);
     addrOp =
         mlir::LLVM::GEPOp::create(rewriter, loc, resTy, eltTy, addrOp, indices,
                                   mlir::LLVM::GEPNoWrapFlags::none);
