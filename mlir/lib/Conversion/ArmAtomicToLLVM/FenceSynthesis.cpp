@@ -441,6 +441,55 @@ struct FenceSynthesisPass
         return;
       }
 
+      // If the best promotion is empty, all remaining real promotions are
+      // exhausted. Switch to a fast linear scan: mark every pair that is
+      // already satisfied by an existing intermediate fence, without the
+      // expensive per-pair greedy evaluation.
+      if (std::get_if<orb::Promotion::EmptyUpgradeAction>(
+              &bestPromotion.action)) {
+        unsigned emptyCount = 0;
+        for (auto [idA, idB] : sortedPairs) {
+          if (mb.isOrdered(idA, idB))
+            continue;
+          Operation *a = mb.getOpForId(idA);
+          Operation *b = mb.getOpForId(idB);
+          if (!a || !b)
+            continue;
+          unsigned aIdx = mb.idxOf(idA), bIdx = mb.idxOf(idB);
+          auto betweenFences = mb.fencesBetween(aIdx, bIdx);
+          for (unsigned fEvIdx : betweenFences) {
+            Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
+            if (fOp == a || fOp == b)
+              continue;
+            if (iface->getOrderThroughFence(a, fOp, b) ==
+                    orb::EventOrder::Ordered &&
+                orb::fencePostDominatesSource(fOp, a, postDom, reach) &&
+                orb::fenceDominatesTarget(fOp, b, dom, reach)) {
+              mb.markOrdered(idA, idB);
+              ++emptyCount;
+              break;
+            }
+          }
+        }
+        iteration += emptyCount;
+        {
+          auto [c, o] = mb.orderedCounts();
+          log() << "empty-scan ordered=" << c << "/" << total
+                << " overspecified=" << o
+                << " marked=" << emptyCount << "\n";
+        }
+        // If nothing was marked, some pairs are truly unsatisfiable by
+        // existing fences — fall back to the greedy loop which will insert
+        // new fences or fail.
+        if (emptyCount == 0) {
+          log() << "FATAL: unsatisfied pairs remain but no promotion found"
+                << " (empty-scan found nothing)\n";
+          signalPassFailure();
+          return;
+        }
+        continue;
+      }
+
       // Log and apply.
       if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(
               &bestPromotion.action)) {
@@ -462,9 +511,6 @@ struct FenceSynthesisPass
               << ") pair mo1=" << pa->targetMemoryOrder1
               << " mo2=" << pa->targetMemoryOrder2
               << " waste=" << estimateWaste(bestPromotion) << "\n";
-      else
-        log() << "iter=" << iteration << " (" << bestIdA << "," << bestIdB
-              << ") empty\n";
 
       Operation *newOp = iface->applyPromotion(bestPromotion, builder, &mb);
       if (newOp) {
@@ -485,11 +531,10 @@ struct FenceSynthesisPass
         }
         continue;
       }
-      // Empty promotion: an existing fence already satisfies this pair.
-      // No new fence inserted, no op upgraded — just mark ordered and skip
-      // closure (it can't derive anything new without a state change).
+      // Non-empty promotion that produced no new op (e.g. upgrade in place).
       iface->updateOrderMatrix(bestPromotion, newOp, bestIdA, bestIdB,
                                mb, aa, dom, postDom, reach);
+      mb.closeTransitively(iface);
       ++iteration;
       {
         auto [c, o] = mb.orderedCounts();
