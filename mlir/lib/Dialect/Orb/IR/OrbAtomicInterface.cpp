@@ -193,6 +193,24 @@ void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
       }
   }
 
+  // Build per-event region lookup and per-region bitmask.
+  // Used to restrict transitive closure to same-region intermediaries.
+  std::vector<Region *> eventRegion(n, nullptr);
+  for (unsigned i = 0; i < nEvents; ++i) {
+    Region *r = idToOp[ids[i]]->getBlock()->getParent();
+    eventRegion[2 * i] = r;
+    eventRegion[2 * i + 1] = r;
+  }
+  llvm::DenseMap<Region *, llvm::BitVector> regionMask;
+  for (unsigned i = 0; i < n; ++i) {
+    if (!eventRegion[i])
+      continue;
+    auto &bv = regionMask[eventRegion[i]];
+    if (bv.empty())
+      bv.resize(n);
+    bv.set(i);
+  }
+
   llvm::SmallVector<llvm::BitVector> ordered(n, llvm::BitVector(n));
   llvm::SmallVector<llvm::BitVector> unordered(n, llvm::BitVector(n));
   for (unsigned a = 0; a < n; ++a)
@@ -217,9 +235,22 @@ void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
         // dom/post-dom checks.
         if (fenceIndices.test(c))
           continue;
+        // Only chain through c if a and c are in the same region.
+        // Cross-region intermediaries are unsound: c may be in a
+        // conditionally-called function that doesn't execute when both
+        // a and b execute. Cross-region ordering goes through
+        // applyFenceClosure or getOrderCrossRegion instead.
+        if (eventRegion[a] != eventRegion[c])
+          continue;
         llvm::BitVector newBits = ordered[c];
         newBits &= unordered[a];
         newBits.reset(a);
+        // Restrict b to the same region as a and c.
+        auto maskIt = regionMask.find(eventRegion[a]);
+        if (maskIt != regionMask.end())
+          newBits &= maskIt->second;
+        else
+          newBits.reset();
         if (newBits.none())
           continue;
         for (int b = newBits.find_first(); b != -1; b = newBits.find_next(b)) {
