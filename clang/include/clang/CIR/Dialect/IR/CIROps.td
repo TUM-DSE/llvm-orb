@@ -8322,7 +8322,7 @@ def CIR_AtomicTestAndSetOp : CIR_Op<"atomic.test_and_set"> {
   }];
 
   let arguments = (ins
-    Arg<CIR_PtrToType<CIR_SInt8>, "", [MemRead, MemWrite]>:$ptr,
+    Arg<CIR_PtrToType<CIR_IntOfWidths<[8]>>, "", [MemRead, MemWrite]>:$ptr,
     Arg<CIR_MemOrder, "memory order">:$mem_order,
     OptionalAttr<I64Attr>:$alignment,
     UnitAttr:$is_volatile
@@ -8353,7 +8353,7 @@ def CIR_AtomicClearOp : CIR_Op<"atomic.clear"> {
   }];
 
   let arguments = (ins
-    Arg<CIR_PtrToType<CIR_SInt8>, "", [MemRead, MemWrite]>:$ptr,
+    Arg<CIR_PtrToType<CIR_IntOfWidths<[8]>>, "", [MemRead, MemWrite]>:$ptr,
     Arg<CIR_MemOrder, "memory order">:$mem_order,
     OptionalAttr<I64Attr>:$alignment,
     UnitAttr:$is_volatile
