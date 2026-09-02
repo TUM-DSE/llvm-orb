@@ -344,8 +344,8 @@ struct FenceSynthesisPass
       bool bPlain = isa<ptr::LoadOp, ptr::StoreOp>(b);
       bool aFence = iface->isFenceEvent(a);
       bool bFence = iface->isFenceEvent(b);
-      if (!aPlain && !bPlain && !aFence && !bFence) return 0; // atomic-atomic
-      if (aFence || bFence) return 1;                         // fence endpoint
+      if (!aPlain && !bPlain && !aFence && !bFence) return 1; // atomic-atomic
+      if (aFence || bFence) return 0;                         // fence endpoint
       return 2;                                               // plain-plain
     };
     llvm::sort(sortedPairs, [&](const auto &a, const auto &b) {
