@@ -352,195 +352,132 @@ struct FenceSynthesisPass
       return pairPriority(a) < pairPriority(b);
     });
 
-    // Greedy loop: evaluate ALL unsatisfied pairs each iteration and pick
-    // the promotion with the best waste-adjusted cost.
+    // Simple synthesis loop: pick first unsatisfied pair, promote it,
+    // update matrix, repeat.
     unsigned iteration = 0;
-    for (;;) {
-      rebuildPressure();
+    for (auto [idA, idB] : sortedPairs) {
+      if (mb.isOrdered(idA, idB))
+        continue;
 
-      uint64_t bestIdA = UINT64_MAX, bestIdB = UINT64_MAX;
-      orb::Promotion bestPromotion;
-      int64_t bestEffective = INT64_MAX;
-      bool anyUnsatisfied = false;
+      Operation *a = mb.getOpForId(idA);
+      Operation *b = mb.getOpForId(idB);
+      if (!a || !b)
+        continue;
 
-      for (auto [idA, idB] : sortedPairs) {
-        if (mb.isOrdered(idA, idB))
-          continue;
-        anyUnsatisfied = true;
+      // Get available promotions for this pair.
+      auto promotions = iface->promote(idA, a, idB, b, mb);
 
-        Operation *a = mb.getOpForId(idA);
-        Operation *b = mb.getOpForId(idB);
-        if (!a || !b)
-          continue;
-
-        orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
-                             colPressure[idB], colReadPressure[idB],
-                             colWritePressure[idB], fenceCostBase,
-                             mb.numEvents()};
-        auto promotions = iface->promote(idA, a, idB, b, mb);
-
-        // When an endpoint is a fence, don't insert a NEW fence next to it.
-        if (iface->isFenceEvent(a) || iface->isFenceEvent(b)) {
-          llvm::erase_if(promotions, [](const orb::Promotion &p) {
-            return std::holds_alternative<orb::Promotion::FenceAction>(
-                p.action);
-          });
-        }
-
-        // Intermediate fence upgrades via precomputed BitVectors.
-        unsigned aIdx = mb.idxOf(idA), bIdx = mb.idxOf(idB);
-        auto betweenFences = mb.fencesBetween(aIdx, bIdx);
-        for (unsigned fEvIdx : betweenFences) {
-          Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
-          if (fOp == a || fOp == b)
-            continue;
-          if (iface->getOrderThroughFence(a, fOp, b) ==
-                  orb::EventOrder::Ordered &&
-              orb::fencePostDominatesSource(fOp, a, postDom, reach) &&
-              orb::fenceDominatesTarget(fOp, b, dom, reach)) {
-            promotions.clear();
-            promotions.push_back({orb::Promotion::EmptyUpgradeAction{}});
-            break;
-          }
-          for (auto &fp : iface->promoteViaFence(a, fOp, b,
-                                                   mb.eventIds()[fEvIdx], mb))
-            promotions.push_back(fp);
-        }
-
-        for (auto &p : promotions) {
-          if (auto *fa = std::get_if<orb::Promotion::FenceAction>(&p.action))
-            p.loopDepth =
-                blockLoopDepth.lookup(fa->insertBefore->getBlock());
-          else if (auto *ua =
-                       std::get_if<orb::Promotion::UpgradeAction>(&p.action))
-            p.loopDepth = blockLoopDepth.lookup(ua->op->getBlock());
-          else if (auto *pa = std::get_if<orb::Promotion::PairUpgradeAction>(
-                       &p.action))
-            p.loopDepth =
-                std::max(blockLoopDepth.lookup(pa->op1->getBlock()),
-                         blockLoopDepth.lookup(pa->op2->getBlock()));
-
-          int hwCost = iface->cost(p, ctx);
-          unsigned waste = estimateWaste(p);
-          int64_t effective = (int64_t)hwCost + 500LL * (int64_t)waste;
-          if (effective < bestEffective) {
-            bestEffective = effective;
-            bestPromotion = p;
-            bestIdA = idA;
-            bestIdB = idB;
-          }
-        }
+      // When an endpoint is a fence, don't insert a NEW fence next to it.
+      if (iface->isFenceEvent(a) || iface->isFenceEvent(b)) {
+        llvm::erase_if(promotions, [](const orb::Promotion &p) {
+          return std::holds_alternative<orb::Promotion::FenceAction>(
+              p.action);
+        });
       }
 
-      if (!anyUnsatisfied)
-        break; // all satisfied
+      // Intermediate fence upgrades via precomputed BitVectors.
+      unsigned aIdx = mb.idxOf(idA), bIdx = mb.idxOf(idB);
+      auto betweenFences = mb.fencesBetween(aIdx, bIdx);
+      for (unsigned fEvIdx : betweenFences) {
+        Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
+        if (fOp == a || fOp == b)
+          continue;
+        if (iface->getOrderThroughFence(a, fOp, b) ==
+                orb::EventOrder::Ordered &&
+            orb::fencePostDominatesSource(fOp, a, postDom, reach) &&
+            orb::fenceDominatesTarget(fOp, b, dom, reach)) {
+          promotions.clear();
+          promotions.push_back({orb::Promotion::EmptyUpgradeAction{}});
+          break;
+        }
+        for (auto &fp : iface->promoteViaFence(a, fOp, b,
+                                                 mb.eventIds()[fEvIdx], mb))
+          promotions.push_back(fp);
+      }
 
-      if (bestIdA == UINT64_MAX) {
-        log() << "FATAL: unsatisfied pairs remain but no promotion found\n";
+      if (promotions.empty()) {
+        log() << "FATAL: no promotion for (" << idA << "," << idB << ")\n";
         signalPassFailure();
         return;
       }
 
-      // If the best promotion is empty, drain all fence-satisfiable pairs
-      // in a single linear scan before returning to the greedy loop for
-      // any remaining pairs that need real promotions.
-      if (std::get_if<orb::Promotion::EmptyUpgradeAction>(
-              &bestPromotion.action)) {
-        unsigned emptyCount = 0;
-        for (auto [idA, idB] : sortedPairs) {
-          if (mb.isOrdered(idA, idB))
-            continue;
-          Operation *a = mb.getOpForId(idA);
-          Operation *b = mb.getOpForId(idB);
-          if (!a || !b)
-            continue;
-          unsigned aIdx = mb.idxOf(idA), bIdx = mb.idxOf(idB);
-          auto betweenFences = mb.fencesBetween(aIdx, bIdx);
-          for (unsigned fEvIdx : betweenFences) {
-            Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
-            if (fOp == a || fOp == b)
-              continue;
-            if (iface->getOrderThroughFence(a, fOp, b) ==
-                    orb::EventOrder::Ordered &&
-                orb::fencePostDominatesSource(fOp, a, postDom, reach) &&
-                orb::fenceDominatesTarget(fOp, b, dom, reach)) {
-              mb.markOrdered(idA, idB);
-              ++emptyCount;
-              break;
-            }
-          }
+      // Pick cheapest promotion for this pair.
+      rebuildPressure();
+      orb::CostContext ctx{rowPressure[idA], rowWritePressure[idA],
+                           colPressure[idB], colReadPressure[idB],
+                           colWritePressure[idB], fenceCostBase,
+                           mb.numEvents()};
+      orb::Promotion *best = &promotions[0];
+      int64_t bestEff = INT64_MAX;
+      for (auto &p : promotions) {
+        if (auto *fa = std::get_if<orb::Promotion::FenceAction>(&p.action))
+          p.loopDepth = blockLoopDepth.lookup(fa->insertBefore->getBlock());
+        else if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&p.action))
+          p.loopDepth = blockLoopDepth.lookup(ua->op->getBlock());
+        else if (auto *pa = std::get_if<orb::Promotion::PairUpgradeAction>(&p.action))
+          p.loopDepth = std::max(blockLoopDepth.lookup(pa->op1->getBlock()),
+                                 blockLoopDepth.lookup(pa->op2->getBlock()));
+
+        int hwCost = iface->cost(p, ctx);
+        unsigned waste = estimateWaste(p);
+        int64_t eff = (int64_t)hwCost + 500LL * (int64_t)waste;
+        if (eff < bestEff) {
+          bestEff = eff;
+          best = &p;
         }
-        iteration += emptyCount;
-        {
-          auto [c, o] = mb.orderedCounts();
-          log() << "empty-scan ordered=" << c << "/" << total
-                << " overspecified=" << o
-                << " marked=" << emptyCount << "\n";
-        }
-        if (emptyCount > 0)
-          continue; // back to greedy loop for any remaining real promotions
-        // emptyCount==0: the greedy loop found this pair satisfiable via a
-        // path not covered by fencesBetween. Apply it individually.
-        mb.markOrdered(bestIdA, bestIdB);
+      }
+
+      // Empty promotion — pair already satisfied by existing fences.
+      if (std::get_if<orb::Promotion::EmptyUpgradeAction>(&best->action)) {
+        mb.markOrdered(idA, idB);
         ++iteration;
-        {
-          auto [c, o] = mb.orderedCounts();
-          log() << "ordered=" << c << "/" << total
-                << " overspecified=" << o << "\n";
-        }
         continue;
       }
 
-      // Log and apply.
-      if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(
-              &bestPromotion.action)) {
+      // Log.
+      if (auto *ua = std::get_if<orb::Promotion::UpgradeAction>(&best->action)) {
         uint64_t upgId = 0;
         if (auto attr = ua->op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr))
           upgId = attr.getInt();
-        log() << "iter=" << iteration << " (" << bestIdA << "," << bestIdB
+        log() << "iter=" << iteration << " (" << idA << "," << idB
               << ") upgrade ev=" << upgId
               << " op=" << ua->op->getName().getStringRef()
               << " to=" << ua->targetMemoryOrder
-              << " waste=" << estimateWaste(bestPromotion) << "\n";
-      } else if (std::get_if<orb::Promotion::FenceAction>(
-                     &bestPromotion.action))
-        log() << "iter=" << iteration << " (" << bestIdA << "," << bestIdB
+              << " waste=" << estimateWaste(*best) << "\n";
+      } else if (std::get_if<orb::Promotion::FenceAction>(&best->action))
+        log() << "iter=" << iteration << " (" << idA << "," << idB
               << ") fence\n";
       else if (auto *pa = std::get_if<orb::Promotion::PairUpgradeAction>(
-                   &bestPromotion.action))
-        log() << "iter=" << iteration << " (" << bestIdA << "," << bestIdB
+                   &best->action))
+        log() << "iter=" << iteration << " (" << idA << "," << idB
               << ") pair mo1=" << pa->targetMemoryOrder1
               << " mo2=" << pa->targetMemoryOrder2
-              << " waste=" << estimateWaste(bestPromotion) << "\n";
+              << " waste=" << estimateWaste(*best) << "\n";
 
-      Operation *newOp = iface->applyPromotion(bestPromotion, builder, &mb);
+      // Apply.
+      Operation *newOp = iface->applyPromotion(*best, builder, &mb);
       if (newOp) {
         uint64_t newId = nextSynthId++;
         newOp->setAttr(orb::kEventIdAttr,
                        builder.getI64IntegerAttr(newId));
-        iface->updateOrderMatrix(bestPromotion, newOp, bestIdA, bestIdB,
+        iface->updateOrderMatrix(*best, newOp, idA, idB,
                                  mb, aa, dom, postDom, reach);
         unsigned fOrigIdx = mb.idxOf(newId);
         mb.addIntermediateFence(fOrigIdx, iface, dom, postDom, reach);
-        mb.markOrdered(bestIdA, bestIdB);
+        mb.markOrdered(idA, idB);
         mb.closeTransitively(iface);
-        ++iteration;
-        {
-          auto [c, o] = mb.orderedCounts();
-          log() << "ordered=" << c << "/" << total
-                << " overspecified=" << o << "\n";
-        }
-        continue;
+      } else {
+        iface->updateOrderMatrix(*best, newOp, idA, idB,
+                                 mb, aa, dom, postDom, reach);
+        mb.closeTransitively(iface);
       }
-      // Non-empty promotion that produced no new op (e.g. upgrade in place).
-      iface->updateOrderMatrix(bestPromotion, newOp, bestIdA, bestIdB,
-                               mb, aa, dom, postDom, reach);
-      mb.closeTransitively(iface);
       ++iteration;
-      {
+
+      if (iteration % 100 == 0) {
         auto [c, o] = mb.orderedCounts();
         log() << "ordered=" << c << "/" << total
-              << " overspecified=" << o << "\n";
+              << " overspecified=" << o
+              << " t=" << elapsedMs() << "ms\n";
       }
     }
 
