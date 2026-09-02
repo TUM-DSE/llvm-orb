@@ -441,10 +441,9 @@ struct FenceSynthesisPass
         return;
       }
 
-      // If the best promotion is empty, all remaining real promotions are
-      // exhausted. Switch to a fast linear scan: mark every pair that is
-      // already satisfied by an existing intermediate fence, without the
-      // expensive per-pair greedy evaluation.
+      // If the best promotion is empty, drain all fence-satisfiable pairs
+      // in a single linear scan before returning to the greedy loop for
+      // any remaining pairs that need real promotions.
       if (std::get_if<orb::Promotion::EmptyUpgradeAction>(
               &bestPromotion.action)) {
         unsigned emptyCount = 0;
@@ -478,16 +477,7 @@ struct FenceSynthesisPass
                 << " overspecified=" << o
                 << " marked=" << emptyCount << "\n";
         }
-        // If nothing was marked, some pairs are truly unsatisfiable by
-        // existing fences — fall back to the greedy loop which will insert
-        // new fences or fail.
-        if (emptyCount == 0) {
-          log() << "FATAL: unsatisfied pairs remain but no promotion found"
-                << " (empty-scan found nothing)\n";
-          signalPassFailure();
-          return;
-        }
-        continue;
+        continue; // back to greedy loop for any remaining real promotions
       }
 
       // Log and apply.
