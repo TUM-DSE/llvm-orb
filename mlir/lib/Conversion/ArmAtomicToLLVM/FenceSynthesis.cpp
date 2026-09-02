@@ -486,51 +486,15 @@ struct FenceSynthesisPass
         continue;
       }
       // Empty promotion: an existing fence already satisfies this pair.
-      // Batch all pairs that are similarly satisfied by existing fences
-      // before calling closeTransitively, to avoid O(n²) closure per pair.
+      // No new fence inserted, no op upgraded — just mark ordered and skip
+      // closure (it can't derive anything new without a state change).
+      iface->updateOrderMatrix(bestPromotion, newOp, bestIdA, bestIdB,
+                               mb, aa, dom, postDom, reach);
+      ++iteration;
       {
-        unsigned batchCount = 0;
-        iface->updateOrderMatrix(bestPromotion, newOp, bestIdA, bestIdB,
-                                 mb, aa, dom, postDom, reach);
-        ++batchCount;
-        for (auto [idA2, idB2] : sortedPairs) {
-          if (mb.isOrdered(idA2, idB2))
-            continue;
-          Operation *a2 = mb.getOpForId(idA2);
-          Operation *b2 = mb.getOpForId(idB2);
-          if (!a2 || !b2)
-            continue;
-          unsigned aIdx2 = mb.idxOf(idA2), bIdx2 = mb.idxOf(idB2);
-          auto betweenFences2 = mb.fencesBetween(aIdx2, bIdx2);
-          bool satisfied = false;
-          for (unsigned fEvIdx : betweenFences2) {
-            Operation *fOp = mb.getOpForId(mb.eventIds()[fEvIdx]);
-            if (fOp == a2 || fOp == b2)
-              continue;
-            if (iface->getOrderThroughFence(a2, fOp, b2) ==
-                    orb::EventOrder::Ordered &&
-                orb::fencePostDominatesSource(fOp, a2, postDom, reach) &&
-                orb::fenceDominatesTarget(fOp, b2, dom, reach)) {
-              satisfied = true;
-              break;
-            }
-          }
-          if (satisfied) {
-            orb::Promotion emptyP;
-            emptyP.action = orb::Promotion::EmptyUpgradeAction{};
-            iface->updateOrderMatrix(emptyP, nullptr, idA2, idB2,
-                                     mb, aa, dom, postDom, reach);
-            ++batchCount;
-          }
-        }
-        mb.closeTransitively(iface);
-        iteration += batchCount;
-        {
-          auto [c, o] = mb.orderedCounts();
-          log() << "ordered=" << c << "/" << total
-                << " overspecified=" << o
-                << " (batched=" << batchCount << ")\n";
-        }
+        auto [c, o] = mb.orderedCounts();
+        log() << "ordered=" << c << "/" << total
+              << " overspecified=" << o << "\n";
       }
     }
 
