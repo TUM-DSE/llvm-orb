@@ -5074,10 +5074,8 @@ static void fixLargeStructReturnsDirect(mlir::Operation *root) {
 
     // Shift existing arg attrs right by 1 to make room for the sret slot.
     for (int i = fnTy.getNumParams() - 1; i >= 0; --i) {
-      if (auto attrs = fn.getArgAttrDict(i))
-        fn.setArgAttrs(i + 1, attrs);
-      else
-        fn.setArgAttrs(i + 1, nullptr);
+      auto attrs = fn.getArgAttrDict(i);
+      fn.setArgAttrs(i + 1, attrs);
     }
     fn.setArgAttr(0, "llvm.sret", mlir::TypeAttr::get(retTy));
     fn.setArgAttr(0, "llvm.writable", mlir::UnitAttr::get(ctx));
