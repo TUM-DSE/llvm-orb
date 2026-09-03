@@ -344,12 +344,19 @@ struct FenceSynthesisPass
       bool bPlain = isa<ptr::LoadOp, ptr::StoreOp>(b);
       bool aFence = iface->isFenceEvent(a);
       bool bFence = iface->isFenceEvent(b);
-      if (!aPlain && !bPlain && !aFence && !bFence) return 1; // atomic-atomic
-      if (aFence || bFence) return 0;                         // fence endpoint
+      if (!aPlain && !bPlain && !aFence && !bFence) return 0; // atomic-atomic
+      if (aFence || bFence) return 1;                         // fence endpoint
       return 2;                                               // plain-plain
     };
+    auto globalPriority = [&](const std::pair<uint64_t, uint64_t> &p) -> int {
+      Operation *a = mb.getOpForId(p.first);
+      Operation *b = mb.getOpForId(p.second);
+      if (!a || !b) return 0;
+
+      return colPressure[p.first] + rowPressure[p.second];
+    };
     llvm::sort(sortedPairs, [&](const auto &a, const auto &b) {
-      return pairPriority(a) < pairPriority(b);
+      return globalPriority(a) > globalPriority(b);
     });
 
     // Simple synthesis loop: pick first unsatisfied pair, promote it,
