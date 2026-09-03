@@ -5065,6 +5065,11 @@ static void fixLargeStructReturnsDirect(mlir::Operation *root) {
     auto fnTy = fn.getFunctionType();
     auto retTy = mlir::cast<mlir::LLVM::LLVMStructType>(fnTy.getReturnType());
 
+    // Collect existing arg attrs before changing the function type.
+    llvm::SmallVector<mlir::DictionaryAttr> oldArgAttrs;
+    for (unsigned i = 0; i < fnTy.getNumParams(); ++i)
+      oldArgAttrs.push_back(fn.getArgAttrDict(i));
+
     // Rewrite function type: return void, prepend sret ptr arg.
     llvm::SmallVector<mlir::Type> newParamTypes;
     newParamTypes.push_back(llvmPtrTy);
@@ -5072,14 +5077,15 @@ static void fixLargeStructReturnsDirect(mlir::Operation *root) {
     fn.setFunctionType(mlir::LLVM::LLVMFunctionType::get(
         ctx, voidTy, newParamTypes, fnTy.isVarArg()));
 
-    // Shift existing arg attrs right by 1 to make room for the sret slot.
-    for (int i = fnTy.getNumParams() - 1; i >= 0; --i) {
-      auto attrs = fn.getArgAttrDict(i);
-      fn.setArgAttrs(i + 1, attrs);
-    }
-    fn.setArgAttr(0, "llvm.sret", mlir::TypeAttr::get(retTy));
-    fn.setArgAttr(0, "llvm.writable", mlir::UnitAttr::get(ctx));
-    fn.setArgAttr(0, "llvm.dead_on_unwind", mlir::UnitAttr::get(ctx));
+    // Build new arg attrs: sret attrs at slot 0, then old attrs shifted.
+    llvm::SmallVector<mlir::DictionaryAttr> newArgAttrs;
+    llvm::SmallVector<mlir::NamedAttribute> sretAttrs;
+    sretAttrs.push_back(b.getNamedAttr("llvm.dead_on_unwind", mlir::UnitAttr::get(ctx)));
+    sretAttrs.push_back(b.getNamedAttr("llvm.sret", mlir::TypeAttr::get(retTy)));
+    sretAttrs.push_back(b.getNamedAttr("llvm.writable", mlir::UnitAttr::get(ctx)));
+    newArgAttrs.push_back(mlir::DictionaryAttr::get(ctx, sretAttrs));
+    llvm::append_range(newArgAttrs, oldArgAttrs);
+    fn.setAllArgAttrs(newArgAttrs);
 
     // For defined functions, rewrite the body.
     if (!fn.isExternal()) {
