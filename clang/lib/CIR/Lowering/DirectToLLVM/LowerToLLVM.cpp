@@ -4973,12 +4973,67 @@ static void fixLargeStructCallArgsDirect(mlir::Operation *root) {
   mlir::OpBuilder b(ctx);
   auto llvmPtrTy = mlir::LLVM::LLVMPointerType::get(ctx);
 
+  auto moduleOp = mlir::dyn_cast<mlir::ModuleOp>(root);
+  if (!moduleOp)
+    return;
+  mlir::DataLayout dl(moduleOp);
+
+  // Phase 1: Fix defined functions — change large struct params to ptr and
+  // insert loads in the function body.
+  moduleOp.walk([&](mlir::LLVM::LLVMFuncOp fn) {
+    if (fn.isExternal())
+      return;
+    auto fnTy = fn.getFunctionType();
+    bool changed = false;
+    llvm::SmallVector<mlir::Type> newParamTypes;
+    llvm::SmallVector<unsigned> structArgIndices;
+    for (unsigned i = 0; i < fnTy.getNumParams(); ++i) {
+      auto structTy = mlir::dyn_cast<mlir::LLVM::LLVMStructType>(
+          fnTy.getParams()[i]);
+      if (structTy && dl.getTypeSize(structTy) > 16) {
+        newParamTypes.push_back(llvmPtrTy);
+        structArgIndices.push_back(i);
+        changed = true;
+      } else {
+        newParamTypes.push_back(fnTy.getParams()[i]);
+      }
+    }
+    if (!changed)
+      return;
+
+    // Collect old arg attrs.
+    llvm::SmallVector<mlir::DictionaryAttr> argAttrs;
+    for (unsigned i = 0; i < fnTy.getNumParams(); ++i)
+      argAttrs.push_back(fn.getArgAttrDict(i));
+
+    fn.setFunctionType(mlir::LLVM::LLVMFunctionType::get(
+        ctx, fnTy.getReturnType(), newParamTypes, fnTy.isVarArg()));
+    fn.setAllArgAttrs(argAttrs);
+
+    // Change block arg types and insert loads.
+    mlir::Block &entryBlock = fn.getBody().front();
+    for (unsigned idx : structArgIndices) {
+      mlir::BlockArgument blockArg = entryBlock.getArgument(idx);
+      auto structTy = mlir::cast<mlir::LLVM::LLVMStructType>(
+          blockArg.getType());
+      blockArg.setType(llvmPtrTy);
+      b.setInsertionPointToStart(&entryBlock);
+      auto load = mlir::LLVM::LoadOp::create(b, fn.getLoc(),
+                                              structTy, blockArg);
+      blockArg.replaceAllUsesExcept(load.getResult(), load);
+    }
+  });
+
+  // Phase 2: Fix call sites — replace struct-typed args with their source ptr.
   llvm::SmallVector<mlir::LLVM::CallOp> calls;
   root->walk([&](mlir::LLVM::CallOp callOp) {
     for (mlir::Value arg : callOp.getArgOperands())
-      if (mlir::isa<mlir::LLVM::LLVMStructType>(arg.getType())) {
-        calls.push_back(callOp);
-        break;
+      if (auto structTy = mlir::dyn_cast<mlir::LLVM::LLVMStructType>(
+              arg.getType())) {
+        if (dl.getTypeSize(structTy) > 16) {
+          calls.push_back(callOp);
+          break;
+        }
       }
   });
 
@@ -4986,12 +5041,12 @@ static void fixLargeStructCallArgsDirect(mlir::Operation *root) {
     auto calleeName = callOp.getCallee();
     if (!calleeName)
       continue;
-    auto moduleOp = callOp->getParentOfType<mlir::ModuleOp>();
-    if (!moduleOp)
+    auto callerModule = callOp->getParentOfType<mlir::ModuleOp>();
+    if (!callerModule)
       continue;
     auto fn = dyn_cast_or_null<mlir::LLVM::LLVMFuncOp>(
-        moduleOp.lookupSymbol(*calleeName));
-    if (!fn || !fn.isExternal())
+        callerModule.lookupSymbol(*calleeName));
+    if (!fn)
       continue;
 
     llvm::SmallVector<mlir::Value> newArgs(callOp.getArgOperands().begin(),
@@ -5001,7 +5056,9 @@ static void fixLargeStructCallArgsDirect(mlir::Operation *root) {
     llvm::SmallVector<mlir::Operation *> loadOpsToCheck;
 
     for (auto &arg : newArgs) {
-      if (!mlir::isa<mlir::LLVM::LLVMStructType>(arg.getType())) {
+      auto structTy = mlir::dyn_cast<mlir::LLVM::LLVMStructType>(
+          arg.getType());
+      if (!structTy || dl.getTypeSize(structTy) <= 16) {
         newArgTypes.push_back(arg.getType());
         continue;
       }
@@ -5019,9 +5076,13 @@ static void fixLargeStructCallArgsDirect(mlir::Operation *root) {
     if (!changed)
       continue;
 
-    auto oldFnTy = fn.getFunctionType();
-    fn.setFunctionType(mlir::LLVM::LLVMFunctionType::get(
-        ctx, oldFnTy.getReturnType(), newArgTypes, oldFnTy.isVarArg()));
+    // Update external declarations' function types (defined functions
+    // were already fixed in phase 1).
+    if (fn.isExternal()) {
+      auto oldFnTy = fn.getFunctionType();
+      fn.setFunctionType(mlir::LLVM::LLVMFunctionType::get(
+          ctx, oldFnTy.getReturnType(), newArgTypes, oldFnTy.isVarArg()));
+    }
 
     b.setInsertionPoint(callOp);
     auto newCall = mlir::LLVM::CallOp::create(b, callOp.getLoc(),
