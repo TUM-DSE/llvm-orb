@@ -851,6 +851,91 @@ static void fixLargeStructCallArgs(mlir::Operation *root) {
   }
 }
 
+/// CIR skips ABI lowering, so external functions returning large structs
+/// (>16 bytes on AArch64) appear as returning the struct by value instead of
+/// via an implicit sret pointer argument.  This violates the calling convention
+/// and causes memory corruption at runtime.  Fix: for each external declaration
+/// returning a large struct, rewrite it to return void with a prepended sret
+/// pointer argument, and rewrite all call sites accordingly.
+static void fixLargeStructReturns(mlir::Operation *root) {
+  auto *ctx = root->getContext();
+  mlir::OpBuilder b(ctx);
+  auto llvmPtrTy = mlir::LLVM::LLVMPointerType::get(ctx);
+  auto voidTy = mlir::LLVM::LLVMVoidType::get(ctx);
+
+  auto moduleOp = mlir::dyn_cast<mlir::ModuleOp>(root);
+  if (!moduleOp)
+    return;
+  mlir::DataLayout dl(moduleOp);
+
+  // Collect external functions returning large structs.
+  llvm::SmallVector<mlir::LLVM::LLVMFuncOp> funcsToFix;
+  moduleOp.walk([&](mlir::LLVM::LLVMFuncOp fn) {
+    if (!fn.isExternal())
+      return;
+    auto retTy = mlir::dyn_cast<mlir::LLVM::LLVMStructType>(
+        fn.getFunctionType().getReturnType());
+    if (!retTy)
+      return;
+    // AArch64 ABI: aggregates >16 bytes are returned via sret.
+    llvm::TypeSize size = dl.getTypeSize(retTy);
+    if (size > 16)
+      funcsToFix.push_back(fn);
+  });
+
+  for (auto fn : funcsToFix) {
+    auto fnTy = fn.getFunctionType();
+    auto retTy = mlir::cast<mlir::LLVM::LLVMStructType>(fnTy.getReturnType());
+
+    // Rewrite declaration: void(ptr sret, original_args...)
+    llvm::SmallVector<mlir::Type> newParamTypes;
+    newParamTypes.push_back(llvmPtrTy);
+    llvm::append_range(newParamTypes, fnTy.getParams());
+    auto newFnTy = mlir::LLVM::LLVMFunctionType::get(
+        ctx, voidTy, newParamTypes, fnTy.isVarArg());
+    fn.setFunctionType(newFnTy);
+
+    // Set sret attributes on the new first argument.
+    fn.setArgAttr(0, "llvm.sret", mlir::TypeAttr::get(retTy));
+    fn.setArgAttr(0, "llvm.writable", mlir::UnitAttr::get(ctx));
+    fn.setArgAttr(0, "llvm.dead_on_unwind", mlir::UnitAttr::get(ctx));
+
+    // Rewrite all call sites.
+    llvm::SmallVector<mlir::LLVM::CallOp> calls;
+    moduleOp.walk([&](mlir::LLVM::CallOp call) {
+      if (call.getCallee() == fn.getName())
+        calls.push_back(call);
+    });
+
+    for (auto callOp : calls) {
+      auto loc = callOp.getLoc();
+
+      // Insert alloca at the beginning of the enclosing function so it
+      // dominates the call (and any loops around it).
+      auto parentFunc = callOp->getParentOfType<mlir::LLVM::LLVMFuncOp>();
+      mlir::OpBuilder::InsertionGuard guard(b);
+      b.setInsertionPointToStart(&parentFunc.getBody().front());
+      auto one = mlir::LLVM::ConstantOp::create(b, loc, b.getI64Type(),
+                                                 b.getI64IntegerAttr(1));
+      auto alloca = mlir::LLVM::AllocaOp::create(b, loc, llvmPtrTy, retTy,
+                                                  one, /*alignment=*/0);
+
+      // Build new call: void @fn(sret_ptr, original_args...)
+      b.setInsertionPoint(callOp);
+      llvm::SmallVector<mlir::Value> newArgs;
+      newArgs.push_back(alloca);
+      llvm::append_range(newArgs, callOp.getArgOperands());
+      mlir::LLVM::CallOp::create(b, loc, mlir::TypeRange{},
+                                 callOp.getCalleeAttr(), newArgs);
+
+      // Load the result from the sret slot and replace uses.
+      auto load = mlir::LLVM::LoadOp::create(b, loc, retTy, alloca);
+      callOp.replaceAllUsesWith(mlir::ValueRange{load.getResult()});
+      callOp.erase();
+    }
+  }
+}
+
 struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPass> {
   void runOnOperation() override {
     mlir::RewritePatternSet patterns(&getContext());
@@ -877,6 +962,10 @@ struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPas
     // Replace struct-typed call args that came from ptr.load(ptr.to_ptr(%ptr))
     // with %ptr (the alloca address), and update the callee declaration type.
     fixLargeStructCallArgs(getOperation());
+    // Large structs (>16 bytes on AArch64) must be returned via an implicit
+    // sret pointer argument.  CIR skips ABI lowering and returns them by value.
+    // Rewrite external declarations and their call sites to use sret.
+    fixLargeStructReturns(getOperation());
   }
 };
 
