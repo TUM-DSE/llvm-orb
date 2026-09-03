@@ -575,10 +575,13 @@ struct FixNonLLVMPtrLoadPattern : public mlir::OpRewritePattern<mlir::ptr::LoadO
     if (mlir::LLVM::isCompatibleType(valTy) || mlir::isa<mlir::ptr::PtrType>(valTy))
       return failure();
     mlir::Type llvmTy;
+    bool allCasts = true;
     for (mlir::Operation *user : load->getUsers()) {
       auto cast = mlir::dyn_cast<mlir::UnrealizedConversionCastOp>(user);
-      if (!cast || cast.getNumResults() != 1)
-        return failure();
+      if (!cast || cast.getNumResults() != 1) {
+        allCasts = false;
+        break;
+      }
       mlir::Type resTy = cast.getResult(0).getType();
       if (!mlir::LLVM::isCompatibleType(resTy))
         return failure();
@@ -587,7 +590,27 @@ struct FixNonLLVMPtrLoadPattern : public mlir::OpRewritePattern<mlir::ptr::LoadO
       else if (llvmTy != resTy)
         return failure();
     }
-    if (!llvmTy)
+    if (allCasts && llvmTy) {
+      // All users are UnrealizedConversionCastOps; replace load + casts.
+      rewriter.setInsertionPoint(load);
+      auto newLoad = mlir::ptr::LoadOp::create(
+          rewriter, load.getLoc(), llvmTy, load.getPtr(),
+          load.getAlignment().value_or(0), load.getVolatile_(),
+          load.getNontemporal(), load.getInvariant(), load.getInvariantGroup(),
+          load.getOrdering(), load.getSyncscope().value_or(llvm::StringRef{}));
+      for (mlir::Operation *user : llvm::to_vector(load->getUsers()))
+        rewriter.replaceOp(mlir::cast<mlir::UnrealizedConversionCastOp>(user),
+                           newLoad.getResult());
+      rewriter.eraseOp(load);
+      return success();
+    }
+    // Fallback: use type converter to find the LLVM type for CIR types
+    // that flow directly between ptr.load and ptr.store without casts.
+    mlir::LLVMTypeConverter converter(load.getContext());
+    mlir::DataLayout dl(load->getParentOfType<mlir::ModuleOp>());
+    populateCIRTypeConversions(converter, dl);
+    llvmTy = converter.convertType(valTy);
+    if (!llvmTy || !mlir::LLVM::isCompatibleType(llvmTy))
       return failure();
     rewriter.setInsertionPoint(load);
     auto newLoad = mlir::ptr::LoadOp::create(
@@ -595,10 +618,7 @@ struct FixNonLLVMPtrLoadPattern : public mlir::OpRewritePattern<mlir::ptr::LoadO
         load.getAlignment().value_or(0), load.getVolatile_(),
         load.getNontemporal(), load.getInvariant(), load.getInvariantGroup(),
         load.getOrdering(), load.getSyncscope().value_or(llvm::StringRef{}));
-    for (mlir::Operation *user : llvm::to_vector(load->getUsers()))
-      rewriter.replaceOp(mlir::cast<mlir::UnrealizedConversionCastOp>(user),
-                         newLoad.getResult());
-    rewriter.eraseOp(load);
+    rewriter.replaceOp(load, newLoad.getResult());
     return success();
   }
 };
