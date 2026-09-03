@@ -191,21 +191,32 @@ struct FenceSynthesisPass
     // Pressure maps: count of unsatisfied required pairs per row/column.
     llvm::DenseMap<uint64_t, unsigned> rowPressure, rowWritePressure,
         colPressure, colReadPressure, colWritePressure;
+    // Atomic-only pressure: excludes pairs where either endpoint is a plain
+    // ptr load/store.  Used for sorting so atomic pairs are processed first.
+    llvm::DenseMap<uint64_t, unsigned> rowAtomicPressure, colAtomicPressure;
     auto rebuildPressure = [&]() {
       rowPressure.clear();
       rowWritePressure.clear();
       colPressure.clear();
       colReadPressure.clear();
       colWritePressure.clear();
+      rowAtomicPressure.clear();
+      colAtomicPressure.clear();
       for (auto [c, d] : required.requiredPairs()) {
         if (mb.isOrdered(c, d))
           continue;
         rowPressure[c]++;
         colPressure[d]++;
+        Operation *cOp = mb.getOpForId(c);
         Operation *dOp = mb.getOpForId(d);
+        bool cPlain = cOp && isa<ptr::LoadOp, ptr::StoreOp>(cOp);
+        bool dPlain = dOp && isa<ptr::LoadOp, ptr::StoreOp>(dOp);
+        if (!cPlain && !dPlain) {
+          rowAtomicPressure[c]++;
+          colAtomicPressure[d]++;
+        }
         if (dOp && iface->isWriteEvent(dOp))
           rowWritePressure[c]++;
-        Operation *cOp = mb.getOpForId(c);
         bool cIsWrite = cOp && iface->isWriteEvent(cOp);
         bool cIsFence = cOp && iface->isFenceEvent(cOp);
         if (!cIsWrite && !cIsFence)
@@ -336,7 +347,7 @@ struct FenceSynthesisPass
       Operation *b = mb.getOpForId(p.second);
       if (!a || !b) return 0;
 
-      return colPressure[p.first] + rowPressure[p.second];
+      return colAtomicPressure[p.first] + rowAtomicPressure[p.second];
     };
     llvm::sort(sortedPairs, [&](const auto &a, const auto &b) {
       return globalPriority(a) > globalPriority(b);
