@@ -5148,28 +5148,52 @@ static void fixLargeStructReturnsDirect(mlir::Operation *root) {
     llvm::append_range(newArgAttrs, oldArgAttrs);
     fn.setAllArgAttrs(newArgAttrs);
 
-    // For defined functions, rewrite the body.
+    // For defined functions, rewrite the body: replace the return-value
+    // alloca with the sret pointer so objects are constructed in-place
+    // (critical for self-referential types like std::string SSO).
     if (!fn.isExternal()) {
-      // Insert sret block arg at position 0 in the entry block.
       mlir::Block &entryBlock = fn.getBody().front();
       mlir::Value sretArg = entryBlock.insertArgument(
           0u, llvmPtrTy, fn.getLoc());
 
-      // Rewrite all llvm.return ops: store value to sret, return void.
+      // Find all return ops that return a value.
       llvm::SmallVector<mlir::LLVM::ReturnOp> returns;
       fn.walk([&](mlir::LLVM::ReturnOp ret) {
         if (ret.getNumOperands() > 0)
           returns.push_back(ret);
       });
+
       for (auto retOp : returns) {
+        mlir::Value retVal = retOp.getOperand(0);
+
+        // Trace: ret %val  ←  %val = load %retval_alloca
+        auto loadOp = retVal.getDefiningOp<mlir::LLVM::LoadOp>();
+        if (loadOp) {
+          mlir::Value allocaPtr = loadOp.getAddr();
+          // Replace all uses of the alloca with sret arg so the object
+          // is constructed directly in the caller's buffer.
+          allocaPtr.replaceAllUsesWith(sretArg);
+          // The load now loads from sretArg, which is fine — remove it
+          // along with the return.
+        } else {
+          // Fallback: store the value to sret (works for non-self-referential
+          // types but won't fix SSO-style pointers).
+          b.setInsertionPoint(retOp);
+          mlir::LLVM::StoreOp::create(b, retOp.getLoc(),
+                                      retVal, sretArg,
+                                      /*alignment=*/0, /*isVolatile=*/false,
+                                      /*isNonTemporal=*/false,
+                                      /*isInvariantGroup=*/false);
+        }
+
+        // Replace value-returning ret with void ret.
         b.setInsertionPoint(retOp);
-        mlir::LLVM::StoreOp::create(b, retOp.getLoc(),
-                                    retOp.getOperand(0), sretArg,
-                                    /*alignment=*/0, /*volatile_=*/false,
-                                    /*nontemporal=*/false,
-                                    /*invariantGroup=*/false);
         mlir::LLVM::ReturnOp::create(b, retOp.getLoc(), mlir::ValueRange());
         retOp.erase();
+
+        // Clean up dead load.
+        if (loadOp && loadOp.use_empty())
+          loadOp.erase();
       }
     }
 
