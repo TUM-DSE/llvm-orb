@@ -186,24 +186,6 @@ struct FenceSynthesisPass
               << op->getName().getStringRef() << "\n";
       }
       log() << "=== End event map ===\n";
-
-      // Dump all required pairs involving specific events of interest.
-      log() << "=== Required pairs for quiescent_state events ===\n";
-      for (auto [a, b] : required.requiredPairs()) {
-        Operation *aOp = mb.getOpForId(a);
-        Operation *bOp = mb.getOpForId(b);
-        if (!aOp || !bOp) continue;
-        auto aFunc = aOp->getParentOfType<mlir::FunctionOpInterface>();
-        auto bFunc = bOp->getParentOfType<mlir::FunctionOpInterface>();
-        StringRef aName = aFunc ? aFunc.getNameAttr().getValue() : "";
-        StringRef bName = bFunc ? bFunc.getNameAttr().getValue() : "";
-        if (aName.contains("quiescent") || bName.contains("quiescent")) {
-          bool ordered = mb.isOrdered(a, b);
-          log() << "  (" << a << "," << b << ") " << aName << " -> " << bName
-                << (ordered ? " [pre-ordered]" : " [UNSATISFIED]") << "\n";
-        }
-      }
-      log() << "=== End quiescent pairs ===\n";
     }
 
     // Pressure maps: count of unsatisfied required pairs per row/column.
@@ -336,6 +318,7 @@ struct FenceSynthesisPass
     // Sort required pairs: non-plain access pairs first, fence pairs second,
     // plain-plain pairs last. This ensures tie-breaking favors atomic pairs.
     auto sortedPairs = llvm::to_vector(required.requiredPairs());
+    rebuildPressure();
     auto pairPriority = [&](const std::pair<uint64_t, uint64_t> &p) -> int {
       Operation *a = mb.getOpForId(p.first);
       Operation *b = mb.getOpForId(p.second);
