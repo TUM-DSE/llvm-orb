@@ -5036,6 +5036,74 @@ static void fixLargeStructCallArgsDirect(mlir::Operation *root) {
   }
 }
 
+/// CIR skips ABI lowering, so external functions returning large structs
+/// (>16 bytes on AArch64) return the struct by value instead of via sret.
+/// Rewrite declarations and call sites to use the sret calling convention.
+static void fixLargeStructReturnsDirect(mlir::Operation *root) {
+  auto *ctx = root->getContext();
+  mlir::OpBuilder b(ctx);
+  auto llvmPtrTy = mlir::LLVM::LLVMPointerType::get(ctx);
+  auto voidTy = mlir::LLVM::LLVMVoidType::get(ctx);
+
+  auto moduleOp = mlir::dyn_cast<mlir::ModuleOp>(root);
+  if (!moduleOp)
+    return;
+  mlir::DataLayout dl(moduleOp);
+
+  llvm::SmallVector<mlir::LLVM::LLVMFuncOp> funcsToFix;
+  moduleOp.walk([&](mlir::LLVM::LLVMFuncOp fn) {
+    if (!fn.isExternal())
+      return;
+    auto retTy = mlir::dyn_cast<mlir::LLVM::LLVMStructType>(
+        fn.getFunctionType().getReturnType());
+    if (!retTy)
+      return;
+    llvm::TypeSize size = dl.getTypeSize(retTy);
+    if (size > 16)
+      funcsToFix.push_back(fn);
+  });
+
+  for (auto fn : funcsToFix) {
+    auto fnTy = fn.getFunctionType();
+    auto retTy = mlir::cast<mlir::LLVM::LLVMStructType>(fnTy.getReturnType());
+
+    llvm::SmallVector<mlir::Type> newParamTypes;
+    newParamTypes.push_back(llvmPtrTy);
+    llvm::append_range(newParamTypes, fnTy.getParams());
+    fn.setFunctionType(mlir::LLVM::LLVMFunctionType::get(
+        ctx, voidTy, newParamTypes, fnTy.isVarArg()));
+    fn.setArgAttr(0, "llvm.sret", mlir::TypeAttr::get(retTy));
+    fn.setArgAttr(0, "llvm.writable", mlir::UnitAttr::get(ctx));
+    fn.setArgAttr(0, "llvm.dead_on_unwind", mlir::UnitAttr::get(ctx));
+
+    llvm::SmallVector<mlir::LLVM::CallOp> calls;
+    moduleOp.walk([&](mlir::LLVM::CallOp call) {
+      if (call.getCallee() == fn.getName())
+        calls.push_back(call);
+    });
+
+    for (auto callOp : calls) {
+      auto loc = callOp.getLoc();
+      auto parentFunc = callOp->getParentOfType<mlir::LLVM::LLVMFuncOp>();
+      mlir::OpBuilder::InsertionGuard guard(b);
+      b.setInsertionPointToStart(&parentFunc.getBody().front());
+      auto one = mlir::LLVM::ConstantOp::create(b, loc, b.getI64Type(),
+                                                 b.getI64IntegerAttr(1));
+      auto alloca = mlir::LLVM::AllocaOp::create(b, loc, llvmPtrTy, retTy,
+                                                  one, /*alignment=*/0);
+      b.setInsertionPoint(callOp);
+      llvm::SmallVector<mlir::Value> newArgs;
+      newArgs.push_back(alloca);
+      llvm::append_range(newArgs, callOp.getArgOperands());
+      mlir::LLVM::CallOp::create(b, loc, mlir::TypeRange{},
+                                 callOp.getCalleeAttr(), newArgs);
+      auto load = mlir::LLVM::LoadOp::create(b, loc, retTy, alloca);
+      callOp.replaceAllUsesWith(mlir::ValueRange{load.getResult()});
+      callOp.erase();
+    }
+  }
+}
+
 std::unique_ptr<llvm::Module>
 lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
                              StringRef mlirSaveTempsOutFile,
@@ -5079,8 +5147,10 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
         "The pass manager failed to lower CIR to LLVMIR dialect!");
   }
 
-  if (!useAnyOrb)
+  if (!useAnyOrb) {
     fixLargeStructCallArgsDirect(mlirModule);
+    fixLargeStructReturnsDirect(mlirModule);
+  }
 
   if (!mlirSaveTempsOutFile.empty()) {
     std::error_code ec;
