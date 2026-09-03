@@ -868,11 +868,9 @@ static void fixLargeStructReturns(mlir::Operation *root) {
     return;
   mlir::DataLayout dl(moduleOp);
 
-  // Collect external functions returning large structs.
+  // Collect functions returning large structs.
   llvm::SmallVector<mlir::LLVM::LLVMFuncOp> funcsToFix;
   moduleOp.walk([&](mlir::LLVM::LLVMFuncOp fn) {
-    if (!fn.isExternal())
-      return;
     auto retTy = mlir::dyn_cast<mlir::LLVM::LLVMStructType>(
         fn.getFunctionType().getReturnType());
     if (!retTy)
@@ -887,18 +885,47 @@ static void fixLargeStructReturns(mlir::Operation *root) {
     auto fnTy = fn.getFunctionType();
     auto retTy = mlir::cast<mlir::LLVM::LLVMStructType>(fnTy.getReturnType());
 
-    // Rewrite declaration: void(ptr sret, original_args...)
+    // Rewrite function type: void(ptr sret, original_args...)
     llvm::SmallVector<mlir::Type> newParamTypes;
     newParamTypes.push_back(llvmPtrTy);
     llvm::append_range(newParamTypes, fnTy.getParams());
-    auto newFnTy = mlir::LLVM::LLVMFunctionType::get(
-        ctx, voidTy, newParamTypes, fnTy.isVarArg());
-    fn.setFunctionType(newFnTy);
+    fn.setFunctionType(mlir::LLVM::LLVMFunctionType::get(
+        ctx, voidTy, newParamTypes, fnTy.isVarArg()));
 
-    // Set sret attributes on the new first argument.
+    // Shift existing arg attrs right by 1 to make room for the sret slot.
+    for (int i = fnTy.getNumParams() - 1; i >= 0; --i) {
+      if (auto attrs = fn.getArgAttrDict(i))
+        fn.setArgAttrs(i + 1, attrs);
+      else
+        fn.setArgAttrs(i + 1, nullptr);
+    }
     fn.setArgAttr(0, "llvm.sret", mlir::TypeAttr::get(retTy));
     fn.setArgAttr(0, "llvm.writable", mlir::UnitAttr::get(ctx));
     fn.setArgAttr(0, "llvm.dead_on_unwind", mlir::UnitAttr::get(ctx));
+
+    // For defined functions, rewrite the body.
+    if (!fn.isExternal()) {
+      mlir::Block &entryBlock = fn.getBody().front();
+      mlir::Value sretArg = entryBlock.insertArgument(
+          0u, llvmPtrTy, fn.getLoc());
+
+      // Rewrite all llvm.return ops: store value to sret, return void.
+      llvm::SmallVector<mlir::LLVM::ReturnOp> returns;
+      fn.walk([&](mlir::LLVM::ReturnOp ret) {
+        if (ret.getNumOperands() > 0)
+          returns.push_back(ret);
+      });
+      for (auto retOp : returns) {
+        b.setInsertionPoint(retOp);
+        mlir::LLVM::StoreOp::create(b, retOp.getLoc(),
+                                    retOp.getOperand(0), sretArg,
+                                    /*alignment=*/0, /*volatile_=*/false,
+                                    /*nontemporal=*/false,
+                                    /*invariantGroup=*/false);
+        mlir::LLVM::ReturnOp::create(b, retOp.getLoc(), mlir::ValueRange());
+        retOp.erase();
+      }
+    }
 
     // Rewrite all call sites.
     llvm::SmallVector<mlir::LLVM::CallOp> calls;

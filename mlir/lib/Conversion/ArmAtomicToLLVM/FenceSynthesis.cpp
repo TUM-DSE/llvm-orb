@@ -473,12 +473,10 @@ struct FenceSynthesisPass
       }
       ++iteration;
 
-      if (iteration % 100 == 0) {
-        auto [c, o] = mb.orderedCounts();
-        log() << "ordered=" << c << "/" << total
-              << " overspecified=" << o
-              << " t=" << elapsedMs() << "ms\n";
-      }
+      auto [c, o] = mb.orderedCounts();
+      log() << "ordered=" << c << "/" << total
+            << " overspecified=" << o
+            << " t=" << elapsedMs() << "ms\n";
     }
 
     auto [covered, overspecified] = mb.orderedCounts();
@@ -486,32 +484,6 @@ struct FenceSynthesisPass
                  << " overspecified=" << overspecified
                  << " promotions=" << iteration
                  << " t=" << elapsedMs() << "ms\n";
-
-    // Post-synthesis: check if quiescent_state pairs are satisfied.
-    {
-      log() << "=== Post-synthesis quiescent pairs ===\n";
-      unsigned sat = 0, unsat = 0;
-      for (auto [a, b] : required.requiredPairs()) {
-        Operation *aOp = mb.getOpForId(a);
-        Operation *bOp = mb.getOpForId(b);
-        if (!aOp || !bOp) continue;
-        auto aFunc = aOp->getParentOfType<mlir::FunctionOpInterface>();
-        auto bFunc = bOp->getParentOfType<mlir::FunctionOpInterface>();
-        StringRef aName = aFunc ? aFunc.getNameAttr().getValue() : "";
-        StringRef bName = bFunc ? bFunc.getNameAttr().getValue() : "";
-        if (aName.contains("quiescent") || bName.contains("quiescent")) {
-          if (mb.isOrdered(a, b))
-            ++sat;
-          else {
-            ++unsat;
-            log() << "  STILL UNSATISFIED (" << a << "," << b << ") "
-                  << aName << " -> " << bName << "\n";
-          }
-        }
-      }
-      log() << "  quiescent: " << sat << " satisfied, " << unsat << " unsatisfied\n";
-      log() << "=== End post-synthesis ===\n";
-    }
 
     // Turn remaining Relaxed fences into compiler barriers (singlethread
     // syncscope). Per-access upgrades (LDAPR/STLR) satisfy ordering pairs but
