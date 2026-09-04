@@ -155,10 +155,10 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
 
     if (reach.canReach(ev, f)) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
-      // Cross-function: ev→f is Ordered if fence is on all paths from ev.
-      if (order != EventOrder::Ordered && !sameRegion &&
-          fencePostDominatesSource(f, ev, postDom, reach))
-        order = EventOrder::Ordered;
+      //// Cross-function: ev→f is Ordered if fence is on all paths from ev.
+      //if (order != EventOrder::Ordered && !sameRegion &&
+      //    fencePostDominatesSource(f, ev, postDom, reach))
+      //  order = EventOrder::Ordered;
       bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
         setOrderTracked(ev0, f1, order); // cross-iteration
@@ -169,10 +169,10 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     }
     if (reach.canReach(f, ev)) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
-      // Cross-function: f→ev is Ordered if fence is on all paths to ev.
-      if (order != EventOrder::Ordered && !sameRegion &&
-          fenceDominatesTarget(f, ev, dom, reach))
-        order = EventOrder::Ordered;
+      //// Cross-function: f→ev is Ordered if fence is on all paths to ev.
+      //if (order != EventOrder::Ordered && !sameRegion &&
+      //    fenceDominatesTarget(f, ev, dom, reach))
+      //  order = EventOrder::Ordered;
       bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
         setOrderTracked(f0, ev1, order); // cross-iteration
@@ -336,10 +336,10 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
 
     if (reach.canReach(ev, f)) {
       EventOrder order = queryOrder(ev, f, iface, aa, dom);
-      // Cross-function: ev→f is Ordered if fence is on all paths from ev.
-      if (order != EventOrder::Ordered && !sameRegion &&
-          fencePostDominatesSource(f, ev, postDom, reach))
-        order = EventOrder::Ordered;
+      //// Cross-function: ev→f is Ordered if fence is on all paths from ev.
+      //if (order != EventOrder::Ordered && !sameRegion &&
+      //    fencePostDominatesSource(f, ev, postDom, reach))
+      //  order = EventOrder::Ordered;
       bool isBackEdge = sameRegion && dom.dominates(f, ev);
       if (isBackEdge) {
         setOrderTracked(ev0, f1, order);
@@ -350,10 +350,10 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
     }
     if (reach.canReach(f, ev)) {
       EventOrder order = queryOrder(f, ev, iface, aa, dom);
-      // Cross-function: f→ev is Ordered if fence is on all paths to ev.
-      if (order != EventOrder::Ordered && !sameRegion &&
-          fenceDominatesTarget(f, ev, dom, reach))
-        order = EventOrder::Ordered;
+      //// Cross-function: f→ev is Ordered if fence is on all paths to ev.
+      //if (order != EventOrder::Ordered && !sameRegion &&
+      //    fenceDominatesTarget(f, ev, dom, reach))
+      //  order = EventOrder::Ordered;
       bool isBackEdge = sameRegion && dom.dominates(ev, f);
       if (isBackEdge) {
         setOrderTracked(f0, ev1, order);
