@@ -1005,8 +1005,7 @@ void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
     for (unsigned aD = 0; aD < n; ++aD) {
       if (aD == fD || matrix[aD * n + fD] != EventOrder::Ordered)
         continue;
-      if (!fPostDomSource.test(aD / 2))
-        continue;
+      bool aPostDom = fPostDomSource.test(aD / 2);
       for (unsigned bD = 0; bD < n; ++bD) {
         if (bD == fD || bD == aD)
           continue;
@@ -1014,7 +1013,10 @@ void OrderMatrix::applyFenceClosure(unsigned fOrigIdx,
           continue;
         if (matrix[fD * n + bD] != EventOrder::Ordered)
           continue;
-        if (!fDomTarget.test(bD / 2))
+        // Either condition suffices for F to be on the A→B path:
+        //   fDomTarget(B)      — F on all paths TO B, so any A→B path hits F.
+        //   fPostDomSource(A)  — F on all paths FROM A, so any A→B path hits F.
+        if (!aPostDom && !fDomTarget.test(bD / 2))
           continue;
         Operation *a = idToOp[ids[aD / 2]];
         Operation *b = idToOp[ids[bD / 2]];
