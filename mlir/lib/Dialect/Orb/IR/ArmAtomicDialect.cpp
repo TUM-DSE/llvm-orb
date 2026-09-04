@@ -930,6 +930,21 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
       for (uint64_t x : mb.eventIds())
         mb.markOrdered(loadId, x);    // [A];po
       mb.markOrdered(storeId, loadId);
+      // [L];po;[A] — cross-pair interactions with already-upgraded events.
+      for (uint64_t x : mb.eventIds()) {
+        Operation *op = mb.getOpForId(x);
+        if (isa<arm_atomic::AtomicStoreOp>(op)) {
+          auto xmo = getArmMemoryOrder(op);
+          if (xmo == arm_atomic::MemoryOrder::Release ||
+              xmo == arm_atomic::MemoryOrder::AcqRel)
+            mb.markOrdered(x, loadId);
+        } else if (isa<arm_atomic::AtomicLoadOp>(op)) {
+          auto xmo = getArmMemoryOrder(op);
+          if (xmo == arm_atomic::MemoryOrder::Acquire ||
+              xmo == arm_atomic::MemoryOrder::AcqRel)
+            mb.markOrdered(storeId, x);
+        }
+      }
       return;
     }
 
@@ -941,55 +956,61 @@ struct ArmAtomicOrbInterface : public orb::OrbAtomicDialectInterface {
     Operation *curOpA = mb.getOpForId(idA);
     Operation *curOpB = mb.getOpForId(idB);
 
-    if (isa<arm_atomic::AtomicLoadOp>(curOpA) || isa<arm_atomic::AtomicLoadOp>(curOpB)) {
-      // Determine which event is the upgraded load.
-      uint64_t loadId;
-      if (isa<arm_atomic::AtomicLoadOp>(curOpA) &&
-          getArmMemoryOrder(curOpA) == mo)
-        loadId = idA;
-      else
-        loadId = idB;
-      // [A|Q];po
-      for (uint64_t x : mb.eventIds())
-        mb.markOrdered(loadId, x);
-      // [L];po;[A] — only for ACQ, not ACQPC.
-      if (mo == arm_atomic::MemoryOrder::Acquire ||
-          mo == arm_atomic::MemoryOrder::AcqRel) {
-        for (uint64_t x : mb.eventIds()) {
-          Operation *op = mb.getOpForId(x);
-          if (!isa<arm_atomic::AtomicStoreOp>(op)) continue;
-          auto xmo = getArmMemoryOrder(op);
-          if (xmo == arm_atomic::MemoryOrder::Release ||
-              xmo == arm_atomic::MemoryOrder::AcqRel)
-            mb.markOrdered(x, loadId);
+    // Fence upgrade — detect via curOp (safe, resolved from matrix).
+    // Fence ops are never erased by upgradeOp.
+    if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(curOpA)) {
+      if (fence.getMemoryOrder() == mo) {
+        mb.applyFenceUpgrade(mb.idxOf(idA), this, aa, dom, postDom, reach);
+        return;
+      }
+    }
+    if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(curOpB)) {
+      if (fence.getMemoryOrder() == mo) {
+        mb.applyFenceUpgrade(mb.idxOf(idB), this, aa, dom, postDom, reach);
+        return;
+      }
+    }
+
+    // Access upgrade — apply ARM ordering rules for both endpoints.
+    // markOrdered is idempotent, so re-processing a previously-handled
+    // endpoint is harmless.
+    for (auto [id, curOp] : {std::pair{idA, curOpA}, std::pair{idB, curOpB}}) {
+      if (auto load = dyn_cast<arm_atomic::AtomicLoadOp>(curOp)) {
+        auto loadMO = load.getMemoryOrder();
+        if (loadMO == arm_atomic::MemoryOrder::Relaxed) continue;
+        // [A|Q];po
+        for (uint64_t x : mb.eventIds())
+          mb.markOrdered(id, x);
+        // [L];po;[A] — Release stores before this Acquire load
+        if (loadMO == arm_atomic::MemoryOrder::Acquire ||
+            loadMO == arm_atomic::MemoryOrder::AcqRel) {
+          for (uint64_t x : mb.eventIds()) {
+            Operation *op = mb.getOpForId(x);
+            if (!isa<arm_atomic::AtomicStoreOp>(op)) continue;
+            auto xmo = getArmMemoryOrder(op);
+            if (xmo == arm_atomic::MemoryOrder::Release ||
+                xmo == arm_atomic::MemoryOrder::AcqRel)
+              mb.markOrdered(x, id);
+          }
+        }
+      } else if (auto store = dyn_cast<arm_atomic::AtomicStoreOp>(curOp)) {
+        auto storeMO = store.getMemoryOrder();
+        if (storeMO == arm_atomic::MemoryOrder::Release ||
+            storeMO == arm_atomic::MemoryOrder::AcqRel) {
+          // po;[L]
+          for (uint64_t x : mb.eventIds())
+            mb.markOrdered(x, id);
+          // [L];po;[A] — Acquire loads after this Release store
+          for (uint64_t x : mb.eventIds()) {
+            Operation *op = mb.getOpForId(x);
+            if (!isa<arm_atomic::AtomicLoadOp>(op)) continue;
+            auto xmo = getArmMemoryOrder(op);
+            if (xmo == arm_atomic::MemoryOrder::Acquire ||
+                xmo == arm_atomic::MemoryOrder::AcqRel)
+              mb.markOrdered(id, x);
+          }
         }
       }
-    } else if (isa<arm_atomic::AtomicStoreOp>(curOpA) || isa<arm_atomic::AtomicStoreOp>(curOpB)) {
-      uint64_t storeId;
-      if (isa<arm_atomic::AtomicStoreOp>(curOpA) &&
-          getArmMemoryOrder(curOpA) == mo)
-        storeId = idA;
-      else
-        storeId = idB;
-      // po;[L]
-      for (uint64_t x : mb.eventIds())
-        mb.markOrdered(x, storeId);
-      // [L];po;[A] — mark ACQ load successors.
-      for (uint64_t x : mb.eventIds()) {
-        Operation *op = mb.getOpForId(x);
-        if (!isa<arm_atomic::AtomicLoadOp>(op)) continue;
-        auto xmo = getArmMemoryOrder(op);
-        if (xmo == arm_atomic::MemoryOrder::Acquire ||
-            xmo == arm_atomic::MemoryOrder::AcqRel)
-          mb.markOrdered(storeId, x);
-      }
-    } else if (isa<arm_atomic::AtomicFenceOp>(ua.op)) {
-      // Fence upgrade (endpoint or intermediate) — ua.op is always valid
-      // for fences since they are never converted from ptr ops.
-      auto fIdAttr = ua.op->getAttrOfType<IntegerAttr>(orb::kEventIdAttr);
-      assert(fIdAttr && "upgraded fence must have orb.event_id");
-      uint64_t fId = fIdAttr.getInt();
-      mb.applyFenceUpgrade(mb.idxOf(fId), this, aa, dom, postDom, reach);
     }
   }
 
