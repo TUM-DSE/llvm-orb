@@ -5163,6 +5163,10 @@ static void fixLargeStructReturnsDirect(mlir::Operation *root) {
           returns.push_back(ret);
       });
 
+      // Track allocas we've already replaced to avoid replacing sretArg
+      // with itself when multiple returns trace back to the same alloca.
+      llvm::SmallPtrSet<mlir::Value, 4> replacedAllocas;
+
       for (auto retOp : returns) {
         mlir::Value retVal = retOp.getOperand(0);
 
@@ -5172,7 +5176,10 @@ static void fixLargeStructReturnsDirect(mlir::Operation *root) {
           mlir::Value allocaPtr = loadOp.getAddr();
           // Replace all uses of the alloca with sret arg so the object
           // is constructed directly in the caller's buffer.
-          allocaPtr.replaceAllUsesWith(sretArg);
+          if (!replacedAllocas.count(allocaPtr)) {
+            replacedAllocas.insert(allocaPtr);
+            allocaPtr.replaceAllUsesWith(sretArg);
+          }
           // The load now loads from sretArg, which is fine — remove it
           // along with the return.
         } else {

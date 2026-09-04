@@ -981,6 +981,10 @@ static void fixLargeStructReturns(mlir::Operation *root) {
           returns.push_back(ret);
       });
 
+      // Track allocas we've already replaced to avoid replacing sretArg
+      // with itself when multiple returns trace back to the same alloca.
+      llvm::SmallPtrSet<mlir::Value, 4> replacedAllocas;
+
       for (auto retOp : returns) {
         mlir::Value retVal = retOp.getOperand(0);
 
@@ -1000,9 +1004,10 @@ static void fixLargeStructReturns(mlir::Operation *root) {
           }
         }
 
-        if (allocaPtr) {
+        if (allocaPtr && !replacedAllocas.count(allocaPtr)) {
+          replacedAllocas.insert(allocaPtr);
           allocaPtr.replaceAllUsesWith(sretArg);
-        } else {
+        } else if (!allocaPtr) {
           // Fallback: store the value to sret.
           b.setInsertionPoint(retOp);
           mlir::LLVM::StoreOp::create(b, retOp.getLoc(),
