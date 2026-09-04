@@ -94,7 +94,7 @@ struct FenceSynthesisPass
     log() << "start fenceCostBase=" << fenceCostBase << "\n";
     auto &required = getAnalysis<orb::OrderAnalysis>();
     log() << "required pairs=" << required.requiredPairs().size() << "\n";
-    if (required.empty())
+    if (required.empty() || required.requiredPairs().size() == 0)
       return;
 
     auto &aa  = getAnalysis<AliasAnalysis>();
