@@ -183,6 +183,7 @@ void OrderMatrix::addFence(Operation *f, const OrbAtomicDialectInterface *iface,
     }
   }
   applyFenceClosure(fOrigIdx, iface, dom, postDom, reach);
+  closeTransitively(iface);
 }
 
 void OrderMatrix::precomputeTransitiveDominance(
@@ -364,6 +365,7 @@ void OrderMatrix::applyFenceUpgrade(unsigned fIdx, const OrbAtomicDialectInterfa
     }
   }
   applyFenceClosure(fIdx, iface, dom, postDom, reach);
+  closeTransitively(iface);
 }
 
 void OrderMatrix::precomputeIntermediateFences(
