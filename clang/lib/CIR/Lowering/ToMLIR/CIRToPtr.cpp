@@ -208,7 +208,11 @@ struct PtrStrideLowering : public OpConversionPattern<cir::PtrStrideOp> {
 
 /// cir.load [volatile] [atomic(order)] %ptr -> ptr.load
 struct LoadLowering : public OpConversionPattern<cir::LoadOp> {
-  using OpConversionPattern::OpConversionPattern;
+  mlir::DataLayout const &dataLayout;
+
+  LoadLowering(const mlir::TypeConverter &tc, mlir::MLIRContext *ctx,
+               mlir::DataLayout const &dl)
+      : OpConversionPattern(tc, ctx), dataLayout(dl) {}
 
   LogicalResult matchAndRewrite(cir::LoadOp op, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
@@ -225,15 +229,24 @@ struct LoadLowering : public OpConversionPattern<cir::LoadOp> {
                : std::optional<int64_t>(std::nullopt));
     bool isVolatile = op.getIsVolatile();
 
-    Type resultTy = getTypeConverter()->convertType(op.getType());
+    // Use the memory type (e.g. i8 for bool) to match the alloca element type.
+    Type memTy = convertTypeForMemory(*getTypeConverter(), dataLayout,
+                                      op.getType());
     unsigned alignUnsigned = align ? static_cast<unsigned>(*align) : 0u;
-    auto newLoad = ptr::LoadOp::create(rewriter, loc, resultTy,
+    auto newLoad = ptr::LoadOp::create(rewriter, loc, memTy,
                                        adaptor.getAddr(), alignUnsigned,
                                        isVolatile, /*nontemporal=*/false,
                                        /*invariant=*/false,
                                        /*invariantGroup=*/false,
                                        ordering, StringRef{});
-    rewriter.replaceOp(op, newLoad.getResult());
+
+    // Truncate back to scalar type if memory representation differs (bool i8→i1).
+    Value result = newLoad.getResult();
+    Type scalarTy = getTypeConverter()->convertType(op.getType());
+    if (memTy != scalarTy)
+      result = LLVM::TruncOp::create(rewriter, loc, scalarTy, result);
+
+    rewriter.replaceOp(op, result);
     return success();
   }
 };
@@ -287,7 +300,11 @@ struct AllocaLowering : public OpConversionPattern<cir::AllocaOp> {
 
 /// cir.store [volatile] [atomic(order)] %val, %ptr -> ptr.store
 struct StoreLowering : public OpConversionPattern<cir::StoreOp> {
-  using OpConversionPattern::OpConversionPattern;
+  mlir::DataLayout const &dataLayout;
+
+  StoreLowering(const mlir::TypeConverter &tc, mlir::MLIRContext *ctx,
+                mlir::DataLayout const &dl)
+      : OpConversionPattern(tc, ctx), dataLayout(dl) {}
 
   LogicalResult matchAndRewrite(cir::StoreOp op, OpAdaptor adaptor,
                                 ConversionPatternRewriter &rewriter) const override {
@@ -303,8 +320,15 @@ struct StoreLowering : public OpConversionPattern<cir::StoreOp> {
                : std::optional<int64_t>(std::nullopt));
     bool isVolatile = op.getIsVolatile();
 
+    // Zero-extend scalar to memory type if they differ (bool i1→i8).
+    Value val = adaptor.getValue();
+    Type memTy = convertTypeForMemory(*getTypeConverter(), dataLayout,
+                                      op.getValue().getType());
+    if (val.getType() != memTy)
+      val = LLVM::ZExtOp::create(rewriter, loc, memTy, val);
+
     unsigned alignUnsigned = align ? static_cast<unsigned>(*align) : 0u;
-    ptr::StoreOp::create(rewriter, loc, adaptor.getValue(), adaptor.getAddr(),
+    ptr::StoreOp::create(rewriter, loc, val, adaptor.getAddr(),
                          alignUnsigned, isVolatile, /*nontemporal=*/false,
                          /*invariantGroup=*/false, ordering, StringRef{});
     rewriter.eraseOp(op);
@@ -340,9 +364,9 @@ struct CIRToPtrPass : public mlir::impl::CIRToPtrBase<CIRToPtrPass> {
     target.addIllegalOp<cir::AllocaOp>();
 
     RewritePatternSet patterns(ctx);
-    patterns.add<AllocaLowering>(tc, ctx, dl);
-    patterns.add<CastArrayDecayLowering, GetElementLowering, PtrStrideLowering,
-                 LoadLowering, StoreLowering>(tc, ctx);
+    patterns.add<AllocaLowering, LoadLowering, StoreLowering>(tc, ctx, dl);
+    patterns.add<CastArrayDecayLowering, GetElementLowering,
+                 PtrStrideLowering>(tc, ctx);
 
     mlir::cf::populateCFStructuralTypeConversionsAndLegality(tc, patterns,
                                                              target);
