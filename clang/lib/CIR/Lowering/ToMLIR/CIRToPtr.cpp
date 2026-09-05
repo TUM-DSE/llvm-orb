@@ -1074,8 +1074,11 @@ struct CIROrbCleanupPass : public mlir::impl::CIROrbCleanupBase<CIROrbCleanupPas
     patterns.add<ReconcileToPtrCastPattern>(&getContext());
     patterns.add<ReconcileFromPtrCastPattern>(&getContext());
     patterns.add<ConvertCastPattern>(&getContext());
+    mlir::GreedyRewriteConfig config;
+    config.setRegionSimplificationLevel(
+        mlir::GreedySimplifyRegionLevel::Disabled);
     if (failed(mlir::applyPatternsGreedily(getOperation(),
-                                           std::move(patterns))))
+                                           std::move(patterns), config)))
       signalPassFailure();
     // ConvertCastPattern may have produced new ptr::PtrType values (ptr.to_ptr
     // results) that ended up as llvm.cond_br block-arg operands.  Fix them now.
