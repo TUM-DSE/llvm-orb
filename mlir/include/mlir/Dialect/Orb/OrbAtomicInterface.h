@@ -237,9 +237,11 @@ private:
   std::vector<Operation *> idToOp; // indexed by event ID → Operation*
   llvm::SmallVector<uint64_t> ids;
   unsigned n = 0;
+  unsigned n_stable = 0;
   /// Number of original events. Matrix dimension `n` = 2 * nEvents (doubled).
   /// Even indices (2i) = same-iteration copy, odd (2i+1) = cross-iteration.
   unsigned nEvents = 0;
+  unsigned nEvents_stable = 0;
   const llvm::DenseSet<std::pair<uint64_t, uint64_t>> *requiredSet = nullptr;
   unsigned coveredCount = 0;
   unsigned overspecifiedCount = 0;

@@ -236,27 +236,27 @@ void OrderMatrix::precomputeTransitiveDominance(
 
 void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
                                     unsigned maxRounds) {
-  if (n == 0)
+  if (n_stable == 0)
     return;
   // Build set of fence doubled-indices to skip as intermediaries.
   // Matrix cells A→F and F→B represent conditional ordering (IF F executes).
   // Only applyFenceClosure may derive A→B through F (with dom/post-dom checks).
-  llvm::BitVector fenceIndices(n);
+  llvm::BitVector fenceIndices(n_stable);
   if (iface) {
-    for (unsigned i = 0; i < nEvents; ++i)
+    for (unsigned i = 0; i < nEvents_stable; ++i)
       if (iface->isFenceEvent(idToOp[ids[i]])) {
         fenceIndices.set(2 * i);
         fenceIndices.set(2 * i + 1);
       }
   }
 
-  llvm::SmallVector<llvm::BitVector> ordered(n, llvm::BitVector(n));
-  llvm::SmallVector<llvm::BitVector> unordered(n, llvm::BitVector(n));
-  for (unsigned a = 0; a < n; ++a)
-    for (unsigned b = 0; b < n; ++b) {
-      if (matrix[a * n + b] == EventOrder::Ordered)
+  llvm::SmallVector<llvm::BitVector> ordered(n_stable, llvm::BitVector(n_stable));
+  llvm::SmallVector<llvm::BitVector> unordered(n_stable, llvm::BitVector(n_stable));
+  for (unsigned a = 0; a < n_stable; ++a)
+    for (unsigned b = 0; b < n_stable; ++b) {
+      if (matrix[a * n_stable + b] == EventOrder::Ordered)
         ordered[a].set(b);
-      else if (matrix[a * n + b] == EventOrder::Unordered)
+      else if (matrix[a * n_stable + b] == EventOrder::Unordered)
         unordered[a].set(b);
     }
 
@@ -266,7 +266,7 @@ void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
   while (changed && (maxRounds == 0 || rounds < maxRounds)) {
     changed = false;
     ++rounds;
-    for (unsigned a = 0; a < n; ++a) {
+    for (unsigned a = 0; a < n_stable; ++a) {
       for (int c = ordered[a].find_first(); c != -1;
            c = ordered[a].find_next(c)) {
         // Skip fence intermediaries — A→F and F→B are conditional
@@ -306,7 +306,7 @@ void OrderMatrix::closeTransitively(const OrbAtomicDialectInterface *iface,
         if (newBits.none())
           continue;
         for (int b = newBits.find_first(); b != -1; b = newBits.find_next(b)) {
-          matrix[a * n + b] = EventOrder::Ordered;
+          matrix[a * n_stable + b] = EventOrder::Ordered;
           trackNewOrdered(a, b);
           ++added;
         }
@@ -1049,8 +1049,10 @@ OrderMatrix mlir::orb::getOrderMatrix(ModuleOp module,
   });
 
   result.nEvents = result.ids.size();
+  result.nEvents_stable = result.nEvents;
   unsigned nEv = result.nEvents;
   result.n = 2 * nEv; // doubled matrix dimension
+  result.n_stable = result.n;
   unsigned dim = result.n;
   llvm::errs() << "[getOrderMatrix] n=" << nEv << "\n";
   result.matrix.assign(dim * dim, EventOrder::Unreachable);
