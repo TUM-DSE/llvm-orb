@@ -5269,6 +5269,8 @@ lowerDirectlyFromCIRToLLVMIR(mlir::ModuleOp mlirModule, LLVMContext &llvmCtx,
     populateCIRToLLVMPasses(pm);
 
   (void)mlir::applyPassManagerCLOptions(pm);
+  // No-op unless `-mmlir --mlir-timing` is given.
+  mlir::applyDefaultTimingPassManagerCLOptions(pm);
 
   if (mlir::failed(pm.run(mlirModule))) {
     // FIXME: Handle any errors where they occurs and return a nullptr here.

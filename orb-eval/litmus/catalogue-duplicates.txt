@@ -1,0 +1,8 @@
+# Catalogue tests that are the same program as another catalogue test, up to the
+# names of registers and locations. Each line: <duplicate> <kept test>.
+# Skipping them reduces the 47 c11popl15 tests to 44 distinct programs, as in
+# the Orb paper. Found by comparing the tests with all identifiers renamed in
+# order of appearance.
+a6           a5
+b            lb
+strengthen2  roachmotel2

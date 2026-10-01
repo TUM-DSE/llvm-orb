@@ -470,9 +470,16 @@ struct FenceSynthesisPass
     }
 
     auto [covered, overspecified] = mb.orderedCounts();
+    // Required pairs the final matrix still reports as unordered -- the same
+    // check the naive pass logs, so that the two summaries are comparable.
+    unsigned remaining = 0;
+    for (auto [idA, idB] : required.requiredPairs())
+      if (!mb.isOrdered(idA, idB))
+        ++remaining;
     log() << "done ordered=" << covered << "/" << total
                  << " overspecified=" << overspecified
                  << " promotions=" << iteration
+                 << " remaining=" << remaining
                  << " t=" << elapsedMs() << "ms\n";
 
     // Turn remaining Relaxed fences into compiler barriers (singlethread

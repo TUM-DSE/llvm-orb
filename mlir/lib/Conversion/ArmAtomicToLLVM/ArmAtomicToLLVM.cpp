@@ -12,9 +12,13 @@
 #include "mlir/Conversion/LLVMCommon/Pattern.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/Dialect/Orb/ArmAtomicDialect.h"
+#include "mlir/Dialect/Orb/OrbAtomicInterface.h"
+#include "mlir/Dialect/Ptr/IR/PtrOps.h"
 #include "mlir/Dialect/Ptr/IR/PtrTypes.h"
 #include "mlir/Pass/Pass.h"
 #include "mlir/Transforms/DialectConversion.h"
+#include "llvm/Support/Path.h"
+#include "llvm/Support/raw_ostream.h"
 
 namespace mlir {
 #define GEN_PASS_DEF_CONVERTARMATOMICTOLLVMPASS
@@ -149,11 +153,72 @@ void mlir::populateArmAtomicToLLVMPatterns(LLVMTypeConverter &converter,
 }
 
 namespace {
+/// Prints one line counting the memory events of the target program by kind
+/// and memory order, e.g.
+///
+///   [OrbStats] module=test_urcu.c ld_rlx=12 ld_acqpc=0 ld_acq=3 ...
+///
+/// This pass runs after the memory model boundary in both pipelines -- after
+/// the synthesis in -orb, after the naive conversion in -naive-orb -- so the
+/// line records exactly the primitives handed to the back end. Unlike counting
+/// instructions in the object file, it separates relaxed atomic accesses from
+/// non-atomic ones (ptr_ld/ptr_st), which both compile to plain LDR/STR.
+/// Relaxed fences are deliberately not counted as they emit no instruction. Stack-slot
+/// accesses are not memory events and are not counted.
+static void reportTargetStats(ModuleOp module) {
+  unsigned ldRlx = 0, ldAcqPC = 0, ldAcq = 0, stRlx = 0, stRel = 0;
+  unsigned fAcq = 0, fRel = 0, fAcqRel = 0, ptrLd = 0, ptrSt = 0;
+  unsigned other = 0; // orders the conversions never produce
+  module.walk([&](Operation *op) {
+    if (auto ld = dyn_cast<arm_atomic::AtomicLoadOp>(op)) {
+      switch (ld.getMemoryOrder()) {
+      case arm_atomic::MemoryOrder::Relaxed:   ++ldRlx; break;
+      case arm_atomic::MemoryOrder::AcquirePC: ++ldAcqPC; break;
+      case arm_atomic::MemoryOrder::Acquire:   ++ldAcq; break;
+      default:                                 ++other; break;
+      }
+    } else if (auto st = dyn_cast<arm_atomic::AtomicStoreOp>(op)) {
+      switch (st.getMemoryOrder()) {
+      case arm_atomic::MemoryOrder::Relaxed: ++stRlx; break;
+      case arm_atomic::MemoryOrder::Release: ++stRel; break;
+      default:                               ++other; break;
+      }
+    } else if (auto fence = dyn_cast<arm_atomic::AtomicFenceOp>(op)) {
+      switch (fence.getMemoryOrder()) {
+      case arm_atomic::MemoryOrder::Acquire: ++fAcq; break;
+      case arm_atomic::MemoryOrder::Release: ++fRel; break;
+      case arm_atomic::MemoryOrder::AcqRel:  ++fAcqRel; break;
+      default:                               ++other; break;
+      }
+    } else if (isa<ptr::LoadOp>(op) && !orb::isStackSlotAccess(op)) {
+      ++ptrLd;
+    } else if (isa<ptr::StoreOp>(op) && !orb::isStackSlotAccess(op)) {
+      ++ptrSt;
+    }
+  });
+
+  StringRef name = "<unknown>";
+  if (auto moduleName = module.getName())
+    name = llvm::sys::path::filename(*moduleName);
+  else if (auto fileLoc = dyn_cast<FileLineColLoc>(module->getLoc()))
+    name = llvm::sys::path::filename(fileLoc.getFilename());
+
+  llvm::errs() << "[OrbStats] module=" << name << " ld_rlx=" << ldRlx
+               << " ld_acqpc=" << ldAcqPC << " ld_acq=" << ldAcq
+               << " st_rlx=" << stRlx << " st_rel=" << stRel
+               << " fence_acq=" << fAcq
+               << " fence_rel=" << fRel << " fence_acqrel=" << fAcqRel
+               << " ptr_ld=" << ptrLd << " ptr_st=" << ptrSt
+               << " other=" << other << "\n";
+}
+
 struct ConvertArmAtomicToLLVMPass
     : public impl::ConvertArmAtomicToLLVMPassBase<ConvertArmAtomicToLLVMPass> {
   using Base::Base;
 
   void runOnOperation() override {
+    reportTargetStats(getOperation());
+
     LLVMTypeConverter converter(&getContext());
     addPtrTypeConversions(converter);
 

@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+#
+# The CC (and, as orb-timed-c++, the CXX) of the benchmark builds; see build.sh.
+#
+# During `configure` (BENCH_PHASE=configure) it runs the toolchain's compiler
+# unchanged, so that every configuration is configured identically and differs
+# only in how the code is compiled. During the build it adds the configuration's
+# flags ($BENCH_CONFIG_FLAGS) to every compilation step and records, for each
+# translation unit:
+#
+#   $BENCH_LOG/compile_times.csv  object,source,seconds,status
+#   $BENCH_LOG/tu/<object>.log    everything the compiler wrote to stderr: the
+#                                 [OrbStats] line, the synthesis summary and,
+#                                 with BENCH_MLIR_TIMING=1, the MLIR pass timing
+#
+# The compiler's stderr is passed through unchanged and its exit status is
+# preserved.
+
+set -u
+case "$(basename "$0")" in
+  *++) real="${BENCH_REAL_CXX:?}" ;;
+  *)   real="${BENCH_REAL_CC:?}" ;;
+esac
+
+if [ "${BENCH_PHASE:-build}" = configure ]; then
+  exec "$real" "$@"
+fi
+
+compile=0; obj=""; src=""
+args=("$@")
+for ((i = 0; i < ${#args[@]}; i++)); do
+  case "${args[$i]}" in
+    -c|-S) compile=1 ;;
+    -o) obj="${args[$((i + 1))]:-}" ;;
+    *.c|*.cc|*.cpp|*.cxx) src="${args[$i]}" ;;
+  esac
+done
+
+if [ "$compile" != 1 ] || [ -z "$obj" ]; then
+  exec "$real" "$@"
+fi
+
+extra=()
+read -r -a extra <<< "${BENCH_CONFIG_FLAGS:-}"
+if [ "${BENCH_MLIR_TIMING:-0}" = 1 ] && [[ " ${BENCH_CONFIG_FLAGS:-} " == *" -fclangir "* ]]; then
+  extra+=(-mmlir --mlir-timing)
+fi
+
+# The object's path relative to the build directory names its log file.
+objpath="$(realpath -m "$obj")"
+rel="${objpath#"${BENCH_BUILD_DIR:?}"/}"
+log="$BENCH_LOG/tu/${rel//\//__}.log"
+mkdir -p "$BENCH_LOG/tu"
+
+start=$(date +%s%N)
+"$real" "$@" "${extra[@]}" 2> "$log"
+status=$?
+end=$(date +%s%N)
+
+cat "$log" >&2
+printf '%s,%s,%s,%d\n' "$rel" "$(basename "$src")" \
+  "$(awk -v a="$start" -v b="$end" 'BEGIN { printf "%.4f", (b - a) / 1e9 }')" \
+  "$status" >> "$BENCH_LOG/compile_times.csv"
+exit $status

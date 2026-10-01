@@ -39,6 +39,8 @@ runCIRToCIRPasses(mlir::ModuleOp theModule, mlir::MLIRContext &mlirContext,
 
   pm.enableVerifier(enableVerifier);
   (void)mlir::applyPassManagerCLOptions(pm);
+  // No-op unless `-mmlir --mlir-timing` is given.
+  mlir::applyDefaultTimingPassManagerCLOptions(pm);
   return pm.run(theModule);
 }
 

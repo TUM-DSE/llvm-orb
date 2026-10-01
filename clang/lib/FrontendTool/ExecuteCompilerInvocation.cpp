@@ -36,6 +36,7 @@
 #include "mlir/IR/AsmState.h"
 #include "mlir/IR/MLIRContext.h"
 #include "mlir/Pass/PassManager.h"
+#include "mlir/Support/Timing.h"
 #include "clang/CIR/Dialect/Passes.h"
 #include "clang/CIR/FrontendAction/CIRGenAction.h"
 #endif
@@ -293,6 +294,9 @@ bool ExecuteCompilerInvocation(CompilerInstance *Clang) {
     mlir::registerMLIRContextCLOptions();
     mlir::registerPassManagerCLOptions();
     mlir::registerAsmPrinterCLOptions();
+    // Makes `-mmlir --mlir-timing` available, e.g. for per-pass compile time
+    // of the Orb pipeline.
+    mlir::registerDefaultTimingManagerCLOptions();
     unsigned NumArgs = Clang->getFrontendOpts().MLIRArgs.size();
     auto Args = std::make_unique<const char *[]>(NumArgs + 2);
     Args[0] = "clang (MLIR option parsing)";
