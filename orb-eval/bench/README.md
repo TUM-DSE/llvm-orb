@@ -24,15 +24,27 @@ Everything generated goes to `work/` (ignored by git); the results end up in
 
 | Name | Flags |
 |---|---|
-| `clang` | stock Clang code generation (no ClangIR) |
 | `clangir` | `-fclangir`: ClangIR's own lowering, the baseline everything is normalized to |
 | `naive-orb` | `-fclangir -Xclang -naive-orb`: the Orb pipeline with the fixed mapping |
 | `orb-c1` | `-fclangir -Xclang -orb -Xclang -orb-fence-cost-base=1`: barriers are cheap |
 | `orb-c20` | `... -orb-fence-cost-base=20`: barriers are expensive, promotions preferred |
+| `<name>-O2` | the same with `-O2` (`BENCH_OPTS`, default `-O0 -O2`) |
+| `clang` | stock Clang, not built by default (add it to `BENCH_CONFIGS`) |
+
+The baseline is `clangir` at -O0. Orb is ClangIR plus Orb's passes, so
+`clangir` isolates what Orb changes. Stock Clang emits the same synchronization
+as `clangir`, but its -O0 code runs much faster than ClangIR's (1.65x the read
+throughput on eliza, 2026-10-01), which a `clang` baseline would charge to Orb.
+
+Synchronization is compared at -O0 only. At -O2, LLVM inlines, deletes and
+merges code after Orb has made its decisions, so the object files no longer
+show those decisions; the -O2 builds are measured for compile time and runtime.
+They are performance numbers only: LLVM's optimizations run after Orb and are
+not guaranteed to preserve the ordering Orb established.
 
 The Orb flags are `-cc1` flags; the driver does not forward them without
-`-Xclang`. All configurations share `$BENCH_OPT` (default `-O0`, as in the Orb
-paper) and `$BENCH_CPU_FLAGS`, which has to select a core with RCpc
+`-Xclang`. All configurations are built with `$BENCH_OPT` (`-O0`), which a
+suffixed configuration overrides, and `$BENCH_CPU_FLAGS`, which has to select a core with RCpc
 (`LDAPR`) -- otherwise acquire loads become `LDAR` everywhere and the naive
 mapping's distinction disappears. The costs are set by `BENCH_COSTS` (default
 `1 20`).

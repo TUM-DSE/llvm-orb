@@ -50,15 +50,31 @@ fi
 
 # Compiler configurations. Cost 1 makes barriers cheap relative to promoted
 # accesses, cost 20 makes them expensive, so the synthesis uses both kinds of
-# mechanism.
+# mechanism. clangir is the baseline: Orb is ClangIR plus Orb's passes, so
+# clangir isolates Orb's effect. Stock clang (configuration "clang") is left
+# out by default: its synchronization counts equal clangir's, but its -O0 code
+# is much faster than ClangIR's, which would be charged to Orb.
 BENCH_COSTS="${BENCH_COSTS:-1 20}"
+# Every configuration is built at each of these levels. Configurations at a
+# level other than -O0 carry it as a suffix: clangir-O2, orb-c20-O2, ...
+BENCH_OPTS="${BENCH_OPTS:--O0 -O2}"
 if [ -z "${BENCH_CONFIGS:-}" ]; then
-  BENCH_CONFIGS="clang clangir naive-orb"
-  for c in $BENCH_COSTS; do BENCH_CONFIGS="$BENCH_CONFIGS orb-c$c"; done
+  BENCH_CONFIGS=""
+  for o in $BENCH_OPTS; do
+    sfx=""; [ "$o" = -O0 ] || sfx="$o"
+    for c in clangir naive-orb $(for k in $BENCH_COSTS; do echo "orb-c$k"; done); do
+      BENCH_CONFIGS="${BENCH_CONFIGS:+$BENCH_CONFIGS }$c$sfx"
+    done
+  done
 fi
 
+# The compiler flags of a configuration. orb-timed-cc appends them after the
+# build's own flags, so the -O of a suffixed configuration overrides the -O0
+# of $BENCH_OPT.
 config_flags() {
   case "$1" in
+    *-O[0-3sz]) local base; base="$(config_flags "${1%-O?}")" || return 1
+                echo "${base:+$base }-${1##*-}" ;;
     clang)     echo "" ;;
     clangir)   echo "-fclangir" ;;
     naive-orb) echo "-fclangir -Xclang -naive-orb" ;;
@@ -84,6 +100,7 @@ BENCH_AFFINITY="${BENCH_AFFINITY:-1}"
 BENCH_RUNNER="${BENCH_RUNNER:-}"
 # Programs taking "<readers|dequeuers> <writers|enqueuers> <seconds>" and
 # printing a SUMMARY line. Left out: the *_timing and *_dynamic_link/dynlink
-# variants (same code), test_urcu_yield (random yields), and the micro
-# benchmarks without a SUMMARY line.
-BENCH_PROGRAMS="${BENCH_PROGRAMS:-test_urcu test_urcu_mb test_urcu_qsbr test_urcu_bp test_urcu_gc test_urcu_mb_gc test_urcu_qsbr_gc test_urcu_lgc test_urcu_mb_lgc test_urcu_qsbr_lgc test_urcu_defer test_urcu_assign test_urcu_hash test_urcu_lfq test_urcu_wfq test_urcu_wfcq test_urcu_lfs test_urcu_wfs test_urcu_lfs_rcu test_mutex test_rwlock test_perthreadlock}"
+# variants (same code), test_urcu_yield (random yields), the micro
+# benchmarks without a SUMMARY line, and test_urcu_wfs, which segfaults with
+# every compiler, stock Clang included (a defect of the test program).
+BENCH_PROGRAMS="${BENCH_PROGRAMS:-test_urcu test_urcu_mb test_urcu_qsbr test_urcu_bp test_urcu_gc test_urcu_mb_gc test_urcu_qsbr_gc test_urcu_lgc test_urcu_mb_lgc test_urcu_qsbr_lgc test_urcu_defer test_urcu_assign test_urcu_hash test_urcu_lfq test_urcu_wfq test_urcu_wfcq test_urcu_lfs test_urcu_lfs_rcu test_mutex test_rwlock test_perthreadlock}"

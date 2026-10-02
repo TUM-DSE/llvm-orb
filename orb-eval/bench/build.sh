@@ -56,7 +56,8 @@ for cfg in "${configs[@]}"; do
   flags="$(config_flags "$cfg")"
   B="$WORK/build/$cfg"; L="$WORK/logs/$cfg"
   rm -rf "$B" "$L"; mkdir -p "$B" "$L"
-  echo "== $cfg: $flags $BENCH_OPT $BENCH_CPU_FLAGS"
+  # orb-timed-cc appends the configuration's flags after the build's own.
+  echo "== $cfg: $BENCH_OPT $BENCH_CPU_FLAGS $flags"
   printf 'object,source,seconds,status\n' > "$L/compile_times.csv"
 
   export BENCH_REAL_CC="$TOOLCHAIN/bin/cc" BENCH_REAL_CXX="$TOOLCHAIN/bin/c++"

@@ -10,10 +10,16 @@ Reads the CSV files in $RESULTS and writes, next to them:
   irstats.csv              the [OrbStats] memory events per configuration
   synthesis_summary.csv    required, covered and
                            over-specified pairs, promotions, time
-  compile.csv              compile time per configuration and pipeline stage
+  compile.csv              compile time per configuration and pipeline stage,
+                           total relative to the baseline
   runtime.csv              median throughput per program and configuration,
-                           normalized to clangir, with the geometric mean
+                           normalized to the baseline, with the geometric mean
   summary.md               all of the above as Markdown tables
+
+The baseline is clangir at -O0. Synchronization is compared at -O0 only: at
+higher levels LLVM inlines, deletes and merges code after Orb has made its
+decisions, so the object files no longer show those decisions. The counts of
+the optimized builds remain in primitives.csv and orbstats.csv.
 
 Usage: summarize.py [--results DIR] [--baseline CONFIG]
 """
@@ -69,9 +75,24 @@ def md_table(rows, fields, fmt=None):
     return "\n".join(out)
 
 
+def split_config(cfg):
+    """("orb-c20", "-O2") for "orb-c20-O2"; unsuffixed configurations are -O0."""
+    base, sep, level = cfg.rpartition("-O")
+    if sep and len(level) == 1 and level in "0123sz":
+        return base, "-O" + level
+    return cfg, "-O0"
+
+
 def config_order(configs):
     rank = {"clang": 0, "clangir": 1, "naive-orb": 2}
-    return sorted(configs, key=lambda c: (rank.get(c, 3), c))
+    def key(c):
+        base, level = split_config(c)
+        return (level, rank.get(base, 3), base)
+    return sorted(configs, key=key)
+
+
+def at_O0(rows):
+    return [r for r in rows if split_config(r["config"])[1] == "-O0"]
 
 
 def relaxations(prim, baseline):
@@ -131,7 +152,7 @@ def synthesis(synth):
     return [{"config": c, **tot[c]} for c in config_order(tot)]
 
 
-def compile_times(ct, passes):
+def compile_times(ct, passes, baseline):
     per_cfg = defaultdict(list)
     for r in ct:
         if r["status"] == "0":
@@ -160,6 +181,9 @@ def compile_times(ct, passes):
         row["other-mlir_s"] = round(stage[cfg].get("other-mlir", 0.0), 2)
         row["outside-mlir_s"] = round(sum(times) - mlir_total[cfg], 2) if cfg in mlir_total else ""
         rows.append(row)
+    base = next((r for r in rows if r["config"] == baseline), None)
+    for r in rows:
+        r["total_vs_" + baseline] = round(r["total_s"] / base["total_s"], 2) if base and base["total_s"] else ""
     return rows
 
 
@@ -169,9 +193,11 @@ def runtime(tsv, baseline):
     samples = defaultdict(lambda: defaultdict(list))
     with open(tsv) as f:
         lines = [l for l in f if not l.startswith("#")]
+    failed = defaultdict(int)
     for r in csv.DictReader(lines, delimiter="\t"):
         tok = (r.get("summary") or "").split()
         if r["status"] != "0" or len(tok) < 3 or tok[0] != "SUMMARY":
+            failed[(r["program"], r["config"])] += 1
             continue
         kv = dict(zip(tok[2::2], tok[3::2]))
         dur = float(kv.get("testdur", 0)) or 1.0
@@ -183,6 +209,12 @@ def runtime(tsv, baseline):
         samples[(r["program"], r["config"])]["write"].append(int(wr) / dur)
     programs = sorted({p for p, _ in samples})
     configs = config_order({c for _, c in samples})
+    # A run that crashed or timed out has no throughput. The geometric means
+    # only use programs in which every configuration passed every repetition,
+    # so that all configurations are averaged over the same programs.
+    common = [p for p in programs
+              if all((p, c) in samples and not failed.get((p, c)) for c in configs)]
+    excluded = sorted({p for p, _ in failed} | (set(programs) - set(common)))
     rows = []
     for p in programs:
         base = samples.get((p, baseline))
@@ -190,7 +222,8 @@ def runtime(tsv, baseline):
             s = samples.get((p, c))
             if not s:
                 continue
-            row = {"program": p, "config": c, "reps": len(s["read"])}
+            row = {"program": p, "config": c, "reps": len(s["read"]),
+                   "failed": failed.get((p, c), 0)}
             for side in ("read", "write"):
                 med = statistics.median(s[side])
                 row[side + "_ops_s"] = round(med, 1)
@@ -202,11 +235,13 @@ def runtime(tsv, baseline):
     for c in configs:
         g = {"config": c}
         for side in ("read", "write"):
-            vals = [r[side + "_norm"] for r in rows if r["config"] == c and r[side + "_norm"]]
+            vals = [r[side + "_norm"] for r in rows
+                    if r["config"] == c and r["program"] in common and r[side + "_norm"]]
             g[side + "_geomean"] = round(math.exp(sum(map(math.log, vals)) / len(vals)), 4) if vals else ""
             g["programs"] = len(vals)
         geo.append(g)
-    return rows, geo
+    failures = [{"program": p, "config": c, "failed": n} for (p, c), n in sorted(failed.items())]
+    return rows, geo, failures, excluded
 
 
 def main():
@@ -219,49 +254,59 @@ def main():
     R = args.results
 
     md = ["# Orb benchmark results", ""]
-    rel, rel_group = relaxations(read(R / "primitives.csv"), args.baseline)
+    rel, rel_group = relaxations(at_O0(read(R / "primitives.csv")), args.baseline)
     if rel:
         f = ["config"] + KINDS + ["strong", "barriers", "sync", "sync_vs_" + args.baseline,
                                   "relaxed_accesses_vs_naive", "barrier_change_vs_naive"]
         write(R / "relaxations.csv", rel, f)
         write(R / "relaxations_by_group.csv", rel_group,
               ["kind", "group", "config"] + KINDS + ["strong", "barriers"])
-        md += ["## Synchronizing instructions (library and benchmark objects)", "",
-               "strong = LDAR + LDAPR + STLR; barriers = DMB; read-modify-writes bypass Orb.", "",
+        md += ["## Synchronizing instructions (library and benchmark objects, -O0)", "",
+               "strong = LDAR + LDAPR + STLR; barriers = DMB; read-modify-writes bypass Orb. "
+               "Compared at -O0 only: at higher levels LLVM inlines, deletes and merges code "
+               "after Orb has made its decisions.", "",
                md_table(rel, f), ""]
-    ir = irstats(read(R / "orbstats.csv"))
+    ir = irstats(at_O0(read(R / "orbstats.csv")))
     if ir:
         f = ["config"] + IRKEYS + ["strong", "barriers", "relaxed_accesses_vs_naive"]
         write(R / "irstats.csv", ir, f)
-        md += ["## Memory events after the boundary ([OrbStats], all translation units)", "",
+        md += ["## Memory events after the boundary ([OrbStats], all translation units, -O0)", "",
                md_table(ir, f), ""]
-    syn = synthesis(read(R / "synthesis.csv"))
+    syn = synthesis(at_O0(read(R / "synthesis.csv")))
     if syn:
         f = ["config", "modules", "required", "covered", "overspecified", "promotions",
              "remaining", "ms"]
         write(R / "synthesis_summary.csv", syn, f)
-        md += ["## Ordering (all translation units)", "",
+        md += ["## Ordering (all translation units, -O0)", "",
                "For naive-orb, `ms` is the time of the verification that builds the target "
                "ordering matrix after the naive conversion; it is not part of the mapping.", "",
                md_table(syn, f), ""]
-    comp = compile_times(read(R / "compile_times.csv"), read(R / "pass_times.csv"))
+    comp = compile_times(read(R / "compile_times.csv"), read(R / "pass_times.csv"), args.baseline)
     if comp:
-        f = (["config", "units", "total_s", "median_unit_s"] + [n + "_s" for n, _ in STAGES]
+        f = (["config", "units", "total_s", "total_vs_" + args.baseline, "median_unit_s"]
+             + [n + "_s" for n, _ in STAGES]
              + ["other-mlir_s", "outside-mlir_s"])
         write(R / "compile.csv", comp, f)
         md += ["## Compile time (seconds, all translation units)", "",
                "outside-mlir = front end and LLVM code generation. For naive-orb, "
                "order-analysis and most of `boundary` are the verification above.", "",
                md_table(comp, f), ""]
-    rows, geo = runtime(R / "runtime_raw.tsv", args.baseline)
-    if rows:
-        f = ["program", "config", "reps", "read_ops_s", "read_rsd", "read_norm",
+    rows, geo, failures, excluded = runtime(R / "runtime_raw.tsv", args.baseline)
+    if rows or failures:
+        f = ["program", "config", "reps", "failed", "read_ops_s", "read_rsd", "read_norm",
              "write_ops_s", "write_rsd", "write_norm"]
         write(R / "runtime.csv", rows, f)
         write(R / "runtime_geomean.csv", geo, ["config", "programs", "read_geomean", "write_geomean"])
-        md += ["## Runtime: geometric mean of throughput relative to " + args.baseline, "",
-               md_table(geo, ["config", "programs", "read_geomean", "write_geomean"]), "",
-               "## Runtime per program (median throughput, ops/s)", "", md_table(rows, f), ""]
+        write(R / "runtime_failures.csv", failures, ["program", "config", "failed"])
+        md += ["## Runtime: geometric mean of throughput relative to %s (%s)"
+               % (args.baseline, split_config(args.baseline)[1]), "",
+               "Over the programs in which every configuration passed every repetition"
+               + (" (excluded: %s)." % ", ".join(excluded) if excluded else "."), "",
+               md_table(geo, ["config", "programs", "read_geomean", "write_geomean"]), ""]
+        if failures:
+            md += ["## Failed runs (crash, assertion or timeout; no throughput)", "",
+                   md_table(failures, ["program", "config", "failed"]), ""]
+        md += ["## Runtime per program (median throughput, ops/s)", "", md_table(rows, f), ""]
     (R / "summary.md").write_text("\n".join(md) + "\n")
     print("wrote %s" % (R / "summary.md"))
 

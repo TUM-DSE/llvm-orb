@@ -105,14 +105,15 @@ is not set up -- which does not matter, because `/home` is shared.
 >    and `ok 1`.
 >
 > 8. **Builds, counts, compile times.**
->    `./run_all.sh build count summarize`. This builds userspace-rcu five times
->    (clang, clangir, naive-orb, orb-c1, orb-c20) with one compilation at a time;
+>    `./run_all.sh build count summarize`. This builds userspace-rcu eight times
+>    (clangir, naive-orb, orb-c1, orb-c20, each at -O0 and -O2) with one
+>    compilation at a time;
 >    the Orb configurations are slow on the largest files (`urcu.c` has over
 >    100,000 required pairs). Record the wall time of each configuration. Then
 >    check in `work/results/summary.md`:
->    - `clang`, `clangir` and `naive-orb` have (nearly) the same numbers of
->      LDAR, LDAPR, STLR and DMB -- the naive pipeline reproduces the fixed
->      mapping. Report any difference.
+>    - `clangir` and `naive-orb` have the same numbers of LDAR, LDAPR, STLR and
+>      DMB -- the naive pipeline reproduces the fixed mapping. Report any
+>      difference. (The synchronization tables cover the -O0 builds only.)
 >    - LDAPR is not zero (otherwise step 6 did not take effect).
 >    - In the ordering table, `remaining` is 0 for every configuration. Report
 >      the modules where it is not (`work/results/synthesis.csv`): a remaining
@@ -133,13 +134,14 @@ is not set up -- which does not matter, because `/home` is shared.
 >
 > 9. **Runtime, smoke test.**
 >    `BENCH_REPS=1 BENCH_DURATION=1 BENCH_PROGRAMS=test_urcu ./run_bench.sh`
->    must produce five SUMMARY lines with non-zero reads and writes in
+>    must produce eight SUMMARY lines with non-zero reads and writes in
 >    `work/results/runtime_raw.tsv`.
 >
 > 10. **Runtime, measurement.** On an idle machine: `./run_all.sh bench summarize`
->     (defaults: 22 programs x 5 configurations x 5 repetitions x 5 s, about
->     an hour). Report the geometric-mean table and any program whose relative
->     standard deviation exceeds 5%.
+>     (defaults: 21 programs x 8 configurations x 5 repetitions x 5 s, about
+>     80 minutes). If the run is interrupted, `BENCH_RESUME=1 ./run_bench.sh`
+>     continues it. Report the geometric-mean table and any program whose
+>     relative standard deviation exceeds 5%.
 >
 > 11. **Hand-over.** Copy the results to the shared home directory:
 >     `cp -r work/results ~/orb-bench-results-$(date +%F)` and add
@@ -149,7 +151,8 @@ is not set up -- which does not matter, because `/home` is shared.
 ## Settings worth knowing
 
 All in `config.sh`, all overridable from the environment:
-`BENCH_COSTS` (default `1 20`), `BENCH_OPT` (`-O0`), `BENCH_CPU_FLAGS`,
+`BENCH_COSTS` (default `1 20`), `BENCH_OPTS` (`-O0 -O2`), `BENCH_CONFIGS`
+(derived from the two; add `clang` for stock Clang), `BENCH_CPU_FLAGS`,
 `BENCH_JOBS` (`1`), `BENCH_READERS`/`BENCH_WRITERS` (`32`/`32`),
 `BENCH_DURATION` (`5` s), `BENCH_REPS` (`5`), `BENCH_AFFINITY` (`1`: pin to
 CPUs 0..63), `BENCH_PROGRAMS`, `URCU_REPO`/`URCU_COMMIT`, `BENCH_WORK`.

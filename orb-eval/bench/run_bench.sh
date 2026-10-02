@@ -5,6 +5,8 @@
 #
 #   ./run_bench.sh                  all configurations, all programs
 #   BENCH_REPS=1 BENCH_DURATION=1 ./run_bench.sh      quick check
+#   BENCH_RESUME=1 ./run_bench.sh   continue an interrupted measurement: keep
+#                                   runtime_raw.tsv, skip the runs it records
 #
 # Every program is started as
 #   <program> <readers> <writers> <seconds> [-a cpu]...
@@ -41,13 +43,28 @@ done
 
 mkdir -p "$RESULTS"
 out="$RESULTS/runtime_raw.tsv"
-{
-  echo "# $(date -Is) host=$(hostname) cpus=$(nproc) readers=$BENCH_READERS writers=$BENCH_WRITERS duration=$BENCH_DURATION reps=$BENCH_REPS affinity=$BENCH_AFFINITY"
-  printf 'rep\tprogram\tconfig\tstatus\twall_s\tsummary\n'
-} > "$out"
+header="# $(date -Is) host=$(hostname) cpus=$(nproc) readers=$BENCH_READERS writers=$BENCH_WRITERS duration=$BENCH_DURATION reps=$BENCH_REPS affinity=$BENCH_AFFINITY"
+declare -A done_runs=()
+if [ "${BENCH_RESUME:-0}" = 1 ] && [ -s "$out" ]; then
+  # A resumed measurement appends; its header line records when it resumed.
+  while IFS=$'\t' read -r r p c _; do
+    done_runs["$r/$p/$c"]=1
+  done < <(grep -v '^#' "$out" | tail -n +2)
+  echo "${header/#\# /# resumed } (${#done_runs[@]} runs already recorded)" >> "$out"
+else
+  { echo "$header"; printf 'rep\tprogram\tconfig\tstatus\twall_s\tsummary\n'; } > "$out"
+fi
 
 total=$((BENCH_REPS * ${#programs[@]} * ${#configs[@]}))
-echo "$total runs of ${BENCH_DURATION}s, about $((total * (BENCH_DURATION + 1) / 60)) minutes; writing $out"
+todo=$total
+for key in "${!done_runs[@]}"; do
+  IFS=/ read -r r p c <<< "$key"
+  if [ "$r" -le "$BENCH_REPS" ] && [[ " ${programs[*]} " == *" $p "* ]] \
+     && [[ " ${configs[*]} " == *" $c "* ]]; then
+    todo=$((todo - 1))
+  fi
+done
+echo "$todo runs of ${BENCH_DURATION}s, about $((todo * (BENCH_DURATION + 1) / 60)) minutes; writing $out"
 n=0
 for ((rep = 1; rep <= BENCH_REPS; rep++)); do
   shift_by=$(( (rep - 1) % ${#configs[@]} ))
@@ -55,6 +72,7 @@ for ((rep = 1; rep <= BENCH_REPS; rep++)); do
   for p in "${programs[@]}"; do
     for cfg in "${order[@]}"; do
       n=$((n + 1))
+      [ -z "${done_runs["$rep/$p/$cfg"]:-}" ] || continue
       bin="$WORK/build/$cfg/tests/benchmark/$p"
       start=$(date +%s%N)
       set +e

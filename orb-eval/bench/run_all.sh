@@ -25,7 +25,8 @@ for step in "${steps[@]}"; do
   case "$step" in
     toolchain) "$HERE/make-toolchain.sh" ;;
     build)     "$HERE/build.sh" ;;
-    count)     python3 "$HERE/count.py" --work "$WORK" ;;
+    # shellcheck disable=SC2086  # BENCH_CONFIGS is a list of names
+    count)     python3 "$HERE/count.py" --work "$WORK" $BENCH_CONFIGS ;;
     bench)     "$HERE/run_bench.sh" ;;
     summarize) python3 "$HERE/summarize.py" --results "$RESULTS" ;;
     *) echo "unknown step $step (toolchain, build, count, bench, summarize)" >&2; exit 2 ;;
