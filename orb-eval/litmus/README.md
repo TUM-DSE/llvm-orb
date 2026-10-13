@@ -18,7 +18,7 @@ behaviour that RC11 forbids?
 ```
   T.litmus  --herd7 (rc11.cat)-->  S   what RC11 allows
       |
-      |  litmus_to_cpp.py + clang -O1 + generate_litmus.py
+      |  litmus_to_cpp.py + clang -O0/-O1/-O2 + generate_litmus.py
       v
   T'.litmus --herd7 (aarch64.cat)--> A  what ARMv8 allows
 
@@ -32,44 +32,43 @@ carried through to the generated one, so the two verdicts are comparable.
 exhaustively enumerates every execution that model permits. It runs nothing on
 hardware; `litmus7`, which does, is not used here.
 
-## Scope: loads, stores and fences
+## Scope: loads, stores, fences and compare-exchange
 
-The suite tests the mapping of atomic loads, atomic stores and fences. Nothing
-else. Read-modify-write operations belong to the RMWOps branch and are excluded
-at two levels: `litmus_to_cpp.py` drops any test that calls something outside
-`atomic_load{,_explicit}`, `atomic_store{,_explicit}` and
-`atomic_thread_fence`, and `litmus_prelude.h` defines no other macro, so a test
-that slipped past the filter would fail to compile rather than be measured as
-though it said something about load/store/fence ordering.
-
-That drops 9 catalogue tests, all using `compare_exchange_strong` (`a2`,
-`a3v2`, `c_p`, `c_q`, `c_pq` and `_reorder` variants). It costs no coverage of
-what the suite tests: all 12 ordering-dependent results in
-`negative_control.sh` are unchanged by their removal, because every one of the
-dropped tests was in the inert group -- forbidden for control-dependency
-reasons rather than by any barrier.
+Loads, stores and fences go through the Orb pipeline. Compare-exchange does
+not: ClangIR lowers it straight to an LLVM `cmpxchg`, which becomes a `CAS`
+instruction (`-mcpu=ampere1a` has LSE). The tests that use it are still in
+scope, because whatever Orb emits around a compare-exchange must not let ARMv8
+show behaviour RC11 forbids. `litmus_to_cpp.py` rejects a test that calls any
+other atomic, and `litmus_prelude.h` defines no other macro, so a test that
+slipped past the filter would fail to compile rather than be compiled with a
+guess at its meaning.
 
 ## Running it
 
 ```sh
 export PATH=/scratch/$USER/.local/bin:$PATH   # herd7, or set HERD7=/path/to/herd7
-./generate_all.sh          # parse, compile at -O1, lift the asm
+./generate_all.sh          # parse, compile at -O0, -O1 and -O2, lift the asm
 ./run_litmus_tests.sh      # the A subset-of S comparison
 ./negative_control.sh      # check the suite is able to fail
 ```
+
+Both runners start every herd7 run at once (`ORB_LITMUS_JOBS`, default
+`nproc`) and give each one `ORB_LITMUS_HERD_TIMEOUT` seconds (default 900).
+`ORB_LITMUS_COMPILERS` and `ORB_LITMUS_OPTS` select the configurations.
 
 ## Files
 
 | | |
 |---|---|
-| `tests/*.litmus` | hand-written ordering shapes (MP, SB, WRC, ISA2, 2+2W, LB, CoRR) |
+| `tests/*.litmus` | classic ordering shapes (MP, SB, WRC, ISA2, 2+2W, LB, CoRR), see `tests/README.md` |
 | `catalogue-duplicates.txt` | catalogue tests skipped as duplicates of another test |
-| `litmus_prelude.h` | load/store/fence atomics, as `__atomic_*` builtins |
+| `litmus_prelude.h` | load/store/fence/compare-exchange atomics, as `__atomic_*` builtins |
 | `litmus_to_cpp.py` | `.litmus` -> compilable `.cpp` + `.json` metadata |
 | `generate_litmus.py` | compile for AArch64, lift each thread into a litmus test |
-| `run_litmus_tests.sh` | the comparison; one table per compiler |
+| `run_litmus_tests.sh` | the comparison; one table per configuration (compiler x `-O` level) |
 | `negative_control.sh` | weakens the emitted ordering, checks verdicts move |
-| `generate_all.sh` | regenerates `src/` and `out/` from both corpora |
+| `generate_all.sh` | regenerates `src/` and `out/` from `tests/` and the catalogue |
+| `slow-tests.txt` | tests herd7 does not finish in time, skipped unless `ORB_LITMUS_SLOW=1` |
 
 `src/` and `out/` are generated; delete them freely.
 
@@ -87,18 +86,58 @@ exists(x=1 /\ y=1)                      <- /\ is not a C operator
 ```
 
 so `litmus_to_cpp.py` parses it and synthesises a translation unit. Thread
-bodies are copied *verbatim*; only the wrapper is generated, with each parameter
-re-declared as a local pointer to a global, so no statement has to be rewritten.
+bodies are copied *verbatim*; only the wrapper is generated. Each location
+becomes a global `lt_x`, and inside each thread the parameter name is a macro
+for that global's address, cast to the parameter's type
+(`#define x ((atomic_int*)&lt_x)`), so no statement has to be rewritten. A
+macro rather than a pointer variable: a local pointer would sit in a stack slot
+at `-O0` and be reloaded before every access, a global pointer would add a load
+of a shared location to every access at every level, and neither is in the
+litmus test.
 Deriving the C++ from the same file that produced the RC11 answer keeps the
 compiled program and its reference answer from drifting apart.
 
-## Two constraints worth knowing
+## From assembly to a litmus test
 
-**Everything is compiled at `-O1`.** A litmus thread has no stack frame. At
-`-O0` every local is an alloca, so a thread body comes out full of `[sp,#N]`
-references that mean nothing in a litmus test — 8 of them in a two-line thread.
-At `-O1` the bodies are completely stack-free. This is independent of the
-parsing above: parsing gets a compilable file, `-O1` decides what comes out.
+herd7 knows no symbols and no stack: its memory is a set of named locations,
+and a register is given the *address* of one in the initial state
+(`0:X1=x;`). `generate_litmus.py` bridges the difference without analysing
+the code:
+
+- **Global addresses.** The compiler forms `lt_x`'s address with `adrp` and an
+  `add ...:lo12:` (or folds the `:lo12:` into the access). Each location gets a
+  register bound to it, and these instructions become copies of that register
+  (`mov x9,x1`; `[x9, :lo12:...lt_x]` becomes `[x1]`). Everything else stays as
+  compiled; where the address goes from there, herd7 follows itself in every
+  execution, so the lifter never has to work out which register holds which
+  address.
+- **Stack slots.** At `-O0` every local lives in a stack slot, and the register
+  allocator spills to the stack as well. Each slot becomes a location of its
+  own that only its thread uses (`str w8, [sp, #12]` in P1 becomes
+  `str w8, [x2]` with `1:X2=P1_sp12;`), so herd7 sees the memory accesses the
+  hardware performs, including dependencies carried through a slot. The frame
+  set-up (`sub sp`/`add sp`) is dropped. A slot accessed with 8 bytes is
+  declared `int64_t`, since herd7 rejects mixed access sizes otherwise.
+- **herd7's syntax.** Immediates become decimal (`#0x1` to `#1`), `ret` becomes
+  a branch to a label at the end of the thread, and labels lose their dot.
+
+Bound registers are taken from those the thread never mentions, so compiled
+code cannot overwrite them. Anything unrecognised -- another use of `sp`, an
+address register nothing has written, a leftover symbol -- stops the lifting
+with an error: herd7 reads an unbound register as address 0 and would
+silently answer `Never`.
+
+**herd7 runs the ARMv8 side with `-optace true`.** It then discards, while
+generating candidate executions, those that break coherence on one location,
+for example a read of a stack slot that takes its value from a later store of
+the same thread. `aarch64.cat` forbids those executions anyway, so verdicts are
+unchanged (identical to default herd7 on all 508 generated tests, 2026-10-12),
+and the heaviest `-O0` tests run in 39 s instead of 67 s.
+
+**Slow tests are skipped by default.** `slow-tests.txt` lists the tests herd7
+does not finish within 15 minutes: `c_pq` and `c_pq_reorder` at `-O0`, whose
+lifted threads have 45 memory accesses (12 at `-O1`). They show up as SKIPPED;
+`ORB_LITMUS_SLOW=1` runs them.
 
 **`clrex` is dropped** when lifting. It clears the local exclusive monitor on a
 compare-exchange failure path. herd7's AArch64 parser has no such instruction,
@@ -109,16 +148,20 @@ whose outcome depended on monitor state could not be expressed here.
 
 ## Corpus
 
-- `tests/`: 12 hand-written ordering shapes.
-- the c11popl15 catalogue: 47 files, of which 3 are the same program as another
-  test up to the names of registers and locations (`catalogue-duplicates.txt`:
-  `a6` = `a5`, `b` = `lb`, `strengthen2` = `roachmotel2`). As in the Orb paper,
-  the duplicates are skipped, leaving 44. Of those, 9 use compare-exchange
-  (out of scope) and 2 (`fig6`, `fig6_translated`) have a condition over six
-  registers of one thread, which the translation does not support, so 33 are
-  translated; 9 of them have no `exists` clause and nothing to compare.
+The c11popl15 catalogue of herdtools7 (Vafeiadis et al., POPL 2015): 47 files,
+of which 3 are the same program as another test up to the names of registers
+and locations (`catalogue-duplicates.txt`: `a6` = `a5`, `b` = `lb`,
+`strengthen2` = `roachmotel2`). As in the Orb paper, the duplicates are
+skipped, leaving 44. Of those, 2 (`fig6`, `fig6_translated`) have a condition
+over six registers of one thread, which the translation does not support, and
+11 have no `exists` clause and nothing to compare (`a2`, `a5`, `a7`, `a8`, `a9`
+and the `_reorder` variants of these and of `a6`). That leaves **31 catalogue
+tests**, 7 of which use compare-exchange (`a3v2`, `c_p`, `c_q`, `c_pq` and the
+`_reorder` variants of the last three).
 
-That leaves 36 tests: 24 from the catalogue and the 12 hand-written ones.
+`tests/` adds 12 ordering shapes (message passing, store buffering, load
+buffering, WRC, ISA2, 2+2W, CoRR), for **43 tests** in all. Unlike most
+catalogue tests, they all exercise the synthesized synchronization.
 
 ## Configurations
 
@@ -128,33 +171,40 @@ kinds of mechanism are checked. `naive-orb` is the naive pipeline, `clangir`
 ClangIR's own lowering without Orb. Any other set can be selected with
 `ORB_LITMUS_COMPILERS`, e.g. `orb-c2` for the default cost.
 
+Each compiler runs at `-O0`, `-O1` and `-O2` (`ORB_LITMUS_OPTS`), so a
+configuration is named like `orb-c1-O0`. At `-O0` the generated test is exactly
+what the Orb pipeline emitted; at `-O1` and `-O2` LLVM optimises after Orb has
+made its decisions.
+
+All configurations compile with `-mcpu=ampere1a` (override with
+`ORB_LITMUS_CPU_FLAGS`), the same CPU as the benchmarks. Without the RCpc
+extension it enables, acquirePC loads would be compiled to `LDAR` and `LDAPR`
+-- which, unlike `LDAR`, is not ordered after a preceding `STLR` -- would never
+be tested.
+
 ## Results
 
-36 tests x 4 configurations, no failures and no errors.
+43 tests x 4 compilers x 3 levels (2026-10-12), no failures and no errors;
+the full run takes about a minute on graham. At `-O0` the two slow tests are
+skipped, so 41 are checked there.
 
-| Configuration | Pass | Over | XFAIL (`lb`) | Fail |
+| Compiler | `-O0` pass / over / xfail | `-O1` | `-O2` | Fail |
 |---|---|---|---|---|
-| `orb-c1`    | 33 | 2 | 1 | 0 |
-| `orb-c20`   | 33 | 2 | 1 | 0 |
-| `naive-orb` | 34 | 1 | 1 | 0 |
-| `clangir`   | 34 | 1 | 1 | 0 |
+| `orb-c1`    | 38 / 2 / 1 | 40 / 2 / 1 | 40 / 2 / 1 | 0 |
+| `orb-c20`   | 38 / 2 / 1 | 40 / 2 / 1 | 40 / 2 / 1 | 0 |
+| `naive-orb` | 39 / 1 / 1 | 41 / 1 / 1 | 41 / 1 / 1 | 0 |
+| `clangir`   | 39 / 1 / 1 | 41 / 1 / 1 | 41 / 1 / 1 | 0 |
+
+Every configuration is stronger than RC11 requires on `2+2W_rel`: RC11 allows
+two release stores per thread to end in the "both first writes last" state,
+ARMv8 does not once the stores are `STLR`. The synthesis configurations are
+also stronger on `2+2W_relaxed` (see the may-alias note below).
 
 **LB with all-relaxed accesses diverges, as expected.** `lb` is `Never` under
 RC11 and `Sometimes` on ARMv8. RC11 forbids load buffering by requiring
 `po | rf` to be acyclic -- a global argument about the whole execution -- and no
 per-access mapping can enforce that locally. Listed as XFAIL with that reason
 rather than silently excluded.
-
-**Orb over-synchronises `2+2W_relaxed`.** Both stores are
-`memory_order_relaxed`, so RC11 requires no ordering between them and permits
-the outcome. `naive-orb` emits two plain `str`s and the outcome stays
-observable; both synthesis configurations order the two stores (cost 1 with a
-`dmb ish`, cost 20 with an `stlr`) and the outcome becomes unobservable. The
-cause is the may-alias approximation: the source side orders two writes that may
-access the same location, and the alias analysis cannot prove that two distinct
-globals do not. Sound, but stronger than needed; reported as `OVER`, which does
-not fail the run. (`2+2W_rel` is `OVER` in every configuration: release stores
-are simply stronger than this shape needs.)
 
 ## What the corpus does and does not cover
 
@@ -164,37 +214,43 @@ ordering mechanism at a time -- barriers, `LDAR`, `LDAPR` or `STLR` -- before
 asking herd7 again. A verdict that moves shows that the green result is held by
 the ordering the synthesis emitted.
 
-The same 9 tests move in both configurations: `a4` from the catalogue, the
-release-acquire and SC message passing, store buffering with SC accesses,
-release-acquire load buffering, WRC and ISA2, and the two over-synchronised 2+2W
-tests. With cost 1 they move only when the barriers are removed, with cost 20
-only when `LDAR` or `STLR` is downgraded -- the two costs establish the same
-orderings with different mechanisms, and both are correct.
+69 of 173 weakenings move a verdict (2026-10-12, all three levels): every
+shape from `tests/` whose outcome RC11 forbids, and in the catalogue only `a4`
+(store buffering with SC accesses). The same tests move at every level (9
+weakenings per level with cost 1, 14 with cost 20); the other 104 change
+nothing. The c11popl15 tests illustrate which *source-level* transformations
+are valid; their outcomes are mostly ruled out by control dependencies or by the
+absence of out-of-thin-air values, which hold on ARMv8 whatever the mapping
+emits. `c` is the clearest case -- each thread reaches its store only if the
+other thread already stored, so neither ever does, barrier or no barrier. Those
+tests still check that the compiler introduces no new behaviour; they just do
+not exercise fence synthesis, so the reported corpus tests the synthesis in one
+test only, which is why `tests/` exists. `CoRR` never moves: read-read
+coherence holds on ARMv8 without any ordering instruction, so its compiled code
+contains none to weaken. The compare-exchange tests are inert as well.
 
-The remaining weakenings, all in catalogue tests, change nothing, and this is
-the main reason `tests/` exists. The c11popl15 tests illustrate which
-*source-level* transformations are valid; their outcomes are mostly ruled out by
-control dependencies or by the absence of out-of-thin-air values, which hold on
-ARMv8 whatever the mapping emits. `c` is the clearest case -- each thread
-reaches its store only if the other thread already stored, so neither ever
-does, barrier or no barrier. Those tests still check that the compiler
-introduces no new behaviour; they just do not exercise fence synthesis, and
-counting them as evidence that it works would be wrong.
+The may-alias over-synchronisation that the shape `2+2W_relaxed` shows
+(both synthesis configurations order two relaxed stores to distinct globals)
+does not depend on the litmus translation: a plain C function with two relaxed
+stores to two globals gets a `dmb ish` (cost 1) or an `stlr` (cost 20) at `-O0`
+and `-O1`, while `naive-orb` emits two plain stores.
 
 ## Limitations
 
-- herd7 checks the final `-O1` assembly, so a failure implicates the whole
-  pipeline, LLVM's own optimisations included. Orb interprets LLVM IR under the
+- At `-O1` and `-O2` herd7 checks the assembly after LLVM's optimisations, so
+  a failure there implicates the whole pipeline. Orb interprets LLVM IR under the
   *target* model rather than RC11, so those passes are not guaranteed sound
   here; on a failure, establish which stage caused it before blaming Orb.
-- 9 catalogue tests are out of scope for using `compare_exchange_strong`, as
-  above.
 - `fig6` and `fig6_translated` are skipped: their condition names six registers
   in one thread, and a thread returns a single `int`. Every other conditioned
   test names at most one register per thread.
-- 10 catalogue tests carry no `exists` clause (the `a5`..`a9` families).
-  They illustrate a reordering rather than assert an outcome, so there is no
-  condition to compare and they are skipped.
+- 11 catalogue tests carry no `exists` clause (`a2`, `a5`, `a7`, `a8`, `a9` and
+  the `_reorder` variants of these and of `a6`). They illustrate a reordering
+  rather than assert an outcome, so there is no condition to compare and they
+  are skipped.
+- The tests contain neither loops nor function calls, so the suite cannot find
+  errors that need them, such as the lost release ordering that
+  `test_urcu_assign` exposed in the benchmarks (see `../bench`).
 - herd7 proves things about the model, not about silicon. Running these on the
   ARM server with `litmus7` is the natural next step.
 

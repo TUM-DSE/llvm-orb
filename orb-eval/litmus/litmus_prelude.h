@@ -9,14 +9,13 @@
  *   - the FileCheck suite already drives the pipeline through __atomic_*, so
  *     both suites exercise the same front-end path into cpp_atomic.
  *
- * Loads, stores and fences only -- the operations this suite tests the mapping
- * of. Read-modify-write ops are out of scope and belong to the RMWOps branch,
- * so no exchange, compare-exchange or fetch_* macro is defined here.
- *
- * litmus_to_cpp.py already drops a test that uses one, so nothing should reach
- * this header needing them; leaving them undefined means that if a test ever
- * slips past the filter it fails to compile rather than quietly being measured
- * as though it said something about load/store/fence ordering.
+ * Loads, stores, fences and compare-exchange: the operations the litmus tests
+ * use. Compare-exchange does not go through the Orb pipeline (ClangIR lowers
+ * it straight to an LLVM cmpxchg), but the tests using it still check that
+ * nothing around it lets ARMv8 show behaviour RC11 forbids. litmus_to_cpp.py
+ * rejects a test that uses any other atomic, and leaving those undefined here
+ * means one that slipped past the filter fails to compile rather than being
+ * compiled with a guess at its meaning.
  *===----------------------------------------------------------------------===*/
 #ifndef ORB_LITMUS_PRELUDE_H
 #define ORB_LITMUS_PRELUDE_H
@@ -44,8 +43,21 @@ typedef int atomic_int;
 #define atomic_store_explicit(p, v, mo) __atomic_store_n((p), (v), (mo))
 #define atomic_thread_fence(mo)         __atomic_thread_fence((mo))
 
+/* C11's compare-exchange takes the expected value through a pointer and
+ * writes the current value back to it on failure, exactly like the builtin. */
+#define atomic_compare_exchange_strong_explicit(p, e, d, s, f) \
+  __atomic_compare_exchange_n((p), (e), (d), 0, (s), (f))
+#define atomic_compare_exchange_weak_explicit(p, e, d, s, f) \
+  __atomic_compare_exchange_n((p), (e), (d), 1, (s), (f))
+
 /* Non-explicit forms default to seq_cst, per C11. */
 #define atomic_load(p)       atomic_load_explicit((p), memory_order_seq_cst)
 #define atomic_store(p, v)   atomic_store_explicit((p), (v), memory_order_seq_cst)
+#define atomic_compare_exchange_strong(p, e, d) \
+  atomic_compare_exchange_strong_explicit((p), (e), (d), memory_order_seq_cst, \
+                                          memory_order_seq_cst)
+#define atomic_compare_exchange_weak(p, e, d) \
+  atomic_compare_exchange_weak_explicit((p), (e), (d), memory_order_seq_cst, \
+                                        memory_order_seq_cst)
 
 #endif /* ORB_LITMUS_PRELUDE_H */

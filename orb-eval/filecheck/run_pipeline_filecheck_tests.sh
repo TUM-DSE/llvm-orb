@@ -11,6 +11,11 @@
 #                                            accesses present with right type)
 #   2. at least ONE ORB-SOLUTIONS prefix must match
 #                                           (some legal ordering mechanism)
+#      For a dependency test (// ORB-KIND: dependency) the only solution is
+#      RELAXED: the ARMv8 dependency already orders the accesses, so they must
+#      stay relaxed without a barrier. If that fails, the output is still
+#      correct but over-synchronized: the dependency analysis missed the
+#      dependency. Such results are counted separately as MISSED.
 # and once per file:
 #   3. the NAIVE prefix must match the --cpp-atomic-to-arm-atomic-naive output
 #                                           (that mapping is deterministic)
@@ -26,7 +31,8 @@ BIN="${ORB_BUILD:-$ROOT/build}/bin"
 CLANG="$BIN/clang++"
 CIROPT="$BIN/cir-opt"
 FILECHECK="$BIN/FileCheck"
-MLIR="$HERE/mlir"
+# Intermediate IR; set ORB_TEST_MLIR to keep concurrent runs apart.
+MLIR="${ORB_TEST_MLIR:-$HERE/mlir}"
 mkdir -p "$MLIR"
 
 GREEN='\033[0;32m'; RED='\033[0;31m'; BLUE='\033[0;34m'; DIM='\033[0;90m'; NC='\033[0m'
@@ -56,7 +62,7 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 
-pass=0; fail=0; failed_names=()
+pass=0; fail=0; missed=0; failed_names=(); missed_names=()
 
 emit_cir() {   # emit_cir <src> <out>
   "$CLANG" -fclangir -emit-cir -O0 -o "$2" "$1" 2>"$TMP/clang.err"
@@ -68,6 +74,7 @@ for src in "$HERE"/test_orb_pipeline_*.cpp; do
   echo -e "${BLUE}${base}${NC}"
 
   solutions="$(sed -n 's|^// ORB-SOLUTIONS: ||p' "$src")"
+  kind="$(sed -n 's|^// ORB-KIND: ||p' "$src")"
   if [ -z "$solutions" ]; then
     echo -e "  ${RED}no ORB-SOLUTIONS header -- regenerate the test files${NC}"
     fail=$((fail+1)); failed_names+=("$base: missing header"); continue
@@ -104,12 +111,20 @@ for src in "$HERE"/test_orb_pipeline_*.cpp; do
       fi
     done
     if [ -z "$matched" ]; then
-      echo -e "  ${RED}FAIL${NC} cost=$cost  no accepted solution matched ($solutions)"
+      if [ "$kind" = dependency ]; then
+        echo -e "  ${RED}MISSED${NC} cost=$cost  dependency not exploited: accesses promoted or barrier inserted"
+      else
+        echo -e "  ${RED}FAIL${NC} cost=$cost  no accepted solution matched ($solutions)"
+      fi
       echo -e "    ${DIM}synthesis said: $(grep -o 'done ordered=[^ ]* overspecified=[0-9]*' "$TMP/synth.log" | head -1)${NC}"
       echo "    emitted primitives:"
       grep -o 'arm_atomic\.atomic_[a-z]*[^{]*memory_order([0-9]*' "$out" \
         | sed 's/%[0-9]*//g; s/  */ /g; s/^/      /' | sort | uniq -c | head -8
-      fail=$((fail+1)); failed_names+=("$base cost=$cost: no solution")
+      if [ "$kind" = dependency ]; then
+        missed=$((missed+1)); missed_names+=("$base cost=$cost")
+      else
+        fail=$((fail+1)); failed_names+=("$base cost=$cost: no solution")
+      fi
       continue
     fi
 
@@ -135,10 +150,17 @@ for src in "$HERE"/test_orb_pipeline_*.cpp; do
 done
 
 echo -e "${BLUE}======================================================================${NC}"
-if [ "$fail" -eq 0 ]; then
+if [ "$fail" -eq 0 ] && [ "$missed" -eq 0 ]; then
   echo -e "${GREEN}All $pass checks passed.${NC}"
   exit 0
 fi
-echo -e "${RED}$fail check(s) failed, $pass passed:${NC}"
-for f in "${failed_names[@]}"; do echo "  - $f"; done
+echo "$pass passed, $fail failed, $missed missed dependencies."
+if [ "$fail" -gt 0 ]; then
+  echo -e "${RED}Failed (illegal or unexpected output):${NC}"
+  for f in "${failed_names[@]}"; do echo "  - $f"; done
+fi
+if [ "$missed" -gt 0 ]; then
+  echo -e "${RED}Missed dependencies (correct, but over-synchronized):${NC}"
+  for f in "${missed_names[@]}"; do echo "  - $f"; done
+fi
 exit 1

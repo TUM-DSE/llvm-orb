@@ -1,0 +1,159 @@
+!s16i = !cir.int<s, 16>
+!s32i = !cir.int<s, 32>
+!s64i = !cir.int<s, 64>
+!s8i = !cir.int<s, 8>
+module @"/scratch/alex/llvm-orb/orb-eval/filecheck/test_orb_pipeline_sc_pair.cpp" attributes {cir.lang = #cir.lang<cxx>, cir.module_asm = [], cir.triple = "x86_64-unknown-linux-gnu", dlti.dl_spec = #dlti.dl_spec<!llvm.ptr<270> = dense<32> : vector<4xi64>, !llvm.ptr<271> = dense<32> : vector<4xi64>, !llvm.ptr<272> = dense<64> : vector<4xi64>, i64 = dense<64> : vector<2xi64>, i128 = dense<128> : vector<2xi64>, f80 = dense<128> : vector<2xi64>, !llvm.ptr = dense<64> : vector<4xi64>, i1 = dense<8> : vector<2xi64>, i8 = dense<8> : vector<2xi64>, i16 = dense<16> : vector<2xi64>, i32 = dense<32> : vector<2xi64>, f16 = dense<16> : vector<2xi64>, f64 = dense<64> : vector<2xi64>, f128 = dense<128> : vector<2xi64>, "dlti.endianness" = "little", "dlti.mangling_mode" = "e", "dlti.legal_int_widths" = array<i32: 8, 16, 32, 64>, "dlti.stack_alignment" = 128 : i64>} {
+  cir.global external dso_local @orb_X_i8 = #cir.int<0> : !s8i {alignment = 1 : i64}
+  cir.global external dso_local @orb_Y_i8 = #cir.int<0> : !s8i {alignment = 1 : i64}
+  cir.global external dso_local @orb_Z_i8 = #cir.int<0> : !s8i {alignment = 1 : i64}
+  cir.global external dso_local @orb_X_i16 = #cir.int<0> : !s16i {alignment = 2 : i64}
+  cir.global external dso_local @orb_Y_i16 = #cir.int<0> : !s16i {alignment = 2 : i64}
+  cir.global external dso_local @orb_Z_i16 = #cir.int<0> : !s16i {alignment = 2 : i64}
+  cir.global external dso_local @orb_X_i32 = #cir.int<0> : !s32i {alignment = 4 : i64}
+  cir.global external dso_local @orb_Y_i32 = #cir.int<0> : !s32i {alignment = 4 : i64}
+  cir.global external dso_local @orb_Z_i32 = #cir.int<0> : !s32i {alignment = 4 : i64}
+  cir.global external dso_local @orb_X_i64 = #cir.int<0> : !s64i {alignment = 8 : i64}
+  cir.global external dso_local @orb_Y_i64 = #cir.int<0> : !s64i {alignment = 8 : i64}
+  cir.global external dso_local @orb_Z_i64 = #cir.int<0> : !s64i {alignment = 8 : i64}
+  cir.func no_inline dso_local @orb_sc_pair_i8() attributes {"cir.target-cpu" = "x86-64", "cir.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "cir.tune-cpu" = "generic"} {
+    %0 = llvm.mlir.constant(1 : i64) : i64
+    %1 = llvm.alloca %0 x i8 {alignment = 1 : i64} : (i64) -> !llvm.ptr
+    %2 = ptr.to_ptr %1 : !llvm.ptr -> <#ptr.generic_space>
+    %3 = llvm.mlir.constant(1 : i64) : i64
+    %4 = llvm.alloca %3 x i8 {alignment = 1 : i64} : (i64) -> !llvm.ptr
+    %5 = ptr.to_ptr %4 : !llvm.ptr -> <#ptr.generic_space>
+    %6 = llvm.mlir.constant(1 : i64) : i64
+    %7 = llvm.alloca %6 x i8 {alignment = 1 : i64} : (i64) -> !llvm.ptr
+    %8 = ptr.to_ptr %7 : !llvm.ptr -> <#ptr.generic_space>
+    %9 = llvm.mlir.constant(1 : i64) : i64
+    %10 = llvm.alloca %9 x i8 {alignment = 1 : i64} : (i64) -> !llvm.ptr
+    %11 = ptr.to_ptr %10 : !llvm.ptr -> <#ptr.generic_space>
+    %12 = cir.get_global @orb_X_i8 : !cir.ptr<!s8i>
+    %13 = ptr.to_ptr %12 : !cir.ptr<!s8i> -> <#ptr.generic_space>
+    %14 = cir.const #cir.int<1> : !s8i
+    %15 = builtin.unrealized_conversion_cast %14 : !s8i to i8
+    ptr.store %15, %2 alignment = 1 : i8, !ptr.ptr<#ptr.generic_space>
+    %16 = ptr.load %2 alignment = 1 : !ptr.ptr<#ptr.generic_space> -> i8
+    arm_atomic.atomic_store %16, %13 memory_order(3 : i32) align(1) {orb.event_id = 0 : i64} : i8, !ptr.ptr<#ptr.generic_space>
+    %17 = cir.get_global @orb_Y_i8 : !cir.ptr<!s8i>
+    %18 = ptr.to_ptr %17 : !cir.ptr<!s8i> -> <#ptr.generic_space>
+    %19 = arm_atomic.atomic_load %18 memory_order(2 : i32) align(1) {orb.event_id = 1 : i64} : !ptr.ptr<#ptr.generic_space> -> i8
+    ptr.store %19, %8 alignment = 1 : i8, !ptr.ptr<#ptr.generic_space>
+    %20 = ptr.load %8 alignment = 1 : !ptr.ptr<#ptr.generic_space> -> i8
+    ptr.store %20, %5 alignment = 1 : i8, !ptr.ptr<#ptr.generic_space>
+    %21 = cir.get_global @orb_Z_i8 : !cir.ptr<!s8i>
+    %22 = ptr.to_ptr %21 : !cir.ptr<!s8i> -> <#ptr.generic_space>
+    %23 = cir.const #cir.int<1> : !s8i
+    %24 = builtin.unrealized_conversion_cast %23 : !s8i to i8
+    ptr.store %24, %11 alignment = 1 : i8, !ptr.ptr<#ptr.generic_space>
+    %25 = ptr.load %11 alignment = 1 : !ptr.ptr<#ptr.generic_space> -> i8
+    arm_atomic.atomic_store %25, %22 memory_order(0 : i32) align(1) {orb.event_id = 2 : i64} : i8, !ptr.ptr<#ptr.generic_space>
+    cir.return
+  }
+  cir.func no_inline dso_local @orb_sc_pair_i16() attributes {"cir.target-cpu" = "x86-64", "cir.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "cir.tune-cpu" = "generic"} {
+    %0 = llvm.mlir.constant(1 : i64) : i64
+    %1 = llvm.alloca %0 x i16 {alignment = 2 : i64} : (i64) -> !llvm.ptr
+    %2 = ptr.to_ptr %1 : !llvm.ptr -> <#ptr.generic_space>
+    %3 = llvm.mlir.constant(1 : i64) : i64
+    %4 = llvm.alloca %3 x i16 {alignment = 2 : i64} : (i64) -> !llvm.ptr
+    %5 = ptr.to_ptr %4 : !llvm.ptr -> <#ptr.generic_space>
+    %6 = llvm.mlir.constant(1 : i64) : i64
+    %7 = llvm.alloca %6 x i16 {alignment = 2 : i64} : (i64) -> !llvm.ptr
+    %8 = ptr.to_ptr %7 : !llvm.ptr -> <#ptr.generic_space>
+    %9 = llvm.mlir.constant(1 : i64) : i64
+    %10 = llvm.alloca %9 x i16 {alignment = 2 : i64} : (i64) -> !llvm.ptr
+    %11 = ptr.to_ptr %10 : !llvm.ptr -> <#ptr.generic_space>
+    %12 = cir.get_global @orb_X_i16 : !cir.ptr<!s16i>
+    %13 = ptr.to_ptr %12 : !cir.ptr<!s16i> -> <#ptr.generic_space>
+    %14 = cir.const #cir.int<1> : !s16i
+    %15 = builtin.unrealized_conversion_cast %14 : !s16i to i16
+    ptr.store %15, %2 alignment = 2 : i16, !ptr.ptr<#ptr.generic_space>
+    %16 = ptr.load %2 alignment = 2 : !ptr.ptr<#ptr.generic_space> -> i16
+    arm_atomic.atomic_store %16, %13 memory_order(3 : i32) align(2) {orb.event_id = 3 : i64} : i16, !ptr.ptr<#ptr.generic_space>
+    %17 = cir.get_global @orb_Y_i16 : !cir.ptr<!s16i>
+    %18 = ptr.to_ptr %17 : !cir.ptr<!s16i> -> <#ptr.generic_space>
+    %19 = arm_atomic.atomic_load %18 memory_order(2 : i32) align(2) {orb.event_id = 4 : i64} : !ptr.ptr<#ptr.generic_space> -> i16
+    ptr.store %19, %8 alignment = 2 : i16, !ptr.ptr<#ptr.generic_space>
+    %20 = ptr.load %8 alignment = 2 : !ptr.ptr<#ptr.generic_space> -> i16
+    ptr.store %20, %5 alignment = 2 : i16, !ptr.ptr<#ptr.generic_space>
+    %21 = cir.get_global @orb_Z_i16 : !cir.ptr<!s16i>
+    %22 = ptr.to_ptr %21 : !cir.ptr<!s16i> -> <#ptr.generic_space>
+    %23 = cir.const #cir.int<1> : !s16i
+    %24 = builtin.unrealized_conversion_cast %23 : !s16i to i16
+    ptr.store %24, %11 alignment = 2 : i16, !ptr.ptr<#ptr.generic_space>
+    %25 = ptr.load %11 alignment = 2 : !ptr.ptr<#ptr.generic_space> -> i16
+    arm_atomic.atomic_store %25, %22 memory_order(0 : i32) align(2) {orb.event_id = 5 : i64} : i16, !ptr.ptr<#ptr.generic_space>
+    cir.return
+  }
+  cir.func no_inline dso_local @orb_sc_pair_i32() attributes {"cir.target-cpu" = "x86-64", "cir.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "cir.tune-cpu" = "generic"} {
+    %0 = llvm.mlir.constant(1 : i64) : i64
+    %1 = llvm.alloca %0 x i32 {alignment = 4 : i64} : (i64) -> !llvm.ptr
+    %2 = ptr.to_ptr %1 : !llvm.ptr -> <#ptr.generic_space>
+    %3 = llvm.mlir.constant(1 : i64) : i64
+    %4 = llvm.alloca %3 x i32 {alignment = 4 : i64} : (i64) -> !llvm.ptr
+    %5 = ptr.to_ptr %4 : !llvm.ptr -> <#ptr.generic_space>
+    %6 = llvm.mlir.constant(1 : i64) : i64
+    %7 = llvm.alloca %6 x i32 {alignment = 4 : i64} : (i64) -> !llvm.ptr
+    %8 = ptr.to_ptr %7 : !llvm.ptr -> <#ptr.generic_space>
+    %9 = llvm.mlir.constant(1 : i64) : i64
+    %10 = llvm.alloca %9 x i32 {alignment = 4 : i64} : (i64) -> !llvm.ptr
+    %11 = ptr.to_ptr %10 : !llvm.ptr -> <#ptr.generic_space>
+    %12 = cir.get_global @orb_X_i32 : !cir.ptr<!s32i>
+    %13 = ptr.to_ptr %12 : !cir.ptr<!s32i> -> <#ptr.generic_space>
+    %14 = cir.const #cir.int<1> : !s32i
+    %15 = builtin.unrealized_conversion_cast %14 : !s32i to i32
+    ptr.store %15, %2 alignment = 4 : i32, !ptr.ptr<#ptr.generic_space>
+    %16 = ptr.load %2 alignment = 4 : !ptr.ptr<#ptr.generic_space> -> i32
+    arm_atomic.atomic_store %16, %13 memory_order(3 : i32) align(4) {orb.event_id = 6 : i64} : i32, !ptr.ptr<#ptr.generic_space>
+    %17 = cir.get_global @orb_Y_i32 : !cir.ptr<!s32i>
+    %18 = ptr.to_ptr %17 : !cir.ptr<!s32i> -> <#ptr.generic_space>
+    %19 = arm_atomic.atomic_load %18 memory_order(2 : i32) align(4) {orb.event_id = 7 : i64} : !ptr.ptr<#ptr.generic_space> -> i32
+    ptr.store %19, %8 alignment = 4 : i32, !ptr.ptr<#ptr.generic_space>
+    %20 = ptr.load %8 alignment = 4 : !ptr.ptr<#ptr.generic_space> -> i32
+    ptr.store %20, %5 alignment = 4 : i32, !ptr.ptr<#ptr.generic_space>
+    %21 = cir.get_global @orb_Z_i32 : !cir.ptr<!s32i>
+    %22 = ptr.to_ptr %21 : !cir.ptr<!s32i> -> <#ptr.generic_space>
+    %23 = cir.const #cir.int<1> : !s32i
+    %24 = builtin.unrealized_conversion_cast %23 : !s32i to i32
+    ptr.store %24, %11 alignment = 4 : i32, !ptr.ptr<#ptr.generic_space>
+    %25 = ptr.load %11 alignment = 4 : !ptr.ptr<#ptr.generic_space> -> i32
+    arm_atomic.atomic_store %25, %22 memory_order(0 : i32) align(4) {orb.event_id = 8 : i64} : i32, !ptr.ptr<#ptr.generic_space>
+    cir.return
+  }
+  cir.func no_inline dso_local @orb_sc_pair_i64() attributes {"cir.target-cpu" = "x86-64", "cir.target-features" = "+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87", "cir.tune-cpu" = "generic"} {
+    %0 = llvm.mlir.constant(1 : i64) : i64
+    %1 = llvm.alloca %0 x i64 {alignment = 8 : i64} : (i64) -> !llvm.ptr
+    %2 = ptr.to_ptr %1 : !llvm.ptr -> <#ptr.generic_space>
+    %3 = llvm.mlir.constant(1 : i64) : i64
+    %4 = llvm.alloca %3 x i64 {alignment = 8 : i64} : (i64) -> !llvm.ptr
+    %5 = ptr.to_ptr %4 : !llvm.ptr -> <#ptr.generic_space>
+    %6 = llvm.mlir.constant(1 : i64) : i64
+    %7 = llvm.alloca %6 x i64 {alignment = 8 : i64} : (i64) -> !llvm.ptr
+    %8 = ptr.to_ptr %7 : !llvm.ptr -> <#ptr.generic_space>
+    %9 = llvm.mlir.constant(1 : i64) : i64
+    %10 = llvm.alloca %9 x i64 {alignment = 8 : i64} : (i64) -> !llvm.ptr
+    %11 = ptr.to_ptr %10 : !llvm.ptr -> <#ptr.generic_space>
+    %12 = cir.get_global @orb_X_i64 : !cir.ptr<!s64i>
+    %13 = ptr.to_ptr %12 : !cir.ptr<!s64i> -> <#ptr.generic_space>
+    %14 = cir.const #cir.int<1> : !s64i
+    %15 = builtin.unrealized_conversion_cast %14 : !s64i to i64
+    ptr.store %15, %2 alignment = 8 : i64, !ptr.ptr<#ptr.generic_space>
+    %16 = ptr.load %2 alignment = 8 : !ptr.ptr<#ptr.generic_space> -> i64
+    arm_atomic.atomic_store %16, %13 memory_order(3 : i32) align(8) {orb.event_id = 9 : i64} : i64, !ptr.ptr<#ptr.generic_space>
+    %17 = cir.get_global @orb_Y_i64 : !cir.ptr<!s64i>
+    %18 = ptr.to_ptr %17 : !cir.ptr<!s64i> -> <#ptr.generic_space>
+    %19 = arm_atomic.atomic_load %18 memory_order(2 : i32) align(8) {orb.event_id = 10 : i64} : !ptr.ptr<#ptr.generic_space> -> i64
+    ptr.store %19, %8 alignment = 8 : i64, !ptr.ptr<#ptr.generic_space>
+    %20 = ptr.load %8 alignment = 8 : !ptr.ptr<#ptr.generic_space> -> i64
+    ptr.store %20, %5 alignment = 8 : i64, !ptr.ptr<#ptr.generic_space>
+    %21 = cir.get_global @orb_Z_i64 : !cir.ptr<!s64i>
+    %22 = ptr.to_ptr %21 : !cir.ptr<!s64i> -> <#ptr.generic_space>
+    %23 = cir.const #cir.int<1> : !s64i
+    %24 = builtin.unrealized_conversion_cast %23 : !s64i to i64
+    ptr.store %24, %11 alignment = 8 : i64, !ptr.ptr<#ptr.generic_space>
+    %25 = ptr.load %11 alignment = 8 : !ptr.ptr<#ptr.generic_space> -> i64
+    arm_atomic.atomic_store %25, %22 memory_order(0 : i32) align(8) {orb.event_id = 11 : i64} : i64, !ptr.ptr<#ptr.generic_space>
+    cir.return
+  }
+}
+

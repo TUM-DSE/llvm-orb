@@ -1,0 +1,9 @@
+# Tests herd7 does not finish within the default timeout, skipped unless
+# ORB_LITMUS_SLOW=1. Format: <test> <-O level>, in every configuration.
+#
+# c_pq and its _reorder variant at -O0: both threads branch on several loads
+# and a compare-exchange, and at -O0 every intermediate value goes through a
+# stack slot, so the lifted test has 45 memory accesses (12 at -O1). herd7
+# with -optace true did not finish within 15 minutes in any configuration.
+c_pq          -O0
+c_pq_reorder  -O0

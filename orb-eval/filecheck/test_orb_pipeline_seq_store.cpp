@@ -5,8 +5,14 @@
 //
 // Run with ./run_pipeline_filecheck_tests.sh, which sweeps --fence-cost-base
 // and accepts the output if the CHECK invariants hold and at least one of the
-// ORB-SOLUTIONS prefixes matches.
+// ORB-SOLUTIONS prefixes matches. A dependency shape has a single solution,
+// in which every access stays relaxed and no barrier is inserted, because the
+// dependency already orders the accesses on ARMv8.
 //
+// (No prose line in this file may contain a check prefix followed by a colon:
+// FileCheck would read it as a directive.)
+//
+// ORB-KIND: ordering
 // ORB-SOLUTIONS: FENCE PROMOTE
 //
 // No <atomic> here on purpose: the __atomic_* builtins are what std::atomic
@@ -30,12 +36,19 @@ extern "C" void orb_seq_store_i8(void) {
 // CHECK:       arm_atomic.atomic_store {{.*}}align(1) {{.*}}: i8,
 // CHECK:       arm_atomic.atomic_store {{.*}}align(1) {{.*}}: i8,
 // FENCE-LABEL: cir.func{{.*}}@orb_seq_store_i8
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FENCE-NOT:   arm_atomic.atomic_fence
 // PROMOTE-LABEL: cir.func{{.*}}@orb_seq_store_i8
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(1) {{.*}}: i8,
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_seq_store_i8
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(3 : i32) align(1) {{.*}}: i8,
@@ -48,12 +61,19 @@ extern "C" void orb_seq_store_i16(void) {
 // CHECK:       arm_atomic.atomic_store {{.*}}align(2) {{.*}}: i16,
 // CHECK:       arm_atomic.atomic_store {{.*}}align(2) {{.*}}: i16,
 // FENCE-LABEL: cir.func{{.*}}@orb_seq_store_i16
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FENCE-NOT:   arm_atomic.atomic_fence
 // PROMOTE-LABEL: cir.func{{.*}}@orb_seq_store_i16
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(2) {{.*}}: i16,
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_seq_store_i16
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(3 : i32) align(2) {{.*}}: i16,
@@ -66,12 +86,19 @@ extern "C" void orb_seq_store_i32(void) {
 // CHECK:       arm_atomic.atomic_store {{.*}}align(4) {{.*}}: i32,
 // CHECK:       arm_atomic.atomic_store {{.*}}align(4) {{.*}}: i32,
 // FENCE-LABEL: cir.func{{.*}}@orb_seq_store_i32
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FENCE-NOT:   arm_atomic.atomic_fence
 // PROMOTE-LABEL: cir.func{{.*}}@orb_seq_store_i32
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(4) {{.*}}: i32,
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_seq_store_i32
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(3 : i32) align(4) {{.*}}: i32,
@@ -84,12 +111,19 @@ extern "C" void orb_seq_store_i64(void) {
 // CHECK:       arm_atomic.atomic_store {{.*}}align(8) {{.*}}: i64,
 // CHECK:       arm_atomic.atomic_store {{.*}}align(8) {{.*}}: i64,
 // FENCE-LABEL: cir.func{{.*}}@orb_seq_store_i64
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FENCE-NOT:   arm_atomic.atomic_fence
 // FENCE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FENCE-NOT:   arm_atomic.atomic_fence
 // PROMOTE-LABEL: cir.func{{.*}}@orb_seq_store_i64
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(8) {{.*}}: i64,
+// PROMOTE-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_seq_store_i64
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(3 : i32) align(8) {{.*}}: i64,

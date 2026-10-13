@@ -5,9 +5,15 @@
 //
 // Run with ./run_pipeline_filecheck_tests.sh, which sweeps --fence-cost-base
 // and accepts the output if the CHECK invariants hold and at least one of the
-// ORB-SOLUTIONS prefixes matches.
+// ORB-SOLUTIONS prefixes matches. A dependency shape has a single solution,
+// in which every access stays relaxed and no barrier is inserted, because the
+// dependency already orders the accesses on ARMv8.
 //
-// ORB-SOLUTIONS: FENCE_AFTER_CALL FENCE_BEFORE_CALL PROMOTE
+// (No prose line in this file may contain a check prefix followed by a colon:
+// FileCheck would read it as a directive.)
+//
+// ORB-KIND: ordering
+// ORB-SOLUTIONS: FAFTERCALL_FBEFORECALL FAFTERCALL_FBEFOREZ FAFTERCALL_ZREL FAFTERZ_FBEFORECALL FAFTERZ_FBEFOREZ FAFTERZ_ZREL YREL_FBEFORECALL YREL_FBEFOREZ YREL_ZREL
 //
 // No <atomic> here on purpose: the __atomic_* builtins are what std::atomic
 // lowers to and need no standard library for the target. extern "C" keeps the
@@ -36,32 +42,144 @@ extern "C" void orb_call_i8(void) {
 }
 // CHECK-LABEL: cir.func{{.*}}@orb_callee_i8
 // CHECK:       arm_atomic.atomic_store {{.*}}align(1) {{.*}}: i8,
-// FENCE_AFTER_CALL-LABEL: cir.func{{.*}}@orb_callee_i8
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}align(1) {{.*}}: i8,
-// FENCE_BEFORE_CALL-LABEL: cir.func{{.*}}@orb_callee_i8
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}align(1) {{.*}}: i8,
-// PROMOTE-LABEL: cir.func{{.*}}@orb_callee_i8
-// PROMOTE:       arm_atomic.atomic_store {{.*}}align(1) {{.*}}: i8,
+// FAFTERCALL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i8
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i8
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL-LABEL: cir.func{{.*}}@orb_callee_i8
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i8
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i8
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL-LABEL: cir.func{{.*}}@orb_callee_i8
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(1) {{.*}}: i8,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i8
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i8
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL-LABEL: cir.func{{.*}}@orb_callee_i8
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(1) {{.*}}: i8,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_callee_i8
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
 // CHECK-LABEL: cir.func{{.*}}@orb_call_i8
 // CHECK:       arm_atomic.atomic_store {{.*}}align(1) {{.*}}: i8,
 // CHECK:       cir.call @orb_callee_
 // CHECK:       arm_atomic.atomic_store {{.*}}align(1) {{.*}}: i8,
-// FENCE_AFTER_CALL-LABEL: cir.func{{.*}}@orb_call_i8
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
-// FENCE_AFTER_CALL:       cir.call @orb_callee_
-// FENCE_AFTER_CALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
-// FENCE_BEFORE_CALL-LABEL: cir.func{{.*}}@orb_call_i8
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
-// FENCE_BEFORE_CALL:       cir.call @orb_callee_
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
-// PROMOTE-LABEL: cir.func{{.*}}@orb_call_i8
-// PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
-// PROMOTE:       cir.call @orb_callee_
-// PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i8
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       cir.call @orb_callee_
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i8
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       cir.call @orb_callee_
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL-LABEL: cir.func{{.*}}@orb_call_i8
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       cir.call @orb_callee_
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i8
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       cir.call @orb_callee_
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i8
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       cir.call @orb_callee_
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL-LABEL: cir.func{{.*}}@orb_call_i8
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       cir.call @orb_callee_
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i8
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       cir.call @orb_callee_
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(1) {{.*}}: i8,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i8
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       cir.call @orb_callee_
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(1) {{.*}}: i8,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL-LABEL: cir.func{{.*}}@orb_call_i8
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       cir.call @orb_callee_
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(1) {{.*}}: i8,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_call_i8
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(1) {{.*}}: i8,
 // NAIVE:       cir.call @orb_callee_
@@ -77,32 +195,144 @@ extern "C" void orb_call_i16(void) {
 }
 // CHECK-LABEL: cir.func{{.*}}@orb_callee_i16
 // CHECK:       arm_atomic.atomic_store {{.*}}align(2) {{.*}}: i16,
-// FENCE_AFTER_CALL-LABEL: cir.func{{.*}}@orb_callee_i16
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}align(2) {{.*}}: i16,
-// FENCE_BEFORE_CALL-LABEL: cir.func{{.*}}@orb_callee_i16
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}align(2) {{.*}}: i16,
-// PROMOTE-LABEL: cir.func{{.*}}@orb_callee_i16
-// PROMOTE:       arm_atomic.atomic_store {{.*}}align(2) {{.*}}: i16,
+// FAFTERCALL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i16
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i16
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL-LABEL: cir.func{{.*}}@orb_callee_i16
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i16
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i16
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL-LABEL: cir.func{{.*}}@orb_callee_i16
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(2) {{.*}}: i16,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i16
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i16
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL-LABEL: cir.func{{.*}}@orb_callee_i16
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(2) {{.*}}: i16,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_callee_i16
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
 // CHECK-LABEL: cir.func{{.*}}@orb_call_i16
 // CHECK:       arm_atomic.atomic_store {{.*}}align(2) {{.*}}: i16,
 // CHECK:       cir.call @orb_callee_
 // CHECK:       arm_atomic.atomic_store {{.*}}align(2) {{.*}}: i16,
-// FENCE_AFTER_CALL-LABEL: cir.func{{.*}}@orb_call_i16
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
-// FENCE_AFTER_CALL:       cir.call @orb_callee_
-// FENCE_AFTER_CALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
-// FENCE_BEFORE_CALL-LABEL: cir.func{{.*}}@orb_call_i16
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
-// FENCE_BEFORE_CALL:       cir.call @orb_callee_
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
-// PROMOTE-LABEL: cir.func{{.*}}@orb_call_i16
-// PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
-// PROMOTE:       cir.call @orb_callee_
-// PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i16
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       cir.call @orb_callee_
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i16
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       cir.call @orb_callee_
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL-LABEL: cir.func{{.*}}@orb_call_i16
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       cir.call @orb_callee_
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i16
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       cir.call @orb_callee_
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i16
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       cir.call @orb_callee_
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL-LABEL: cir.func{{.*}}@orb_call_i16
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       cir.call @orb_callee_
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i16
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       cir.call @orb_callee_
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(2) {{.*}}: i16,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i16
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       cir.call @orb_callee_
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(2) {{.*}}: i16,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL-LABEL: cir.func{{.*}}@orb_call_i16
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       cir.call @orb_callee_
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(2) {{.*}}: i16,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_call_i16
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(2) {{.*}}: i16,
 // NAIVE:       cir.call @orb_callee_
@@ -118,32 +348,144 @@ extern "C" void orb_call_i32(void) {
 }
 // CHECK-LABEL: cir.func{{.*}}@orb_callee_i32
 // CHECK:       arm_atomic.atomic_store {{.*}}align(4) {{.*}}: i32,
-// FENCE_AFTER_CALL-LABEL: cir.func{{.*}}@orb_callee_i32
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}align(4) {{.*}}: i32,
-// FENCE_BEFORE_CALL-LABEL: cir.func{{.*}}@orb_callee_i32
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}align(4) {{.*}}: i32,
-// PROMOTE-LABEL: cir.func{{.*}}@orb_callee_i32
-// PROMOTE:       arm_atomic.atomic_store {{.*}}align(4) {{.*}}: i32,
+// FAFTERCALL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i32
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i32
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL-LABEL: cir.func{{.*}}@orb_callee_i32
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i32
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i32
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL-LABEL: cir.func{{.*}}@orb_callee_i32
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(4) {{.*}}: i32,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i32
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i32
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL-LABEL: cir.func{{.*}}@orb_callee_i32
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(4) {{.*}}: i32,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_callee_i32
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
 // CHECK-LABEL: cir.func{{.*}}@orb_call_i32
 // CHECK:       arm_atomic.atomic_store {{.*}}align(4) {{.*}}: i32,
 // CHECK:       cir.call @orb_callee_
 // CHECK:       arm_atomic.atomic_store {{.*}}align(4) {{.*}}: i32,
-// FENCE_AFTER_CALL-LABEL: cir.func{{.*}}@orb_call_i32
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
-// FENCE_AFTER_CALL:       cir.call @orb_callee_
-// FENCE_AFTER_CALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
-// FENCE_BEFORE_CALL-LABEL: cir.func{{.*}}@orb_call_i32
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
-// FENCE_BEFORE_CALL:       cir.call @orb_callee_
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
-// PROMOTE-LABEL: cir.func{{.*}}@orb_call_i32
-// PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
-// PROMOTE:       cir.call @orb_callee_
-// PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i32
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       cir.call @orb_callee_
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i32
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       cir.call @orb_callee_
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL-LABEL: cir.func{{.*}}@orb_call_i32
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       cir.call @orb_callee_
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i32
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       cir.call @orb_callee_
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i32
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       cir.call @orb_callee_
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL-LABEL: cir.func{{.*}}@orb_call_i32
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       cir.call @orb_callee_
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i32
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       cir.call @orb_callee_
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(4) {{.*}}: i32,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i32
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       cir.call @orb_callee_
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(4) {{.*}}: i32,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL-LABEL: cir.func{{.*}}@orb_call_i32
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       cir.call @orb_callee_
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(4) {{.*}}: i32,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_call_i32
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(4) {{.*}}: i32,
 // NAIVE:       cir.call @orb_callee_
@@ -159,32 +501,144 @@ extern "C" void orb_call_i64(void) {
 }
 // CHECK-LABEL: cir.func{{.*}}@orb_callee_i64
 // CHECK:       arm_atomic.atomic_store {{.*}}align(8) {{.*}}: i64,
-// FENCE_AFTER_CALL-LABEL: cir.func{{.*}}@orb_callee_i64
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}align(8) {{.*}}: i64,
-// FENCE_BEFORE_CALL-LABEL: cir.func{{.*}}@orb_callee_i64
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}align(8) {{.*}}: i64,
-// PROMOTE-LABEL: cir.func{{.*}}@orb_callee_i64
-// PROMOTE:       arm_atomic.atomic_store {{.*}}align(8) {{.*}}: i64,
+// FAFTERCALL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i64
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i64
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL-LABEL: cir.func{{.*}}@orb_callee_i64
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i64
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i64
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL-LABEL: cir.func{{.*}}@orb_callee_i64
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(8) {{.*}}: i64,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_callee_i64
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_callee_i64
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL-LABEL: cir.func{{.*}}@orb_callee_i64
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(8) {{.*}}: i64,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_callee_i64
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
 // CHECK-LABEL: cir.func{{.*}}@orb_call_i64
 // CHECK:       arm_atomic.atomic_store {{.*}}align(8) {{.*}}: i64,
 // CHECK:       cir.call @orb_callee_
 // CHECK:       arm_atomic.atomic_store {{.*}}align(8) {{.*}}: i64,
-// FENCE_AFTER_CALL-LABEL: cir.func{{.*}}@orb_call_i64
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
-// FENCE_AFTER_CALL:       cir.call @orb_callee_
-// FENCE_AFTER_CALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
-// FENCE_AFTER_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
-// FENCE_BEFORE_CALL-LABEL: cir.func{{.*}}@orb_call_i64
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
-// FENCE_BEFORE_CALL:       cir.call @orb_callee_
-// FENCE_BEFORE_CALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
-// PROMOTE-LABEL: cir.func{{.*}}@orb_call_i64
-// PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
-// PROMOTE:       cir.call @orb_callee_
-// PROMOTE:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i64
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       cir.call @orb_callee_
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i64
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       cir.call @orb_callee_
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL-LABEL: cir.func{{.*}}@orb_call_i64
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       cir.call @orb_callee_
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERCALL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERCALL_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i64
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       cir.call @orb_callee_
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERZ_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i64
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       cir.call @orb_callee_
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERZ_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL-LABEL: cir.func{{.*}}@orb_call_i64
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       cir.call @orb_callee_
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// FAFTERZ_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// FAFTERZ_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL-LABEL: cir.func{{.*}}@orb_call_i64
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_fence memory_order({{3|4}} : i32)
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       cir.call @orb_callee_
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFORECALL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(8) {{.*}}: i64,
+// YREL_FBEFORECALL-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ-LABEL: cir.func{{.*}}@orb_call_i64
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       cir.call @orb_callee_
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_FBEFOREZ:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(8) {{.*}}: i64,
+// YREL_FBEFOREZ-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL-LABEL: cir.func{{.*}}@orb_call_i64
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       cir.call @orb_callee_
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
+// YREL_ZREL:       arm_atomic.atomic_store {{.*}}memory_order({{3|4}} : i32) align(8) {{.*}}: i64,
+// YREL_ZREL-NOT:   arm_atomic.atomic_fence
 // NAIVE-LABEL: cir.func{{.*}}@orb_call_i64
 // NAIVE:       arm_atomic.atomic_store {{.*}}memory_order(0 : i32) align(8) {{.*}}: i64,
 // NAIVE:       cir.call @orb_callee_

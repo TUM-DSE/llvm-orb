@@ -16,27 +16,39 @@ so it has to be parsed and a translation unit synthesised from it. Doing that
 -- rather than hand-writing the thread bodies -- keeps the compiled program and
 the RC11 reference answer derived from the same file, so the two cannot drift.
 
-The translation is deliberately minimal. Thread *bodies are copied verbatim*:
-the parameters are re-declared as local pointers to the globals, so `x` is still
-a pointer and `*y` is still a dereference, and no statement has to be rewritten.
+The translation is deliberately minimal. Thread *bodies are copied verbatim*.
+A litmus thread receives each location as a pointer parameter, so its body
+says `atomic_load_explicit(x, ...)` and `*y = 1`. Each location becomes a
+global, and inside the thread the parameter name is a macro for that global's
+address, cast to the parameter's type. `x` is still a pointer and `*y` still a
+dereference, so no statement has to be rewritten:
 
     P0 (atomic_int* x, volatile int* y) {       extern "C" void P0(void) {
-      int r0 = atomic_load_explicit(...);         atomic_int * x = (atomic_int *)&lt_x;
-      *y = 1;                              -->    volatile int * y = (volatile int *)&lt_y;
+      int r0 = atomic_load_explicit(...);       #define x ((atomic_int*)&lt_x)
+      *y = 1;                              -->  #define y ((volatile int*)&lt_y)
     }                                             int r0 = atomic_load_explicit(...);
                                                   *y = 1;
                                                 }
+                                                #undef x
+                                                #undef y
+
+A macro, not a pointer variable: `x` expands to the address constant itself,
+so the compiled code forms the global's address directly at every -O level.
+A local pointer would live in a stack slot at -O0, and every access would
+first load the address from it; a global pointer would add a load of a shared
+location to every access, at every level. Neither is in the litmus test.
 
 Three details that the catalogue forces:
 
-  - Globals are prefixed `lt_`. A parameter and its location share a name, so
-    `atomic_int *x = &x;` would make the local shadow the global and initialise
-    itself from its own indeterminate value.
+  - Globals are prefixed `lt_`. The parameter name is taken by the macro, so
+    the global needs a name of its own.
 
   - A location can be declared with different types by different threads -- a1
     has `atomic_int* y` in P0 and `volatile int* y` in P1, which is the litmus
     idiom for mixing atomic and non-atomic access to one location. The global
-    takes the atomic type and each thread casts, reproducing exactly that.
+    takes the atomic type and each thread's macro casts, reproducing exactly
+    that. The macro is #undef'd after the thread, so the next thread can give
+    the same name another type.
 
   - When the `exists` clause names a register (`exists (0:r1=1)`), that thread
     returns it. Every conditioned test in the catalogue names at most one
@@ -85,29 +97,32 @@ def match_brace(text, open_idx):
     raise LitmusError("unbalanced braces from offset %d" % open_idx)
 
 
-# The suite tests the mapping of loads, stores and fences. Read-modify-write
-# ops are out of scope (that work lives on the RMWOps branch), so a test using
-# one is dropped rather than half-covered: its CAS would lift into a real
-# ldxr/stxr pair and its verdict would then be reported as though it said
-# something about load/store/fence ordering, which it would not.
+# Loads, stores and fences go through the Orb pipeline. Compare-exchange does
+# not: ClangIR lowers it straight to an LLVM cmpxchg, which becomes a CAS (with
+# LSE) or an exclusive-pair loop. It is still in scope, because whatever Orb
+# emits around it must not let ARMv8 show behaviour RC11 forbids. Anything else
+# is rejected rather than compiled with a guess at its meaning; the prelude
+# defines exactly these.
 ALLOWED_ATOMICS = {
     "atomic_load", "atomic_load_explicit",
     "atomic_store", "atomic_store_explicit",
     "atomic_thread_fence",
+    "atomic_compare_exchange_strong", "atomic_compare_exchange_strong_explicit",
+    "atomic_compare_exchange_weak", "atomic_compare_exchange_weak_explicit",
 }
 
 ATOMIC_CALL_RE = re.compile(r"\b(atomic_\w+)\s*\(")
 
 
 def check_in_scope(threads):
-    """Reject a test that uses anything beyond loads, stores and fences."""
+    """Reject a test that uses an atomic the prelude does not define."""
     for t in threads:
         for m in ATOMIC_CALL_RE.finditer(t["body"]):
             op = m.group(1)
             if op not in ALLOWED_ATOMICS:
                 raise LitmusError(
-                    "uses %s in P%d; this suite covers loads, stores and "
-                    "fences only" % (op, t["idx"]))
+                    "uses %s in P%d, which litmus_prelude.h does not "
+                    "define" % (op, t["idx"]))
 
 
 def parse_litmus(text, path):
@@ -278,8 +293,7 @@ def generate_cpp(test):
         rty = "int" if reg else "void"
         A('extern "C" %s P%d(void) {' % (rty, t["idx"]))
         for ptype, pname in t["params"]:
-            A("  %s %s = (%s)&%s%s;" % (ptype, pname, ptype,
-                                        GLOBAL_PREFIX, pname))
+            A("#define %s ((%s)&%s%s)" % (pname, ptype, GLOBAL_PREFIX, pname))
         atomic_params = [n for ty, n in t["params"] if "atomic" in ty]
         body, notes = rewrite_implicit_atomics(t["body"], atomic_params)
         for note in notes:
@@ -290,6 +304,8 @@ def generate_cpp(test):
         if reg:
             A("  return %s;   // observed as W0 by the generated litmus test" % reg)
         A("}")
+        for _, pname in t["params"]:
+            A("#undef %s" % pname)
         A("")
     return "\n".join(L) + "\n"
 
