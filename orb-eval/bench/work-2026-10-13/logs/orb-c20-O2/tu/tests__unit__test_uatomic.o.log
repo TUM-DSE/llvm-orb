@@ -1,0 +1,553 @@
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:97:3: warning: implicit conversion from 'unsigned long' to 'unsigned char' changes value from 18446744073709551605 to 245 [-Wconstant-conversion]
+   97 |                 do_test(&vals.c[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:104:3: warning: implicit conversion from 'unsigned long' to 'unsigned short' changes value from 18446744073709551605 to 65525 [-Wconstant-conversion]
+  104 |                 do_test(&vals.s[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:110:3: warning: implicit conversion from 'unsigned long' to 'unsigned int' changes value from 18446744073709551605 to 4294967285 [-Wconstant-conversion]
+  110 |                 do_test(&vals.i[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0344 seconds
+
+  ----Wall Time----  ----Name----
+    0.0060 ( 17.3%)  CIRCanonicalize
+    0.0049 ( 14.1%)  CIRSimplify
+    0.0077 ( 22.3%)  TargetLowering
+    0.0108 ( 31.5%)  CXXABILowering
+    0.0050 ( 14.7%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0344 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=157
+[getOrderMatrix] forwardOrdered=10014 backEdgeOrdered=108
+[OrderAnalysis] required=10122 crossIterOnly=108
+[FenceSynthesis] <test_uatomic.c:1884> start fenceCostBase=20
+[FenceSynthesis] <test_uatomic.c:1884> required pairs=10122
+[getOrderMatrix] n=157
+[getOrderMatrix] forwardOrdered=24 backEdgeOrdered=12
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=157
+[FenceSynthesis] <test_uatomic.c:1884> n=157
+[FenceSynthesis] <test_uatomic.c:1884> === Event map ===
+[FenceSynthesis] <test_uatomic.c:1884> ev=0	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_uatomic.c:1884> ev=131	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=23	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=77	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=46	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=31	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=69	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=154	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=54	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=139	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=92	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=39	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=38	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=62	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=85	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=8	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=138	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=108	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=115	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=15	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=78	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=130	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=76	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=22	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=155	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=9	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=24	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=84	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=109	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=117	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=124	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=16	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=17	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=63	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=116	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=37	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=123	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=83	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=30	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=70	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=79	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=102	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=156	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=152	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=6	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=29	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=44	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=114	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=91	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=41	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=145	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=121	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=98	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=18	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=48	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=95	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=55	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=25	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=53	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=105	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=1	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=107	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=126	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=32	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=72	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=34	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=86	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=74	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=13	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=93	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=147	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=67	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=20	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=60	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=100	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=140	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=133	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=81	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=127	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=27	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=19	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=112	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=4	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=89	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=104	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=65	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=119	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=11	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=142	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=12	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=42	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=58	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=88	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=128	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=35	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=135	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=51	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=103	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=82	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=3	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=136	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=57	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=111	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=151	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=49	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=149	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=143	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=90	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=36	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=43	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=96	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=97	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=110	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=150	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=10	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=50	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=106	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=56	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=2	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=52	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=71	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=137	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=21	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=64	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=94	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=118	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=129	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=144	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=68	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=141	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=122	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=45	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=125	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=75	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=5	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=148	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=132	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=28	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=26	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=80	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=101	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=47	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=59	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=61	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=134	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:1884> ev=99	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=66	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=14	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=40	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=120	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=87	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=146	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=7	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=33	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=113	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=73	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> ev=153	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:1884> === End event map ===
+[FenceSynthesis] <test_uatomic.c:1884> pre-ordered=36/10122 crossFn=312 sameFn=9810 LL=8640 LS=960 SL=120 SS=90 FL=144 FS=12 LF=144 SF=12
+[FenceSynthesis] <test_uatomic.c:1884> ordered=36/10122 overspecified=0
+[FenceSynthesis] <test_uatomic.c:1884> iter=0 (0,2) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=348/10122 overspecified=0 t=1416ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=1 (96,93) pair mo1=3 mo2=2 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=17780
+[FenceSynthesis] <test_uatomic.c:1884> ordered=6202/10122 overspecified=3228 t=1417ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=2 (18,15) pair mo1=3 mo2=2 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=5768
+[FenceSynthesis] <test_uatomic.c:1884> ordered=8132/10122 overspecified=4296 t=1419ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=3 (57,78) pair mo1=3 mo2=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=2804
+[FenceSynthesis] <test_uatomic.c:1884> ordered=9081/10122 overspecified=4824 t=1420ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=4 (135,120) pair mo1=3 mo2=2 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=2804
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10030/10122 overspecified=5352 t=1422ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=5 (21,21) upgrade ev=21 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10031/10122 overspecified=5352 t=1423ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=6 (6,6) upgrade ev=6 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10032/10122 overspecified=5352 t=1424ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=7 (9,9) upgrade ev=9 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10033/10122 overspecified=5352 t=1425ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=8 (12,12) upgrade ev=12 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10034/10122 overspecified=5352 t=1426ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=9 (27,27) upgrade ev=27 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10035/10122 overspecified=5352 t=1427ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=10 (36,36) upgrade ev=36 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10036/10122 overspecified=5352 t=1428ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=11 (30,30) upgrade ev=30 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10037/10122 overspecified=5352 t=1429ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=12 (33,33) upgrade ev=33 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10038/10122 overspecified=5352 t=1430ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=13 (39,39) upgrade ev=39 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10039/10122 overspecified=5352 t=1431ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=14 (24,24) upgrade ev=24 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10040/10122 overspecified=5352 t=1432ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=15 (3,3) upgrade ev=3 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10041/10122 overspecified=5352 t=1433ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=16 (8,8) upgrade ev=8 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10042/10122 overspecified=5352 t=1434ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=17 (35,35) upgrade ev=35 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10043/10122 overspecified=5352 t=1435ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=18 (26,26) upgrade ev=26 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10044/10122 overspecified=5352 t=1435ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=19 (14,14) upgrade ev=14 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10045/10122 overspecified=5352 t=1436ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=20 (20,20) upgrade ev=20 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10046/10122 overspecified=5352 t=1437ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=21 (11,11) upgrade ev=11 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10047/10122 overspecified=5352 t=1438ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=22 (29,29) upgrade ev=29 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10048/10122 overspecified=5352 t=1439ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=23 (23,23) upgrade ev=23 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10049/10122 overspecified=5352 t=1440ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=24 (5,5) upgrade ev=5 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10050/10122 overspecified=5352 t=1441ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=25 (38,38) upgrade ev=38 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10051/10122 overspecified=5352 t=1442ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=26 (32,32) upgrade ev=32 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10052/10122 overspecified=5352 t=1443ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=27 (2,2) upgrade ev=2 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10053/10122 overspecified=5352 t=1444ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=28 (60,60) upgrade ev=60 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10054/10122 overspecified=5352 t=1445ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=29 (63,63) upgrade ev=63 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10055/10122 overspecified=5352 t=1446ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=30 (69,69) upgrade ev=69 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10056/10122 overspecified=5352 t=1447ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=31 (42,42) upgrade ev=42 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10057/10122 overspecified=5352 t=1448ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=32 (45,45) upgrade ev=45 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10058/10122 overspecified=5352 t=1448ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=33 (66,66) upgrade ev=66 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10059/10122 overspecified=5352 t=1449ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=34 (48,48) upgrade ev=48 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10060/10122 overspecified=5352 t=1450ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=35 (72,72) upgrade ev=72 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10061/10122 overspecified=5352 t=1451ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=36 (75,75) upgrade ev=75 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10062/10122 overspecified=5352 t=1452ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=37 (54,54) upgrade ev=54 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10063/10122 overspecified=5352 t=1453ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=38 (51,51) upgrade ev=51 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10064/10122 overspecified=5352 t=1454ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=39 (65,65) upgrade ev=65 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10065/10122 overspecified=5352 t=1455ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=40 (77,77) upgrade ev=77 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10066/10122 overspecified=5352 t=1456ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=41 (68,68) upgrade ev=68 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10067/10122 overspecified=5352 t=1457ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=42 (74,74) upgrade ev=74 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10068/10122 overspecified=5352 t=1458ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=43 (71,71) upgrade ev=71 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10069/10122 overspecified=5352 t=1459ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=44 (47,47) upgrade ev=47 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10070/10122 overspecified=5352 t=1460ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=45 (50,50) upgrade ev=50 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10071/10122 overspecified=5352 t=1461ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=46 (41,41) upgrade ev=41 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10072/10122 overspecified=5352 t=1462ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=47 (62,62) upgrade ev=62 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10073/10122 overspecified=5352 t=1462ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=48 (53,53) upgrade ev=53 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10074/10122 overspecified=5352 t=1463ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=49 (44,44) upgrade ev=44 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10075/10122 overspecified=5352 t=1464ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=50 (59,59) upgrade ev=59 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10076/10122 overspecified=5352 t=1465ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=51 (111,111) upgrade ev=111 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10077/10122 overspecified=5352 t=1466ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=52 (108,108) upgrade ev=108 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10078/10122 overspecified=5352 t=1467ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=53 (117,117) upgrade ev=117 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10079/10122 overspecified=5352 t=1468ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=54 (90,90) upgrade ev=90 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10080/10122 overspecified=5352 t=1469ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=55 (114,114) upgrade ev=114 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10081/10122 overspecified=5352 t=1470ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=56 (102,102) upgrade ev=102 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10082/10122 overspecified=5352 t=1471ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=57 (81,81) upgrade ev=81 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10083/10122 overspecified=5352 t=1472ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=58 (99,99) upgrade ev=99 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10084/10122 overspecified=5352 t=1473ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=59 (84,84) upgrade ev=84 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10085/10122 overspecified=5352 t=1474ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=60 (87,87) upgrade ev=87 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10086/10122 overspecified=5352 t=1475ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=61 (105,105) upgrade ev=105 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10087/10122 overspecified=5352 t=1475ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=62 (116,116) upgrade ev=116 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10088/10122 overspecified=5352 t=1476ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=63 (104,104) upgrade ev=104 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10089/10122 overspecified=5352 t=1477ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=64 (101,101) upgrade ev=101 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10090/10122 overspecified=5352 t=1478ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=65 (110,110) upgrade ev=110 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10091/10122 overspecified=5352 t=1479ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=66 (113,113) upgrade ev=113 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10092/10122 overspecified=5352 t=1480ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=67 (107,107) upgrade ev=107 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10093/10122 overspecified=5352 t=1481ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=68 (98,98) upgrade ev=98 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10094/10122 overspecified=5352 t=1482ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=69 (86,86) upgrade ev=86 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10095/10122 overspecified=5352 t=1483ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=70 (80,80) upgrade ev=80 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10096/10122 overspecified=5352 t=1484ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=71 (83,83) upgrade ev=83 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10097/10122 overspecified=5352 t=1485ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=72 (92,92) upgrade ev=92 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10098/10122 overspecified=5352 t=1486ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=73 (89,89) upgrade ev=89 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10099/10122 overspecified=5352 t=1487ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=74 (156,156) upgrade ev=156 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10100/10122 overspecified=5352 t=1488ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=75 (132,132) upgrade ev=132 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10101/10122 overspecified=5352 t=1489ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=76 (138,138) upgrade ev=138 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10102/10122 overspecified=5352 t=1490ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=77 (126,126) upgrade ev=126 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10103/10122 overspecified=5352 t=1490ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=78 (129,129) upgrade ev=129 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10104/10122 overspecified=5352 t=1491ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=79 (123,123) upgrade ev=123 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10105/10122 overspecified=5352 t=1492ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=80 (150,150) upgrade ev=150 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10106/10122 overspecified=5352 t=1493ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=81 (153,153) upgrade ev=153 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10107/10122 overspecified=5352 t=1494ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=82 (141,141) upgrade ev=141 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10108/10122 overspecified=5352 t=1495ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=83 (147,147) upgrade ev=147 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10109/10122 overspecified=5352 t=1496ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=84 (144,144) upgrade ev=144 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10110/10122 overspecified=5352 t=1497ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=85 (143,143) upgrade ev=143 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10111/10122 overspecified=5352 t=1498ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=86 (152,152) upgrade ev=152 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10112/10122 overspecified=5352 t=1499ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=87 (140,140) upgrade ev=140 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10113/10122 overspecified=5352 t=1500ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=88 (122,122) upgrade ev=122 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10114/10122 overspecified=5352 t=1501ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=89 (146,146) upgrade ev=146 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10115/10122 overspecified=5352 t=1502ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=90 (125,125) upgrade ev=125 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10116/10122 overspecified=5352 t=1503ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=91 (149,149) upgrade ev=149 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10117/10122 overspecified=5352 t=1504ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=92 (155,155) upgrade ev=155 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10118/10122 overspecified=5352 t=1504ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=93 (119,119) upgrade ev=119 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10119/10122 overspecified=5352 t=1505ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=94 (131,131) upgrade ev=131 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10120/10122 overspecified=5352 t=1506ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=95 (128,128) upgrade ev=128 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10121/10122 overspecified=5352 t=1507ms
+[FenceSynthesis] <test_uatomic.c:1884> iter=96 (137,137) upgrade ev=137 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:1884> ordered=10122/10122 overspecified=5352 t=1508ms
+[FenceSynthesis] <test_uatomic.c:1884> done ordered=10122/10122 overspecified=5352 promotions=97 remaining=0 t=1508ms
+[OrbStats] module=test_uatomic.c ld_rlx=48 ld_acqpc=92 ld_acq=4 st_rlx=8 st_rel=4 fence_acq=0 fence_rel=0 fence_acqrel=1 ptr_ld=0 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 2.2994 seconds
+
+  ----Wall Time----  ----Name----
+    0.0047 (  0.2%)  HoistAllocas
+    0.0109 (  0.5%)  CIRFlattenCFG
+    0.0051 (  0.2%)  CIREHABILowering
+    0.0055 (  0.2%)  GotoSolver
+    0.0174 (  0.8%)  CIRToCF
+    0.0295 (  1.3%)  CIRToPtr
+    0.0136 (  0.6%)  CIRToCppAtomic
+    0.5746 ( 25.0%)  OrderAnalysisPass
+    0.5613 ( 24.4%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0169 (  0.7%)  ConvertCppAtomicToArmAtomicPass
+    1.5253 ( 66.3%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0366 (  1.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0153 (  0.7%)  ConvertArmAtomicToLLVMPass
+    0.0179 (  0.8%)  ConvertToLLVMPass
+    0.0169 (  0.7%)  CIROrbCleanup
+    0.0092 (  0.4%)  Rest
+    2.2994 (100.0%)  Total
+3 warnings generated.

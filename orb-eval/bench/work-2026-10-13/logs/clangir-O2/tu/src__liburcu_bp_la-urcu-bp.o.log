@@ -1,0 +1,31 @@
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/src/urcu-bp.c:133:12: warning: variable 'initialized' set but not used [-Wunused-but-set-global]
+  133 | static int initialized;
+      |            ^
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0332 seconds
+
+  ----Wall Time----  ----Name----
+    0.0051 ( 15.4%)  CIRCanonicalize
+    0.0025 (  7.6%)  CIRSimplify
+    0.0058 ( 17.6%)  TargetLowering
+    0.0173 ( 52.1%)  CXXABILowering
+    0.0024 (  7.1%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0332 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0697 seconds
+
+  ----Wall Time----  ----Name----
+    0.0023 (  3.3%)  HoistAllocas
+    0.0081 ( 11.6%)  CIRFlattenCFG
+    0.0021 (  3.1%)  CIREHABILowering
+    0.0023 (  3.2%)  GotoSolver
+    0.0018 (  2.6%)  MarkDeclareTargetPass
+    0.0345 ( 49.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0186 ( 26.7%)  Rest
+    0.0697 (100.0%)  Total
+1 warning generated.

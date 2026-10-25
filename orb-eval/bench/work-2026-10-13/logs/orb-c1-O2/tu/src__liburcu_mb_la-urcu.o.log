@@ -1,0 +1,733 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0334 seconds
+
+  ----Wall Time----  ----Name----
+    0.0047 ( 13.9%)  CIRCanonicalize
+    0.0021 (  6.4%)  CIRSimplify
+    0.0056 ( 16.8%)  TargetLowering
+    0.0181 ( 54.1%)  CXXABILowering
+    0.0029 (  8.7%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0334 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=555
+[getOrderMatrix] forwardOrdered=111401 backEdgeOrdered=196
+[OrderAnalysis] required=111597 crossIterOnly=196
+[FenceSynthesis] <urcu.c:6638> start fenceCostBase=1
+[FenceSynthesis] <urcu.c:6638> required pairs=111597
+[getOrderMatrix] n=555
+[getOrderMatrix] forwardOrdered=17570 backEdgeOrdered=114
+[OrderMatrix] closeTransitively: rounds=2 added=350
+[OrderMatrix] precomputeTransitiveDominance: nEvents=555
+[FenceSynthesis] <urcu.c:6638> n=555
+[FenceSynthesis] <urcu.c:6638> === Event map ===
+[FenceSynthesis] <urcu.c:6638> ev=0	_cds_wfs_push	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=131	cds_list_del	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=524	wait_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=262	alloc_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=393	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=439	urcu_mb_call_rcu_before_fork	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=177	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=46	wait_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=347	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=92	urcu_mb_synchronize_rcu	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=301	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=39	__cds_list_del	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=354	call_rcu_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=485	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=85	urcu_wake_all_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=138	urcu_call_rcu_exit	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=478	rcu_defer_barrier_queue	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=255	get_cpu_mask_from_sysfs	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=308	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=531	wait_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=209	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=184	call_rcu_completion_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=78	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=315	___cds_wfcq_first	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=269	alloc_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=517	rcu_defer_num_callbacks	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=124	cds_list_add	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=170	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=117	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=276	urcu_mb_set_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=510	urcu_mb_defer_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=216	urcu_mb_barrier	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=163	_defer_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=230	urcu_mb_start_poll_synchronize_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=223	urcu_poll_worker_cb	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=549	stop_defer_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=418	urcu_mb_free_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=237	urcu_mb_poll_state_synchronize_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=368	call_rcu_data_init	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=156	_defer_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=152	_defer_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=545	stop_defer_thread	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=145	wake_up_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=375	call_rcu_data_init	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=538	urcu_mb_defer_register_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=241	urcu_mb_get_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=18	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=361	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=411	urcu_mb_create_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=25	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=248	urcu_mb_get_cpu_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=53	wait_for_readers	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=340	call_rcu_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=234	urcu_mb_start_poll_synchronize_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=552	stop_defer_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=32	urcu_move_waiters	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=425	call_rcu_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=319	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=467	urcu_mb_call_rcu_after_fork_child	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=74	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=159	_defer_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=432	call_rcu_wake_up	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=326	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=460	urcu_mb_call_rcu_after_fork_child	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=453	urcu_mb_call_rcu_after_fork_parent	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=67	cds_list_splice	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=166	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=333	call_rcu_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=60	cds_list_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=446	urcu_mb_call_rcu_before_fork	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=443	urcu_mb_call_rcu_before_fork	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=474	mutex_lock_defer	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=81	urcu_adaptative_wake_up	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=127	cds_list_add	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=227	urcu_poll_worker_cb	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=297	___cds_wfcq_busy_wait	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=520	wait_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=312	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=89	urcu_mb_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=304	___cds_wfcq_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=305	___cds_wfcq_splice	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=88	urcu_mb_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=481	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=103	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=311	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=82	urcu_adaptative_wake_up	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=57	cds_list_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=290	set_thread_cpu_affinity	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=475	_rcu_defer_barrier_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=450	urcu_mb_call_rcu_after_fork_parent	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=357	call_rcu_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=482	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=36	urcu_common_reader_state	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=96	urcu_mb_synchronize_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=329	call_rcu_wait	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=429	call_rcu_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=43	futex_async	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=350	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=110	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=336	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=343	call_rcu_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=50	wait_for_readers	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=283	urcu_mb_set_cpu_call_rcu_data	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=436	urcu_mb_call_rcu_before_fork	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=489	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=106	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=287	set_thread_cpu_affinity	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=496	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=503	urcu_mb_defer_barrier	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=468	urcu_mb_call_rcu_after_fork_child	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=499	rcu_defer_barrier_queue	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=71	___cds_wfs_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=252	call_rcu_unlock	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=64	cds_list_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=322	_cds_wfcq_empty	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=457	cpus_array_len_reset	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=534	wait_defer	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=68	mutex_unlock	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=141	_call_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=245	urcu_mb_get_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=325	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=464	urcu_mb_call_rcu_after_fork_child	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=541	urcu_mb_defer_register_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=75	urcu_adaptative_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=148	wake_up_defer	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=471	urcu_mb_call_rcu_after_fork_child	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=318	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=461	urcu_mb_call_rcu_after_fork_child	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=259	_get_max_cpuid_from_sysfs	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=294	set_thread_cpu_affinity	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=61	cds_list_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=492	rcu_defer_barrier_queue	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=134	urcu_call_rcu_exit	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=527	wait_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=332	call_rcu_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=99	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=120	_urcu_mb_read_unlock	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=513	rcu_defer_num_callbacks	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=280	urcu_mb_set_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=113	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=266	alloc_cpu_call_rcu_data	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=506	urcu_mb_defer_barrier	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=273	urcu_mb_set_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=470	urcu_mb_call_rcu_after_fork_child	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=339	call_rcu_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=185	call_rcu_completion_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=316	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=385	urcu_mb_get_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=162	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=31	urcu_move_waiters	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=254	get_cpu_mask_from_sysfs	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=447	urcu_mb_call_rcu_after_fork_parent	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=38	urcu_common_reader_state	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=378	call_rcu_data_init	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=408	urcu_mb_create_all_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=454	urcu_mb_call_rcu_after_fork_parent	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=401	_call_rcu_data_free	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=178	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=130	urcu_mb_register_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=155	_defer_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=477	rcu_defer_barrier_queue	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=309	___cds_wfcq_splice	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=24	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=109	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=169	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=17	urcu_adaptative_busy_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=330	call_rcu_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=116	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=176	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=463	urcu_mb_call_rcu_after_fork_child	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=123	cds_list_add	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=323	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=456	urcu_mb_call_rcu_after_fork_parent	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=79	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=206	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=102	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=364	call_rcu_thread	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=164	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=422	urcu_mb_free_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=302	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=114	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=484	rcu_defer_barrier_queue	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=121	_urcu_mb_read_ongoing	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=171	_defer_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=295	set_thread_cpu_affinity	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=371	call_rcu_data_init	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=95	urcu_mb_synchronize_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=491	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=392	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=107	_urcu_mb_read_lock	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=498	rcu_defer_barrier_queue	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=394	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=72	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=86	urcu_wake_all_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=192	_rcu_barrier_complete	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=199	call_rcu_completion_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=380	urcu_mb_get_default_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=406	_call_rcu_data_free	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=93	urcu_mb_synchronize_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=220	urcu_mb_register_rculfhash_atfork	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=399	_call_rcu_data_free	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=100	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=373	call_rcu_data_init	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=413	urcu_mb_free_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=213	urcu_mb_barrier	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=366	call_rcu_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=289	set_thread_cpu_affinity	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=212	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=420	urcu_mb_free_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=497	rcu_defer_barrier_queue	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=505	urcu_mb_defer_barrier	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=435	wake_call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=4	_cds_wfs_push	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=142	wake_up_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=11	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=274	urcu_mb_set_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=351	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=428	call_rcu_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=281	urcu_mb_set_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=504	urcu_mb_defer_barrier	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=358	call_rcu_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=135	urcu_call_rcu_exit	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=128	urcu_mb_register_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=157	_defer_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=288	set_thread_cpu_affinity	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=3	_cds_wfs_push	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=136	urcu_call_rcu_exit	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=344	call_rcu_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=490	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=282	urcu_mb_set_cpu_call_rcu_data	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=442	urcu_mb_call_rcu_before_fork	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=149	wake_up_defer	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=483	rcu_defer_barrier_queue	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=143	wake_up_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=296	___cds_wfcq_busy_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=150	_defer_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=10	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=303	___cds_wfcq_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=449	urcu_mb_call_rcu_after_fork_parent	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=52	wait_for_readers	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=518	rcu_defer_num_callbacks	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=553	urcu_mb_defer_unregister_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=414	urcu_mb_free_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=129	urcu_mb_register_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=94	urcu_mb_synchronize_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=337	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=372	call_rcu_data_init	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=122	cds_list_add	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=191	call_rcu_completion_wake_up	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=275	urcu_mb_set_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=268	alloc_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=45	wait_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=421	urcu_mb_free_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=198	call_rcu_completion_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=511	urcu_mb_defer_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=261	alloc_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=80	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=365	call_rcu_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=101	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=205	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=240	urcu_mb_get_cpu_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=59	cds_list_splice	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=400	_call_rcu_data_free	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=219	urcu_mb_register_rculfhash_atfork	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=525	wait_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=407	urcu_mb_create_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=66	cds_list_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=379	urcu_mb_get_default_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=247	urcu_mb_get_cpu_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=532	wait_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=226	urcu_poll_worker_cb	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=87	urcu_mb_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=539	urcu_mb_defer_register_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=386	urcu_mb_get_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=73	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=546	stop_defer_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=233	urcu_mb_start_poll_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=547	stop_defer_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=23	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=370	call_rcu_data_init	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=285	_cds_wfcq_node_init	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=462	urcu_mb_call_rcu_after_fork_child	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=69	___cds_wfs_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=154	_defer_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=239	urcu_mb_get_cpu_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=455	urcu_mb_call_rcu_after_fork_parent	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=324	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=508	urcu_mb_defer_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=62	cds_list_splice	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=331	call_rcu_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=115	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=108	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=501	rcu_defer_barrier_queue	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=278	urcu_mb_set_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=554	urcu_mb_defer_unregister_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=76	urcu_adaptative_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=448	urcu_mb_call_rcu_after_fork_parent	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=469	urcu_mb_call_rcu_after_fork_child	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=515	rcu_defer_num_callbacks	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=317	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=9	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=377	call_rcu_data_init	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=402	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=430	call_rcu_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=16	urcu_adaptative_busy_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=37	urcu_common_reader_state	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=409	urcu_mb_create_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=423	urcu_mb_free_all_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=83	urcu_wake_all_waiters	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=30	___cds_wfs_pop_all	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=363	call_rcu_thread	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=356	call_rcu_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=476	_rcu_defer_barrier_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=260	alloc_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=310	___cds_wfcq_splice	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=345	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=437	urcu_mb_call_rcu_before_fork	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=44	wait_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=41	cds_list_move	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=225	urcu_poll_worker_cb	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=434	wake_call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=175	_defer_rcu	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=48	wait_gp	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=441	urcu_mb_call_rcu_before_fork	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=55	wait_for_readers	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=168	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=218	urcu_mb_register_rculfhash_atfork	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=338	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=519	wait_defer	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=126	cds_list_add	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=161	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=359	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=34	smp_mb_master	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=267	alloc_cpu_call_rcu_data	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=232	urcu_mb_start_poll_synchronize_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=427	call_rcu_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=540	urcu_mb_defer_register_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=352	call_rcu_thread	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=512	urcu_mb_defer_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=147	wake_up_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=246	urcu_mb_get_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=533	wait_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=140	_call_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=526	wait_defer	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=133	urcu_call_rcu_exit	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=253	get_cpu_mask_from_sysfs	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=235	urcu_mb_start_poll_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=158	_defer_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=335	call_rcu_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=189	call_rcu_completion_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=19	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=204	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=412	urcu_mb_create_all_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=405	_call_rcu_data_free	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=65	cds_list_splice	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=328	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=458	urcu_mb_call_rcu_after_fork_child	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=12	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=374	call_rcu_data_init	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=451	urcu_mb_call_rcu_after_fork_parent	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=165	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=544	stop_defer_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=58	cds_list_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=381	urcu_mb_get_default_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=551	stop_defer_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=228	urcu_mb_start_poll_synchronize_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=444	urcu_mb_call_rcu_before_fork	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=51	wait_for_readers	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=182	urcu_ref_set	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=211	urcu_mb_barrier	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=151	_defer_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=242	urcu_mb_get_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=342	call_rcu_thread	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=196	call_rcu_completion_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=197	call_rcu_completion_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=249	urcu_mb_get_cpu_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=349	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=190	call_rcu_completion_wake_up	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=203	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=183	call_rcu_completion_wake_up	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=210	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=391	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=395	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=2	_cds_wfs_push	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=137	urcu_call_rcu_exit	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=530	wait_defer	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=214	urcu_mb_barrier	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=360	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=179	_defer_rcu	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=144	wake_up_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=172	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=537	start_defer_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=221	urcu_mb_register_rculfhash_atfork	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=384	urcu_mb_get_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=398	_call_rcu_data_free	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=5	_cds_wfs_push	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=26	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=207	urcu_mb_barrier	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=47	wait_gp	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=186	call_rcu_completion_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=419	urcu_mb_free_all_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=440	urcu_mb_call_rcu_before_fork	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=367	call_rcu_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=353	call_rcu_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=40	__cds_list_del	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=433	wake_call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=200	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=33	cds_list_empty	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=346	call_rcu_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=193	call_rcu_completion_wait	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=426	call_rcu_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=493	rcu_defer_barrier_queue	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=231	urcu_mb_start_poll_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=77	urcu_adaptative_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=424	call_rcu_wake_up	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=277	urcu_mb_set_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=54	wait_for_readers	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=139	_cds_wfcq_enqueue	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=362	call_rcu_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=431	call_rcu_wake_up	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=224	urcu_poll_worker_cb	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=355	call_rcu_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=201	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=8	urcu_adaptative_busy_wait	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=215	urcu_mb_barrier	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=15	urcu_adaptative_busy_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=208	urcu_mb_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=238	urcu_mb_get_cpu_call_rcu_data	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=284	urcu_mb_set_cpu_call_rcu_data	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=369	call_rcu_data_init	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=22	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=548	stop_defer_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=523	wait_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=217	urcu_mb_register_rculfhash_atfork	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=502	urcu_mb_defer_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=84	urcu_wake_all_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=509	urcu_mb_defer_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=63	cds_list_splice	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=270	alloc_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=516	rcu_defer_num_callbacks	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=256	get_max_cpuid_from_mask	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=376	call_rcu_data_init	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=70	___cds_wfs_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=263	alloc_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=314	___cds_wfcq_first	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=472	urcu_mb_call_rcu_after_fork_child	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=495	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=291	set_thread_cpu_affinity	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=229	urcu_mb_start_poll_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=187	call_rcu_completion_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=279	urcu_mb_set_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=29	___cds_wfs_pop_all	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=272	urcu_mb_set_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=6	urcu_wait_add	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=91	urcu_mb_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=507	urcu_mb_defer_barrier	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=488	rcu_defer_barrier_queue	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=98	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=514	rcu_defer_num_callbacks	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=321	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=298	___cds_wfcq_busy_wait	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=105	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=286	_cds_wfcq_init	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=1	_cds_wfs_push	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=180	urcu_ref_set	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=265	alloc_cpu_call_rcu_data	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=307	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=465	urcu_mb_call_rcu_after_fork_child	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=500	rcu_defer_barrier_queue	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=194	call_rcu_completion_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=13	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=479	rcu_defer_barrier_queue	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=300	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=20	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=293	set_thread_cpu_affinity	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=173	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=486	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=389	_call_rcu_data_free	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=181	urcu_ref_set	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=528	wait_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=112	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=543	stop_defer_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=27	urcu_wait_set_state	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=320	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=397	_call_rcu_data_free	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=119	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=104	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=535	wait_defer	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=251	call_rcu_lock	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=42	cds_list_move	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=404	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=258	_get_max_cpuid_from_sysfs	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=188	call_rcu_completion_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=35	urcu_common_reader_state	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=521	wait_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=236	urcu_mb_poll_state_synchronize_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=390	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=111	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=542	stop_defer_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=244	urcu_mb_get_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=49	wait_gp	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=257	get_max_cpuid_from_mask	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=382	urcu_mb_get_default_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=550	stop_defer_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=536	wait_defer	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=90	urcu_mb_synchronize_rcu	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=403	_call_rcu_data_free	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=97	urcu_mb_synchronize_rcu	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=250	urcu_mb_get_call_rcu_thread	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=529	wait_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=383	urcu_mb_get_default_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=396	_call_rcu_data_free	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=243	urcu_mb_get_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=264	alloc_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=56	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=160	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=341	call_rcu_thread	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=445	urcu_mb_call_rcu_before_fork	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=522	wait_defer	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=410	urcu_mb_create_all_cpu_call_rcu_data	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=21	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=202	urcu_mb_barrier	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=480	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=487	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=118	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=195	call_rcu_completion_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=271	urcu_mb_set_cpu_call_rcu_data	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=438	urcu_mb_call_rcu_before_fork	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=348	call_rcu_thread	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu.c:6638> ev=125	cds_list_add	ptr.store
+[FenceSynthesis] <urcu.c:6638> ev=132	cds_list_del	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=28	mutex_lock	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=313	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=473	urcu_mb_call_rcu_after_fork_child	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=494	rcu_defer_barrier_queue	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=334	call_rcu_wait	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=452	urcu_mb_call_rcu_after_fork_parent	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=174	_defer_rcu	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=292	set_thread_cpu_affinity	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=327	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=14	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=299	___cds_wfcq_append	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=167	_defer_rcu	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=146	wake_up_defer	arm_atomic.atomic_store
+[FenceSynthesis] <urcu.c:6638> ev=459	urcu_mb_call_rcu_after_fork_child	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=7	futex_noasync	ptr.load
+[FenceSynthesis] <urcu.c:6638> ev=306	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=153	_defer_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <urcu.c:6638> ev=466	urcu_mb_call_rcu_after_fork_child	ptr.store
+[FenceSynthesis] <urcu.c:6638> === End event map ===
+[FenceSynthesis] <urcu.c:6638> pre-ordered=6437/111597 crossFn=109630 sameFn=1967 LL=33656 LS=32356 SL=1522 SS=15690 FL=9394 FS=4705 LF=9590 SF=4684
+[FenceSynthesis] <urcu.c:6638> ordered=6437/111597 overspecified=11426
+[FenceSynthesis] <urcu.c:6638> iter=0 (309,70) upgrade ev=309 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=8208
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=13426/111597 overspecified=21018 t=3884ms
+[FenceSynthesis] <urcu.c:6638> iter=1 (34,70) upgrade ev=34 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=4 added=55950
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=36595/111597 overspecified=62733 t=3950ms
+[FenceSynthesis] <urcu.c:6638> iter=2 (175,71) upgrade ev=175 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=970
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=42564/111597 overspecified=71381 t=4011ms
+[FenceSynthesis] <urcu.c:6638> iter=3 (348,71) upgrade ev=2 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=42564/111597 overspecified=71381 t=4028ms
+[FenceSynthesis] <urcu.c:6638> iter=4 (363,71) upgrade ev=8 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=42564/111597 overspecified=71381 t=4044ms
+[FenceSynthesis] <urcu.c:6638> iter=5 (363,70) upgrade ev=30 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=42564/111597 overspecified=71381 t=4060ms
+[FenceSynthesis] <urcu.c:6638> iter=8 (364,70) upgrade ev=364 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=298
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44503/111597 overspecified=71492 t=4125ms
+[FenceSynthesis] <urcu.c:6638> iter=9 (213,70) upgrade ev=56 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44503/111597 overspecified=71492 t=4142ms
+[FenceSynthesis] <urcu.c:6638> iter=10 (348,70) upgrade ev=92 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44503/111597 overspecified=71492 t=4158ms
+[FenceSynthesis] <urcu.c:6638> iter=11 (213,71) upgrade ev=97 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44503/111597 overspecified=71492 t=4175ms
+[FenceSynthesis] <urcu.c:6638> iter=12 (363,46) upgrade ev=139 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44503/111597 overspecified=71492 t=4191ms
+[FenceSynthesis] <urcu.c:6638> iter=14 (363,516) upgrade ev=179 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44504/111597 overspecified=71492 t=4210ms
+[FenceSynthesis] <urcu.c:6638> iter=17 (363,45) upgrade ev=183 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44506/111597 overspecified=71492 t=4231ms
+[FenceSynthesis] <urcu.c:6638> iter=19 (363,515) upgrade ev=193 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44507/111597 overspecified=71492 t=4249ms
+[FenceSynthesis] <urcu.c:6638> iter=21 (348,332) upgrade ev=329 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44508/111597 overspecified=71492 t=4268ms
+[FenceSynthesis] <urcu.c:6638> iter=22 (348,331) upgrade ev=424 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44508/111597 overspecified=71492 t=4285ms
+[FenceSynthesis] <urcu.c:6638> iter=23 (363,504) upgrade ev=498 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44508/111597 overspecified=71492 t=4301ms
+[FenceSynthesis] <urcu.c:6638> iter=24 (363,505) upgrade ev=519 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44508/111597 overspecified=71492 t=4318ms
+[FenceSynthesis] <urcu.c:6638> iter=25 (348,515) upgrade ev=526 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44508/111597 overspecified=71492 t=4334ms
+[FenceSynthesis] <urcu.c:6638> iter=26 (348,516) upgrade ev=530 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44508/111597 overspecified=71492 t=4351ms
+[FenceSynthesis] <urcu.c:6638> iter=27 (363,86) upgrade ev=545 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=44508/111597 overspecified=71492 t=4367ms
+[FenceSynthesis] <urcu.c:6638> iter=28 (348,505) upgrade ev=348 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=12
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=45839/111597 overspecified=72651 t=4416ms
+[FenceSynthesis] <urcu.c:6638> iter=33 (363,85) upgrade ev=363 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=47338/111597 overspecified=73595 t=4461ms
+[FenceSynthesis] <urcu.c:6638> iter=35 (213,516) upgrade ev=342 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=47339/111597 overspecified=73595 t=4480ms
+[FenceSynthesis] <urcu.c:6638> iter=37 (213,515) upgrade ev=213 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=3646
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=50453/111597 overspecified=78127 t=4549ms
+[FenceSynthesis] <urcu.c:6638> iter=59 (478,70) upgrade ev=478 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=6 added=43375
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=55777/111597 overspecified=95818 t=4716ms
+[FenceSynthesis] <urcu.c:6638> iter=740 (352,71) upgrade ev=352 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=4 added=37312
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=66175/111597 overspecified=106740 t=6022ms
+[FenceSynthesis] <urcu.c:6638> iter=805 (440,71) upgrade ev=440 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=1606
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=68263/111597 overspecified=107803 t=6205ms
+[FenceSynthesis] <urcu.c:6638> iter=1196 (302,71) fence
+[OrderMatrix] closeTransitively: rounds=5 added=129041
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=85159/111597 overspecified=137560 t=6950ms
+[FenceSynthesis] <urcu.c:6638> iter=1197 (472,505) fence
+[OrderMatrix] closeTransitively: rounds=4 added=81717
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=94752/111597 overspecified=156031 t=7113ms
+[FenceSynthesis] <urcu.c:6638> iter=1198 (55,11) fence
+[OrderMatrix] closeTransitively: rounds=3 added=13706
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=96227/111597 overspecified=159018 t=7242ms
+[FenceSynthesis] <urcu.c:6638> iter=1199 (103,110) fence
+[OrderMatrix] closeTransitively: rounds=2 added=2638
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=96524/111597 overspecified=160409 t=7343ms
+[FenceSynthesis] <urcu.c:6638> iter=1201 (482,248) fence
+[OrderMatrix] closeTransitively: rounds=2 added=570
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=96593/111597 overspecified=161361 t=7442ms
+[FenceSynthesis] <urcu.c:6638> iter=1202 (495,218) fence
+[OrderMatrix] closeTransitively: rounds=2 added=389
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=96628/111597 overspecified=162286 t=7541ms
+[FenceSynthesis] <urcu.c:6638> iter=1221 (553,544) fence
+[OrderMatrix] closeTransitively: rounds=2 added=341
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=96694/111597 overspecified=163182 t=7648ms
+[FenceSynthesis] <urcu.c:6638> iter=1222 (554,377) fence
+[OrderMatrix] closeTransitively: rounds=2 added=681
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu.c:6638> ordered=96803/111597 overspecified=163656 t=7748ms
+[FenceSynthesis] <urcu.c:6638> done ordered=96803/111597 overspecified=163656 promotions=1223 remaining=0 t=7749ms
+[OrbStats] module=urcu.c ld_rlx=150 ld_acqpc=0 ld_acq=0 st_rlx=93 st_rel=0 fence_acq=3 fence_rel=1 fence_acqrel=32 ptr_ld=202 ptr_st=82 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 8.0192 seconds
+
+  ----Wall Time----  ----Name----
+    0.0023 (  0.0%)  HoistAllocas
+    0.0064 (  0.1%)  CIRFlattenCFG
+    0.0018 (  0.0%)  CIREHABILowering
+    0.0019 (  0.0%)  GotoSolver
+    0.0121 (  0.2%)  CIRToCF
+    0.0191 (  0.2%)  CIRToPtr
+    0.0065 (  0.1%)  CIRToCppAtomic
+    0.1181 (  1.5%)  OrderAnalysisPass
+    0.1132 (  1.4%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0100 (  0.1%)  ConvertCppAtomicToArmAtomicPass
+    7.7564 ( 96.7%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0302 (  0.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0089 (  0.1%)  ConvertArmAtomicToLLVMPass
+    0.0133 (  0.2%)  ConvertToLLVMPass
+    0.0175 (  0.2%)  CIROrbCleanup
+    0.0148 (  0.2%)  Rest
+    8.0192 (100.0%)  Total

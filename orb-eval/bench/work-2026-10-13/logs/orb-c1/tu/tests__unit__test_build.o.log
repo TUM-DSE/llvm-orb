@@ -1,0 +1,166 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0027 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 15.0%)  CIRCanonicalize
+    0.0005 ( 17.2%)  TargetLowering
+    0.0016 ( 58.1%)  CXXABILowering
+    0.0002 (  8.8%)  LoweringPrepare
+    0.0000 (  0.8%)  Rest
+    0.0027 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=41
+[getOrderMatrix] forwardOrdered=611 backEdgeOrdered=0
+[OrderAnalysis] required=611 crossIterOnly=0
+[FenceSynthesis] <test_build.c:70c5> start fenceCostBase=1
+[FenceSynthesis] <test_build.c:70c5> required pairs=611
+[getOrderMatrix] n=41
+[getOrderMatrix] forwardOrdered=12 backEdgeOrdered=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=41
+[FenceSynthesis] <test_build.c:70c5> n=41
+[FenceSynthesis] <test_build.c:70c5> === Event map ===
+[FenceSynthesis] <test_build.c:70c5> ev=0	_cds_lfs_init	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=23	test_build_cds_list_head_init	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=2	_cds_lfs_empty	ptr.load
+[FenceSynthesis] <test_build.c:70c5> ev=27	test_urcu_tls	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=19	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=21	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=4	_cds_lfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=29	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=31	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=6	test_lfstack	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=39	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=38	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=11	_cds_wfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=12	test_wfstack	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=8	_cds_wfs_empty	ptr.load
+[FenceSynthesis] <test_build.c:70c5> ev=18	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=5	_cds_lfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=15	_cds_wfcq_empty	ptr.load
+[FenceSynthesis] <test_build.c:70c5> ev=25	test_urcu_tls	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=35	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=28	test_urcu_tls	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=1	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_build.c:70c5> ev=26	test_urcu_tls	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=3	_cds_lfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=22	test_wfcqueue	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=32	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=34	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=9	_cds_wfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=24	test_build_cds_list_head_init	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=13	_cds_wfcq_node_init	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=14	_cds_wfcq_init	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=16	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=17	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=36	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=40	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=37	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=7	_cds_wfs_init	ptr.store
+[FenceSynthesis] <test_build.c:70c5> ev=20	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=33	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=10	_cds_wfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> ev=30	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:70c5> === End event map ===
+[FenceSynthesis] <test_build.c:70c5> pre-ordered=0/611 crossFn=569 sameFn=42 LL=334 LS=200 SL=0 SS=0 FL=27 FS=10 LF=27 SF=13
+[FenceSynthesis] <test_build.c:70c5> ordered=0/611 overspecified=12
+[FenceSynthesis] <test_build.c:70c5> iter=0 (1,30) upgrade ev=1 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=28
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=375/611 overspecified=333 t=6ms
+[FenceSynthesis] <test_build.c:70c5> iter=1 (20,30) fence
+[OrderMatrix] closeTransitively: rounds=4 added=956
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=483/611 overspecified=673 t=6ms
+[FenceSynthesis] <test_build.c:70c5> iter=2 (20,4) fence
+[OrderMatrix] closeTransitively: rounds=3 added=431
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=518/611 overspecified=851 t=7ms
+[FenceSynthesis] <test_build.c:70c5> iter=3 (39,17) fence
+[OrderMatrix] closeTransitively: rounds=3 added=92
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=521/611 overspecified=937 t=7ms
+[FenceSynthesis] <test_build.c:70c5> iter=4 (39,18) fence
+[OrderMatrix] closeTransitively: rounds=2 added=27
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=525/611 overspecified=997 t=7ms
+[FenceSynthesis] <test_build.c:70c5> iter=5 (39,11) fence
+[OrderMatrix] closeTransitively: rounds=2 added=31
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=528/611 overspecified=1068 t=8ms
+[FenceSynthesis] <test_build.c:70c5> iter=6 (40,10) fence
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=529/611 overspecified=1134 t=8ms
+[FenceSynthesis] <test_build.c:70c5> iter=7 (40,5) fence
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=532/611 overspecified=1197 t=9ms
+[FenceSynthesis] <test_build.c:70c5> iter=8 (39,21) fence
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=537/611 overspecified=1257 t=9ms
+[FenceSynthesis] <test_build.c:70c5> iter=9 (40,20) fence
+[OrderMatrix] closeTransitively: rounds=2 added=25
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=540/611 overspecified=1320 t=9ms
+[FenceSynthesis] <test_build.c:70c5> iter=10 (39,19) fence
+[OrderMatrix] closeTransitively: rounds=2 added=28
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=545/611 overspecified=1381 t=10ms
+[FenceSynthesis] <test_build.c:70c5> iter=11 (39,16) fence
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=551/611 overspecified=1441 t=10ms
+[FenceSynthesis] <test_build.c:70c5> iter=12 (39,15) fence
+[OrderMatrix] closeTransitively: rounds=2 added=25
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=555/611 overspecified=1503 t=10ms
+[FenceSynthesis] <test_build.c:70c5> iter=13 (39,13) fence
+[OrderMatrix] closeTransitively: rounds=2 added=21
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=558/611 overspecified=1572 t=11ms
+[FenceSynthesis] <test_build.c:70c5> iter=14 (39,9) fence
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=564/611 overspecified=1634 t=11ms
+[FenceSynthesis] <test_build.c:70c5> iter=15 (39,8) fence
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=571/611 overspecified=1697 t=11ms
+[FenceSynthesis] <test_build.c:70c5> iter=16 (40,2) fence
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:70c5> ordered=578/611 overspecified=1764 t=12ms
+[FenceSynthesis] <test_build.c:70c5> done ordered=578/611 overspecified=1764 promotions=17 remaining=0 t=12ms
+[OrbStats] module=test_build.c ld_rlx=24 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=16 fence_rel=0 fence_acqrel=1 ptr_ld=3 ptr_st=13 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0247 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  0.8%)  HoistAllocas
+    0.0005 (  1.9%)  CIRFlattenCFG
+    0.0002 (  0.7%)  CIREHABILowering
+    0.0002 (  0.7%)  GotoSolver
+    0.0008 (  3.3%)  CIRToCF
+    0.0014 (  5.6%)  CIRToPtr
+    0.0005 (  2.0%)  CIRToCppAtomic
+    0.0010 (  4.2%)  OrderAnalysisPass
+    0.0007 (  3.0%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0007 (  2.9%)  ConvertCppAtomicToArmAtomicPass
+    0.0127 ( 51.3%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0024 (  9.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 (  3.5%)  ConvertArmAtomicToLLVMPass
+    0.0008 (  3.1%)  ConvertToLLVMPass
+    0.0011 (  4.3%)  CIROrbCleanup
+    0.0015 (  5.9%)  Rest
+    0.0247 (100.0%)  Total

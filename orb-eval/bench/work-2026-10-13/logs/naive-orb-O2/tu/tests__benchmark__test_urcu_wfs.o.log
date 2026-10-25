@@ -1,0 +1,51 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0112 seconds
+
+  ----Wall Time----  ----Name----
+    0.0018 ( 15.6%)  CIRCanonicalize
+    0.0011 (  9.7%)  CIRSimplify
+    0.0021 ( 18.6%)  TargetLowering
+    0.0050 ( 44.8%)  CXXABILowering
+    0.0013 ( 11.2%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0112 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=204
+[getOrderMatrix] forwardOrdered=5081 backEdgeOrdered=22
+[OrderAnalysis] required=5103 crossIterOnly=22
+[NaiveCppToArm] <test_urcu_wfs.c:4de6> start
+[NaiveCppToArm] <test_urcu_wfs.c:4de6> required pairs=5103
+[getOrderMatrix] n=204
+[getOrderMatrix] forwardOrdered=8723 backEdgeOrdered=65
+[OrderMatrix] closeTransitively: rounds=3 added=38464
+[NaiveCppToArm] <test_urcu_wfs.c:4de6> n=204
+[NaiveCppToArm] <test_urcu_wfs.c:4de6> done ordered=5083/5103 overspecified=22894 remaining=0 t=192ms
+[OrbStats] module=test_urcu_wfs.c ld_rlx=7 ld_acqpc=7 ld_acq=7 st_rlx=4 st_rel=8 fence_acq=0 fence_rel=0 fence_acqrel=5 ptr_ld=122 ptr_st=44 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.2692 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 (  0.4%)  HoistAllocas
+    0.0023 (  0.9%)  CIRFlattenCFG
+    0.0010 (  0.4%)  CIREHABILowering
+    0.0010 (  0.4%)  GotoSolver
+    0.0042 (  1.6%)  CIRToCF
+    0.0065 (  2.4%)  CIRToPtr
+    0.0024 (  0.9%)  CIRToCppAtomic
+    0.0279 ( 10.4%)  OrderAnalysisPass
+    0.0261 (  9.7%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.1946 ( 72.3%)  ConvertCppAtomicToArmAtomicNaivePass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0106 (  3.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0030 (  1.1%)  ConvertArmAtomicToLLVMPass
+    0.0048 (  1.8%)  ConvertToLLVMPass
+    0.0049 (  1.8%)  CIROrbCleanup
+    0.0050 (  1.9%)  Rest
+    0.2692 (100.0%)  Total

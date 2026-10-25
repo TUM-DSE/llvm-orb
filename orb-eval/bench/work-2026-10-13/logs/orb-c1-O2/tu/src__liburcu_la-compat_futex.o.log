@@ -1,0 +1,97 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0020 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 18.3%)  CIRCanonicalize
+    0.0002 (  9.1%)  CIRSimplify
+    0.0004 ( 18.8%)  TargetLowering
+    0.0009 ( 44.9%)  CXXABILowering
+    0.0002 (  7.9%)  LoweringPrepare
+    0.0000 (  1.1%)  Rest
+    0.0020 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=13
+[getOrderMatrix] forwardOrdered=54 backEdgeOrdered=4
+[OrderAnalysis] required=58 crossIterOnly=4
+[FenceSynthesis] <compat_futex.c:f44a> start fenceCostBase=1
+[FenceSynthesis] <compat_futex.c:f44a> required pairs=58
+[getOrderMatrix] n=13
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=13
+[FenceSynthesis] <compat_futex.c:f44a> n=13
+[FenceSynthesis] <compat_futex.c:f44a> === Event map ===
+[FenceSynthesis] <compat_futex.c:f44a> ev=0	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <compat_futex.c:f44a> ev=2	compat_futex_noasync	ptr.store
+[FenceSynthesis] <compat_futex.c:f44a> ev=6	compat_futex_noasync	ptr.store
+[FenceSynthesis] <compat_futex.c:f44a> ev=4	compat_futex_noasync	arm_atomic.atomic_load
+[FenceSynthesis] <compat_futex.c:f44a> ev=11	compat_futex_async	arm_atomic.atomic_load
+[FenceSynthesis] <compat_futex.c:f44a> ev=12	compat_futex_async	ptr.store
+[FenceSynthesis] <compat_futex.c:f44a> ev=8	compat_futex_async	arm_atomic.atomic_fence
+[FenceSynthesis] <compat_futex.c:f44a> ev=5	compat_futex_noasync	arm_atomic.atomic_load
+[FenceSynthesis] <compat_futex.c:f44a> ev=1	compat_futex_noasync	arm_atomic.atomic_fence
+[FenceSynthesis] <compat_futex.c:f44a> ev=3	compat_futex_noasync	arm_atomic.atomic_load
+[FenceSynthesis] <compat_futex.c:f44a> ev=9	compat_futex_async	arm_atomic.atomic_load
+[FenceSynthesis] <compat_futex.c:f44a> ev=7	compat_futex_noasync	ptr.store
+[FenceSynthesis] <compat_futex.c:f44a> ev=10	compat_futex_async	arm_atomic.atomic_load
+[FenceSynthesis] <compat_futex.c:f44a> === End event map ===
+[FenceSynthesis] <compat_futex.c:f44a> pre-ordered=0/58 crossFn=34 sameFn=24 LL=24 LS=4 SL=0 SS=0 FL=18 FS=6 LF=6 SF=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=0/58 overspecified=0
+[FenceSynthesis] <compat_futex.c:f44a> iter=0 (11,11) upgrade ev=0 op=arm_atomic.atomic_fence to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=0/58 overspecified=0 t=1ms
+[FenceSynthesis] <compat_futex.c:f44a> iter=1 (4,5) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=0/58 overspecified=0 t=2ms
+[FenceSynthesis] <compat_futex.c:f44a> iter=2 (4,4) upgrade ev=4 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=8/58 overspecified=0 t=2ms
+[FenceSynthesis] <compat_futex.c:f44a> iter=3 (5,4) upgrade ev=5 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=16/58 overspecified=0 t=2ms
+[FenceSynthesis] <compat_futex.c:f44a> iter=4 (10,4) upgrade ev=10 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=24/58 overspecified=0 t=2ms
+[FenceSynthesis] <compat_futex.c:f44a> iter=5 (11,4) upgrade ev=11 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=32/58 overspecified=0 t=2ms
+[FenceSynthesis] <compat_futex.c:f44a> iter=12 (1,4) upgrade ev=1 op=arm_atomic.atomic_fence to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=47/58 overspecified=0 t=3ms
+[FenceSynthesis] <compat_futex.c:f44a> iter=13 (8,11) upgrade ev=8 op=arm_atomic.atomic_fence to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <compat_futex.c:f44a> ordered=55/58 overspecified=0 t=3ms
+[FenceSynthesis] <compat_futex.c:f44a> done ordered=58/58 overspecified=0 promotions=17 remaining=0 t=3ms
+[OrbStats] module=compat_futex.c ld_rlx=2 ld_acqpc=4 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=2 fence_rel=0 fence_acqrel=1 ptr_ld=0 ptr_st=4 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0119 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  1.5%)  HoistAllocas
+    0.0004 (  3.7%)  CIRFlattenCFG
+    0.0002 (  1.6%)  CIREHABILowering
+    0.0002 (  1.3%)  GotoSolver
+    0.0007 (  5.9%)  CIRToCF
+    0.0008 (  7.0%)  CIRToPtr
+    0.0004 (  3.3%)  CIRToCppAtomic
+    0.0006 (  4.7%)  OrderAnalysisPass
+    0.0003 (  2.7%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0005 (  4.4%)  ConvertCppAtomicToArmAtomicPass
+    0.0036 ( 30.3%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0016 ( 13.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0006 (  5.2%)  ConvertArmAtomicToLLVMPass
+    0.0007 (  5.5%)  ConvertToLLVMPass
+    0.0005 (  4.3%)  CIROrbCleanup
+    0.0010 (  8.1%)  Rest
+    0.0119 (100.0%)  Total

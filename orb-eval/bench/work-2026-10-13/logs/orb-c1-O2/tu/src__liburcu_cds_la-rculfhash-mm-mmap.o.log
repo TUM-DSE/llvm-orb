@@ -1,0 +1,45 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0024 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 18.8%)  CIRCanonicalize
+    0.0001 (  6.0%)  CIRSimplify
+    0.0004 ( 17.3%)  TargetLowering
+    0.0012 ( 49.9%)  CXXABILowering
+    0.0002 (  7.0%)  LoweringPrepare
+    0.0000 (  0.8%)  Rest
+    0.0024 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=40
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderAnalysis] required=0 crossIterOnly=0
+[FenceSynthesis] <rculfhash-mm-mmap.c:26d4> start fenceCostBase=1
+[FenceSynthesis] <rculfhash-mm-mmap.c:26d4> required pairs=0
+[OrbStats] module=rculfhash-mm-mmap.c ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=0 ptr_ld=32 ptr_st=8 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0115 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  1.4%)  HoistAllocas
+    0.0004 (  3.6%)  CIRFlattenCFG
+    0.0002 (  1.9%)  CIREHABILowering
+    0.0001 (  1.2%)  GotoSolver
+    0.0006 (  5.5%)  CIRToCF
+    0.0012 ( 10.7%)  CIRToPtr
+    0.0005 (  4.6%)  CIRToCppAtomic
+    0.0008 (  6.7%)  OrderAnalysisPass
+    0.0004 (  3.3%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0007 (  6.1%)  ConvertCppAtomicToArmAtomicPass
+    0.0003 (  2.8%)  FenceSynthesisPass
+    0.0027 ( 23.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0006 (  5.5%)  ConvertArmAtomicToLLVMPass
+    0.0008 (  6.6%)  ConvertToLLVMPass
+    0.0010 (  8.4%)  CIROrbCleanup
+    0.0014 ( 11.8%)  Rest
+    0.0115 (100.0%)  Total

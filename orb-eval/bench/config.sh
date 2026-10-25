@@ -18,10 +18,15 @@ if [ -z "${BENCH_NIXPKGS:-}" ]; then
   BENCH_NIXPKGS="github:nixos/nixpkgs/$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["nodes"]["nixpkgs"]["locked"]["rev"])' "$ORB_ROOT/flake.lock")"
 fi
 
-# Benchmark source: Sebastian Reimers' fork of userspace-rcu, the version used
-# for the Orb paper.
+# Benchmark source: Sebastian Reimers' fork of userspace-rcu, branch "flakes".
+# 8d5cf05 is the head of that branch as of 2026-10-13. Compared with 3a605bc,
+# the commit the earlier measurements used, it adds only the project's own
+# benchmark scripts and per-library CFLAGS in src/Makefile.am, which give a
+# source shared by several libraries (compat_futex.c) one object per library,
+# 141 translation units instead of 139. The library and benchmark sources are
+# identical.
 URCU_REPO="${URCU_REPO:-https://github.com/ReimersS/userspace-rcu.git}"
-URCU_COMMIT="${URCU_COMMIT:-3a605bc34f215cd0e1f2086cf08526cd90e48edf}"
+URCU_COMMIT="${URCU_COMMIT:-8d5cf053d97b58ed069357c71a4d8594a8c9c314}"
 URCU_SRC="$WORK/userspace-rcu"
 
 # All variants are configured identically. compiler-atomic-builtins makes

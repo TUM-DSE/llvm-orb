@@ -1,0 +1,5 @@
+program,config,failed
+test_urcu_assign,orb-c1,5
+test_urcu_assign,orb-c1-O2,5
+test_urcu_assign,orb-c20,5
+test_urcu_assign,orb-c20-O2,5

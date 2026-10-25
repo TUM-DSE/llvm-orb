@@ -1,0 +1,89 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 29.7%)  CIRCanonicalize
+    0.0003 ( 25.3%)  TargetLowering
+    0.0004 ( 32.0%)  CXXABILowering
+    0.0002 ( 11.7%)  LoweringPrepare
+    0.0000 (  1.4%)  Rest
+    0.0013 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=8
+[getOrderMatrix] forwardOrdered=24 backEdgeOrdered=0
+[OrderAnalysis] required=24 crossIterOnly=0
+[FenceSynthesis] <test_barrier.c:bbdd> start fenceCostBase=20
+[FenceSynthesis] <test_barrier.c:bbdd> required pairs=24
+[getOrderMatrix] n=8
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=8
+[FenceSynthesis] <test_barrier.c:bbdd> n=8
+[FenceSynthesis] <test_barrier.c:bbdd> === Event map ===
+[FenceSynthesis] <test_barrier.c:bbdd> ev=0	gettime	ptr.load
+[FenceSynthesis] <test_barrier.c:bbdd> ev=2	main	arm_atomic.atomic_fence
+[FenceSynthesis] <test_barrier.c:bbdd> ev=6	main	arm_atomic.atomic_fence
+[FenceSynthesis] <test_barrier.c:bbdd> ev=4	main	arm_atomic.atomic_fence
+[FenceSynthesis] <test_barrier.c:bbdd> ev=5	main	arm_atomic.atomic_fence
+[FenceSynthesis] <test_barrier.c:bbdd> ev=1	gettime	ptr.load
+[FenceSynthesis] <test_barrier.c:bbdd> ev=3	main	arm_atomic.atomic_fence
+[FenceSynthesis] <test_barrier.c:bbdd> ev=7	main	arm_atomic.atomic_fence
+[FenceSynthesis] <test_barrier.c:bbdd> === End event map ===
+[FenceSynthesis] <test_barrier.c:bbdd> pre-ordered=0/24 crossFn=24 sameFn=0 LL=0 LS=0 SL=0 SS=0 FL=12 FS=0 LF=12 SF=0
+[FenceSynthesis] <test_barrier.c:bbdd> ordered=0/24 overspecified=0
+[FenceSynthesis] <test_barrier.c:bbdd> iter=0 (2,0) upgrade ev=2 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_barrier.c:bbdd> ordered=4/24 overspecified=0 t=1ms
+[FenceSynthesis] <test_barrier.c:bbdd> iter=1 (7,1) upgrade ev=7 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_barrier.c:bbdd> ordered=8/24 overspecified=0 t=1ms
+[FenceSynthesis] <test_barrier.c:bbdd> iter=2 (6,1) upgrade ev=6 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_barrier.c:bbdd> ordered=12/24 overspecified=0 t=1ms
+[FenceSynthesis] <test_barrier.c:bbdd> iter=3 (5,1) upgrade ev=5 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_barrier.c:bbdd> ordered=16/24 overspecified=0 t=2ms
+[FenceSynthesis] <test_barrier.c:bbdd> iter=4 (4,1) upgrade ev=4 op=arm_atomic.atomic_fence to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_barrier.c:bbdd> ordered=20/24 overspecified=0 t=2ms
+[FenceSynthesis] <test_barrier.c:bbdd> iter=5 (3,1) upgrade ev=3 op=arm_atomic.atomic_fence to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_barrier.c:bbdd> ordered=24/24 overspecified=0 t=2ms
+[FenceSynthesis] <test_barrier.c:bbdd> done ordered=24/24 overspecified=0 promotions=6 remaining=0 t=2ms
+[OrbStats] module=test_barrier.c ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=2 fence_rel=0 fence_acqrel=4 ptr_ld=2 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0113 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  1.6%)  HoistAllocas
+    0.0004 (  3.3%)  CIRFlattenCFG
+    0.0002 (  1.4%)  CIREHABILowering
+    0.0002 (  1.4%)  GotoSolver
+    0.0005 (  4.5%)  CIRToCF
+    0.0009 (  7.6%)  CIRToPtr
+    0.0004 (  3.3%)  CIRToCppAtomic
+    0.0006 (  5.1%)  OrderAnalysisPass
+    0.0003 (  2.5%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0005 (  4.7%)  ConvertCppAtomicToArmAtomicPass
+    0.0030 ( 26.6%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0017 ( 14.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 (  6.5%)  ConvertArmAtomicToLLVMPass
+    0.0007 (  6.0%)  ConvertToLLVMPass
+    0.0006 (  5.2%)  CIROrbCleanup
+    0.0009 (  7.9%)  Rest
+    0.0113 (100.0%)  Total

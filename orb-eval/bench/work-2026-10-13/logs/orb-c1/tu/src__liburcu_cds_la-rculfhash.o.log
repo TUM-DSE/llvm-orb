@@ -1,0 +1,511 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0296 seconds
+
+  ----Wall Time----  ----Name----
+    0.0044 ( 15.0%)  CIRCanonicalize
+    0.0056 ( 19.0%)  TargetLowering
+    0.0168 ( 56.8%)  CXXABILowering
+    0.0027 (  9.2%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0296 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=415
+[getOrderMatrix] forwardOrdered=38364 backEdgeOrdered=135
+[OrderAnalysis] required=38499 crossIterOnly=135
+[FenceSynthesis] <rculfhash.c:197b> start fenceCostBase=1
+[FenceSynthesis] <rculfhash.c:197b> required pairs=38499
+[getOrderMatrix] n=415
+[getOrderMatrix] forwardOrdered=8827 backEdgeOrdered=93
+[OrderMatrix] closeTransitively: rounds=3 added=486
+[OrderMatrix] precomputeTransitiveDominance: nEvents=415
+[FenceSynthesis] <rculfhash.c:197b> n=415
+[FenceSynthesis] <rculfhash.c:197b> === Event map ===
+[FenceSynthesis] <rculfhash.c:197b> ev=131	_cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=262	cds_lfht_destroy	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=393	_do_cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=46	_cds_lfht_new_with_alloc	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=177	_cds_lfht_gc_bucket	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=347	init_table_populate_partition	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=92	_uatomic_xchg_monotonic_increase	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=354	init_table	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=39	_cds_lfht_new_with_alloc	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=301	cds_lfht_count_nodes	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=85	cds_lfht_next	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=138	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=255	free_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=308	resize_target_update_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=209	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=184	_cds_lfht_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=78	cds_lfht_next	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=269	cds_lfht_destroy	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=124	check_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=170	_cds_lfht_gc_bucket	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=117	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=276	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=216	ht_count_del	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=163	cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=230	cds_lfht_is_empty	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=223	cds_lfht_is_node_deleted	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=237	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=368	fini_table	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=156	cds_lfht_resize_lazy_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=152	ht_get_split_count_index	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=145	_cds_lfht_add	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=375	fini_table	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=241	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=18	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=361	remove_table_partition	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=411	cds_lfht_after_fork_child	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=25	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=248	cds_lfht_free_bucket_table	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=53	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=340	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=234	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=32	cds_lfht_create_bucket	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=74	cds_lfht_next_duplicate	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=159	ht_count_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=326	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=67	cds_lfht_next_duplicate	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=166	cds_lfht_add_unique	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=333	partition_resize_helper	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=60	cds_lfht_lookup	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=81	cds_lfht_next	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=127	check_resize	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=227	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=297	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=312	resize_target_update_count	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=89	cds_lfht_first	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=304	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=305	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=88	cds_lfht_first	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=103	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=311	resize_target_update_count	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=82	cds_lfht_next	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=57	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=290	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=357	init_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=36	cds_lfht_create_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=43	_cds_lfht_new_with_alloc	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=329	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=350	init_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=96	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=110	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=336	partition_resize_helper	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=343	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=50	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=283	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=106	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=287	cds_lfht_count_nodes	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=71	cds_lfht_next_duplicate	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=252	cds_lfht_delete_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=64	cds_lfht_lookup	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=68	cds_lfht_next_duplicate	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=141	_cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=245	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=325	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=75	cds_lfht_next_duplicate	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=148	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=259	cds_lfht_destroy	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=294	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=61	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=134	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=332	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=99	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=120	cds_lfht_resize_lazy_grow	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=280	cds_lfht_count_nodes	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=113	__cds_lfht_resize_lazy_launch	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=266	cds_lfht_destroy	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=273	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=339	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=185	cds_lfht_add_replace	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=385	_do_cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=162	cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=31	cds_lfht_alloc_bucket_table	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=254	free_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=38	cds_lfht_create_bucket	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=378	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=408	cds_lfht_after_fork_parent	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=401	cds_lfht_exit	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=178	_cds_lfht_gc_bucket	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=130	_cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=155	cds_lfht_resize_lazy_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=309	resize_target_update_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=24	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=109	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=169	cds_lfht_add_unique	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=17	alloc_split_items_count	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=330	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=116	__cds_lfht_resize_lazy_launch	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=176	_cds_lfht_gc_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=123	check_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=79	cds_lfht_next	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=206	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=102	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=364	fini_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=164	cds_lfht_add_unique	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=302	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=114	__cds_lfht_resize_lazy_launch	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=387	_do_cds_lfht_resize	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=121	cds_lfht_resize_lazy_grow	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=171	_cds_lfht_gc_bucket	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=295	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=371	fini_table	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=95	_uatomic_xchg_monotonic_increase	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfhash.c:197b> ev=392	_do_cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=107	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=394	_do_cds_lfht_resize	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfhash.c:197b> ev=72	cds_lfht_next_duplicate	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=86	cds_lfht_next	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=192	cds_lfht_add_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=199	cds_lfht_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=380	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=406	cds_lfht_before_fork	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=93	_uatomic_xchg_monotonic_increase	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=220	cds_lfht_del	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=399	cds_lfht_exit	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=100	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=373	fini_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=413	cds_lfht_after_fork_child	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=213	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=366	fini_table	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfhash.c:197b> ev=289	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=212	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=4	get_cpu_mask_from_sysfs	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=142	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=11	ht_init_nr_cpus_mask	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=274	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=351	init_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=281	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=358	init_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=135	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=128	check_resize	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=157	cds_lfht_resize_lazy_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=288	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=3	cds_lfht_init_worker	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=136	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=344	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=282	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=149	_cds_lfht_add	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=143	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=296	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=150	_cds_lfht_add	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=10	_get_max_cpuid_from_sysfs	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=303	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=52	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=414	cds_lfht_after_fork_child	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=129	check_resize	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=94	_uatomic_xchg_monotonic_increase	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=337	partition_resize_helper	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=372	fini_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=122	check_resize	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=191	cds_lfht_add_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=275	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=268	cds_lfht_destroy	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=45	_cds_lfht_new_with_alloc	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=198	cds_lfht_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=261	cds_lfht_destroy	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=80	cds_lfht_next	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=365	fini_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=101	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=205	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=240	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=59	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=400	cds_lfht_exit	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=219	cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=407	cds_lfht_after_fork_parent	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=66	cds_lfht_next_duplicate	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=379	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=247	cds_lfht_free_bucket_table	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=226	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=87	bucket_at	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=386	_do_cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=73	cds_lfht_next_duplicate	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=233	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=23	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=370	fini_table	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=285	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=69	cds_lfht_next_duplicate	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=154	ht_get_split_count_index	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=239	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=62	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=331	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=108	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=115	__cds_lfht_resize_lazy_launch	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=278	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=76	cds_lfht_next_duplicate	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=402	cds_lfht_exit	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=9	_get_max_cpuid_from_sysfs	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=377	_do_cds_lfht_resize	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=16	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=37	cds_lfht_create_bucket	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=409	cds_lfht_after_fork_parent	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=83	cds_lfht_next	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=30	cds_lfht_alloc_bucket_table	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=356	init_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=363	fini_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=260	cds_lfht_destroy	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=310	resize_target_update_count	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=345	init_table_populate_partition	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=44	_cds_lfht_new_with_alloc	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=41	_cds_lfht_new_with_alloc	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=225	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=48	bit_reverse_u8	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=175	_cds_lfht_gc_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=55	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=168	cds_lfht_add_unique	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=218	cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=338	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=126	check_resize	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=161	cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=359	remove_table_partition	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=34	cds_lfht_create_bucket	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=267	cds_lfht_destroy	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=232	cds_lfht_is_empty	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=352	init_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=147	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=246	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=140	_cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=133	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=253	free_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=235	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=158	ht_count_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=335	partition_resize_helper	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=19	alloc_split_items_count	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=189	cds_lfht_add_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=204	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=412	cds_lfht_after_fork_child	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=405	cds_lfht_before_fork	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=65	cds_lfht_lookup	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=328	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=12	ht_init_nr_cpus_mask	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=374	fini_table	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=165	cds_lfht_add_unique	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=58	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=381	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=228	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=51	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=182	_cds_lfht_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=211	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=151	_cds_lfht_add	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=242	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=342	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=196	cds_lfht_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=197	cds_lfht_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=249	cds_lfht_delete_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=349	init_table_populate_partition	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=190	cds_lfht_add_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=203	cds_lfht_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=183	_cds_lfht_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=391	_do_cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=210	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=395	mutex_unlock	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=2	cds_lfht_init_worker	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=137	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=214	ht_count_del	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=360	remove_table_partition	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=179	_cds_lfht_gc_bucket	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=144	_cds_lfht_add	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=172	_cds_lfht_gc_bucket	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=384	_do_cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=221	cds_lfht_is_node_deleted	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=398	cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=388	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=5	get_cpu_mask_from_sysfs	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=26	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=207	_cds_lfht_del	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=47	_cds_lfht_new_with_alloc	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=186	cds_lfht_add_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=367	fini_table	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=353	init_table	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=40	_cds_lfht_new_with_alloc	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=200	cds_lfht_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=33	cds_lfht_create_bucket	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=346	init_table_populate_partition	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=193	cds_lfht_replace	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=231	cds_lfht_is_empty	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=77	cds_lfht_next_duplicate	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=277	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=54	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=139	_cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=362	remove_table_partition	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=224	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=355	init_table	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=201	cds_lfht_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=8	get_max_cpuid_from_mask	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=215	ht_count_del	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=15	alloc_split_items_count	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=208	_cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=238	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=369	fini_table	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=284	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=22	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=217	cds_lfht_del	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=84	cds_lfht_next	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=63	cds_lfht_lookup	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=270	cds_lfht_destroy	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=256	free_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=376	fini_table	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=70	cds_lfht_next_duplicate	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=263	cds_lfht_destroy	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=291	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=229	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=6	get_cpu_mask_from_sysfs	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=187	cds_lfht_add_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=29	alloc_split_items_count	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=279	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=272	cds_lfht_count_nodes	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=222	cds_lfht_is_node_deleted	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=91	cds_lfht_first	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=98	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=298	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=105	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=286	cds_lfht_count_nodes	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=1	cds_lfht_init_worker	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=180	_cds_lfht_replace	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=265	cds_lfht_destroy	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=307	cds_lfht_count_nodes	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=194	cds_lfht_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=13	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=300	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=20	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=293	cds_lfht_count_nodes	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=173	_cds_lfht_gc_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=389	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=27	alloc_split_items_count	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=181	_cds_lfht_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=112	__cds_lfht_resize_lazy_launch	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=397	cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=119	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=104	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=251	cds_lfht_delete_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=42	_cds_lfht_new_with_alloc	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=404	cds_lfht_before_fork	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=258	cds_lfht_destroy	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=35	cds_lfht_create_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=188	cds_lfht_add_replace	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=236	cds_lfht_is_empty	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=390	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=111	__cds_lfht_resize_lazy_launch	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=244	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=49	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfhash.c:197b> ev=257	free_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=382	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=90	cds_lfht_first	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=403	cds_lfht_before_fork	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=250	cds_lfht_delete_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=97	do_resize_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=383	_do_cds_lfht_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=396	cds_lfht_resize	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=243	do_auto_resize_destroy_cb	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=264	cds_lfht_destroy	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=56	cds_lfht_lookup	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=160	cds_lfht_add	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=341	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=410	cds_lfht_after_fork_parent	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=21	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=202	cds_lfht_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=118	__cds_lfht_resize_lazy_launch	arm_atomic.atomic_store
+[FenceSynthesis] <rculfhash.c:197b> ev=195	cds_lfht_replace	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=271	cds_lfht_destroy	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=348	init_table_populate_partition	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=125	check_resize	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=132	_cds_lfht_add	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=28	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=313	mutex_lock	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=334	partition_resize_helper	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=174	_cds_lfht_gc_bucket	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=292	cds_lfht_count_nodes	ptr.store
+[FenceSynthesis] <rculfhash.c:197b> ev=327	partition_resize_helper	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=14	alloc_split_items_count	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=299	cds_lfht_count_nodes	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=167	cds_lfht_add_unique	arm_atomic.atomic_load
+[FenceSynthesis] <rculfhash.c:197b> ev=146	_cds_lfht_add	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=7	get_max_cpuid_from_mask	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=306	cds_lfht_count_nodes	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> ev=153	ht_get_split_count_index	ptr.load
+[FenceSynthesis] <rculfhash.c:197b> === End event map ===
+[FenceSynthesis] <rculfhash.c:197b> pre-ordered=1740/38499 crossFn=37521 sameFn=978 LL=23830 LS=9532 SL=318 SS=1872 FL=1192 FS=311 LF=1132 SF=312
+[FenceSynthesis] <rculfhash.c:197b> ordered=1740/38499 overspecified=7435
+[FenceSynthesis] <rculfhash.c:197b> iter=0 (95,284) upgrade ev=95 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=16766
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=6529/38499 overspecified=14649 t=4578ms
+[FenceSynthesis] <rculfhash.c:197b> iter=1 (394,283) upgrade ev=49 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=6529/38499 overspecified=14649 t=4582ms
+[FenceSynthesis] <rculfhash.c:197b> iter=2 (394,278) upgrade ev=394 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=2585
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=9758/38499 overspecified=22292 t=4597ms
+[FenceSynthesis] <rculfhash.c:197b> iter=11 (366,284) upgrade ev=366 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=2128
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=13495/38499 overspecified=28329 t=4622ms
+[FenceSynthesis] <rculfhash.c:197b> iter=74 (119,278) fence
+[OrderMatrix] closeTransitively: rounds=8 added=60759
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=19225/38499 overspecified=48898 t=4734ms
+[FenceSynthesis] <rculfhash.c:197b> iter=75 (119,284) fence
+[OrderMatrix] closeTransitively: rounds=5 added=92706
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=28785/38499 overspecified=76619 t=4809ms
+[FenceSynthesis] <rculfhash.c:197b> iter=76 (119,132) fence
+[OrderMatrix] closeTransitively: rounds=4 added=31336
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=31275/38499 overspecified=85828 t=4881ms
+[FenceSynthesis] <rculfhash.c:197b> iter=77 (119,365) fence
+[OrderMatrix] closeTransitively: rounds=3 added=7530
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=31744/38499 overspecified=88002 t=4940ms
+[FenceSynthesis] <rculfhash.c:197b> iter=78 (369,223) fence
+[OrderMatrix] closeTransitively: rounds=3 added=1449
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=31830/38499 overspecified=88997 t=4999ms
+[FenceSynthesis] <rculfhash.c:197b> iter=81 (6,261) fence
+[OrderMatrix] closeTransitively: rounds=2 added=771
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=31875/38499 overspecified=89323 t=5044ms
+[FenceSynthesis] <rculfhash.c:197b> iter=82 (5,260) fence
+[OrderMatrix] closeTransitively: rounds=2 added=96
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=31877/38499 overspecified=90119 t=5089ms
+[FenceSynthesis] <rculfhash.c:197b> iter=83 (414,398) fence
+[OrderMatrix] closeTransitively: rounds=2 added=57
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=31887/38499 overspecified=90797 t=5134ms
+[FenceSynthesis] <rculfhash.c:197b> iter=84 (412,310) fence
+[OrderMatrix] closeTransitively: rounds=3 added=11
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfhash.c:197b> ordered=31888/38499 overspecified=90886 t=5192ms
+[FenceSynthesis] <rculfhash.c:197b> done ordered=31888/38499 overspecified=90886 promotions=85 remaining=0 t=5192ms
+[OrbStats] module=rculfhash.c ld_rlx=120 ld_acqpc=0 ld_acq=0 st_rlx=24 st_rel=0 fence_acq=1 fence_rel=2 fence_acqrel=10 ptr_ld=207 ptr_st=60 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 5.4198 seconds
+
+  ----Wall Time----  ----Name----
+    0.0026 (  0.0%)  HoistAllocas
+    0.0064 (  0.1%)  CIRFlattenCFG
+    0.0018 (  0.0%)  CIREHABILowering
+    0.0018 (  0.0%)  GotoSolver
+    0.0131 (  0.2%)  CIRToCF
+    0.0199 (  0.4%)  CIRToPtr
+    0.0063 (  0.1%)  CIRToCppAtomic
+    0.0705 (  1.3%)  OrderAnalysisPass
+    0.0651 (  1.2%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0095 (  0.2%)  ConvertCppAtomicToArmAtomicPass
+    5.1989 ( 95.9%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0339 (  0.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0100 (  0.2%)  ConvertArmAtomicToLLVMPass
+    0.0119 (  0.2%)  ConvertToLLVMPass
+    0.0181 (  0.3%)  CIROrbCleanup
+    0.0149 (  0.3%)  Rest
+    5.4198 (100.0%)  Total

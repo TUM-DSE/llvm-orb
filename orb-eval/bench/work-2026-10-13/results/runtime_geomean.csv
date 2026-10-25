@@ -1,0 +1,9 @@
+config,programs,read_geomean,write_geomean
+clangir,20,1.0,1.0
+naive-orb,20,0.9895,1.0042
+orb-c1,20,0.9997,0.9941
+orb-c20,20,0.9894,1.0221
+clangir-O2,20,6.1984,1.3094
+naive-orb-O2,20,6.2309,1.1244
+orb-c1-O2,20,6.4153,1.1511
+orb-c20-O2,20,6.3257,1.1381

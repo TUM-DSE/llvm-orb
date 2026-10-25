@@ -1,0 +1,339 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0129 seconds
+
+  ----Wall Time----  ----Name----
+    0.0016 ( 12.7%)  CIRCanonicalize
+    0.0010 (  7.5%)  CIRSimplify
+    0.0025 ( 19.3%)  TargetLowering
+    0.0066 ( 51.3%)  CXXABILowering
+    0.0011 (  8.9%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0129 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=228
+[getOrderMatrix] forwardOrdered=17774 backEdgeOrdered=91
+[OrderAnalysis] required=17865 crossIterOnly=91
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> start fenceCostBase=1
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> required pairs=17865
+[getOrderMatrix] n=228
+[getOrderMatrix] forwardOrdered=2277 backEdgeOrdered=62
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=228
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> n=228
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> === Event map ===
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=0	_ZL8smp_initv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=131	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=23	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=177	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=46	_ZL13smp_thread_idv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=69	_ZL11wait_threadm	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=154	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=92	_ZL9rperftestii	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=39	_ZL20_urcu_bp_read_unlockv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=62	_ZL20rcu_update_perf_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=85	_ZL11perftestruniii	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=138	_ZL21urcu_wake_all_waitersP12urcu_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=115	_ZL13_cds_wfs_push19cds_wfs_stack_ptr_tP12cds_wfs_node	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=108	_ZL20rcu_read_stress_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=209	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=184	_ZL22rcu_update_stress_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=78	_ZL11perftestruniii	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=76	_ZL11perftestruniii	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=9	_ZL12perftestinitv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=124	_ZL13futex_noasyncPiiiPK8timespecS_i	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=170	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=117	_ZL18cds_wfs_stack_castP13cds_wfs_stack	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=16	_ZL6run_oni	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=37	_ZL20_urcu_bp_read_unlockv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=216	main	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=163	_ZL20advance_writer_stateP12writer_state	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=83	_ZL11perftestruniii	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=30	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=223	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=156	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=152	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=44	_ZL15__smp_thread_idv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=41	_ZL15__smp_thread_idv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=145	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=225	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=18	_ZL20urcu_bp_smp_mb_slavev	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=48	_ZL18rcu_read_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=175	_ZL22rcu_update_stress_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=168	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=25	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=55	_ZL20rcu_update_perf_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=53	_ZL18rcu_read_perf_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=218	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=126	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=161	_ZL20advance_writer_stateP12writer_state	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=32	_ZL18_urcu_bp_read_lockv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=34	_ZL20_urcu_bp_read_unlockv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=74	_ZL11perftestruniii	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=159	_ZN18urcu_gp_poll_stateaSEOS_	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=147	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=67	_ZL11wait_threadm	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=166	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=60	_ZL20rcu_update_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=140	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=133	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=158	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=81	_ZL11perftestruniii	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=127	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=19	_ZL20urcu_bp_smp_mb_slavev	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=204	_ZL10stresstesti	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=189	_ZL27rcu_fake_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=227	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=89	_ZL11perftestruniii	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=65	_ZL11wait_threadm	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=12	_ZL13create_threadPFPvS_ES_	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=165	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=58	_ZL20rcu_update_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=88	_ZL11perftestruniii	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=51	_ZL18rcu_read_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=103	_ZL20rcu_read_stress_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=82	_ZL11perftestruniii	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=182	_ZL22rcu_update_stress_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=211	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=57	_ZL20rcu_update_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=151	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=196	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=197	_ZL10stresstesti	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=36	_ZL20_urcu_bp_read_unlockv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=43	_ZL15__smp_thread_idv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=96	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=203	_ZL10stresstesti	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=190	_ZL27rcu_fake_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=110	_ZL20rcu_read_stress_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=50	_ZL18rcu_read_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=183	_ZL22rcu_update_stress_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=106	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=210	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=2	_ZL8smp_initv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=71	_ZL11wait_threadm	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=137	_ZL21urcu_wake_all_waitersP12urcu_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=214	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=179	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=64	_ZL20rcu_update_perf_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=144	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=172	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=68	_ZL11wait_threadm	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=141	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=221	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=75	_ZL11perftestruniii	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=5	_ZL12perftestinitv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=148	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=26	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=207	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=47	_ZL18rcu_read_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=186	_ZL27rcu_fake_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=61	_ZL20rcu_update_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=134	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=99	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=40	_ZL15__smp_thread_idv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=120	_ZL17urcu_move_waitersP12urcu_waitersP15urcu_wait_queue	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=200	_ZL10stresstesti	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=33	_ZL18_urcu_bp_read_lockv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=113	_ZL13_cds_wfs_push19cds_wfs_stack_ptr_tP12cds_wfs_node	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=193	_ZL10stresstesti	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=185	_ZL27rcu_fake_update_stress_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=77	_ZL11perftestruniii	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=162	_ZL20advance_writer_stateP12writer_state	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=31	_ZL18_urcu_bp_read_lockv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=54	_ZL18rcu_read_perf_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=139	_ZL21urcu_wake_all_waitersP12urcu_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=38	_ZL20_urcu_bp_read_unlockv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=224	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=201	_ZL10stresstesti	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=8	_ZL12perftestinitv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=215	main	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=15	_ZL13create_threadPFPvS_ES_	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=178	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=208	_ZL10stresstesti	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=130	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=155	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=22	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=217	main	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=24	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=84	_ZL11perftestruniii	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=109	_ZL20rcu_read_stress_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=169	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=63	_ZL20rcu_update_perf_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=17	_ZL6run_oni	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=116	_ZL13_cds_wfs_push19cds_wfs_stack_ptr_tP12cds_wfs_node	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=176	_ZL22rcu_update_stress_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=123	_ZL25___cds_wfs_node_sync_nextP12cds_wfs_nodei	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=70	_ZL11wait_threadm	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=79	_ZL11perftestruniii	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=206	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=102	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=164	_ZL20advance_writer_stateP12writer_state	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=6	_ZL12perftestinitv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=187	_ZL27rcu_fake_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=29	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=114	_ZL13_cds_wfs_push19cds_wfs_stack_ptr_tP12cds_wfs_node	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=222	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=91	_ZL11perftestruniii	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=121	_ZL25___cds_wfs_node_sync_nextP12cds_wfs_nodei	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=171	_ZL22rcu_update_stress_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=98	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=95	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=105	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=1	_ZL8smp_initv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=180	_ZL22rcu_update_stress_testPv	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=107	_ZL20rcu_read_stress_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=72	_ZL16wait_all_threadsv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=86	_ZL11perftestruniii	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=192	_ZL27rcu_fake_update_stress_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=194	_ZL10stresstesti	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=199	_ZL10stresstesti	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=13	_ZL13create_threadPFPvS_ES_	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=93	_ZL9uperftestii	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=220	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=20	_ZL25_urcu_bp_read_lock_updatem	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=100	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=173	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=213	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=212	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=27	_ZL25_urcu_bp_read_lock_updatem	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=181	_ZL22rcu_update_stress_testPv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=112	_ZL13_cds_wfs_push19cds_wfs_stack_ptr_tP12cds_wfs_node	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=4	_ZL30cmm_seq_cst_fence_after_atomic12cmm_memorder	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=119	_ZL18___cds_wfs_pop_all19cds_wfs_stack_ptr_t	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=104	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=142	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=11	_ZL13create_threadPFPvS_ES_	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=42	_ZL15__smp_thread_idv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=135	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=128	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=35	_ZL20_urcu_bp_read_unlockv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=188	_ZL27rcu_fake_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=157	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=136	_ZL21urcu_wake_all_waitersP12urcu_waiters	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=111	_ZL13_cds_wfs_push19cds_wfs_stack_ptr_tP12cds_wfs_node	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=49	_ZL18rcu_read_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=149	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=143	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=90	_ZL11perftestruniii	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=97	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=150	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=10	_ZL13create_threadPFPvS_ES_	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=56	_ZL20rcu_update_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=160	_ZN18urcu_gp_poll_stateaSEOS_	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=52	_ZL18rcu_read_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=202	_ZL10stresstesti	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=21	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=129	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=94	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=118	_ZL18___cds_wfs_pop_all19cds_wfs_stack_ptr_t	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=195	_ZL10stresstesti	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=122	_ZL25___cds_wfs_node_sync_nextP12cds_wfs_nodei	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=191	_ZL27rcu_fake_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=45	_ZL15__smp_thread_idv	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=125	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=198	_ZL10stresstesti	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=132	_ZL23urcu_adaptative_wake_upP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=28	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=80	_ZL11perftestruniii	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=205	_ZL10stresstesti	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=101	_ZL20rcu_read_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=59	_ZL20rcu_update_perf_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=219	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=174	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=66	_ZL11wait_threadm	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=14	_ZL13create_threadPFPvS_ES_	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=167	_ZL22rcu_update_stress_testPv	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=226	main	ptr.load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=87	_ZL11perftestruniii	ptr.store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=146	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=7	_ZL12perftestinitv	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=73	_ZL11perftestruniii	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ev=153	_ZL25urcu_adaptative_busy_waitP14urcu_wait_node	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> === End event map ===
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> pre-ordered=915/17865 crossFn=17087 sameFn=778 LL=6808 LS=5842 SL=332 SS=2826 FL=658 FS=334 LF=708 SF=357
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=915/17865 overspecified=1424
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=0 (119,67) upgrade ev=119 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=4800
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=2569/17865 overspecified=3839 t=432ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=1 (19,166) upgrade ev=19 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=5621
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=8332/17865 overspecified=11926 t=440ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=2 (113,57) upgrade ev=113 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=8772/17865 overspecified=12164 t=446ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=3 (4,58) upgrade ev=4 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=4 added=12232
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=15452/17865 overspecified=21798 t=462ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=4 (140,48) upgrade ev=140 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=15855/17865 overspecified=21798 t=470ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=5 (116,188) fence
+[OrderMatrix] closeTransitively: rounds=5 added=6678
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16420/17865 overspecified=23758 t=492ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=6 (116,167) fence
+[OrderMatrix] closeTransitively: rounds=4 added=5713
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16794/17865 overspecified=25406 t=511ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=7 (116,49) fence
+[OrderMatrix] closeTransitively: rounds=3 added=1688
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16870/17865 overspecified=26185 t=527ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=8 (116,42) fence
+[OrderMatrix] closeTransitively: rounds=2 added=424
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16887/17865 overspecified=26661 t=540ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=9 (96,169) upgrade ev=96 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16888/17865 overspecified=26661 t=544ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=10 (132,61) fence
+[OrderMatrix] closeTransitively: rounds=2 added=258
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16902/17865 overspecified=27046 t=557ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=11 (116,201) upgrade ev=232 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16902/17865 overspecified=27046 t=561ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=12 (116,200) fence
+[OrderMatrix] closeTransitively: rounds=2 added=325
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16933/17865 overspecified=27255 t=573ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> iter=13 (0,9) fence
+[OrderMatrix] closeTransitively: rounds=2 added=105
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> ordered=16952/17865 overspecified=27400 t=586ms
+[FenceSynthesis] <urcutorture_cxx.cpp:bef6> done ordered=16952/17865 overspecified=27400 promotions=14 remaining=0 t=586ms
+[OrbStats] module=urcutorture_cxx.cpp ld_rlx=77 ld_acqpc=1 ld_acq=0 st_rlx=39 st_rel=0 fence_acq=0 fence_rel=2 fence_acqrel=10 ptr_ld=71 ptr_st=35 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.6769 seconds
+
+  ----Wall Time----  ----Name----
+    0.0013 (  0.2%)  HoistAllocas
+    0.0029 (  0.4%)  CIRFlattenCFG
+    0.0008 (  0.1%)  CIREHABILowering
+    0.0010 (  0.1%)  GotoSolver
+    0.0056 (  0.8%)  CIRToCF
+    0.0084 (  1.2%)  CIRToPtr
+    0.0029 (  0.4%)  CIRToCppAtomic
+    0.0213 (  3.2%)  OrderAnalysisPass
+    0.0193 (  2.9%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0048 (  0.7%)  ConvertCppAtomicToArmAtomicPass
+    0.5892 ( 87.0%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0155 (  2.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0040 (  0.6%)  ConvertArmAtomicToLLVMPass
+    0.0056 (  0.8%)  ConvertToLLVMPass
+    0.0062 (  0.9%)  CIROrbCleanup
+    0.0075 (  1.1%)  Rest
+    0.6769 (100.0%)  Total

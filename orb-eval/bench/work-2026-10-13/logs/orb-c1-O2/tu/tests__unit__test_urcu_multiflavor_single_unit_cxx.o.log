@@ -1,0 +1,184 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0041 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 ( 16.6%)  CIRCanonicalize
+    0.0004 (  9.6%)  CIRSimplify
+    0.0008 ( 20.2%)  TargetLowering
+    0.0016 ( 40.5%)  CXXABILowering
+    0.0005 ( 12.5%)  LoweringPrepare
+    0.0000 (  0.6%)  Rest
+    0.0041 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=66
+[getOrderMatrix] forwardOrdered=2471 backEdgeOrdered=40
+[OrderAnalysis] required=2511 crossIterOnly=40
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> start fenceCostBase=1
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> required pairs=2511
+[getOrderMatrix] n=66
+[getOrderMatrix] forwardOrdered=547 backEdgeOrdered=36
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=66
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> n=66
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> === Event map ===
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=0	_ZL30cmm_seq_cst_fence_after_atomic12cmm_memorder	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=23	_ZL38_urcu_mb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=27	_ZL25_urcu_bp_read_lock_updatem	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=46	_ZL20_urcu_bp_read_unlockv	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=19	_ZL38_urcu_mb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=31	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=4	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=54	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=39	_ZL18_urcu_bp_read_lockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=38	_ZL18_urcu_bp_read_lockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=11	_ZL11futex_asyncPiiiPK8timespecS_i	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=65	_ZL22_urcu_memb_read_unlockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=12	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=42	_ZL20_urcu_bp_read_unlockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=62	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=8	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=58	_ZL20_urcu_memb_read_lockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=15	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=35	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=51	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=3	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=22	_ZL38_urcu_mb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=57	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=49	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=9	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=24	_ZL20_urcu_mb_read_unlockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=16	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=17	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=36	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=43	_ZL20_urcu_bp_read_unlockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=37	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=63	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=30	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=50	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=10	_ZL18_urcu_mb_read_lockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=56	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=2	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=52	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=6	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=21	_ZL38_urcu_mb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=29	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=44	_ZL20_urcu_bp_read_unlockv	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=64	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=41	_ZL20_urcu_bp_read_unlockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=45	_ZL20_urcu_bp_read_unlockv	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=18	_ZL38_urcu_mb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=48	_ZL22urcu_memb_smp_mb_slavev	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=55	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=5	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=25	_ZL20urcu_bp_smp_mb_slavev	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=53	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=28	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=1	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=26	_ZL20urcu_bp_smp_mb_slavev	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=32	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=47	_ZL22urcu_memb_smp_mb_slavev	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=34	_ZL25_urcu_bp_read_lock_updatem	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=59	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=61	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=13	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=14	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=40	_ZL18_urcu_bp_read_lockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=7	_ZL25_urcu_mb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=20	_ZL38_urcu_mb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=33	_ZL25_urcu_bp_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ev=60	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> === End event map ===
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> pre-ordered=408/2511 crossFn=2350 sameFn=161 LL=184 LS=716 SL=42 SS=1206 FL=66 FS=108 LF=81 SF=108
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=408/2511 overspecified=175
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=0 (48,14) upgrade ev=48 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=42
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=754/2511 overspecified=288 t=17ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=1 (26,14) upgrade ev=26 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=738
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=1462/2511 overspecified=659 t=18ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=2 (0,14) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=144
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=1742/2511 overspecified=738 t=19ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=3 (17,3) fence
+[OrderMatrix] closeTransitively: rounds=4 added=1215
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=1975/2511 overspecified=1142 t=20ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=4 (17,51) fence
+[OrderMatrix] closeTransitively: rounds=4 added=1251
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2172/2511 overspecified=1443 t=21ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=5 (61,14) fence
+[OrderMatrix] closeTransitively: rounds=3 added=161
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2213/2511 overspecified=1595 t=21ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=6 (22,64) fence
+[OrderMatrix] closeTransitively: rounds=4 added=140
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2229/2511 overspecified=1671 t=22ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=7 (63,15) fence
+[OrderMatrix] closeTransitively: rounds=2 added=66
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2240/2511 overspecified=1746 t=23ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=8 (63,9) fence
+[OrderMatrix] closeTransitively: rounds=2 added=46
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2245/2511 overspecified=1819 t=24ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=9 (64,57) fence
+[OrderMatrix] closeTransitively: rounds=2 added=49
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2254/2511 overspecified=1885 t=25ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=10 (64,56) fence
+[OrderMatrix] closeTransitively: rounds=2 added=43
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2263/2511 overspecified=1952 t=25ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=11 (64,55) fence
+[OrderMatrix] closeTransitively: rounds=2 added=44
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2272/2511 overspecified=2023 t=26ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=12 (63,7) fence
+[OrderMatrix] closeTransitively: rounds=2 added=46
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2280/2511 overspecified=2093 t=27ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=13 (63,8) fence
+[OrderMatrix] closeTransitively: rounds=3 added=44
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2288/2511 overspecified=2164 t=28ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> iter=14 (63,19) fence
+[OrderMatrix] closeTransitively: rounds=2 added=46
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> ordered=2297/2511 overspecified=2232 t=28ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit_cxx.cpp:f888> done ordered=2297/2511 overspecified=2232 promotions=15 remaining=0 t=29ms
+[OrbStats] module=test_urcu_multiflavor_single_unit_cxx.cpp ld_rlx=12 ld_acqpc=0 ld_acq=0 st_rlx=36 st_rel=0 fence_acq=0 fence_rel=9 fence_acqrel=6 ptr_ld=15 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0492 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  1.1%)  HoistAllocas
+    0.0008 (  1.6%)  CIRFlattenCFG
+    0.0004 (  0.7%)  CIREHABILowering
+    0.0004 (  0.7%)  GotoSolver
+    0.0015 (  3.0%)  CIRToCF
+    0.0018 (  3.6%)  CIRToPtr
+    0.0008 (  1.7%)  CIRToCppAtomic
+    0.0025 (  5.1%)  OrderAnalysisPass
+    0.0020 (  4.1%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0012 (  2.4%)  ConvertCppAtomicToArmAtomicPass
+    0.0295 ( 59.9%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0038 (  7.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0011 (  2.3%)  ConvertArmAtomicToLLVMPass
+    0.0011 (  2.3%)  ConvertToLLVMPass
+    0.0017 (  3.4%)  CIROrbCleanup
+    0.0023 (  4.6%)  Rest
+    0.0492 (100.0%)  Total

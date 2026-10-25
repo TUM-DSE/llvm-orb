@@ -1,0 +1,540 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0134 seconds
+
+  ----Wall Time----  ----Name----
+    0.0024 ( 17.9%)  CIRCanonicalize
+    0.0011 (  8.4%)  CIRSimplify
+    0.0027 ( 20.3%)  TargetLowering
+    0.0061 ( 45.9%)  CXXABILowering
+    0.0010 (  7.2%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0134 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=230
+[getOrderMatrix] forwardOrdered=18925 backEdgeOrdered=93
+[OrderAnalysis] required=19018 crossIterOnly=93
+[FenceSynthesis] <urcutorture.c:4f9> start fenceCostBase=20
+[FenceSynthesis] <urcutorture.c:4f9> required pairs=19018
+[getOrderMatrix] n=230
+[getOrderMatrix] forwardOrdered=2309 backEdgeOrdered=69
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=230
+[FenceSynthesis] <urcutorture.c:4f9> n=230
+[FenceSynthesis] <urcutorture.c:4f9> === Event map ===
+[FenceSynthesis] <urcutorture.c:4f9> ev=0	smp_init	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=131	urcu_adaptative_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=23	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=46	__smp_thread_id	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=177	rcu_update_stress_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=69	wait_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=154	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=92	perftestrun	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=39	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=62	rcu_update_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=85	perftestrun	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=138	urcu_adaptative_wake_up	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=115	_cds_wfs_push	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture.c:4f9> ev=108	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=209	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=184	rcu_update_stress_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=78	perftestrun	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=76	perftestrun	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=9	perftestinit	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=124	___cds_wfs_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=170	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=117	_cds_wfs_push	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=16	run_on	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=37	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=216	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=163	advance_writer_state	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=83	perftestrun	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=30	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=223	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=156	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=152	urcu_adaptative_busy_wait	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=44	__smp_thread_id	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=41	_urcu_mb_read_unlock	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=145	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=225	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=18	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=48	smp_thread_id	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=175	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=55	rcu_read_perf_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=25	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=168	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=53	rcu_read_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=218	main	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=126	___cds_wfs_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=32	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=161	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=34	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=74	wait_all_threads	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=159	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=147	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=67	wait_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=166	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=60	rcu_update_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=140	urcu_wake_all_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=133	urcu_adaptative_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=158	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=81	perftestrun	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=127	futex_noasync	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=19	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=204	stresstest	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=189	rcu_fake_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=227	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=89	perftestrun	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=65	rcu_update_perf_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=12	create_thread	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=165	advance_writer_state	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=58	rcu_update_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=88	perftestrun	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=228	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=51	rcu_read_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=103	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=82	perftestrun	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=182	rcu_update_stress_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=211	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=151	urcu_adaptative_busy_wait	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=57	rcu_update_perf_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=196	stresstest	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=197	stresstest	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=36	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=43	__smp_thread_id	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=96	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=203	stresstest	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=190	rcu_fake_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=110	rcu_read_stress_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=50	rcu_read_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=183	rcu_update_stress_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=106	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=210	stresstest	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=2	smp_init	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=71	wait_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=137	urcu_adaptative_wake_up	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=214	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=179	rcu_update_stress_test	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=64	rcu_update_perf_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=144	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=172	rcu_update_stress_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=68	wait_thread	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=141	urcu_wake_all_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=221	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=75	perftestrun	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=5	perftestinit	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=148	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=26	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=207	stresstest	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=47	__smp_thread_id	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=186	rcu_update_stress_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=61	rcu_update_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=134	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=99	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=40	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=120	___cds_wfs_pop_all	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=200	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=33	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=113	_cds_wfs_push	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=193	rcu_fake_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=185	rcu_update_stress_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=77	perftestrun	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=162	advance_writer_state	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=31	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=54	rcu_read_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=139	urcu_wake_all_waiters	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=38	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=224	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=201	stresstest	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=8	perftestinit	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=215	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=15	create_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=178	rcu_update_stress_test	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=208	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=130	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=155	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=22	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=217	main	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=24	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=84	perftestrun	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=109	rcu_read_stress_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=169	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=63	rcu_update_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=17	run_on	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=116	_cds_wfs_push	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=176	rcu_update_stress_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=123	urcu_move_waiters	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=70	wait_thread	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=79	perftestrun	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=206	stresstest	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=102	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=229	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=164	advance_writer_state	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=6	perftestinit	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=187	rcu_fake_update_stress_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=29	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=114	_cds_wfs_push	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=222	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=91	perftestrun	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=121	___cds_wfs_pop_all	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture.c:4f9> ev=171	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=98	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=95	uperftest	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=105	rcu_read_stress_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=1	smp_init	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=180	rcu_update_stress_test	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=107	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=72	wait_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=86	perftestrun	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=192	rcu_fake_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=194	rcu_fake_update_stress_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=199	stresstest	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=13	create_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=93	perftestrun	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=220	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=20	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=100	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=173	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=213	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=212	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=181	rcu_update_stress_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=27	_urcu_mb_read_lock	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=112	rcu_read_stress_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=4	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture.c:4f9> ev=104	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=119	urcu_wait_add	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=142	urcu_wake_all_waiters	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=11	create_thread	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=42	__smp_thread_id	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=135	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=128	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=35	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=188	rcu_fake_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=157	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=136	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=111	rcu_read_stress_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=49	rcu_read_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=149	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=143	urcu_adaptative_busy_wait	arm_atomic.atomic_fence
+[FenceSynthesis] <urcutorture.c:4f9> ev=90	perftestrun	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=97	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=150	urcu_adaptative_busy_wait	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=10	create_thread	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=56	rcu_read_perf_test	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=160	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=52	rcu_read_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=21	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=202	stresstest	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=129	urcu_adaptative_wake_up	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=94	rperftest	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=118	_cds_wfs_push	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=195	stresstest	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=122	urcu_move_waiters	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=191	rcu_fake_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=45	__smp_thread_id	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=125	___cds_wfs_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=198	stresstest	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=132	urcu_adaptative_wake_up	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=80	perftestrun	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=28	futex_async	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=205	stresstest	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=101	rcu_read_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=59	rcu_update_perf_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=219	main	ptr.store
+[FenceSynthesis] <urcutorture.c:4f9> ev=174	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=66	rcu_update_perf_test	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=14	create_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=167	rcu_update_stress_test	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=226	main	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=87	perftestrun	ptr.load
+[FenceSynthesis] <urcutorture.c:4f9> ev=146	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> ev=7	perftestinit	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=73	wait_thread	arm_atomic.atomic_store
+[FenceSynthesis] <urcutorture.c:4f9> ev=153	urcu_adaptative_busy_wait	arm_atomic.atomic_load
+[FenceSynthesis] <urcutorture.c:4f9> === End event map ===
+[FenceSynthesis] <urcutorture.c:4f9> pre-ordered=999/19018 crossFn=18225 sameFn=793 LL=6850 LS=6554 SL=397 SS=3555 FL=514 FS=289 LF=546 SF=313
+[FenceSynthesis] <urcutorture.c:4f9> ordered=999/19018 overspecified=1379
+[FenceSynthesis] <urcutorture.c:4f9> iter=0 (121,125) upgrade ev=121 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=5242
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=2809/19018 overspecified=4082 t=343ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=1 (115,126) upgrade ev=115 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=6 added=1980
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=5212/19018 overspecified=7834 t=352ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=2 (4,97) upgrade ev=4 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=4 added=16581
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=14504/19018 overspecified=18966 t=367ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=3 (143,68) upgrade ev=143 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=640
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=14993/19018 overspecified=19209 t=380ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=4 (118,98) pair mo1=3 mo2=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=4
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15100/19018 overspecified=19211 t=386ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=5 (118,168) upgrade ev=168 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=4
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15105/19018 overspecified=19213 t=393ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=6 (73,168) upgrade ev=73 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=408
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15118/19018 overspecified=19417 t=399ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=7 (73,51) upgrade ev=51 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=10
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15180/19018 overspecified=19422 t=405ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=8 (73,60) upgrade ev=60 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=10
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15242/19018 overspecified=19427 t=411ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=9 (73,77) upgrade ev=77 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=10
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15245/19018 overspecified=19432 t=418ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=10 (73,190) upgrade ev=190 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=10
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15248/19018 overspecified=19437 t=424ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=11 (34,60) upgrade ev=34 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=912
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15556/19018 overspecified=19665 t=430ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=12 (73,44) upgrade ev=44 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15563/19018 overspecified=19675 t=437ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=13 (118,63) upgrade ev=63 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15626/19018 overspecified=19685 t=443ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=14 (118,108) upgrade ev=108 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=119
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15689/19018 overspecified=19742 t=449ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=15 (118,104) upgrade ev=104 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15752/19018 overspecified=19752 t=456ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=16 (118,101) upgrade ev=101 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15860/19018 overspecified=19762 t=462ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=17 (118,54) upgrade ev=54 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15923/19018 overspecified=19772 t=468ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=18 (118,171) upgrade ev=171 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=34
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15933/19018 overspecified=19784 t=475ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=19 (118,175) upgrade ev=175 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[FenceSynthesis] <urcutorture.c:4f9> ordered=15939/19018 overspecified=19794 t=481ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=20 (118,193) upgrade ev=193 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=26
+[FenceSynthesis] <urcutorture.c:4f9> ordered=16047/19018 overspecified=19804 t=488ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=21 (23,98) upgrade ev=23 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=4130
+[FenceSynthesis] <urcutorture.c:4f9> ordered=16924/19018 overspecified=21076 t=498ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=22 (118,31) upgrade ev=31 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=606
+[FenceSynthesis] <urcutorture.c:4f9> ordered=16989/19018 overspecified=21359 t=507ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=23 (133,77) upgrade ev=133 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=56
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17004/19018 overspecified=21387 t=514ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=24 (40,190) upgrade ev=40 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=56
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17074/19018 overspecified=21415 t=521ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=25 (26,77) upgrade ev=26 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=64
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17140/19018 overspecified=21447 t=528ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=26 (207,98) upgrade ev=207 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=52
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17212/19018 overspecified=21473 t=535ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=27 (73,20) upgrade ev=20 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=446
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17365/19018 overspecified=21623 t=545ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=28 (37,31) upgrade ev=37 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=220
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17411/19018 overspecified=21733 t=555ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=29 (83,51) upgrade ev=83 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=600
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17539/19018 overspecified=21967 t=566ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=30 (126,126) upgrade ev=126 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17540/19018 overspecified=21967 t=569ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=31 (142,142) upgrade ev=142 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17541/19018 overspecified=21967 t=573ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=32 (69,69) upgrade ev=69 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17542/19018 overspecified=21967 t=577ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=33 (158,168) upgrade ev=158 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=112
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17575/19018 overspecified=21995 t=584ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=34 (136,59) upgrade ev=136 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=396
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17729/19018 overspecified=22133 t=591ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=35 (161,168) upgrade ev=161 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17733/19018 overspecified=22133 t=595ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=36 (146,146) upgrade ev=146 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17734/19018 overspecified=22133 t=599ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=37 (149,149) upgrade ev=149 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17735/19018 overspecified=22133 t=603ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=38 (72,15) upgrade ev=15 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=17787/19018 overspecified=22133 t=607ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=39 (117,9) upgrade ev=9 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=656
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18035/19018 overspecified=22265 t=614ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=40 (73,204) upgrade ev=204 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18087/19018 overspecified=22265 t=618ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=41 (155,155) upgrade ev=155 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18088/19018 overspecified=22265 t=622ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=42 (192,168) upgrade ev=192 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18168/19018 overspecified=22265 t=626ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=43 (125,125) upgrade ev=125 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18169/19018 overspecified=22265 t=630ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=44 (76,76) upgrade ev=76 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18170/19018 overspecified=22265 t=634ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=45 (68,68) upgrade ev=68 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18171/19018 overspecified=22265 t=638ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=46 (141,141) upgrade ev=141 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18172/19018 overspecified=22265 t=642ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=47 (19,189) upgrade ev=19 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18234/19018 overspecified=22265 t=646ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=48 (160,168) upgrade ev=160 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18238/19018 overspecified=22265 t=650ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=49 (43,43) upgrade ev=43 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18239/19018 overspecified=22265 t=654ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=50 (30,189) upgrade ev=30 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18273/19018 overspecified=22265 t=657ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=51 (50,50) upgrade ev=50 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18274/19018 overspecified=22265 t=661ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=52 (189,189) upgrade ev=189 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18275/19018 overspecified=22265 t=665ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=53 (135,189) upgrade ev=135 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18358/19018 overspecified=22265 t=669ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=54 (59,59) upgrade ev=59 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18359/19018 overspecified=22265 t=673ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=55 (53,53) upgrade ev=53 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18360/19018 overspecified=22265 t=677ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=56 (62,62) upgrade ev=62 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18361/19018 overspecified=22265 t=681ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=57 (103,103) upgrade ev=103 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18362/19018 overspecified=22265 t=685ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=58 (100,100) upgrade ev=100 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18363/19018 overspecified=22265 t=689ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=59 (170,170) upgrade ev=170 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18364/19018 overspecified=22265 t=693ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=60 (167,167) upgrade ev=167 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18367/19018 overspecified=22265 t=697ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=61 (97,97) upgrade ev=97 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18370/19018 overspecified=22265 t=701ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=62 (145,145) upgrade ev=145 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18371/19018 overspecified=22265 t=705ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=63 (148,148) upgrade ev=148 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18372/19018 overspecified=22265 t=709ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=64 (154,154) upgrade ev=154 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18373/19018 overspecified=22265 t=713ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=65 (157,157) upgrade ev=157 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18374/19018 overspecified=22265 t=717ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=66 (72,7) fence
+[OrderMatrix] closeTransitively: rounds=4 added=5230
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18819/19018 overspecified=23789 t=737ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=67 (72,203) upgrade ev=203 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=3
+[FenceSynthesis] <urcutorture.c:4f9> ordered=18848/19018 overspecified=23789 t=745ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=68 (73,202) fence
+[OrderMatrix] closeTransitively: rounds=3 added=4295
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19143/19018 overspecified=24933 t=761ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=69 (22,14) upgrade ev=14 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=3
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19152/19018 overspecified=24936 t=769ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=70 (39,33) upgrade ev=33 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=3
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19162/19018 overspecified=24939 t=777ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=71 (39,32) upgrade ev=32 op=arm_atomic.atomic_store to=3 waste=87
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19170/19018 overspecified=24943 t=782ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=72 (23,205) upgrade ev=205 op=arm_atomic.atomic_store to=3 waste=80
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19179/19018 overspecified=24946 t=786ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=73 (23,206) upgrade ev=206 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19192/19018 overspecified=24946 t=791ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=74 (25,13) upgrade ev=13 op=arm_atomic.atomic_store to=3 waste=87
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19196/19018 overspecified=24949 t=795ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=75 (40,21) upgrade ev=21 op=arm_atomic.atomic_store to=3 waste=87
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19204/19018 overspecified=24949 t=799ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=76 (39,25) upgrade ev=25 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19213/19018 overspecified=24949 t=803ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=77 (39,24) upgrade ev=24 op=arm_atomic.atomic_store to=3 waste=86
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19219/19018 overspecified=24951 t=808ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=78 (39,22) upgrade ev=22 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19229/19018 overspecified=24951 t=812ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=79 (56,72) upgrade ev=72 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19233/19018 overspecified=24951 t=817ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=80 (56,71) fence
+[OrderMatrix] closeTransitively: rounds=3 added=1305
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19317/19018 overspecified=25340 t=833ms
+[FenceSynthesis] <urcutorture.c:4f9> iter=81 (0,8) upgrade ev=8 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcutorture.c:4f9> ordered=19318/19018 overspecified=25340 t=838ms
+[FenceSynthesis] <urcutorture.c:4f9> done ordered=19318/19018 overspecified=25340 promotions=82 remaining=0 t=838ms
+[OrbStats] module=urcutorture.c ld_rlx=31 ld_acqpc=33 ld_acq=17 st_rlx=19 st_rel=26 fence_acq=0 fence_rel=3 fence_acqrel=4 ptr_ld=64 ptr_st=36 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.9297 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 (  0.1%)  HoistAllocas
+    0.0029 (  0.3%)  CIRFlattenCFG
+    0.0009 (  0.1%)  CIREHABILowering
+    0.0008 (  0.1%)  GotoSolver
+    0.0056 (  0.6%)  CIRToCF
+    0.0090 (  1.0%)  CIRToPtr
+    0.0032 (  0.3%)  CIRToCppAtomic
+    0.0225 (  2.4%)  OrderAnalysisPass
+    0.0208 (  2.2%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0046 (  0.5%)  ConvertCppAtomicToArmAtomicPass
+    0.8412 ( 90.5%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0145 (  1.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0039 (  0.4%)  ConvertArmAtomicToLLVMPass
+    0.0064 (  0.7%)  ConvertToLLVMPass
+    0.0065 (  0.7%)  CIROrbCleanup
+    0.0067 (  0.7%)  Rest
+    0.9297 (100.0%)  Total

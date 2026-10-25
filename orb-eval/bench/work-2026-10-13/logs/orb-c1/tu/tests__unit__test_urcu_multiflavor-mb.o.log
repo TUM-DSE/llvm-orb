@@ -1,0 +1,102 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0017 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 22.6%)  CIRCanonicalize
+    0.0004 ( 22.2%)  TargetLowering
+    0.0008 ( 44.4%)  CXXABILowering
+    0.0002 (  9.7%)  LoweringPrepare
+    0.0000 (  1.1%)  Rest
+    0.0017 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=25
+[getOrderMatrix] forwardOrdered=349 backEdgeOrdered=15
+[OrderAnalysis] required=364 crossIterOnly=15
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> start fenceCostBase=1
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> required pairs=364
+[getOrderMatrix] n=25
+[getOrderMatrix] forwardOrdered=75 backEdgeOrdered=15
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=25
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> n=25
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> === Event map ===
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=0	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=23	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=2	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=19	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=6	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=4	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=21	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=11	futex_async	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=12	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=8	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=18	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=5	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=15	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=1	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=3	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=22	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=9	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=24	_urcu_mb_read_unlock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=13	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=14	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=16	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=17	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=7	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=20	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ev=10	_urcu_mb_read_lock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> === End event map ===
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> pre-ordered=75/364 crossFn=303 sameFn=61 LL=20 LS=102 SL=7 SS=189 FL=7 FS=15 LF=9 SF=15
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ordered=75/364 overspecified=15
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> iter=0 (0,13) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=72
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ordered=161/364 overspecified=34 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> iter=1 (17,3) fence
+[OrderMatrix] closeTransitively: rounds=5 added=271
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ordered=215/364 overspecified=148 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> iter=2 (6,14) fence
+[OrderMatrix] closeTransitively: rounds=3 added=185
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ordered=270/364 overspecified=231 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> iter=3 (6,15) fence
+[OrderMatrix] closeTransitively: rounds=2 added=57
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ordered=281/364 overspecified=265 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> iter=4 (23,16) fence
+[OrderMatrix] closeTransitively: rounds=2 added=17
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> ordered=285/364 overspecified=297 t=5ms
+[FenceSynthesis] <test_urcu_multiflavor-mb.c:8284> done ordered=285/364 overspecified=297 promotions=5 remaining=0 t=5ms
+[OrbStats] module=test_urcu_multiflavor-mb.c ld_rlx=6 ld_acqpc=0 ld_acq=0 st_rlx=15 st_rel=0 fence_acq=0 fence_rel=2 fence_acqrel=3 ptr_ld=3 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0152 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  1.5%)  HoistAllocas
+    0.0004 (  2.8%)  CIRFlattenCFG
+    0.0002 (  1.1%)  CIREHABILowering
+    0.0001 (  1.0%)  GotoSolver
+    0.0007 (  4.6%)  CIRToCF
+    0.0010 (  6.5%)  CIRToPtr
+    0.0005 (  3.2%)  CIRToCppAtomic
+    0.0008 (  5.4%)  OrderAnalysisPass
+    0.0006 (  3.8%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0006 (  4.0%)  ConvertCppAtomicToArmAtomicPass
+    0.0055 ( 36.3%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0018 ( 11.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 (  4.7%)  ConvertArmAtomicToLLVMPass
+    0.0007 (  4.3%)  ConvertToLLVMPass
+    0.0007 (  4.9%)  CIROrbCleanup
+    0.0012 (  7.8%)  Rest
+    0.0152 (100.0%)  Total

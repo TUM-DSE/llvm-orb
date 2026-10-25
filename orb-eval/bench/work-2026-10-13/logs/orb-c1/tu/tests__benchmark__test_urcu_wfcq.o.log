@@ -1,0 +1,328 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0116 seconds
+
+  ----Wall Time----  ----Name----
+    0.0018 ( 15.9%)  CIRCanonicalize
+    0.0023 ( 19.5%)  TargetLowering
+    0.0064 ( 55.2%)  CXXABILowering
+    0.0011 (  9.2%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0116 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=236
+[getOrderMatrix] forwardOrdered=9257 backEdgeOrdered=31
+[OrderAnalysis] required=9288 crossIterOnly=31
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> start fenceCostBase=1
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> required pairs=9288
+[getOrderMatrix] n=236
+[getOrderMatrix] forwardOrdered=5694 backEdgeOrdered=65
+[OrderMatrix] closeTransitively: rounds=2 added=27
+[OrderMatrix] precomputeTransitiveDominance: nEvents=236
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> n=236
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> === Event map ===
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=131	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=23	thr_enqueuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=46	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=177	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=69	do_test_dequeue	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=154	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=92	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=39	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=62	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=85	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=138	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=108	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=115	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=209	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=184	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=78	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=76	___cds_wfcq_splice	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=9	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=124	thr_dequeuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=170	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=117	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=16	_cds_wfcq_enqueue	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=37	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=216	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=230	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=163	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=83	___cds_wfcq_first	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=30	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=223	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=156	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=152	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=44	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=41	___cds_wfcq_busy_wait	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=145	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=225	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=48	_cds_wfcq_node_init_atomic	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=18	test_duration_enqueue	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=175	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=55	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=25	thr_enqueuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=218	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=53	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=168	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=234	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=126	thr_dequeuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=32	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=161	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=34	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=232	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=74	_cds_wfcq_splice_blocking	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=159	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=147	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=67	do_test_dequeue	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=166	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=60	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=140	test_end	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=133	_cds_wfcq_empty	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=235	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=158	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=81	___cds_wfcq_splice	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=127	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=19	test_duration_enqueue	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=204	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=227	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=189	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=89	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=65	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=12	___cds_wfcq_append	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=165	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=58	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=88	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=228	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=51	___cds_wfcq_dequeue_with_state	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=103	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=82	___cds_wfcq_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=182	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=211	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=57	___cds_wfcq_dequeue_with_state	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=151	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=196	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=197	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=36	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=43	___cds_wfcq_busy_wait	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=96	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=203	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=190	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=110	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=50	___cds_wfcq_dequeue_with_state	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=183	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=106	test_duration_dequeue	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=210	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=2	_cds_wfcq_init	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=71	do_test_dequeue	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=214	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=137	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=179	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=64	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=144	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=172	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=68	do_test_dequeue	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=141	test_end	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=221	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=75	___cds_wfcq_splice	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=5	set_affinity	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=148	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=207	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=26	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=47	_cds_wfcq_node_init_atomic	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=186	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=61	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=134	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=99	do_test_splice	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=40	_cds_wfcq_dequeue_with_state_blocking	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=120	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=200	main	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=33	thr_enqueuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=113	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=193	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=185	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=231	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=77	___cds_wfcq_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=162	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=31	thr_enqueuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=54	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=139	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=38	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=224	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=201	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=215	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=8	set_affinity	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=15	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=208	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=178	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=130	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=155	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=22	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=217	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=24	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=84	___cds_wfcq_first	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=109	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=169	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=63	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=17	test_duration_enqueue	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=116	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=176	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=123	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=70	do_test_dequeue	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=79	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=206	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=102	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=229	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=164	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=6	set_affinity	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=187	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=29	thr_enqueuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=114	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=222	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=91	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=121	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=171	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=98	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=95	do_test_splice	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=105	test_duration_dequeue	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=1	_cds_wfcq_node_init	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=180	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=107	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=72	do_test_dequeue	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=86	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=192	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=194	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=199	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=13	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=93	do_test_splice	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=220	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=20	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=100	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=173	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=213	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=212	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=27	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=181	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=112	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=4	set_affinity	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=104	test_duration_dequeue	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=119	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=142	test_end	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=11	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=42	___cds_wfcq_busy_wait	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=135	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=128	thr_dequeuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=35	thr_enqueuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=188	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=157	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=3	set_affinity	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=136	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=111	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=49	_cds_wfcq_node_init_atomic	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=149	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=143	test_end	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=90	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=97	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=150	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=10	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=56	___cds_wfcq_dequeue_with_state	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=160	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=52	___cds_wfcq_dequeue_with_state	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=21	thr_enqueuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=202	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=129	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=94	do_test_splice	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=118	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=195	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=122	thr_dequeuer	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=191	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=45	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=125	thr_dequeuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=198	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=132	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=28	thr_enqueuer	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=80	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=205	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=101	do_test_splice	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=59	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=219	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=174	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=66	do_test_dequeue	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=14	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=167	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=226	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=87	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=146	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=7	set_affinity	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=73	_cds_wfcq_splice_blocking	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=153	main	ptr.store
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ev=233	main	ptr.load
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> === End event map ===
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> pre-ordered=939/9288 crossFn=8699 sameFn=589 LL=2446 LS=2996 SL=74 SS=1494 FL=670 FS=340 LF=856 SF=412
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=939/9288 overspecified=4838
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=0 (81,10) upgrade ev=81 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=550
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=1804/9288 overspecified=5449 t=386ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=1 (132,10) upgrade ev=132 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=5 added=29118
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=7361/9288 overspecified=27636 t=404ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=2 (65,10) upgrade ev=65 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=336
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=7801/9288 overspecified=27851 t=414ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=3 (16,11) upgrade ev=16 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=60
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=8196/9288 overspecified=27885 t=427ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=4 (58,11) upgrade ev=58 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=8574/9288 overspecified=27941 t=434ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=5 (200,10) upgrade ev=200 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=208
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=8978/9288 overspecified=28346 t=444ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=6 (15,11) fence
+[OrderMatrix] closeTransitively: rounds=3 added=5177
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=9310/9288 overspecified=31179 t=459ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=7 (15,87) fence
+[OrderMatrix] closeTransitively: rounds=3 added=959
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=9334/9288 overspecified=31850 t=474ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> iter=8 (15,90) fence
+[OrderMatrix] closeTransitively: rounds=3 added=291
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> ordered=9347/9288 overspecified=32297 t=488ms
+[FenceSynthesis] <test_urcu_wfcq.c:1ffd> done ordered=9347/9288 overspecified=32297 promotions=9 remaining=0 t=488ms
+[OrbStats] module=test_urcu_wfcq.c ld_rlx=33 ld_acqpc=0 ld_acq=0 st_rlx=21 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=9 ptr_ld=120 ptr_st=56 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.5808 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 (  0.2%)  HoistAllocas
+    0.0029 (  0.5%)  CIRFlattenCFG
+    0.0009 (  0.2%)  CIREHABILowering
+    0.0010 (  0.2%)  GotoSolver
+    0.0050 (  0.9%)  CIRToCF
+    0.0082 (  1.4%)  CIRToPtr
+    0.0028 (  0.5%)  CIRToCppAtomic
+    0.0318 (  5.5%)  OrderAnalysisPass
+    0.0297 (  5.1%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0041 (  0.7%)  ConvertCppAtomicToArmAtomicPass
+    0.4915 ( 84.6%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0116 (  2.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0037 (  0.6%)  ConvertArmAtomicToLLVMPass
+    0.0051 (  0.9%)  ConvertToLLVMPass
+    0.0056 (  1.0%)  CIROrbCleanup
+    0.0054 (  0.9%)  Rest
+    0.5808 (100.0%)  Total

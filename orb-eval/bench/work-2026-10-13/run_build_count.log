@@ -1,0 +1,35 @@
+Orb build:      /scratch/alex/llvm-orb/build (clang version 23.0.0git (https://github.com/TUM-DSE/llvm-orb.git 849f4025675143422e455d707eab3abe65103f77))
+work dir:       /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13
+configurations: clangir naive-orb orb-c1 orb-c20 clangir-O2 naive-orb-O2 orb-c1-O2 orb-c20-O2
+flags:          -O0 -mcpu=ampere1a
+=== build
+== clangir: -O0 -mcpu=ampere1a -fclangir
+   built in 42 s, 141 translation units
+== naive-orb: -O0 -mcpu=ampere1a -fclangir -Xclang -naive-orb
+   built in 68 s, 141 translation units
+== orb-c1: -O0 -mcpu=ampere1a -fclangir -Xclang -orb -Xclang -orb-fence-cost-base=1
+   built in 107 s, 141 translation units
+== orb-c20: -O0 -mcpu=ampere1a -fclangir -Xclang -orb -Xclang -orb-fence-cost-base=20
+   built in 141 s, 141 translation units
+== clangir-O2: -O0 -mcpu=ampere1a -fclangir -O2
+   built in 47 s, 141 translation units
+== naive-orb-O2: -O0 -mcpu=ampere1a -fclangir -Xclang -naive-orb -O2
+   built in 71 s, 141 translation units
+== orb-c1-O2: -O0 -mcpu=ampere1a -fclangir -Xclang -orb -Xclang -orb-fence-cost-base=1 -O2
+   built in 112 s, 141 translation units
+== orb-c20-O2: -O0 -mcpu=ampere1a -fclangir -Xclang -orb -Xclang -orb-fence-cost-base=20 -O2
+   built in 146 s, 141 translation units
+=== count
+clangir     141 objects
+naive-orb   141 objects
+orb-c1      141 objects
+orb-c20     141 objects
+clangir-O2  141 objects
+naive-orb-O2  141 objects
+orb-c1-O2   141 objects
+orb-c20-O2  141 objects
+wrote /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/results/primitives.csv (1128 rows)
+wrote /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/results/orbstats.csv (846 rows)
+wrote /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/results/synthesis.csv (516 rows)
+wrote /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/results/compile_times.csv (1128 rows)
+wrote /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/results/pass_times.csv (22842 rows)

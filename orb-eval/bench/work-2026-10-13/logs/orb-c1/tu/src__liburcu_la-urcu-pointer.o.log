@@ -1,0 +1,68 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 23.5%)  CIRCanonicalize
+    0.0004 ( 27.0%)  TargetLowering
+    0.0005 ( 35.0%)  CXXABILowering
+    0.0002 ( 12.6%)  LoweringPrepare
+    0.0000 (  1.8%)  Rest
+    0.0014 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=7
+[getOrderMatrix] forwardOrdered=27 backEdgeOrdered=3
+[OrderAnalysis] required=30 crossIterOnly=3
+[FenceSynthesis] <urcu-pointer.c:620c> start fenceCostBase=1
+[FenceSynthesis] <urcu-pointer.c:620c> required pairs=30
+[getOrderMatrix] n=7
+[getOrderMatrix] forwardOrdered=6 backEdgeOrdered=3
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=7
+[FenceSynthesis] <urcu-pointer.c:620c> n=7
+[FenceSynthesis] <urcu-pointer.c:620c> === Event map ===
+[FenceSynthesis] <urcu-pointer.c:620c> ev=0	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <urcu-pointer.c:620c> ev=2	rcu_dereference_sym	arm_atomic.atomic_load
+[FenceSynthesis] <urcu-pointer.c:620c> ev=6	rcu_set_pointer_sym	arm_atomic.atomic_store
+[FenceSynthesis] <urcu-pointer.c:620c> ev=4	rcu_set_pointer_sym	arm_atomic.atomic_store
+[FenceSynthesis] <urcu-pointer.c:620c> ev=5	rcu_set_pointer_sym	arm_atomic.atomic_store
+[FenceSynthesis] <urcu-pointer.c:620c> ev=1	rcu_dereference_sym	arm_atomic.atomic_load
+[FenceSynthesis] <urcu-pointer.c:620c> ev=3	rcu_dereference_sym	arm_atomic.atomic_load
+[FenceSynthesis] <urcu-pointer.c:620c> === End event map ===
+[FenceSynthesis] <urcu-pointer.c:620c> pre-ordered=9/30 crossFn=21 sameFn=9 LL=0 LS=8 SL=1 SS=9 FL=3 FS=3 LF=3 SF=3
+[FenceSynthesis] <urcu-pointer.c:620c> ordered=9/30 overspecified=0
+[FenceSynthesis] <urcu-pointer.c:620c> iter=0 (0,2) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <urcu-pointer.c:620c> ordered=30/30 overspecified=9 t=1ms
+[FenceSynthesis] <urcu-pointer.c:620c> done ordered=30/30 overspecified=9 promotions=1 remaining=0 t=1ms
+[OrbStats] module=urcu-pointer.c ld_rlx=3 ld_acqpc=0 ld_acq=0 st_rlx=3 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=1 ptr_ld=0 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0130 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  1.3%)  HoistAllocas
+    0.0005 (  3.8%)  CIRFlattenCFG
+    0.0002 (  1.4%)  CIREHABILowering
+    0.0002 (  1.4%)  GotoSolver
+    0.0008 (  6.2%)  CIRToCF
+    0.0012 (  9.3%)  CIRToPtr
+    0.0006 (  4.3%)  CIRToCppAtomic
+    0.0008 (  6.4%)  OrderAnalysisPass
+    0.0003 (  2.6%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0008 (  5.9%)  ConvertCppAtomicToArmAtomicPass
+    0.0020 ( 15.7%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0019 ( 14.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0008 (  6.3%)  ConvertArmAtomicToLLVMPass
+    0.0009 (  6.9%)  ConvertToLLVMPass
+    0.0010 (  7.5%)  CIROrbCleanup
+    0.0011 (  8.6%)  Rest
+    0.0130 (100.0%)  Total

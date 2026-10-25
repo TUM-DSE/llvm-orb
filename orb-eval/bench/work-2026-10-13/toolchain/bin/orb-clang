@@ -1,0 +1,3 @@
+#!/bin/sh
+# The Orb clang, forced onto its own builtin headers (see make-toolchain.sh).
+exec "/scratch/alex/llvm-orb/build/bin/clang" "$@" -resource-dir="/scratch/alex/llvm-orb/build/lib/clang/23"

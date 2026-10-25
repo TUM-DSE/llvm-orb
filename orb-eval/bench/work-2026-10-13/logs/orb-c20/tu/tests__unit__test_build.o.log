@@ -1,0 +1,132 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0028 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 ( 16.8%)  CIRCanonicalize
+    0.0005 ( 16.8%)  TargetLowering
+    0.0016 ( 55.3%)  CXXABILowering
+    0.0003 ( 10.3%)  LoweringPrepare
+    0.0000 (  0.8%)  Rest
+    0.0028 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=41
+[getOrderMatrix] forwardOrdered=611 backEdgeOrdered=0
+[OrderAnalysis] required=611 crossIterOnly=0
+[FenceSynthesis] <test_build.c:8e> start fenceCostBase=20
+[FenceSynthesis] <test_build.c:8e> required pairs=611
+[getOrderMatrix] n=41
+[getOrderMatrix] forwardOrdered=12 backEdgeOrdered=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=41
+[FenceSynthesis] <test_build.c:8e> n=41
+[FenceSynthesis] <test_build.c:8e> === Event map ===
+[FenceSynthesis] <test_build.c:8e> ev=0	_cds_lfs_init	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=23	test_build_cds_list_head_init	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=2	_cds_lfs_empty	ptr.load
+[FenceSynthesis] <test_build.c:8e> ev=27	test_urcu_tls	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=19	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=21	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=4	_cds_lfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=29	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=31	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=6	test_lfstack	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=39	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=38	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=11	_cds_wfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=12	test_wfstack	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=8	_cds_wfs_empty	ptr.load
+[FenceSynthesis] <test_build.c:8e> ev=18	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=5	_cds_lfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=15	_cds_wfcq_empty	ptr.load
+[FenceSynthesis] <test_build.c:8e> ev=25	test_urcu_tls	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=35	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=28	test_urcu_tls	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=1	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_build.c:8e> ev=26	test_urcu_tls	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=3	_cds_lfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=22	test_wfcqueue	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=32	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=34	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=9	_cds_wfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=24	test_build_cds_list_head_init	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=13	_cds_wfcq_node_init	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=14	_cds_wfcq_init	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=16	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=17	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=36	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=40	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=37	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=7	_cds_wfs_init	ptr.store
+[FenceSynthesis] <test_build.c:8e> ev=20	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=33	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=10	_cds_wfs_empty	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> ev=30	test_build_rcu_dereference	arm_atomic.atomic_load
+[FenceSynthesis] <test_build.c:8e> === End event map ===
+[FenceSynthesis] <test_build.c:8e> pre-ordered=0/611 crossFn=569 sameFn=42 LL=334 LS=200 SL=0 SS=0 FL=27 FS=10 LF=27 SF=13
+[FenceSynthesis] <test_build.c:8e> ordered=0/611 overspecified=12
+[FenceSynthesis] <test_build.c:8e> iter=0 (1,30) upgrade ev=1 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=28
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=375/611 overspecified=333 t=6ms
+[FenceSynthesis] <test_build.c:8e> iter=1 (20,30) upgrade ev=20 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=398/611 overspecified=333 t=6ms
+[FenceSynthesis] <test_build.c:8e> iter=2 (21,30) upgrade ev=21 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=421/611 overspecified=333 t=6ms
+[FenceSynthesis] <test_build.c:8e> iter=3 (39,17) upgrade ev=39 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=22
+[FenceSynthesis] <test_build.c:8e> ordered=446/611 overspecified=338 t=6ms
+[FenceSynthesis] <test_build.c:8e> iter=4 (17,30) upgrade ev=17 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=472/611 overspecified=338 t=7ms
+[FenceSynthesis] <test_build.c:8e> iter=5 (40,4) upgrade ev=40 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=491/611 overspecified=338 t=7ms
+[FenceSynthesis] <test_build.c:8e> iter=6 (18,30) upgrade ev=18 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=517/611 overspecified=338 t=7ms
+[FenceSynthesis] <test_build.c:8e> iter=7 (37,18) upgrade ev=37 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=539/611 overspecified=338 t=7ms
+[FenceSynthesis] <test_build.c:8e> iter=8 (36,18) upgrade ev=36 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=561/611 overspecified=338 t=8ms
+[FenceSynthesis] <test_build.c:8e> iter=9 (34,17) upgrade ev=34 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=586/611 overspecified=338 t=8ms
+[FenceSynthesis] <test_build.c:8e> iter=10 (33,11) upgrade ev=33 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build.c:8e> ordered=611/611 overspecified=338 t=8ms
+[FenceSynthesis] <test_build.c:8e> done ordered=611/611 overspecified=338 promotions=11 remaining=0 t=8ms
+[OrbStats] module=test_build.c ld_rlx=14 ld_acqpc=10 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=1 ptr_ld=3 ptr_st=13 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0212 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  1.4%)  HoistAllocas
+    0.0005 (  2.3%)  CIRFlattenCFG
+    0.0002 (  0.8%)  CIREHABILowering
+    0.0002 (  0.8%)  GotoSolver
+    0.0008 (  3.9%)  CIRToCF
+    0.0015 (  7.1%)  CIRToPtr
+    0.0005 (  2.4%)  CIRToCppAtomic
+    0.0011 (  5.1%)  OrderAnalysisPass
+    0.0007 (  3.5%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0008 (  3.6%)  ConvertCppAtomicToArmAtomicPass
+    0.0089 ( 42.0%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0025 ( 11.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0008 (  3.8%)  ConvertArmAtomicToLLVMPass
+    0.0007 (  3.5%)  ConvertToLLVMPass
+    0.0010 (  4.8%)  CIROrbCleanup
+    0.0015 (  6.9%)  Rest
+    0.0212 (100.0%)  Total

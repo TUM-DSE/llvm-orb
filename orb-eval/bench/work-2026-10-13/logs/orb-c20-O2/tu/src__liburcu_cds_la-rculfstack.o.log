@@ -1,0 +1,95 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0033 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 ( 14.7%)  CIRCanonicalize
+    0.0004 ( 11.0%)  CIRSimplify
+    0.0005 ( 16.0%)  TargetLowering
+    0.0017 ( 49.8%)  CXXABILowering
+    0.0003 (  7.9%)  LoweringPrepare
+    0.0000 (  0.7%)  Rest
+    0.0033 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=11
+[getOrderMatrix] forwardOrdered=59 backEdgeOrdered=4
+[OrderAnalysis] required=63 crossIterOnly=4
+[FenceSynthesis] <rculfstack.c:243d> start fenceCostBase=20
+[FenceSynthesis] <rculfstack.c:243d> required pairs=63
+[getOrderMatrix] n=11
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=1
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=11
+[FenceSynthesis] <rculfstack.c:243d> n=11
+[FenceSynthesis] <rculfstack.c:243d> === Event map ===
+[FenceSynthesis] <rculfstack.c:243d> ev=2	_cds_lfs_push_rcu	ptr.store
+[FenceSynthesis] <rculfstack.c:243d> ev=6	_cds_lfs_pop_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfstack.c:243d> ev=4	_cds_lfs_pop_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfstack.c:243d> ev=8	_cds_lfs_pop_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfstack.c:243d> ev=5	_cds_lfs_pop_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfstack.c:243d> ev=1	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfstack.c:243d> ev=3	_cds_lfs_push_rcu	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfstack.c:243d> ev=9	_cds_lfs_pop_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfstack.c:243d> ev=7	_cds_lfs_pop_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfstack.c:243d> ev=10	_cds_lfs_pop_rcu	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfstack.c:243d> === End event map ===
+[FenceSynthesis] <rculfstack.c:243d> pre-ordered=0/63 crossFn=32 sameFn=31 LL=24 LS=4 SL=0 SS=0 FL=12 FS=2 LF=18 SF=3
+[FenceSynthesis] <rculfstack.c:243d> ordered=0/63 overspecified=1
+[FenceSynthesis] <rculfstack.c:243d> iter=0 (1,5) upgrade ev=1 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfstack.c:243d> ordered=14/63 overspecified=1 t=2ms
+[FenceSynthesis] <rculfstack.c:243d> iter=1 (3,9) upgrade ev=3 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfstack.c:243d> ordered=27/63 overspecified=7 t=2ms
+[FenceSynthesis] <rculfstack.c:243d> iter=2 (5,5) upgrade ev=5 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfstack.c:243d> ordered=35/63 overspecified=7 t=2ms
+[FenceSynthesis] <rculfstack.c:243d> iter=3 (6,5) upgrade ev=6 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfstack.c:243d> ordered=43/63 overspecified=7 t=2ms
+[FenceSynthesis] <rculfstack.c:243d> iter=4 (8,5) upgrade ev=8 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfstack.c:243d> ordered=51/63 overspecified=7 t=2ms
+[FenceSynthesis] <rculfstack.c:243d> iter=5 (9,5) upgrade ev=9 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfstack.c:243d> ordered=59/63 overspecified=7 t=3ms
+[FenceSynthesis] <rculfstack.c:243d> iter=6 (10,2) upgrade ev=2 op=ptr.store to=3 waste=2
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfstack.c:243d> ordered=60/63 overspecified=9 t=3ms
+[FenceSynthesis] <rculfstack.c:243d> iter=7 (2,10) upgrade ev=10 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfstack.c:243d> ordered=63/63 overspecified=9 t=3ms
+[FenceSynthesis] <rculfstack.c:243d> done ordered=63/63 overspecified=9 promotions=8 remaining=0 t=3ms
+[OrbStats] module=rculfstack.c ld_rlx=2 ld_acqpc=4 ld_acq=0 st_rlx=0 st_rel=1 fence_acq=0 fence_rel=0 fence_acqrel=3 ptr_ld=0 ptr_st=1 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0186 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  1.5%)  HoistAllocas
+    0.0008 (  4.1%)  CIRFlattenCFG
+    0.0003 (  1.5%)  CIREHABILowering
+    0.0003 (  1.4%)  GotoSolver
+    0.0011 (  6.0%)  CIRToCF
+    0.0017 (  9.2%)  CIRToPtr
+    0.0007 (  3.8%)  CIRToCppAtomic
+    0.0010 (  5.1%)  OrderAnalysisPass
+    0.0005 (  2.6%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0008 (  4.6%)  ConvertCppAtomicToArmAtomicPass
+    0.0042 ( 22.6%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0026 ( 14.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0011 (  5.7%)  ConvertArmAtomicToLLVMPass
+    0.0011 (  6.0%)  ConvertToLLVMPass
+    0.0014 (  7.4%)  CIROrbCleanup
+    0.0013 (  7.0%)  Rest
+    0.0186 (100.0%)  Total

@@ -1,0 +1,221 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0060 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 18.2%)  CIRCanonicalize
+    0.0005 (  7.8%)  CIRSimplify
+    0.0011 ( 18.7%)  TargetLowering
+    0.0028 ( 46.0%)  CXXABILowering
+    0.0005 (  8.8%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0060 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=147
+[getOrderMatrix] forwardOrdered=3175 backEdgeOrdered=11
+[OrderAnalysis] required=3186 crossIterOnly=11
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> start fenceCostBase=1
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> required pairs=3186
+[getOrderMatrix] n=147
+[getOrderMatrix] forwardOrdered=1533 backEdgeOrdered=35
+[OrderMatrix] closeTransitively: rounds=2 added=54
+[OrderMatrix] precomputeTransitiveDominance: nEvents=147
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> n=147
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> === Event map ===
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=131	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=23	urcu_qsbr_wake_up_gp	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=77	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=46	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=31	_urcu_qsbr_quiescent_state_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=69	test_hash_mix	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=54	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=139	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=92	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=39	test_hash_unique_thr_reader	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=38	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=62	hashword2	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=85	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=8	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=138	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=108	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=115	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=15	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=130	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=78	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=76	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=22	urcu_qsbr_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=9	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=24	urcu_qsbr_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=84	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=109	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=117	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=124	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=16	futex_noasync	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=17	urcu_qsbr_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=63	hashword2	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=116	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=37	_urcu_qsbr_quiescent_state	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=123	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=83	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=30	_urcu_qsbr_quiescent_state_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=70	test_hash_mix	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=79	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=102	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=6	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=29	urcu_qsbr_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=44	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=114	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=91	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=41	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=145	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=121	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=98	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=18	urcu_qsbr_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=48	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=95	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=55	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=25	urcu_qsbr_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=53	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=105	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=107	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=126	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=32	_urcu_qsbr_quiescent_state_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=72	test_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=34	_urcu_qsbr_quiescent_state	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=86	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=74	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=13	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=93	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=67	hashword2	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=20	urcu_qsbr_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=60	hashword2	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=100	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=140	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=133	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=81	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=127	test_hash_unique_populate_hash	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=27	urcu_qsbr_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=19	urcu_qsbr_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=112	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=89	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=104	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=65	hashword2	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=119	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=11	test_match	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=142	test_hash_unique_populate_hash	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=12	test_match	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=42	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=58	lfht_test_node_init	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=88	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=128	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=35	_urcu_qsbr_quiescent_state	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=135	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=51	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=103	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=82	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=136	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=57	lfht_test_node_init	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=111	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=49	test_hash_unique_thr_reader	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=143	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=90	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=36	_urcu_qsbr_quiescent_state	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=43	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=96	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=97	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=110	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=10	cds_lfht_iter_get_node	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=50	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=106	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=56	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=52	test_hash_unique_thr_reader	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=71	test_hash_mix	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=137	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=21	urcu_qsbr_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=64	hashword2	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=94	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=118	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=129	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=144	test_hash_unique_populate_hash	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=68	hashword2	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=141	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=122	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=45	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=125	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=75	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=132	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=28	urcu_qsbr_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=26	urcu_qsbr_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=80	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=101	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=47	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=59	hashword2	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=61	hashword2	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=134	test_hash_unique_populate_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=99	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=66	hashword2	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=14	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=40	test_hash_unique_thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=120	test_hash_unique_thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=87	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=146	test_hash_unique_populate_hash	ptr.store
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=7	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=33	_urcu_qsbr_quiescent_state_update_and_wakeup	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=113	test_hash_unique_thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ev=73	test_hash	ptr.load
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> === End event map ===
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> pre-ordered=255/3186 crossFn=3096 sameFn=90 LL=1212 LS=924 SL=15 SS=261 FL=302 FS=88 LF=297 SF=87
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ordered=255/3186 overspecified=1343
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> iter=0 (6,8) upgrade ev=6 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=2937
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ordered=2481/3186 overspecified=9284 t=244ms
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> iter=1 (33,8) upgrade ev=33 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ordered=2917/3186 overspecified=9628 t=246ms
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> iter=2 (23,9) upgrade ev=23 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ordered=3180/3186 overspecified=9948 t=248ms
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> iter=3 (9,9) upgrade ev=9 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ordered=3181/3186 overspecified=9948 t=249ms
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> iter=4 (8,8) upgrade ev=8 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ordered=3182/3186 overspecified=9948 t=250ms
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> iter=5 (15,39) fence
+[OrderMatrix] closeTransitively: rounds=4 added=5773
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> ordered=3306/3186 overspecified=12803 t=255ms
+[FenceSynthesis] <test_urcu_hash_unique.c:a1aa> done ordered=3306/3186 overspecified=12803 promotions=6 remaining=0 t=255ms
+[OrbStats] module=test_urcu_hash_unique.c ld_rlx=16 ld_acqpc=2 ld_acq=0 st_rlx=9 st_rel=0 fence_acq=1 fence_rel=0 fence_acqrel=3 ptr_ld=89 ptr_st=28 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.2948 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  0.2%)  HoistAllocas
+    0.0011 (  0.4%)  CIRFlattenCFG
+    0.0005 (  0.2%)  CIREHABILowering
+    0.0005 (  0.2%)  GotoSolver
+    0.0023 (  0.8%)  CIRToCF
+    0.0038 (  1.3%)  CIRToPtr
+    0.0013 (  0.5%)  CIRToCppAtomic
+    0.0087 (  3.0%)  OrderAnalysisPass
+    0.0078 (  2.6%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0020 (  0.7%)  ConvertCppAtomicToArmAtomicPass
+    0.2565 ( 87.0%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0074 (  2.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0019 (  0.6%)  ConvertArmAtomicToLLVMPass
+    0.0023 (  0.8%)  ConvertToLLVMPass
+    0.0027 (  0.9%)  CIROrbCleanup
+    0.0032 (  1.1%)  Rest
+    0.2948 (100.0%)  Total

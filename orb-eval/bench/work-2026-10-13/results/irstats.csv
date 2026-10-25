@@ -1,0 +1,4 @@
+config,ld_rlx,ld_acqpc,ld_acq,st_rlx,st_rel,fence_rlx,fence_acq,fence_rel,fence_acqrel,ptr_ld,ptr_st,other,strong,barriers,relaxed_accesses_vs_naive
+naive-orb,887,887,887,532,1064,0,0,0,373,5456,1864,0,2838,373,
+orb-c1,2556,105,0,1588,8,0,116,75,500,5456,1864,3,113,691,2725
+orb-c20,1276,1061,327,1016,581,0,32,69,354,5453,1863,0,1969,455,869

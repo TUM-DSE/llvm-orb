@@ -2,6 +2,7 @@
 // Test: fig1
 // Condition: (a=1 /\ x=1 /\ y=1) (exists)
 #include <atomic>
+// #include <iostream>
 
 // Initial state: a=0; x=0; y=0
 volatile int a = 0;
@@ -20,5 +21,9 @@ void P1(std::atomic_int* x, std::atomic_int* y) {
   atomic_store_explicit(x, 1, std::memory_order_relaxed);
 }
 
-P0(&a, &x, &y); 
-P1(&x, &y);
+int main() {
+    P0(&a, &x, &y); 
+    P1(&x, &y);
+    // std::cout << "Hello World!" << std::endl;
+    return 0;
+}

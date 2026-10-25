@@ -1,0 +1,45 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0006 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 32.8%)  CIRCanonicalize
+    0.0001 ( 16.0%)  CIRSimplify
+    0.0001 ( 17.1%)  TargetLowering
+    0.0001 ( 24.1%)  CXXABILowering
+    0.0000 (  6.4%)  LoweringPrepare
+    0.0000 (  3.6%)  Rest
+    0.0006 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=0
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderAnalysis] required=0 crossIterOnly=0
+[FenceSynthesis] <test_urcu_multiflavor-mb_cxx.cpp:59> start fenceCostBase=1
+[FenceSynthesis] <test_urcu_multiflavor-mb_cxx.cpp:59> required pairs=0
+[OrbStats] module=test_urcu_multiflavor-mb_cxx.cpp ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=0 ptr_ld=0 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0026 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.9%)  HoistAllocas
+    0.0002 (  5.8%)  CIRFlattenCFG
+    0.0001 (  2.2%)  CIREHABILowering
+    0.0000 (  1.3%)  GotoSolver
+    0.0001 (  4.7%)  CIRToCF
+    0.0002 (  6.3%)  CIRToPtr
+    0.0001 (  2.7%)  CIRToCppAtomic
+    0.0002 (  7.6%)  OrderAnalysisPass
+    0.0001 (  5.3%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0001 (  3.0%)  ConvertCppAtomicToArmAtomicPass
+    0.0001 (  4.3%)  FenceSynthesisPass
+    0.0006 ( 22.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 (  9.2%)  ConvertArmAtomicToLLVMPass
+    0.0001 (  5.6%)  ConvertToLLVMPass
+    0.0001 (  3.0%)  CIROrbCleanup
+    0.0005 ( 19.6%)  Rest
+    0.0026 (100.0%)  Total

@@ -1,0 +1,101 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0057 seconds
+
+  ----Wall Time----  ----Name----
+    0.0012 ( 21.6%)  CIRCanonicalize
+    0.0014 ( 25.1%)  TargetLowering
+    0.0021 ( 36.4%)  CXXABILowering
+    0.0009 ( 16.5%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0057 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=21
+[getOrderMatrix] forwardOrdered=184 backEdgeOrdered=15
+[OrderAnalysis] required=199 crossIterOnly=15
+[FenceSynthesis] <test_uatomic.c:a123> start fenceCostBase=1
+[FenceSynthesis] <test_uatomic.c:a123> required pairs=199
+[getOrderMatrix] n=21
+[getOrderMatrix] forwardOrdered=18 backEdgeOrdered=9
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=21
+[FenceSynthesis] <test_uatomic.c:a123> n=21
+[FenceSynthesis] <test_uatomic.c:a123> === Event map ===
+[FenceSynthesis] <test_uatomic.c:a123> ev=0	gettime	ptr.load
+[FenceSynthesis] <test_uatomic.c:a123> ev=2	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_uatomic.c:a123> ev=19	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=6	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=4	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> ev=11	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> ev=12	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=8	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=18	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=5	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> ev=15	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> ev=1	gettime	ptr.load
+[FenceSynthesis] <test_uatomic.c:a123> ev=3	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> ev=9	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> ev=13	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=14	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=16	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> ev=17	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> ev=7	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=20	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:a123> ev=10	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:a123> === End event map ===
+[FenceSynthesis] <test_uatomic.c:a123> pre-ordered=27/199 crossFn=64 sameFn=135 LL=48 LS=60 SL=6 SS=45 FL=11 FS=9 LF=11 SF=9
+[FenceSynthesis] <test_uatomic.c:a123> ordered=27/199 overspecified=0
+[FenceSynthesis] <test_uatomic.c:a123> iter=0 (2,5) upgrade ev=2 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:a123> ordered=67/199 overspecified=0 t=50ms
+[FenceSynthesis] <test_uatomic.c:a123> iter=1 (8,5) fence
+[OrderMatrix] closeTransitively: rounds=7 added=200
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:a123> ordered=108/199 overspecified=86 t=50ms
+[FenceSynthesis] <test_uatomic.c:a123> iter=2 (20,17) fence
+[OrderMatrix] closeTransitively: rounds=4 added=174
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:a123> ordered=143/199 overspecified=159 t=51ms
+[FenceSynthesis] <test_uatomic.c:a123> iter=3 (17,16) upgrade ev=17 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:a123> ordered=144/199 overspecified=159 t=51ms
+[FenceSynthesis] <test_uatomic.c:a123> iter=4 (0,8) fence
+[OrderMatrix] closeTransitively: rounds=3 added=30
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:a123> ordered=153/199 overspecified=207 t=51ms
+[FenceSynthesis] <test_uatomic.c:a123> iter=5 (1,8) fence
+[OrderMatrix] closeTransitively: rounds=2 added=14
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:a123> ordered=159/199 overspecified=248 t=51ms
+[FenceSynthesis] <test_uatomic.c:a123> done ordered=159/199 overspecified=248 promotions=6 remaining=0 t=51ms
+[OrbStats] module=test_uatomic.c ld_rlx=8 ld_acqpc=1 ld_acq=0 st_rlx=9 st_rel=0 fence_acq=2 fence_rel=0 fence_acqrel=3 ptr_ld=2 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0889 seconds
+
+  ----Wall Time----  ----Name----
+    0.0009 (  1.0%)  HoistAllocas
+    0.0021 (  2.4%)  CIRFlattenCFG
+    0.0009 (  1.0%)  CIREHABILowering
+    0.0009 (  1.0%)  GotoSolver
+    0.0027 (  3.0%)  CIRToCF
+    0.0038 (  4.3%)  CIRToPtr
+    0.0018 (  2.0%)  CIRToCppAtomic
+    0.0044 (  4.9%)  OrderAnalysisPass
+    0.0027 (  3.0%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0023 (  2.6%)  ConvertCppAtomicToArmAtomicPass
+    0.0536 ( 60.3%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0055 (  6.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0025 (  2.8%)  ConvertArmAtomicToLLVMPass
+    0.0029 (  3.3%)  ConvertToLLVMPass
+    0.0027 (  3.1%)  CIROrbCleanup
+    0.0020 (  2.2%)  Rest
+    0.0889 (100.0%)  Total

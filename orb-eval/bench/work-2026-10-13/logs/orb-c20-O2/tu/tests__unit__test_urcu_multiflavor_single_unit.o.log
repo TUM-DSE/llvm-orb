@@ -1,0 +1,189 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0037 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 ( 18.4%)  CIRCanonicalize
+    0.0004 (  9.8%)  CIRSimplify
+    0.0008 ( 21.7%)  TargetLowering
+    0.0015 ( 40.7%)  CXXABILowering
+    0.0003 (  8.9%)  LoweringPrepare
+    0.0000 (  0.6%)  Rest
+    0.0037 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=66
+[getOrderMatrix] forwardOrdered=2471 backEdgeOrdered=40
+[OrderAnalysis] required=2511 crossIterOnly=40
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> start fenceCostBase=20
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> required pairs=2511
+[getOrderMatrix] n=66
+[getOrderMatrix] forwardOrdered=436 backEdgeOrdered=36
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=66
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> n=66
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> === Event map ===
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=0	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=23	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=27	_urcu_bp_read_lock_update	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=46	_urcu_bp_read_unlock	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=19	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=31	_urcu_bp_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=4	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=54	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=39	_urcu_bp_read_lock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=38	_urcu_bp_read_lock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=11	futex_async	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=65	_urcu_memb_read_unlock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=12	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=42	_urcu_bp_read_unlock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=62	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=8	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=58	_urcu_memb_read_lock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=15	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=35	_urcu_bp_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=51	_urcu_memb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=3	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=22	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=57	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=49	_urcu_memb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=9	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=24	_urcu_mb_read_unlock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=16	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=17	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=36	_urcu_bp_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=43	_urcu_bp_read_unlock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=37	_urcu_bp_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=63	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=30	_urcu_bp_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=50	_urcu_memb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=10	_urcu_mb_read_lock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=56	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=2	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=52	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=6	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=21	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=29	_urcu_bp_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=44	_urcu_bp_read_unlock	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=64	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=41	_urcu_bp_read_unlock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=45	_urcu_bp_read_unlock	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=18	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=48	urcu_memb_smp_mb_slave	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=55	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=5	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=25	urcu_bp_smp_mb_slave	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=53	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=28	_urcu_bp_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=1	_urcu_mb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=26	urcu_bp_smp_mb_slave	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=32	_urcu_bp_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=47	urcu_memb_smp_mb_slave	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=34	_urcu_bp_read_lock_update	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=59	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=61	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=13	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=14	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=40	_urcu_bp_read_lock	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=7	_urcu_mb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=20	_urcu_mb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=33	_urcu_bp_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ev=60	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> === End event map ===
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> pre-ordered=348/2511 crossFn=2350 sameFn=161 LL=184 LS=716 SL=42 SS=1206 FL=66 FS=108 LF=81 SF=108
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=348/2511 overspecified=124
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=0 (48,13) upgrade ev=48 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=42
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=694/2511 overspecified=237 t=17ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=1 (26,13) upgrade ev=26 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=744
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=1446/2511 overspecified=645 t=18ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=2 (0,14) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=144
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=1726/2511 overspecified=724 t=19ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=3 (17,51) pair mo1=3 mo2=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=436
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=1953/2511 overspecified=749 t=19ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=4 (17,3) upgrade ev=3 op=arm_atomic.atomic_load to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=40
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=1999/2511 overspecified=765 t=20ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=5 (64,14) pair mo1=3 mo2=2 waste=0
+[OrderMatrix] closeTransitively: rounds=6 added=800
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2244/2511 overspecified=956 t=20ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=6 (6,14) upgrade ev=6 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=122
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2287/2511 overspecified=978 t=21ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=7 (23,14) upgrade ev=23 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=66
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2326/2511 overspecified=990 t=21ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=8 (57,14) upgrade ev=57 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=56
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2349/2511 overspecified=997 t=22ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=9 (9,14) fence
+[OrderMatrix] closeTransitively: rounds=3 added=605
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2443/2511 overspecified=1239 t=23ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=10 (9,51) fence
+[OrderMatrix] closeTransitively: rounds=3 added=521
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2501/2511 overspecified=1433 t=24ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=11 (8,20) upgrade ev=20 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2504/2511 overspecified=1433 t=24ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=12 (8,16) upgrade ev=16 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2506/2511 overspecified=1433 t=24ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=13 (8,15) upgrade ev=15 op=arm_atomic.atomic_store to=3 waste=18
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2508/2511 overspecified=1433 t=25ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=14 (8,21) upgrade ev=21 op=arm_atomic.atomic_store to=3 waste=18
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2510/2511 overspecified=1433 t=25ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=15 (8,22) upgrade ev=22 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2513/2511 overspecified=1433 t=25ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=16 (8,18) upgrade ev=18 op=arm_atomic.atomic_store to=3 waste=18
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2515/2511 overspecified=1433 t=26ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=17 (8,19) upgrade ev=19 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2518/2511 overspecified=1433 t=26ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=18 (30,43) upgrade ev=30 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2519/2511 overspecified=1433 t=26ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> iter=19 (50,47) upgrade ev=50 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> ordered=2520/2511 overspecified=1433 t=27ms
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:1089> done ordered=2520/2511 overspecified=1433 promotions=20 remaining=0 t=27ms
+[OrbStats] module=test_urcu_multiflavor_single_unit.c ld_rlx=7 ld_acqpc=2 ld_acq=3 st_rlx=24 st_rel=12 fence_acq=0 fence_rel=0 fence_acqrel=5 ptr_ld=15 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0470 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  1.0%)  HoistAllocas
+    0.0008 (  1.7%)  CIRFlattenCFG
+    0.0003 (  0.6%)  CIREHABILowering
+    0.0003 (  0.7%)  GotoSolver
+    0.0015 (  3.2%)  CIRToCF
+    0.0019 (  4.0%)  CIRToPtr
+    0.0007 (  1.6%)  CIRToCppAtomic
+    0.0027 (  5.8%)  OrderAnalysisPass
+    0.0023 (  4.9%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0012 (  2.6%)  ConvertCppAtomicToArmAtomicPass
+    0.0279 ( 59.3%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0035 (  7.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0011 (  2.3%)  ConvertArmAtomicToLLVMPass
+    0.0012 (  2.5%)  ConvertToLLVMPass
+    0.0014 (  3.1%)  CIROrbCleanup
+    0.0020 (  4.3%)  Rest
+    0.0470 (100.0%)  Total

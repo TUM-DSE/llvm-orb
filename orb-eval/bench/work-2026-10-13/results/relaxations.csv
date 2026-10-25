@@ -1,0 +1,5 @@
+config,ldar,ldapr,stlr,dmb_full,dmb_ld,dmb_st,rmw_llsc,rmw_lse,strong,barriers,sync,sync_vs_clangir,relaxed_accesses_vs_naive,barrier_change_vs_naive
+clangir,535,535,696,309,0,0,0,1390,1766,309,2075,1.000,,
+naive-orb,535,535,696,309,0,0,0,1390,1766,309,2075,1.000,,
+orb-c1,0,89,8,412,67,0,0,1390,97,479,576,0.278,1669,170
+orb-c20,187,579,338,326,32,0,0,1390,1104,358,1462,0.705,662,49

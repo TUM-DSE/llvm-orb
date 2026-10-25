@@ -1,0 +1,182 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0052 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 20.4%)  CIRCanonicalize
+    0.0005 ( 10.6%)  CIRSimplify
+    0.0011 ( 22.0%)  TargetLowering
+    0.0019 ( 35.9%)  CXXABILowering
+    0.0005 ( 10.4%)  LoweringPrepare
+    0.0000 (  0.6%)  Rest
+    0.0052 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=106
+[getOrderMatrix] forwardOrdered=1046 backEdgeOrdered=8
+[OrderAnalysis] required=1054 crossIterOnly=8
+[FenceSynthesis] <test_mutex.c:6132> start fenceCostBase=1
+[FenceSynthesis] <test_mutex.c:6132> required pairs=1054
+[getOrderMatrix] n=106
+[getOrderMatrix] forwardOrdered=1004 backEdgeOrdered=40
+[OrderMatrix] closeTransitively: rounds=2 added=5
+[OrderMatrix] precomputeTransitiveDominance: nEvents=106
+[FenceSynthesis] <test_mutex.c:6132> n=106
+[FenceSynthesis] <test_mutex.c:6132> === Event map ===
+[FenceSynthesis] <test_mutex.c:6132> ev=0	show_usage	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=23	thr_reader	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=77	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=46	main	arm_atomic.atomic_fence
+[FenceSynthesis] <test_mutex.c:6132> ev=31	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=69	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=54	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=92	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=39	thr_writer	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=38	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=62	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=85	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=8	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=15	thr_reader	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=78	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=76	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=22	thr_reader	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=9	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=24	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=84	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=16	thr_reader	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=17	thr_reader	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=63	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=37	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=83	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=30	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=70	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=79	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=102	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=6	set_affinity	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=44	end_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_mutex.c:6132> ev=29	thr_writer	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=91	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=41	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_mutex.c:6132> ev=98	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=18	thr_reader	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=48	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=95	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=55	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=25	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=105	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=53	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=1	set_affinity	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=32	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=72	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=34	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=86	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=74	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=13	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=93	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=67	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=20	thr_reader	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=60	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=100	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=81	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=27	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=19	thr_reader	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=4	set_affinity	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=89	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=104	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=65	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=11	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=12	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=42	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_mutex.c:6132> ev=88	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=58	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=35	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=103	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=51	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=82	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=3	set_affinity	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=57	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=49	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=90	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=43	end_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_mutex.c:6132> ev=36	thr_writer	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=96	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=97	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=10	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=50	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=56	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=2	set_affinity	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=52	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=71	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=21	thr_reader	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=64	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=94	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=68	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=45	end_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_mutex.c:6132> ev=75	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=5	set_affinity	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=28	thr_writer	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=26	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_mutex.c:6132> ev=80	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=101	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=47	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=59	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=61	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=99	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=66	main	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=40	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_mutex.c:6132> ev=14	thr_reader	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=87	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> ev=7	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_mutex.c:6132> ev=33	thr_writer	ptr.store
+[FenceSynthesis] <test_mutex.c:6132> ev=73	main	ptr.load
+[FenceSynthesis] <test_mutex.c:6132> === End event map ===
+[FenceSynthesis] <test_mutex.c:6132> pre-ordered=146/1054 crossFn=971 sameFn=83 LL=336 LS=314 SL=6 SS=138 FL=137 FS=41 LF=59 SF=23
+[FenceSynthesis] <test_mutex.c:6132> ordered=146/1054 overspecified=903
+[FenceSynthesis] <test_mutex.c:6132> iter=0 (7,10) upgrade ev=7 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=218
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_mutex.c:6132> ordered=826/1054 overspecified=4009 t=40ms
+[FenceSynthesis] <test_mutex.c:6132> iter=1 (10,10) upgrade ev=10 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=4
+[FenceSynthesis] <test_mutex.c:6132> ordered=829/1054 overspecified=4010 t=41ms
+[FenceSynthesis] <test_mutex.c:6132> iter=2 (9,9) upgrade ev=9 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_mutex.c:6132> ordered=830/1054 overspecified=4010 t=41ms
+[FenceSynthesis] <test_mutex.c:6132> iter=3 (46,10) upgrade ev=46 op=arm_atomic.atomic_fence to=2 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_mutex.c:6132> ordered=934/1054 overspecified=4010 t=42ms
+[FenceSynthesis] <test_mutex.c:6132> iter=4 (84,42) fence
+[OrderMatrix] closeTransitively: rounds=3 added=2101
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_mutex.c:6132> ordered=1070/1054 overspecified=5098 t=44ms
+[FenceSynthesis] <test_mutex.c:6132> done ordered=1070/1054 overspecified=5098 promotions=5 remaining=0 t=44ms
+[OrbStats] module=test_mutex.c ld_rlx=7 ld_acqpc=2 ld_acq=0 st_rlx=6 st_rel=0 fence_acq=1 fence_rel=0 fence_acqrel=2 ptr_ld=71 ptr_st=18 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0765 seconds
+
+  ----Wall Time----  ----Name----
+    0.0008 (  1.0%)  HoistAllocas
+    0.0012 (  1.5%)  CIRFlattenCFG
+    0.0006 (  0.7%)  CIREHABILowering
+    0.0006 (  0.8%)  GotoSolver
+    0.0021 (  2.8%)  CIRToCF
+    0.0028 (  3.7%)  CIRToPtr
+    0.0013 (  1.7%)  CIRToCppAtomic
+    0.0061 (  8.0%)  OrderAnalysisPass
+    0.0052 (  6.8%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0017 (  2.3%)  ConvertCppAtomicToArmAtomicPass
+    0.0451 ( 59.0%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0051 (  6.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0018 (  2.3%)  ConvertArmAtomicToLLVMPass
+    0.0025 (  3.3%)  ConvertToLLVMPass
+    0.0022 (  2.8%)  CIROrbCleanup
+    0.0025 (  3.3%)  Rest
+    0.0765 (100.0%)  Total

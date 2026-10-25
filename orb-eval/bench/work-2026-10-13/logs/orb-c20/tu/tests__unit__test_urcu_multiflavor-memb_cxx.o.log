@@ -1,0 +1,120 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0018 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 19.0%)  CIRCanonicalize
+    0.0004 ( 24.4%)  TargetLowering
+    0.0008 ( 43.6%)  CXXABILowering
+    0.0002 ( 11.7%)  LoweringPrepare
+    0.0000 (  1.4%)  Rest
+    0.0018 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=27
+[getOrderMatrix] forwardOrdered=412 backEdgeOrdered=15
+[OrderAnalysis] required=427 crossIterOnly=15
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> start fenceCostBase=20
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> required pairs=427
+[getOrderMatrix] n=27
+[getOrderMatrix] forwardOrdered=90 backEdgeOrdered=15
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=27
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> n=27
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> === Event map ===
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=0	_ZL30cmm_seq_cst_fence_after_atomic12cmm_memorder	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=23	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=2	_ZL22urcu_memb_smp_mb_slavev	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=19	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=6	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=4	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=21	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=11	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=12	_ZL20_urcu_memb_read_lockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=8	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=18	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=5	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=15	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=25	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=1	_ZL22urcu_memb_smp_mb_slavev	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=26	_ZL22_urcu_memb_read_unlockv	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=3	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=22	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=9	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=24	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=13	_ZL11futex_asyncPiiiPK8timespecS_i	ptr.load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=14	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=16	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=17	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=7	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=20	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ev=10	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> === End event map ===
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> pre-ordered=85/427 crossFn=365 sameFn=62 LL=24 LS=112 SL=7 SS=189 FL=15 FS=30 LF=20 SF=30
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=85/427 overspecified=20
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=0 (2,16) upgrade ev=2 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=2
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=238/427 overspecified=77 t=3ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=1 (0,15) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=180
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=374/427 overspecified=96 t=3ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=2 (19,5) pair mo1=3 mo2=2 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=18
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=380/427 overspecified=102 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=3 (25,5) fence
+[OrderMatrix] closeTransitively: rounds=3 added=162
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=397/427 overspecified=170 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=4 (16,4) upgrade ev=16 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=401/427 overspecified=170 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=5 (23,11) upgrade ev=11 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=402/427 overspecified=170 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=6 (23,8) upgrade ev=8 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=403/427 overspecified=170 t=4ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=7 (23,6) upgrade ev=6 op=arm_atomic.atomic_store to=3 waste=5
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=404/427 overspecified=170 t=5ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=8 (23,9) upgrade ev=9 op=arm_atomic.atomic_store to=3 waste=4
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=405/427 overspecified=170 t=5ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=9 (23,10) upgrade ev=10 op=arm_atomic.atomic_store to=3 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=406/427 overspecified=170 t=5ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> iter=10 (15,4) upgrade ev=15 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> ordered=409/427 overspecified=170 t=5ms
+[FenceSynthesis] <test_urcu_multiflavor-memb_cxx.cpp:ede5> done ordered=409/427 overspecified=170 promotions=11 remaining=0 t=5ms
+[OrbStats] module=test_urcu_multiflavor-memb_cxx.cpp ld_rlx=3 ld_acqpc=2 ld_acq=1 st_rlx=9 st_rel=6 fence_acq=0 fence_rel=0 fence_acqrel=3 ptr_ld=4 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0166 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  1.3%)  HoistAllocas
+    0.0005 (  2.9%)  CIRFlattenCFG
+    0.0002 (  1.1%)  CIREHABILowering
+    0.0002 (  1.0%)  GotoSolver
+    0.0008 (  4.7%)  CIRToCF
+    0.0011 (  6.8%)  CIRToPtr
+    0.0004 (  2.6%)  CIRToCppAtomic
+    0.0010 (  5.8%)  OrderAnalysisPass
+    0.0006 (  3.7%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0007 (  4.2%)  ConvertCppAtomicToArmAtomicPass
+    0.0061 ( 37.0%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0019 ( 11.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 (  4.3%)  ConvertArmAtomicToLLVMPass
+    0.0007 (  4.4%)  ConvertToLLVMPass
+    0.0007 (  4.2%)  CIROrbCleanup
+    0.0013 (  8.0%)  Rest
+    0.0166 (100.0%)  Total

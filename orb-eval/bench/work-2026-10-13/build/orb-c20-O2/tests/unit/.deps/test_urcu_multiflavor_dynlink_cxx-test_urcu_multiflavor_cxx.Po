@@ -1,0 +1,124 @@
+test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor_cxx.o: \
+  /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_urcu_multiflavor_cxx.cpp \
+  ../../include/config.h \
+  /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_urcu_multiflavor.c \
+  /nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/stdlib.h \
+  /nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/cstdlib \
+  /nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/aarch64-unknown-linux-gnu/bits/c++config.h \
+  /nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/aarch64-unknown-linux-gnu/bits/os_defines.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/features.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/features-time64.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/wordsize.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/timesize.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/stdc-predef.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/sys/cdefs.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/long-double.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/gnu/stubs.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/gnu/stubs-lp64.h \
+  /nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/aarch64-unknown-linux-gnu/bits/cpu_defines.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/stdlib.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/libc-header-start.h \
+  /scratch/alex/llvm-orb/build/lib/clang/23/include/stddef.h \
+  /scratch/alex/llvm-orb/build/lib/clang/23/include/__stddef_size_t.h \
+  /scratch/alex/llvm-orb/build/lib/clang/23/include/__stddef_wchar_t.h \
+  /scratch/alex/llvm-orb/build/lib/clang/23/include/__stddef_null.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/waitflags.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/waitstatus.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/floatn.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/floatn-common.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/locale_t.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/__locale_t.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/sys/types.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/typesizes.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/time64.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/clock_t.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/clockid_t.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/time_t.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/timer_t.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/stdint-intn.h \
+  /scratch/alex/llvm-orb/build/lib/clang/23/include/endian.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/endian.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/endian.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/endianness.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/byteswap.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/uintn-identity.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/sys/select.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/select.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/sigset_t.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/__sigset_t.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/struct_timeval.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/struct_timespec.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/pthreadtypes.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/thread-shared-types.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/pthreadtypes-arch.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/atomic_wide_counter.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/struct_mutex.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/struct_rwlock.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/alloca.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/stdlib-bsearch.h \
+  /nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/stdlib-float.h \
+  /nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/bits/std_abs.h \
+  /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_urcu_multiflavor.h \
+  /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/utils/tap.h
+../../include/config.h:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_urcu_multiflavor.c:
+/nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/stdlib.h:
+/nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/cstdlib:
+/nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/aarch64-unknown-linux-gnu/bits/c++config.h:
+/nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/aarch64-unknown-linux-gnu/bits/os_defines.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/features.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/features-time64.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/wordsize.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/timesize.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/stdc-predef.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/sys/cdefs.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/long-double.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/gnu/stubs.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/gnu/stubs-lp64.h:
+/nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/aarch64-unknown-linux-gnu/bits/cpu_defines.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/stdlib.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/libc-header-start.h:
+/scratch/alex/llvm-orb/build/lib/clang/23/include/stddef.h:
+/scratch/alex/llvm-orb/build/lib/clang/23/include/__stddef_size_t.h:
+/scratch/alex/llvm-orb/build/lib/clang/23/include/__stddef_wchar_t.h:
+/scratch/alex/llvm-orb/build/lib/clang/23/include/__stddef_null.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/waitflags.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/waitstatus.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/floatn.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/floatn-common.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/locale_t.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/__locale_t.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/sys/types.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/typesizes.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/time64.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/clock_t.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/clockid_t.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/time_t.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/timer_t.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/stdint-intn.h:
+/scratch/alex/llvm-orb/build/lib/clang/23/include/endian.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/endian.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/endian.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/endianness.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/byteswap.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/uintn-identity.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/sys/select.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/select.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/sigset_t.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/__sigset_t.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/struct_timeval.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/types/struct_timespec.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/pthreadtypes.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/thread-shared-types.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/pthreadtypes-arch.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/atomic_wide_counter.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/struct_mutex.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/struct_rwlock.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/alloca.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/stdlib-bsearch.h:
+/nix/store/qkmcrkn6shfg8jn7d6ifsl9piybr4ffk-glibc-2.42-61-dev/include/bits/stdlib-float.h:
+/nix/store/r1y7h8ln5hdlrwzcyysih7vxqnwralj1-gcc-15.2.0/include/c++/15.2.0/bits/std_abs.h:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_urcu_multiflavor.h:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/utils/tap.h:

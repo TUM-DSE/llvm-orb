@@ -1,0 +1,116 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0034 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 ( 15.3%)  CIRCanonicalize
+    0.0003 ( 10.2%)  CIRSimplify
+    0.0007 ( 20.7%)  TargetLowering
+    0.0015 ( 42.5%)  CXXABILowering
+    0.0004 ( 10.5%)  LoweringPrepare
+    0.0000 (  0.9%)  Rest
+    0.0034 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=44
+[getOrderMatrix] forwardOrdered=663 backEdgeOrdered=15
+[OrderAnalysis] required=678 crossIterOnly=15
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> start fenceCostBase=1
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> required pairs=678
+[getOrderMatrix] n=44
+[getOrderMatrix] forwardOrdered=286 backEdgeOrdered=16
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=44
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> n=44
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> === Event map ===
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=0	_ZL30cmm_seq_cst_fence_after_atomic12cmm_memorder	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=23	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=2	_ZL22urcu_memb_smp_mb_slavev	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=19	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=6	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=4	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=21	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=29	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=31	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=39	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=38	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=11	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=41	main	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=12	_ZL20_urcu_memb_read_lockv	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=42	main	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=8	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=18	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=5	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=15	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=25	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=35	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=28	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=1	_ZL22urcu_memb_smp_mb_slavev	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=26	_ZL22_urcu_memb_read_unlockv	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=3	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=22	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=32	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=34	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=9	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=24	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=13	_ZL11futex_asyncPiiiPK8timespecS_i	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=14	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=16	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=17	_ZL22urcu_common_wake_up_gpP7urcu_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=36	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=43	main	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=37	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=7	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=20	_ZL40_urcu_memb_read_unlock_update_and_wakeupm	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=33	_ZL7do_forkPKc	ptr.load
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=10	_ZL27_urcu_memb_read_lock_updatem	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ev=30	_ZL7do_forkPKc	ptr.store
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> === End event map ===
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> pre-ordered=195/678 crossFn=616 sameFn=62 LL=80 LS=236 SL=7 SS=204 FL=43 FS=32 LF=44 SF=32
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ordered=195/678 overspecified=107
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> iter=0 (2,15) upgrade ev=2 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=384
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ordered=579/678 overspecified=560 t=6ms
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> iter=1 (0,15) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ordered=657/678 overspecified=588 t=7ms
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> iter=2 (19,5) fence
+[OrderMatrix] closeTransitively: rounds=3 added=306
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ordered=678/678 overspecified=757 t=7ms
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> iter=3 (15,12) fence
+[OrderMatrix] closeTransitively: rounds=2 added=37
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> ordered=681/678 overspecified=827 t=8ms
+[FenceSynthesis] <test_urcu_fork_cxx.cpp:fbc1> done ordered=681/678 overspecified=827 promotions=4 remaining=0 t=8ms
+[OrbStats] module=test_urcu_fork_cxx.cpp ld_rlx=6 ld_acqpc=0 ld_acq=0 st_rlx=15 st_rel=0 fence_acq=1 fence_rel=0 fence_acqrel=3 ptr_ld=20 ptr_st=1 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0283 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 (  1.5%)  HoistAllocas
+    0.0008 (  2.9%)  CIRFlattenCFG
+    0.0003 (  1.1%)  CIREHABILowering
+    0.0003 (  1.2%)  GotoSolver
+    0.0016 (  5.7%)  CIRToCF
+    0.0027 (  9.4%)  CIRToPtr
+    0.0008 (  3.0%)  CIRToCppAtomic
+    0.0019 (  6.6%)  OrderAnalysisPass
+    0.0014 (  4.8%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0011 (  3.8%)  ConvertCppAtomicToArmAtomicPass
+    0.0089 ( 31.4%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0035 ( 12.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0012 (  4.4%)  ConvertArmAtomicToLLVMPass
+    0.0013 (  4.6%)  ConvertToLLVMPass
+    0.0013 (  4.7%)  CIROrbCleanup
+    0.0021 (  7.3%)  Rest
+    0.0283 (100.0%)  Total

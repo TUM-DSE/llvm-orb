@@ -1,0 +1,298 @@
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:97:3: warning: implicit conversion from 'unsigned long' to 'unsigned char' changes value from 18446744073709551605 to 245 [-Wconstant-conversion]
+   97 |                 do_test(&vals.c[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:104:3: warning: implicit conversion from 'unsigned long' to 'unsigned short' changes value from 18446744073709551605 to 65525 [-Wconstant-conversion]
+  104 |                 do_test(&vals.s[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:110:3: warning: implicit conversion from 'unsigned long' to 'unsigned int' changes value from 18446744073709551605 to 4294967285 [-Wconstant-conversion]
+  110 |                 do_test(&vals.i[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0294 seconds
+
+  ----Wall Time----  ----Name----
+    0.0067 ( 22.8%)  CIRCanonicalize
+    0.0074 ( 25.2%)  TargetLowering
+    0.0104 ( 35.3%)  CXXABILowering
+    0.0049 ( 16.7%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0294 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=157
+[getOrderMatrix] forwardOrdered=10014 backEdgeOrdered=108
+[OrderAnalysis] required=10122 crossIterOnly=108
+[FenceSynthesis] <test_uatomic.c:d076> start fenceCostBase=1
+[FenceSynthesis] <test_uatomic.c:d076> required pairs=10122
+[getOrderMatrix] n=157
+[getOrderMatrix] forwardOrdered=24 backEdgeOrdered=12
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=157
+[FenceSynthesis] <test_uatomic.c:d076> n=157
+[FenceSynthesis] <test_uatomic.c:d076> === Event map ===
+[FenceSynthesis] <test_uatomic.c:d076> ev=0	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_uatomic.c:d076> ev=131	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=23	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=77	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=46	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=31	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=69	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=154	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=54	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=139	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=92	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=39	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=38	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=62	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=85	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=8	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=138	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=108	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=115	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=15	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=78	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=130	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=76	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=22	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=155	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=9	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=24	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=84	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=109	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=117	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=124	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=16	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=17	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=63	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=116	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=37	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=123	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=83	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=30	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=70	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=79	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=102	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=156	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=152	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=6	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=29	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=44	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=114	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=91	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=41	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=145	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=121	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=98	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=18	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=48	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=95	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=55	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=25	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=53	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=105	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=1	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=107	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=126	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=32	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=72	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=34	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=86	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=74	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=13	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=93	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=147	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=67	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=20	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=60	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=100	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=140	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=133	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=81	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=127	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=27	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=19	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=112	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=4	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=89	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=104	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=65	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=119	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=11	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=142	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=12	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=42	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=58	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=88	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=128	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=35	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=135	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=51	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=103	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=82	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=3	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=136	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=57	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=111	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=151	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=49	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=149	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=143	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=90	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=36	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=43	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=96	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=97	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=110	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=150	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=10	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=50	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=106	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=56	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=2	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=52	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=71	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=137	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=21	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=64	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=94	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=118	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=129	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=144	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=68	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=141	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=122	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=45	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=125	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=75	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=5	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=148	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=132	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=28	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=26	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=80	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=101	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=47	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=59	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=61	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=134	main	arm_atomic.atomic_store
+[FenceSynthesis] <test_uatomic.c:d076> ev=99	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=66	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=14	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=40	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=120	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=87	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=146	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=7	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=33	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=113	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=73	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> ev=153	main	arm_atomic.atomic_load
+[FenceSynthesis] <test_uatomic.c:d076> === End event map ===
+[FenceSynthesis] <test_uatomic.c:d076> pre-ordered=36/10122 crossFn=312 sameFn=9810 LL=8640 LS=960 SL=120 SS=90 FL=144 FS=12 LF=144 SF=12
+[FenceSynthesis] <test_uatomic.c:d076> ordered=36/10122 overspecified=0
+[FenceSynthesis] <test_uatomic.c:d076> iter=0 (0,2) upgrade ev=0 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=348/10122 overspecified=0 t=1447ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=1 (96,93) fence
+[OrderMatrix] closeTransitively: rounds=9 added=26331
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=6612/10122 overspecified=6071 t=1460ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=2 (135,120) fence
+[OrderMatrix] closeTransitively: rounds=3 added=2960
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=6866/10122 overspecified=7438 t=1465ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=3 (156,156) upgrade ev=156 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=6904/10122 overspecified=7438 t=1466ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=4 (138,141) upgrade ev=138 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=6940/10122 overspecified=7438 t=1467ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=5 (153,119) upgrade ev=153 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=6977/10122 overspecified=7438 t=1468ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=6 (150,146) upgrade ev=150 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=7013/10122 overspecified=7438 t=1469ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=7 (152,140) upgrade ev=152 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=7050/10122 overspecified=7438 t=1470ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=8 (140,140) fence
+[OrderMatrix] closeTransitively: rounds=2 added=170
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=7053/10122 overspecified=7700 t=1477ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=9 (155,153) upgrade ev=155 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=7090/10122 overspecified=7700 t=1478ms
+[FenceSynthesis] <test_uatomic.c:d076> iter=10 (154,135) fence
+[OrderMatrix] closeTransitively: rounds=2 added=24
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_uatomic.c:d076> ordered=7092/10122 overspecified=7908 t=1484ms
+[FenceSynthesis] <test_uatomic.c:d076> done ordered=7092/10122 overspecified=7908 promotions=11 remaining=0 t=1484ms
+[OrbStats] module=test_uatomic.c ld_rlx=138 ld_acqpc=6 ld_acq=0 st_rlx=12 st_rel=0 fence_acq=2 fence_rel=0 fence_acqrel=3 ptr_ld=0 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 2.2708 seconds
+
+  ----Wall Time----  ----Name----
+    0.0053 (  0.2%)  HoistAllocas
+    0.0093 (  0.4%)  CIRFlattenCFG
+    0.0037 (  0.2%)  CIREHABILowering
+    0.0055 (  0.2%)  GotoSolver
+    0.0167 (  0.7%)  CIRToCF
+    0.0291 (  1.3%)  CIRToPtr
+    0.0137 (  0.6%)  CIRToCppAtomic
+    0.5799 ( 25.5%)  OrderAnalysisPass
+    0.5686 ( 25.0%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0158 (  0.7%)  ConvertCppAtomicToArmAtomicPass
+    1.4995 ( 66.0%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0347 (  1.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0149 (  0.7%)  ConvertArmAtomicToLLVMPass
+    0.0174 (  0.8%)  ConvertToLLVMPass
+    0.0164 (  0.7%)  CIROrbCleanup
+    0.0089 (  0.4%)  Rest
+    2.2708 (100.0%)  Total
+3 warnings generated.

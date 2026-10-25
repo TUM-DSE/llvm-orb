@@ -1,0 +1,45 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 25.0%)  CIRCanonicalize
+    0.0002 ( 16.8%)  CIRSimplify
+    0.0003 ( 19.2%)  TargetLowering
+    0.0004 ( 26.4%)  CXXABILowering
+    0.0002 ( 11.0%)  LoweringPrepare
+    0.0000 (  1.6%)  Rest
+    0.0014 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=0
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderAnalysis] required=0 crossIterOnly=0
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:314f> start fenceCostBase=20
+[FenceSynthesis] <test_urcu_multiflavor_single_unit.c:314f> required pairs=0
+[OrbStats] module=test_urcu_multiflavor_single_unit.c ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=0 ptr_ld=0 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0069 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  2.8%)  HoistAllocas
+    0.0002 (  3.6%)  CIRFlattenCFG
+    0.0002 (  3.4%)  CIREHABILowering
+    0.0002 (  2.9%)  GotoSolver
+    0.0005 (  7.3%)  CIRToCF
+    0.0005 (  7.5%)  CIRToPtr
+    0.0002 (  3.1%)  CIRToCppAtomic
+    0.0004 (  5.9%)  OrderAnalysisPass
+    0.0002 (  3.6%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0003 (  4.8%)  ConvertCppAtomicToArmAtomicPass
+    0.0002 (  3.5%)  FenceSynthesisPass
+    0.0016 ( 23.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0006 (  8.1%)  ConvertArmAtomicToLLVMPass
+    0.0004 (  5.7%)  ConvertToLLVMPass
+    0.0003 (  4.7%)  CIROrbCleanup
+    0.0009 ( 13.4%)  Rest
+    0.0069 (100.0%)  Total

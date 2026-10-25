@@ -1,0 +1,55 @@
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/src/urcu-bp.c:133:12: warning: variable 'initialized' set but not used [-Wunused-but-set-global]
+  133 | static int initialized;
+      |            ^
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0359 seconds
+
+  ----Wall Time----  ----Name----
+    0.0053 ( 14.6%)  CIRCanonicalize
+    0.0028 (  7.7%)  CIRSimplify
+    0.0070 ( 19.5%)  TargetLowering
+    0.0183 ( 50.9%)  CXXABILowering
+    0.0026 (  7.2%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0359 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=562
+[getOrderMatrix] forwardOrdered=98622 backEdgeOrdered=174
+[OrderAnalysis] required=98796 crossIterOnly=174
+[NaiveCppToArm] <urcu-bp.c:9865> start
+[NaiveCppToArm] <urcu-bp.c:9865> required pairs=98796
+[getOrderMatrix] n=562
+[getOrderMatrix] forwardOrdered=110204 backEdgeOrdered=205
+[OrderMatrix] closeTransitively: rounds=3 added=373354
+[NaiveCppToArm] <urcu-bp.c:9865> n=562
+[NaiveCppToArm] <urcu-bp.c:9865> done ordered=98677/98796 overspecified=198283 remaining=0 t=2093ms
+[OrbStats] module=urcu-bp.c ld_rlx=40 ld_acqpc=40 ld_acq=40 st_rlx=27 st_rel=54 fence_acq=0 fence_rel=0 fence_acqrel=29 ptr_ld=234 ptr_st=98 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 2.3632 seconds
+
+  ----Wall Time----  ----Name----
+    0.0029 (  0.1%)  HoistAllocas
+    0.0077 (  0.3%)  CIRFlattenCFG
+    0.0032 (  0.1%)  CIREHABILowering
+    0.0031 (  0.1%)  GotoSolver
+    0.0131 (  0.6%)  CIRToCF
+    0.0204 (  0.9%)  CIRToPtr
+    0.0068 (  0.3%)  CIRToCppAtomic
+    0.1174 (  5.0%)  OrderAnalysisPass
+    0.1133 (  4.8%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    2.0980 ( 88.8%)  ConvertCppAtomicToArmAtomicNaivePass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0334 (  1.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0091 (  0.4%)  ConvertArmAtomicToLLVMPass
+    0.0130 (  0.6%)  ConvertToLLVMPass
+    0.0193 (  0.8%)  CIROrbCleanup
+    0.0158 (  0.7%)  Rest
+    2.3632 (100.0%)  Total
+1 warning generated.

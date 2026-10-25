@@ -1,0 +1,371 @@
+Making all in include
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/include'
+make  all-am
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/include'
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/include'
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/include'
+Making all in src
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/src'
+  CC       liburcu_common_la-wfqueue.lo
+  CC       liburcu_common_la-wfcqueue.lo
+  CC       liburcu_common_la-wfstack.lo
+  CC       liburcu_common_la-compat_futex.lo
+  CCLD     liburcu-common.la
+  CC       liburcu_la-urcu.lo
+  CC       liburcu_la-urcu-pointer.lo
+  CC       liburcu_la-compat_futex.lo
+  CCLD     liburcu.la
+  CC       liburcu_qsbr_la-urcu-qsbr.lo
+  CC       liburcu_qsbr_la-urcu-pointer.lo
+  CC       liburcu_qsbr_la-compat_futex.lo
+  CCLD     liburcu-qsbr.la
+  CC       liburcu_mb_la-urcu.lo
+  CC       liburcu_mb_la-urcu-pointer.lo
+  CC       liburcu_mb_la-compat_futex.lo
+  CCLD     liburcu-mb.la
+  CC       liburcu_bp_la-urcu-bp.lo
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/src/urcu-bp.c:133:12: warning: variable 'initialized' set but not used [-Wunused-but-set-global]
+  133 | static int initialized;
+      |            ^
+1 warning generated.
+  CC       liburcu_bp_la-urcu-pointer.lo
+  CC       liburcu_bp_la-compat_futex.lo
+  CCLD     liburcu-bp.la
+  CC       liburcu_memb_la-urcu.lo
+  CC       liburcu_memb_la-urcu-pointer.lo
+  CC       liburcu_memb_la-compat_futex.lo
+  CCLD     liburcu-memb.la
+  CC       liburcu_cds_la-rculfqueue.lo
+  CC       liburcu_cds_la-rculfstack.lo
+  CC       liburcu_cds_la-lfstack.lo
+  CC       liburcu_cds_la-workqueue.lo
+  CC       liburcu_cds_la-rculfhash.lo
+  CC       liburcu_cds_la-rculfhash-mm-order.lo
+  CC       liburcu_cds_la-rculfhash-mm-chunk.lo
+  CC       liburcu_cds_la-rculfhash-mm-mmap.lo
+  CC       liburcu_cds_la-compat_futex.lo
+  CCLD     liburcu-cds.la
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/src'
+Making all in doc
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/doc'
+Making all in examples
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/doc/examples'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/doc/examples'
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/doc'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/doc'
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/doc'
+Making all in tests
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests'
+Making all in utils
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/utils'
+  CC       tap.o
+  AR       libtap.a
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/utils'
+Making all in common
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/common'
+  CC       debug-yield.lo
+  CCLD     libdebug-yield.la
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/common'
+Making all in unit
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/unit'
+  CC       get_cpu_mask_from_sysfs.o
+  CCLD     get_cpu_mask_from_sysfs
+  CXX      get_cpu_mask_from_sysfs_cxx.o
+  CXXLD    get_cpu_mask_from_sysfs_cxx
+  CC       get_max_cpuid_from_sysfs.o
+  CCLD     get_max_cpuid_from_sysfs
+  CXX      get_max_cpuid_from_sysfs_cxx.o
+  CXXLD    get_max_cpuid_from_sysfs_cxx
+  CC       test_arch.o
+  CCLD     test_arch
+  CXX      test_arch_cxx.o
+  CXXLD    test_arch_cxx
+  CC       test_get_max_cpuid_from_mask.o
+  CCLD     test_get_max_cpuid_from_mask
+  CXX      test_get_max_cpuid_from_mask_cxx.o
+  CXXLD    test_get_max_cpuid_from_mask_cxx
+  CC       test_get_possible_cpus_array_len.o
+  CCLD     test_get_possible_cpus_array_len
+  CXX      test_get_possible_cpus_array_len_cxx.o
+  CXXLD    test_get_possible_cpus_array_len_cxx
+  CC       test_uatomic.o
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:97:3: warning: implicit conversion from 'unsigned long' to 'unsigned char' changes value from 18446744073709551605 to 245 [-Wconstant-conversion]
+   97 |                 do_test(&vals.c[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:104:3: warning: implicit conversion from 'unsigned long' to 'unsigned short' changes value from 18446744073709551605 to 65525 [-Wconstant-conversion]
+  104 |                 do_test(&vals.s[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:110:3: warning: implicit conversion from 'unsigned long' to 'unsigned int' changes value from 18446744073709551605 to 4294967285 [-Wconstant-conversion]
+  110 |                 do_test(&vals.i[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+3 warnings generated.
+  CCLD     test_uatomic
+  CXX      test_uatomic_cxx.o
+In file included from /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic_cxx.cpp:5:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:97:3: warning: implicit conversion from 'unsigned long' to 'unsigned char' changes value from 18446744073709551605 to 245 [-Wconstant-conversion]
+   97 |                 do_test(&vals.c[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+In file included from /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic_cxx.cpp:5:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:104:3: warning: implicit conversion from 'unsigned long' to 'unsigned short' changes value from 18446744073709551605 to 65525 [-Wconstant-conversion]
+  104 |                 do_test(&vals.s[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+In file included from /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic_cxx.cpp:5:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:110:3: warning: implicit conversion from 'unsigned long' to 'unsigned int' changes value from 18446744073709551605 to 4294967285 [-Wconstant-conversion]
+  110 |                 do_test(&vals.i[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+3 warnings generated.
+  CXXLD    test_uatomic_cxx
+  CC       test_urcu_multiflavor.o
+  CC       test_urcu_multiflavor-memb.o
+  CC       test_urcu_multiflavor-mb.o
+  CC       test_urcu_multiflavor-qsbr.o
+  CC       test_urcu_multiflavor-bp.o
+  CCLD     test_urcu_multiflavor
+  CXX      test_urcu_multiflavor_cxx.o
+  CXX      test_urcu_multiflavor-memb_cxx.o
+  CXX      test_urcu_multiflavor-mb_cxx.o
+  CXX      test_urcu_multiflavor-qsbr_cxx.o
+  CXX      test_urcu_multiflavor-bp_cxx.o
+  CXXLD    test_urcu_multiflavor_cxx
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor.o
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor-memb.o
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor-mb.o
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor-qsbr.o
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor-bp.o
+  CCLD     test_urcu_multiflavor_dynlink
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor_cxx.o
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor-memb_cxx.o
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor-mb_cxx.o
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor-qsbr_cxx.o
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor-bp_cxx.o
+  CXXLD    test_urcu_multiflavor_dynlink_cxx
+  CC       test_urcu_multiflavor_single_unit.o
+  CCLD     test_urcu_multiflavor_single_unit
+  CXX      test_urcu_multiflavor_single_unit_cxx.o
+  CXXLD    test_urcu_multiflavor_single_unit_cxx
+  CC       test_urcu_multiflavor_single_unit_dynlink-test_urcu_multiflavor_single_unit.o
+  CCLD     test_urcu_multiflavor_single_unit_dynlink
+  CXX      test_urcu_multiflavor_single_unit_dynlink_cxx-test_urcu_multiflavor_single_unit_cxx.o
+  CXXLD    test_urcu_multiflavor_single_unit_dynlink_cxx
+  CC       test_build.o
+  CCLD     test_build
+  CXX      test_build_cxx.o
+  CXXLD    test_build_cxx
+  CC       test_build_dynlink-test_build.o
+  CCLD     test_build_dynlink
+  CXX      test_build_dynlink_cxx-test_build_cxx.o
+  CXXLD    test_build_dynlink_cxx
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/unit'
+Making all in benchmark
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/benchmark'
+  CC       test_urcu.o
+  CC       common-states.o
+  CCLD     test_urcu
+  CC       test_urcu_dynamic_link-test_urcu.o
+  CC       test_urcu_dynamic_link-common-states.o
+  CCLD     test_urcu_dynamic_link
+  CC       test_urcu_timing.o
+  CCLD     test_urcu_timing
+  CC       test_rwlock_timing.o
+  CCLD     test_rwlock_timing
+  CC       test_rwlock.o
+  CCLD     test_rwlock
+  CC       test_perthreadlock_timing.o
+  CCLD     test_perthreadlock_timing
+  CC       test_perthreadlock.o
+  CCLD     test_perthreadlock
+  CC       test_urcu_yield-test_urcu.o
+  CC       test_urcu_yield-common-states.o
+  CCLD     test_urcu_yield
+  CC       test_urcu_mb-test_urcu.o
+  CC       test_urcu_mb-common-states.o
+  CCLD     test_urcu_mb
+  CC       test_urcu_qsbr_timing.o
+  CCLD     test_urcu_qsbr_timing
+  CC       test_urcu_qsbr.o
+  CCLD     test_urcu_qsbr
+  CC       test_mutex.o
+  CCLD     test_mutex
+  CC       test_looplen.o
+  CCLD     test_looplen
+  CC       test_urcu_gc.o
+  CCLD     test_urcu_gc
+  CC       test_urcu_lgc-test_urcu_gc.o
+  CC       test_urcu_lgc-common-states.o
+  CCLD     test_urcu_lgc
+  CC       test_urcu_mb_gc-test_urcu_gc.o
+  CC       test_urcu_mb_gc-common-states.o
+  CCLD     test_urcu_mb_gc
+  CC       test_urcu_qsbr_gc.o
+  CCLD     test_urcu_qsbr_gc
+  CC       test_urcu_qsbr_lgc-test_urcu_qsbr_gc.o
+  CC       test_urcu_qsbr_lgc-common-states.o
+  CCLD     test_urcu_qsbr_lgc
+  CC       test_urcu_mb_lgc-test_urcu_gc.o
+  CC       test_urcu_mb_lgc-common-states.o
+  CCLD     test_urcu_mb_lgc
+  CC       test_urcu_qsbr_dynamic_link-test_urcu_qsbr.o
+  CC       test_urcu_qsbr_dynamic_link-common-states.o
+  CCLD     test_urcu_qsbr_dynamic_link
+  CC       test_urcu_defer.o
+  CCLD     test_urcu_defer
+  CC       test_urcu_assign.o
+  CCLD     test_urcu_assign
+  CC       test_urcu_assign_dynamic_link-test_urcu_assign.o
+  CC       test_urcu_assign_dynamic_link-common-states.o
+  CCLD     test_urcu_assign_dynamic_link
+  CC       test_urcu_bp.o
+  CCLD     test_urcu_bp
+  CC       test_urcu_bp_dynamic_link-test_urcu_bp.o
+  CC       test_urcu_bp_dynamic_link-common-states.o
+  CCLD     test_urcu_bp_dynamic_link
+  CC       test_cycles_per_loop.o
+  CCLD     test_cycles_per_loop
+  CC       test_urcu_lfq.o
+  CCLD     test_urcu_lfq
+  CC       test_urcu_wfq.o
+  CCLD     test_urcu_wfq
+  CC       test_urcu_lfs.o
+  CCLD     test_urcu_lfs
+  CC       test_urcu_wfs.o
+  CCLD     test_urcu_wfs
+  CC       test_urcu_lfs_rcu.o
+  CCLD     test_urcu_lfs_rcu
+  CC       test_urcu_wfcq.o
+  CCLD     test_urcu_wfcq
+  CC       test_urcu_wfq_dynlink-test_urcu_wfq.o
+  CC       test_urcu_wfq_dynlink-common-states.o
+  CCLD     test_urcu_wfq_dynlink
+  CC       test_urcu_wfs_dynlink-test_urcu_wfs.o
+  CC       test_urcu_wfs_dynlink-common-states.o
+  CCLD     test_urcu_wfs_dynlink
+  CC       test_urcu_wfcq_dynlink-test_urcu_wfcq.o
+  CC       test_urcu_wfcq_dynlink-common-states.o
+  CCLD     test_urcu_wfcq_dynlink
+  CC       test_urcu_lfq_dynlink-test_urcu_lfq.o
+  CC       test_urcu_lfq_dynlink-common-states.o
+  CCLD     test_urcu_lfq_dynlink
+  CC       test_urcu_lfs_dynlink-test_urcu_lfs.o
+  CC       test_urcu_lfs_dynlink-common-states.o
+  CCLD     test_urcu_lfs_dynlink
+  CC       test_urcu_hash-test_urcu_hash.o
+  CC       test_urcu_hash-test_urcu_hash_rw.o
+  CC       test_urcu_hash-test_urcu_hash_unique.o
+  CC       test_urcu_hash-common-states.o
+  CCLD     test_urcu_hash
+  CC       test_urcu_lfs_rcu_dynlink-test_urcu_lfs_rcu.o
+  CC       test_urcu_lfs_rcu_dynlink-common-states.o
+  CCLD     test_urcu_lfs_rcu_dynlink
+  CC       test_uatomic.o
+  CCLD     test_uatomic
+  CC       test_barrier.o
+  CCLD     test_barrier
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/benchmark'
+Making all in regression
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/regression'
+  CC       test_urcu_fork.o
+  CCLD     test_urcu_fork.tap
+  CXX      test_urcu_fork_cxx.o
+  CXXLD    test_urcu_fork_cxx.tap
+  CC       rcutorture_urcu_membarrier-urcutorture.o
+  CCLD     rcutorture_urcu_membarrier
+  CXX      rcutorture_urcu_membarrier_cxx-urcutorture_cxx.o
+  CXXLD    rcutorture_urcu_membarrier_cxx
+  CC       rcutorture_urcu_mb-urcutorture.o
+  CCLD     rcutorture_urcu_mb
+  CXX      rcutorture_urcu_mb_cxx-urcutorture_cxx.o
+  CXXLD    rcutorture_urcu_mb_cxx
+  CC       rcutorture_urcu_bp-urcutorture.o
+  CCLD     rcutorture_urcu_bp
+  CXX      rcutorture_urcu_bp_cxx-urcutorture_cxx.o
+  CXXLD    rcutorture_urcu_bp_cxx
+  CC       rcutorture_urcu_qsbr-urcutorture.o
+  CCLD     rcutorture_urcu_qsbr
+  CXX      rcutorture_urcu_qsbr_cxx-urcutorture_cxx.o
+  CXXLD    rcutorture_urcu_qsbr_cxx
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests/regression'
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests'
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/tests'
+Making all in extras
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/extras'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang/extras'
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clang'

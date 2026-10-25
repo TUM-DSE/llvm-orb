@@ -1,0 +1,44 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 25.5%)  CIRCanonicalize
+    0.0003 ( 24.2%)  TargetLowering
+    0.0005 ( 36.8%)  CXXABILowering
+    0.0002 ( 12.1%)  LoweringPrepare
+    0.0000 (  1.4%)  Rest
+    0.0013 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=4
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderAnalysis] required=0 crossIterOnly=0
+[FenceSynthesis] <get_max_cpuid_from_sysfs_cxx.cpp:617c> start fenceCostBase=1
+[FenceSynthesis] <get_max_cpuid_from_sysfs_cxx.cpp:617c> required pairs=0
+[OrbStats] module=get_max_cpuid_from_sysfs_cxx.cpp ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=0 ptr_ld=4 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0073 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  1.9%)  HoistAllocas
+    0.0003 (  4.1%)  CIRFlattenCFG
+    0.0002 (  2.6%)  CIREHABILowering
+    0.0002 (  2.5%)  GotoSolver
+    0.0004 (  5.7%)  CIRToCF
+    0.0007 (  9.2%)  CIRToPtr
+    0.0003 (  3.9%)  CIRToCppAtomic
+    0.0005 (  6.8%)  OrderAnalysisPass
+    0.0003 (  3.5%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0004 (  5.6%)  ConvertCppAtomicToArmAtomicPass
+    0.0003 (  3.8%)  FenceSynthesisPass
+    0.0015 ( 20.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0005 (  7.5%)  ConvertArmAtomicToLLVMPass
+    0.0005 (  7.5%)  ConvertToLLVMPass
+    0.0005 (  6.3%)  CIROrbCleanup
+    0.0009 ( 12.5%)  Rest
+    0.0073 (100.0%)  Total

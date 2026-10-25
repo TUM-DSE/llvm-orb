@@ -1,0 +1,26 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0004 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 35.0%)  CIRCanonicalize
+    0.0001 ( 29.8%)  TargetLowering
+    0.0001 ( 21.5%)  CXXABILowering
+    0.0000 (  9.5%)  LoweringPrepare
+    0.0000 (  4.2%)  Rest
+    0.0004 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  6.3%)  HoistAllocas
+    0.0001 (  5.8%)  CIRFlattenCFG
+    0.0001 (  5.5%)  CIREHABILowering
+    0.0000 (  3.3%)  GotoSolver
+    0.0000 (  2.7%)  MarkDeclareTargetPass
+    0.0007 ( 54.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 22.4%)  Rest
+    0.0013 (100.0%)  Total

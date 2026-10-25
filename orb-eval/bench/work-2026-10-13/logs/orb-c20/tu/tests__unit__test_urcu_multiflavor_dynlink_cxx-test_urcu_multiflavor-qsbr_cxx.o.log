@@ -1,0 +1,44 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0005 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 30.1%)  CIRCanonicalize
+    0.0002 ( 33.7%)  TargetLowering
+    0.0001 ( 25.2%)  CXXABILowering
+    0.0000 (  7.5%)  LoweringPrepare
+    0.0000 (  3.5%)  Rest
+    0.0005 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=0
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderAnalysis] required=0 crossIterOnly=0
+[FenceSynthesis] <test_urcu_multiflavor-qsbr_cxx.cpp:6c02> start fenceCostBase=20
+[FenceSynthesis] <test_urcu_multiflavor-qsbr_cxx.cpp:6c02> required pairs=0
+[OrbStats] module=test_urcu_multiflavor-qsbr_cxx.cpp ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=0 ptr_ld=0 ptr_st=0 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0025 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  2.4%)  HoistAllocas
+    0.0001 (  2.9%)  CIRFlattenCFG
+    0.0000 (  1.5%)  CIREHABILowering
+    0.0001 (  2.3%)  GotoSolver
+    0.0001 (  3.1%)  CIRToCF
+    0.0002 (  7.1%)  CIRToPtr
+    0.0001 (  2.1%)  CIRToCppAtomic
+    0.0003 ( 10.8%)  OrderAnalysisPass
+    0.0002 (  6.5%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0001 (  3.3%)  ConvertCppAtomicToArmAtomicPass
+    0.0001 (  3.8%)  FenceSynthesisPass
+    0.0005 ( 20.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 10.8%)  ConvertArmAtomicToLLVMPass
+    0.0002 (  6.1%)  ConvertToLLVMPass
+    0.0001 (  3.5%)  CIROrbCleanup
+    0.0005 ( 19.5%)  Rest
+    0.0025 (100.0%)  Total

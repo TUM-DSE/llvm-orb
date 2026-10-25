@@ -1,0 +1,43 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0025 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 ( 20.4%)  CIRCanonicalize
+    0.0005 ( 22.1%)  TargetLowering
+    0.0011 ( 45.0%)  CXXABILowering
+    0.0003 ( 11.5%)  LoweringPrepare
+    0.0000 (  1.0%)  Rest
+    0.0025 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=45
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderAnalysis] required=0 crossIterOnly=0
+[NaiveCppToArm] <test_perthreadlock_timing.c:5a3d> start
+[NaiveCppToArm] <test_perthreadlock_timing.c:5a3d> required pairs=0
+[OrbStats] module=test_perthreadlock_timing.c ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=0 ptr_ld=37 ptr_st=8 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0158 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  1.9%)  HoistAllocas
+    0.0007 (  4.3%)  CIRFlattenCFG
+    0.0003 (  1.7%)  CIREHABILowering
+    0.0003 (  1.9%)  GotoSolver
+    0.0010 (  6.5%)  CIRToCF
+    0.0019 ( 11.9%)  CIRToPtr
+    0.0007 (  4.2%)  CIRToCppAtomic
+    0.0011 (  7.1%)  OrderAnalysisPass
+    0.0006 (  3.7%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0010 (  6.6%)  ConvertCppAtomicToArmAtomicNaivePass
+    0.0033 ( 20.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0010 (  6.3%)  ConvertArmAtomicToLLVMPass
+    0.0013 (  8.4%)  ConvertToLLVMPass
+    0.0012 (  7.4%)  CIROrbCleanup
+    0.0017 ( 11.0%)  Rest
+    0.0158 (100.0%)  Total

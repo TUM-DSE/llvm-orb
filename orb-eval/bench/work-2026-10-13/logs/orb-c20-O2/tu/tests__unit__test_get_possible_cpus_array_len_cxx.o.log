@@ -1,0 +1,45 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0021 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 18.1%)  CIRCanonicalize
+    0.0003 ( 12.6%)  CIRSimplify
+    0.0005 ( 22.8%)  TargetLowering
+    0.0007 ( 34.8%)  CXXABILowering
+    0.0002 ( 10.5%)  LoweringPrepare
+    0.0000 (  1.2%)  Rest
+    0.0021 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=7
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderAnalysis] required=0 crossIterOnly=0
+[FenceSynthesis] <test_get_possible_cpus_array_len_cxx.cpp:71fe> start fenceCostBase=20
+[FenceSynthesis] <test_get_possible_cpus_array_len_cxx.cpp:71fe> required pairs=0
+[OrbStats] module=test_get_possible_cpus_array_len_cxx.cpp ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=0 ptr_ld=5 ptr_st=2 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0116 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  2.5%)  HoistAllocas
+    0.0005 (  4.1%)  CIRFlattenCFG
+    0.0002 (  1.9%)  CIREHABILowering
+    0.0002 (  1.9%)  GotoSolver
+    0.0009 (  7.3%)  CIRToCF
+    0.0012 ( 10.7%)  CIRToPtr
+    0.0005 (  3.9%)  CIRToCppAtomic
+    0.0008 (  6.6%)  OrderAnalysisPass
+    0.0005 (  3.9%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0006 (  5.4%)  ConvertCppAtomicToArmAtomicPass
+    0.0003 (  2.9%)  FenceSynthesisPass
+    0.0024 ( 20.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 (  6.2%)  ConvertArmAtomicToLLVMPass
+    0.0009 (  7.8%)  ConvertToLLVMPass
+    0.0008 (  6.7%)  CIROrbCleanup
+    0.0014 ( 11.9%)  Rest
+    0.0116 (100.0%)  Total

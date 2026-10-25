@@ -1,0 +1,45 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0021 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 17.9%)  CIRCanonicalize
+    0.0002 (  8.0%)  CIRSimplify
+    0.0003 ( 14.7%)  TargetLowering
+    0.0011 ( 51.7%)  CXXABILowering
+    0.0001 (  6.7%)  LoweringPrepare
+    0.0000 (  1.1%)  Rest
+    0.0021 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=40
+[getOrderMatrix] forwardOrdered=0 backEdgeOrdered=0
+[OrderAnalysis] required=0 crossIterOnly=0
+[FenceSynthesis] <rculfhash-mm-chunk.c:4954> start fenceCostBase=20
+[FenceSynthesis] <rculfhash-mm-chunk.c:4954> required pairs=0
+[OrbStats] module=rculfhash-mm-chunk.c ld_rlx=0 ld_acqpc=0 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=0 ptr_ld=32 ptr_st=8 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0098 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  1.4%)  HoistAllocas
+    0.0003 (  2.9%)  CIRFlattenCFG
+    0.0001 (  1.2%)  CIREHABILowering
+    0.0001 (  1.2%)  GotoSolver
+    0.0005 (  5.2%)  CIRToCF
+    0.0012 ( 12.1%)  CIRToPtr
+    0.0003 (  3.4%)  CIRToCppAtomic
+    0.0005 (  5.5%)  OrderAnalysisPass
+    0.0003 (  2.8%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0005 (  4.8%)  ConvertCppAtomicToArmAtomicPass
+    0.0003 (  2.8%)  FenceSynthesisPass
+    0.0021 ( 21.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 (  7.1%)  ConvertArmAtomicToLLVMPass
+    0.0008 (  8.3%)  ConvertToLLVMPass
+    0.0010 (  9.9%)  CIROrbCleanup
+    0.0012 ( 12.4%)  Rest
+    0.0098 (100.0%)  Total

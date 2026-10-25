@@ -1,0 +1,266 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0076 seconds
+
+  ----Wall Time----  ----Name----
+    0.0013 ( 17.6%)  CIRCanonicalize
+    0.0008 ( 10.2%)  CIRSimplify
+    0.0015 ( 19.5%)  TargetLowering
+    0.0032 ( 41.8%)  CXXABILowering
+    0.0008 ( 10.5%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0076 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=172
+[getOrderMatrix] forwardOrdered=4440 backEdgeOrdered=25
+[OrderAnalysis] required=4465 crossIterOnly=25
+[FenceSynthesis] <test_urcu_gc.c:e657> start fenceCostBase=1
+[FenceSynthesis] <test_urcu_gc.c:e657> required pairs=4465
+[getOrderMatrix] n=172
+[getOrderMatrix] forwardOrdered=2816 backEdgeOrdered=58
+[OrderMatrix] closeTransitively: rounds=2 added=8
+[OrderMatrix] precomputeTransitiveDominance: nEvents=172
+[FenceSynthesis] <test_urcu_gc.c:e657> n=172
+[FenceSynthesis] <test_urcu_gc.c:e657> === Event map ===
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=131	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=23	futex_async	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=77	thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=46	thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=162	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=31	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=69	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=154	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=54	rcu_gc_reclaim	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=139	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=92	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=39	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=38	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=62	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=85	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=8	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=138	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=108	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=115	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=15	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=78	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=130	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=76	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=22	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=155	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=9	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=24	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=84	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=170	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=169	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=109	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=16	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=17	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=63	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=116	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=37	test_duration_read	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=117	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=163	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=123	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=83	end_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=30	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=70	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=124	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=79	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=102	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=156	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=164	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=152	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=6	set_affinity	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=29	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=44	thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=114	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=91	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=41	thr_reader	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=145	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=121	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=171	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=98	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=18	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=48	thr_reader	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=95	rcu_gc_clear_queue	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=55	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=25	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=168	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=53	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=105	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=1	set_affinity	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=107	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=126	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=32	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=72	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=34	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=86	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=161	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=74	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=159	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=13	_urcu_memb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=93	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=147	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=67	thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=166	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=20	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=60	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=100	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=140	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=133	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=158	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=81	end_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=127	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=27	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=19	_urcu_memb_read_lock_update	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=112	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=4	set_affinity	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=89	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=104	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=65	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=142	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=11	urcu_memb_smp_mb_slave	arm_atomic.atomic_fence
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=119	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=12	_urcu_memb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=42	thr_reader	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=165	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=58	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=88	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=128	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=35	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=135	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=157	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=51	thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=103	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=82	end_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=3	set_affinity	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=136	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=57	rcu_gc_reclaim	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=151	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=111	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=49	thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=149	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=143	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=90	rcu_gc_clear_queue	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=36	_urcu_memb_read_unlock	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=43	thr_reader	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=96	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=97	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=110	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=150	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=10	urcu_memb_smp_mb_slave	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=50	thr_reader	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=106	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=56	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=160	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=2	set_affinity	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=52	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=71	thr_writer	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=137	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=21	_urcu_memb_read_lock	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=64	test_duration_write	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=94	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=129	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=144	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=118	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=68	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=141	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=122	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=45	thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=125	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=75	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=5	set_affinity	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=148	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=132	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=28	urcu_common_wake_up_gp	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=80	begin_test	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=26	urcu_common_wake_up_gp	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=101	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=47	thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=59	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=61	rcu_gc_reclaim	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=134	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=99	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=66	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=14	_urcu_memb_read_lock_update	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=40	thr_reader	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=120	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=167	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=87	rcu_gc_clear_queue	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=146	main	ptr.store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=33	_urcu_memb_read_unlock_update_and_wakeup	arm_atomic.atomic_store
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=7	wait_until_go	arm_atomic.atomic_load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=113	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=73	thr_writer	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> ev=153	main	ptr.load
+[FenceSynthesis] <test_urcu_gc.c:e657> === End event map ===
+[FenceSynthesis] <test_urcu_gc.c:e657> pre-ordered=833/4465 crossFn=4357 sameFn=108 LL=1182 LS=1772 SL=39 SS=900 FL=196 FS=76 LF=212 SF=88
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=833/4465 overspecified=2049
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=0 (22,9) upgrade ev=22 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=4 added=10258
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=3879/4465 overspecified=12611 t=145ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=1 (11,9) upgrade ev=11 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=4
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4246/4465 overspecified=13036 t=148ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=2 (29,9) fence
+[OrderMatrix] closeTransitively: rounds=3 added=4439
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4437/4465 overspecified=15387 t=152ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=3 (26,8) upgrade ev=26 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=6
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4461/4465 overspecified=15387 t=155ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=4 (25,13) fence
+[OrderMatrix] closeTransitively: rounds=3 added=1274
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4488/4465 overspecified=15954 t=160ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=5 (25,14) fence
+[OrderMatrix] closeTransitively: rounds=3 added=447
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4513/4465 overspecified=16298 t=164ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=6 (33,80) upgrade ev=173 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4513/4465 overspecified=16298 t=165ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=7 (47,80) upgrade ev=174 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4513/4465 overspecified=16298 t=166ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=8 (47,17) fence
+[OrderMatrix] closeTransitively: rounds=2 added=151
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4516/4465 overspecified=16588 t=170ms
+[FenceSynthesis] <test_urcu_gc.c:e657> iter=9 (47,16) fence
+[OrderMatrix] closeTransitively: rounds=2 added=98
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_urcu_gc.c:e657> ordered=4519/4465 overspecified=16849 t=173ms
+[FenceSynthesis] <test_urcu_gc.c:e657> done ordered=4519/4465 overspecified=16849 promotions=10 remaining=0 t=174ms
+[OrbStats] module=test_urcu_gc.c ld_rlx=17 ld_acqpc=1 ld_acq=0 st_rlx=21 st_rel=0 fence_acq=2 fence_rel=0 fence_acqrel=5 ptr_ld=106 ptr_st=25 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.2291 seconds
+
+  ----Wall Time----  ----Name----
+    0.0008 (  0.4%)  HoistAllocas
+    0.0018 (  0.8%)  CIRFlattenCFG
+    0.0007 (  0.3%)  CIREHABILowering
+    0.0008 (  0.3%)  GotoSolver
+    0.0030 (  1.3%)  CIRToCF
+    0.0048 (  2.1%)  CIRToPtr
+    0.0021 (  0.9%)  CIRToCppAtomic
+    0.0144 (  6.3%)  OrderAnalysisPass
+    0.0127 (  5.6%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0029 (  1.2%)  ConvertCppAtomicToArmAtomicPass
+    0.1757 ( 76.7%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0082 (  3.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0026 (  1.1%)  ConvertArmAtomicToLLVMPass
+    0.0037 (  1.6%)  ConvertToLLVMPass
+    0.0037 (  1.6%)  CIROrbCleanup
+    0.0039 (  1.7%)  Rest
+    0.2291 (100.0%)  Total

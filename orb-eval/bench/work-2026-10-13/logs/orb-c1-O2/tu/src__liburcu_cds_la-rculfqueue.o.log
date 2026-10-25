@@ -1,0 +1,118 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0063 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 ( 12.0%)  CIRCanonicalize
+    0.0005 (  7.8%)  CIRSimplify
+    0.0010 ( 16.6%)  TargetLowering
+    0.0033 ( 53.4%)  CXXABILowering
+    0.0006 (  9.8%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0063 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=34
+[getOrderMatrix] forwardOrdered=404 backEdgeOrdered=10
+[OrderAnalysis] required=414 crossIterOnly=10
+[FenceSynthesis] <rculfqueue.c:a522> start fenceCostBase=1
+[FenceSynthesis] <rculfqueue.c:a522> required pairs=414
+[getOrderMatrix] n=34
+[getOrderMatrix] forwardOrdered=60 backEdgeOrdered=1
+[OrderMatrix] closeTransitively: rounds=2 added=2
+[OrderMatrix] precomputeTransitiveDominance: nEvents=34
+[FenceSynthesis] <rculfqueue.c:a522> n=34
+[FenceSynthesis] <rculfqueue.c:a522> === Event map ===
+[FenceSynthesis] <rculfqueue.c:a522> ev=23	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=2	make_dummy	ptr.store
+[FenceSynthesis] <rculfqueue.c:a522> ev=27	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=19	_cds_lfq_enqueue_rcu	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfqueue.c:a522> ev=6	_cds_lfq_init_rcu	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=4	make_dummy	ptr.store
+[FenceSynthesis] <rculfqueue.c:a522> ev=21	rcu_free_dummy	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=29	_cds_lfq_dequeue_rcu	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=31	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=11	_cds_lfq_destroy_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=12	_cds_lfq_destroy_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=8	_cds_lfq_init_rcu	ptr.store
+[FenceSynthesis] <rculfqueue.c:a522> ev=18	_cds_lfq_enqueue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=5	_cds_lfq_init_rcu	ptr.store
+[FenceSynthesis] <rculfqueue.c:a522> ev=15	_cds_lfq_destroy_rcu	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=25	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=28	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=26	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=3	make_dummy	ptr.store
+[FenceSynthesis] <rculfqueue.c:a522> ev=22	rcu_free_dummy	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=32	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=9	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <rculfqueue.c:a522> ev=24	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=13	_cds_lfq_destroy_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=14	_cds_lfq_destroy_rcu	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=16	_cds_lfq_enqueue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=17	_cds_lfq_enqueue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> ev=7	_cds_lfq_init_rcu	ptr.store
+[FenceSynthesis] <rculfqueue.c:a522> ev=20	rcu_free_dummy	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=33	_cds_lfq_dequeue_rcu	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=10	free_dummy	ptr.load
+[FenceSynthesis] <rculfqueue.c:a522> ev=30	_cds_lfq_dequeue_rcu	arm_atomic.atomic_load
+[FenceSynthesis] <rculfqueue.c:a522> === End event map ===
+[FenceSynthesis] <rculfqueue.c:a522> pre-ordered=0/414 crossFn=332 sameFn=82 LL=234 LS=60 SL=0 SS=0 FL=48 FS=12 LF=48 SF=12
+[FenceSynthesis] <rculfqueue.c:a522> ordered=0/414 overspecified=63
+[FenceSynthesis] <rculfqueue.c:a522> iter=0 (19,31) upgrade ev=9 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfqueue.c:a522> ordered=0/414 overspecified=63 t=6ms
+[FenceSynthesis] <rculfqueue.c:a522> iter=9 (19,17) upgrade ev=19 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=2
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfqueue.c:a522> ordered=149/414 overspecified=142 t=7ms
+[FenceSynthesis] <rculfqueue.c:a522> iter=12 (27,27) upgrade ev=27 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=56
+[FenceSynthesis] <rculfqueue.c:a522> ordered=181/414 overspecified=168 t=7ms
+[FenceSynthesis] <rculfqueue.c:a522> iter=13 (18,18) fence
+[OrderMatrix] closeTransitively: rounds=6 added=305
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfqueue.c:a522> ordered=252/414 overspecified=291 t=7ms
+[FenceSynthesis] <rculfqueue.c:a522> iter=14 (24,17) upgrade ev=24 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=10
+[FenceSynthesis] <rculfqueue.c:a522> ordered=263/414 overspecified=292 t=7ms
+[FenceSynthesis] <rculfqueue.c:a522> iter=15 (25,28) upgrade ev=25 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=3 added=14
+[FenceSynthesis] <rculfqueue.c:a522> ordered=297/414 overspecified=294 t=8ms
+[FenceSynthesis] <rculfqueue.c:a522> iter=16 (17,17) fence
+[OrderMatrix] closeTransitively: rounds=5 added=283
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfqueue.c:a522> ordered=338/414 overspecified=419 t=8ms
+[FenceSynthesis] <rculfqueue.c:a522> iter=19 (13,25) fence
+[OrderMatrix] closeTransitively: rounds=3 added=187
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <rculfqueue.c:a522> ordered=373/414 overspecified=509 t=8ms
+[FenceSynthesis] <rculfqueue.c:a522> done ordered=382/414 overspecified=509 promotions=29 remaining=0 t=8ms
+[OrbStats] module=rculfqueue.c ld_rlx=12 ld_acqpc=3 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=3 fence_rel=0 fence_acqrel=2 ptr_ld=9 ptr_st=8 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0390 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  1.4%)  HoistAllocas
+    0.0015 (  3.8%)  CIRFlattenCFG
+    0.0006 (  1.5%)  CIREHABILowering
+    0.0006 (  1.6%)  GotoSolver
+    0.0022 (  5.7%)  CIRToCF
+    0.0033 (  8.6%)  CIRToPtr
+    0.0014 (  3.6%)  CIRToCppAtomic
+    0.0024 (  6.0%)  OrderAnalysisPass
+    0.0012 (  3.1%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0019 (  4.9%)  ConvertCppAtomicToArmAtomicPass
+    0.0100 ( 25.6%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0050 ( 12.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0020 (  5.2%)  ConvertArmAtomicToLLVMPass
+    0.0022 (  5.6%)  ConvertToLLVMPass
+    0.0030 (  7.8%)  CIROrbCleanup
+    0.0023 (  5.9%)  Rest
+    0.0390 (100.0%)  Total

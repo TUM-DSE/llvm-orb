@@ -1,0 +1,4037 @@
+Making all in include
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/include'
+make  all-am
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/include'
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/include'
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/include'
+Making all in src
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/src'
+  CC       liburcu_common_la-wfqueue.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0026 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 15.1%)  CIRCanonicalize
+    0.0005 ( 19.8%)  TargetLowering
+    0.0015 ( 56.9%)  CXXABILowering
+    0.0002 (  7.3%)  LoweringPrepare
+    0.0000 (  0.9%)  Rest
+    0.0026 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0046 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  3.8%)  HoistAllocas
+    0.0004 (  9.2%)  CIRFlattenCFG
+    0.0002 (  3.5%)  CIREHABILowering
+    0.0001 (  3.2%)  GotoSolver
+    0.0001 (  3.2%)  MarkDeclareTargetPass
+    0.0023 ( 50.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0012 ( 26.4%)  Rest
+    0.0046 (100.0%)  Total
+  CC       liburcu_common_la-wfcqueue.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0078 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 (  9.5%)  CIRCanonicalize
+    0.0012 ( 15.1%)  TargetLowering
+    0.0054 ( 68.9%)  CXXABILowering
+    0.0005 (  6.2%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0078 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0134 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  3.5%)  HoistAllocas
+    0.0012 (  8.7%)  CIRFlattenCFG
+    0.0004 (  3.2%)  CIREHABILowering
+    0.0005 (  3.6%)  GotoSolver
+    0.0004 (  3.2%)  MarkDeclareTargetPass
+    0.0071 ( 52.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0034 ( 25.3%)  Rest
+    0.0134 (100.0%)  Total
+  CC       liburcu_common_la-wfstack.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0059 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 ( 11.1%)  CIRCanonicalize
+    0.0011 ( 18.2%)  TargetLowering
+    0.0037 ( 62.0%)  CXXABILowering
+    0.0005 (  8.4%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0059 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0101 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 (  4.1%)  HoistAllocas
+    0.0010 (  9.6%)  CIRFlattenCFG
+    0.0005 (  4.6%)  CIREHABILowering
+    0.0004 (  4.4%)  GotoSolver
+    0.0004 (  3.9%)  MarkDeclareTargetPass
+    0.0050 ( 49.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0024 ( 23.6%)  Rest
+    0.0101 (100.0%)  Total
+  CC       liburcu_common_la-compat_futex.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0021 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 ( 22.1%)  CIRCanonicalize
+    0.0005 ( 25.9%)  TargetLowering
+    0.0007 ( 31.5%)  CXXABILowering
+    0.0004 ( 19.4%)  LoweringPrepare
+    0.0000 (  1.1%)  Rest
+    0.0021 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0047 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  5.8%)  HoistAllocas
+    0.0005 ( 10.0%)  CIRFlattenCFG
+    0.0002 (  3.8%)  CIREHABILowering
+    0.0002 (  4.4%)  GotoSolver
+    0.0002 (  3.3%)  MarkDeclareTargetPass
+    0.0024 ( 51.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0010 ( 21.7%)  Rest
+    0.0047 (100.0%)  Total
+  CCLD     liburcu-common.la
+  CC       liburcu_la-urcu.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0311 seconds
+
+  ----Wall Time----  ----Name----
+    0.0053 ( 17.1%)  CIRCanonicalize
+    0.0062 ( 20.0%)  TargetLowering
+    0.0172 ( 55.2%)  CXXABILowering
+    0.0024 (  7.6%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0311 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0669 seconds
+
+  ----Wall Time----  ----Name----
+    0.0021 (  3.1%)  HoistAllocas
+    0.0064 (  9.6%)  CIRFlattenCFG
+    0.0018 (  2.7%)  CIREHABILowering
+    0.0018 (  2.7%)  GotoSolver
+    0.0017 (  2.6%)  MarkDeclareTargetPass
+    0.0347 ( 51.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0184 ( 27.5%)  Rest
+    0.0669 (100.0%)  Total
+  CC       liburcu_la-urcu-pointer.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 27.0%)  CIRCanonicalize
+    0.0004 ( 24.9%)  TargetLowering
+    0.0005 ( 35.7%)  CXXABILowering
+    0.0002 ( 10.9%)  LoweringPrepare
+    0.0000 (  1.4%)  Rest
+    0.0014 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0042 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.3%)  HoistAllocas
+    0.0005 ( 11.5%)  CIRFlattenCFG
+    0.0002 (  4.7%)  CIREHABILowering
+    0.0002 (  4.5%)  GotoSolver
+    0.0002 (  4.5%)  MarkDeclareTargetPass
+    0.0021 ( 48.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 21.9%)  Rest
+    0.0042 (100.0%)  Total
+  CC       liburcu_la-compat_futex.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 20.1%)  CIRCanonicalize
+    0.0004 ( 22.4%)  TargetLowering
+    0.0007 ( 36.6%)  CXXABILowering
+    0.0004 ( 19.8%)  LoweringPrepare
+    0.0000 (  1.0%)  Rest
+    0.0019 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0040 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.9%)  HoistAllocas
+    0.0004 (  9.8%)  CIRFlattenCFG
+    0.0002 (  4.5%)  CIREHABILowering
+    0.0002 (  4.6%)  GotoSolver
+    0.0001 (  3.7%)  MarkDeclareTargetPass
+    0.0020 ( 49.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 22.6%)  Rest
+    0.0040 (100.0%)  Total
+  CCLD     liburcu.la
+  CC       liburcu_qsbr_la-urcu-qsbr.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0320 seconds
+
+  ----Wall Time----  ----Name----
+    0.0043 ( 13.4%)  CIRCanonicalize
+    0.0057 ( 17.7%)  TargetLowering
+    0.0183 ( 57.2%)  CXXABILowering
+    0.0037 ( 11.6%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0320 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0729 seconds
+
+  ----Wall Time----  ----Name----
+    0.0023 (  3.1%)  HoistAllocas
+    0.0077 ( 10.6%)  CIRFlattenCFG
+    0.0029 (  3.9%)  CIREHABILowering
+    0.0038 (  5.2%)  GotoSolver
+    0.0027 (  3.6%)  MarkDeclareTargetPass
+    0.0349 ( 47.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0186 ( 25.6%)  Rest
+    0.0729 (100.0%)  Total
+  CC       liburcu_qsbr_la-urcu-pointer.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 21.6%)  CIRCanonicalize
+    0.0003 ( 26.6%)  TargetLowering
+    0.0005 ( 37.5%)  CXXABILowering
+    0.0002 ( 12.0%)  LoweringPrepare
+    0.0000 (  2.2%)  Rest
+    0.0013 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0042 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.0%)  HoistAllocas
+    0.0005 ( 11.5%)  CIRFlattenCFG
+    0.0002 (  4.3%)  CIREHABILowering
+    0.0002 (  4.3%)  GotoSolver
+    0.0002 (  5.9%)  MarkDeclareTargetPass
+    0.0020 ( 47.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 22.4%)  Rest
+    0.0042 (100.0%)  Total
+  CC       liburcu_qsbr_la-compat_futex.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0017 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 25.4%)  CIRCanonicalize
+    0.0003 ( 18.5%)  TargetLowering
+    0.0007 ( 42.9%)  CXXABILowering
+    0.0002 ( 12.0%)  LoweringPrepare
+    0.0000 (  1.2%)  Rest
+    0.0017 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0040 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.4%)  HoistAllocas
+    0.0004 ( 10.6%)  CIRFlattenCFG
+    0.0002 (  4.6%)  CIREHABILowering
+    0.0002 (  4.5%)  GotoSolver
+    0.0002 (  3.8%)  MarkDeclareTargetPass
+    0.0020 ( 48.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 23.2%)  Rest
+    0.0040 (100.0%)  Total
+  CCLD     liburcu-qsbr.la
+  CC       liburcu_mb_la-urcu.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0327 seconds
+
+  ----Wall Time----  ----Name----
+    0.0049 ( 15.0%)  CIRCanonicalize
+    0.0069 ( 21.1%)  TargetLowering
+    0.0183 ( 56.1%)  CXXABILowering
+    0.0025 (  7.7%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0327 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0681 seconds
+
+  ----Wall Time----  ----Name----
+    0.0021 (  3.1%)  HoistAllocas
+    0.0066 (  9.7%)  CIRFlattenCFG
+    0.0018 (  2.7%)  CIREHABILowering
+    0.0019 (  2.7%)  GotoSolver
+    0.0017 (  2.5%)  MarkDeclareTargetPass
+    0.0353 ( 51.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0186 ( 27.4%)  Rest
+    0.0681 (100.0%)  Total
+  CC       liburcu_mb_la-urcu-pointer.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 22.5%)  CIRCanonicalize
+    0.0003 ( 26.3%)  TargetLowering
+    0.0005 ( 36.6%)  CXXABILowering
+    0.0002 ( 13.0%)  LoweringPrepare
+    0.0000 (  1.5%)  Rest
+    0.0013 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0041 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.0%)  HoistAllocas
+    0.0005 ( 11.4%)  CIRFlattenCFG
+    0.0002 (  4.4%)  CIREHABILowering
+    0.0002 (  4.4%)  GotoSolver
+    0.0002 (  4.4%)  MarkDeclareTargetPass
+    0.0020 ( 49.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 22.4%)  Rest
+    0.0041 (100.0%)  Total
+  CC       liburcu_mb_la-compat_futex.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0016 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 24.4%)  CIRCanonicalize
+    0.0004 ( 22.9%)  TargetLowering
+    0.0007 ( 41.7%)  CXXABILowering
+    0.0002 (  9.7%)  LoweringPrepare
+    0.0000 (  1.3%)  Rest
+    0.0016 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0040 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  5.1%)  HoistAllocas
+    0.0004 (  9.6%)  CIRFlattenCFG
+    0.0002 (  4.5%)  CIREHABILowering
+    0.0002 (  4.7%)  GotoSolver
+    0.0001 (  3.5%)  MarkDeclareTargetPass
+    0.0020 ( 49.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 22.7%)  Rest
+    0.0040 (100.0%)  Total
+  CCLD     liburcu-mb.la
+  CC       liburcu_bp_la-urcu-bp.lo
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/src/urcu-bp.c:133:12: warning: variable 'initialized' set but not used [-Wunused-but-set-global]
+  133 | static int initialized;
+      |            ^
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0318 seconds
+
+  ----Wall Time----  ----Name----
+    0.0049 ( 15.6%)  CIRCanonicalize
+    0.0056 ( 17.7%)  TargetLowering
+    0.0186 ( 58.7%)  CXXABILowering
+    0.0025 (  8.0%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0318 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0695 seconds
+
+  ----Wall Time----  ----Name----
+    0.0027 (  3.9%)  HoistAllocas
+    0.0075 ( 10.8%)  CIRFlattenCFG
+    0.0021 (  3.0%)  CIREHABILowering
+    0.0020 (  2.9%)  GotoSolver
+    0.0018 (  2.5%)  MarkDeclareTargetPass
+    0.0355 ( 51.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0180 ( 25.8%)  Rest
+    0.0695 (100.0%)  Total
+1 warning generated.
+  CC       liburcu_bp_la-urcu-pointer.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 21.4%)  CIRCanonicalize
+    0.0004 ( 27.7%)  TargetLowering
+    0.0005 ( 36.7%)  CXXABILowering
+    0.0002 ( 12.8%)  LoweringPrepare
+    0.0000 (  1.3%)  Rest
+    0.0013 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0045 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  3.9%)  HoistAllocas
+    0.0005 ( 11.4%)  CIRFlattenCFG
+    0.0002 (  4.4%)  CIREHABILowering
+    0.0002 (  5.1%)  GotoSolver
+    0.0002 (  4.1%)  MarkDeclareTargetPass
+    0.0023 ( 50.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 20.7%)  Rest
+    0.0045 (100.0%)  Total
+  CC       liburcu_bp_la-compat_futex.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 22.3%)  CIRCanonicalize
+    0.0005 ( 24.6%)  TargetLowering
+    0.0007 ( 37.6%)  CXXABILowering
+    0.0003 ( 14.5%)  LoweringPrepare
+    0.0000 (  1.0%)  Rest
+    0.0019 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0039 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.9%)  HoistAllocas
+    0.0004 ( 10.0%)  CIRFlattenCFG
+    0.0002 (  4.5%)  CIREHABILowering
+    0.0002 (  5.0%)  GotoSolver
+    0.0002 (  4.2%)  MarkDeclareTargetPass
+    0.0019 ( 48.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 23.4%)  Rest
+    0.0039 (100.0%)  Total
+  CCLD     liburcu-bp.la
+  CC       liburcu_memb_la-urcu.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0300 seconds
+
+  ----Wall Time----  ----Name----
+    0.0045 ( 15.0%)  CIRCanonicalize
+    0.0057 ( 18.9%)  TargetLowering
+    0.0173 ( 57.6%)  CXXABILowering
+    0.0025 (  8.3%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0300 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0704 seconds
+
+  ----Wall Time----  ----Name----
+    0.0021 (  2.9%)  HoistAllocas
+    0.0074 ( 10.6%)  CIRFlattenCFG
+    0.0025 (  3.5%)  CIREHABILowering
+    0.0023 (  3.3%)  GotoSolver
+    0.0022 (  3.1%)  MarkDeclareTargetPass
+    0.0351 ( 49.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0188 ( 26.8%)  Rest
+    0.0704 (100.0%)  Total
+  CC       liburcu_memb_la-urcu-pointer.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0015 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 28.0%)  CIRCanonicalize
+    0.0004 ( 27.0%)  TargetLowering
+    0.0005 ( 32.8%)  CXXABILowering
+    0.0002 ( 10.6%)  LoweringPrepare
+    0.0000 (  1.6%)  Rest
+    0.0015 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0044 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.2%)  HoistAllocas
+    0.0005 ( 12.1%)  CIRFlattenCFG
+    0.0002 (  4.2%)  CIREHABILowering
+    0.0002 (  4.5%)  GotoSolver
+    0.0002 (  4.3%)  MarkDeclareTargetPass
+    0.0022 ( 49.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 20.9%)  Rest
+    0.0044 (100.0%)  Total
+  CC       liburcu_memb_la-compat_futex.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0018 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 21.8%)  CIRCanonicalize
+    0.0004 ( 20.2%)  TargetLowering
+    0.0008 ( 44.5%)  CXXABILowering
+    0.0002 ( 12.2%)  LoweringPrepare
+    0.0000 (  1.3%)  Rest
+    0.0018 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0040 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  5.0%)  HoistAllocas
+    0.0004 ( 10.1%)  CIRFlattenCFG
+    0.0002 (  4.8%)  CIREHABILowering
+    0.0002 (  3.8%)  GotoSolver
+    0.0001 (  3.8%)  MarkDeclareTargetPass
+    0.0019 ( 48.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 23.9%)  Rest
+    0.0040 (100.0%)  Total
+  CCLD     liburcu-memb.la
+  CC       liburcu_cds_la-rculfqueue.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0057 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 ( 13.1%)  CIRCanonicalize
+    0.0010 ( 17.7%)  TargetLowering
+    0.0034 ( 59.5%)  CXXABILowering
+    0.0005 (  9.3%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0057 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0117 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  4.2%)  HoistAllocas
+    0.0015 ( 12.5%)  CIRFlattenCFG
+    0.0005 (  4.7%)  CIREHABILowering
+    0.0006 (  5.0%)  GotoSolver
+    0.0006 (  4.8%)  MarkDeclareTargetPass
+    0.0054 ( 46.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0026 ( 22.5%)  Rest
+    0.0117 (100.0%)  Total
+  CC       liburcu_cds_la-rculfstack.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0032 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 13.2%)  CIRCanonicalize
+    0.0006 ( 18.3%)  TargetLowering
+    0.0018 ( 56.6%)  CXXABILowering
+    0.0004 ( 11.1%)  LoweringPrepare
+    0.0000 (  0.8%)  Rest
+    0.0032 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0067 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  4.0%)  HoistAllocas
+    0.0008 ( 12.4%)  CIRFlattenCFG
+    0.0004 (  5.6%)  CIREHABILowering
+    0.0003 (  3.9%)  GotoSolver
+    0.0003 (  3.9%)  MarkDeclareTargetPass
+    0.0031 ( 46.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0016 ( 23.7%)  Rest
+    0.0067 (100.0%)  Total
+  CC       liburcu_cds_la-lfstack.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0044 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 ( 12.8%)  CIRCanonicalize
+    0.0007 ( 16.3%)  TargetLowering
+    0.0028 ( 62.6%)  CXXABILowering
+    0.0003 (  7.8%)  LoweringPrepare
+    0.0000 (  0.5%)  Rest
+    0.0044 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0088 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  3.8%)  HoistAllocas
+    0.0009 ( 10.3%)  CIRFlattenCFG
+    0.0004 (  4.4%)  CIREHABILowering
+    0.0003 (  3.8%)  GotoSolver
+    0.0003 (  3.8%)  MarkDeclareTargetPass
+    0.0043 ( 49.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0022 ( 24.6%)  Rest
+    0.0088 (100.0%)  Total
+  CC       liburcu_cds_la-workqueue.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0115 seconds
+
+  ----Wall Time----  ----Name----
+    0.0015 ( 12.7%)  CIRCanonicalize
+    0.0021 ( 18.3%)  TargetLowering
+    0.0070 ( 60.7%)  CXXABILowering
+    0.0009 (  8.1%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0115 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0254 seconds
+
+  ----Wall Time----  ----Name----
+    0.0008 (  3.3%)  HoistAllocas
+    0.0026 ( 10.4%)  CIRFlattenCFG
+    0.0008 (  3.1%)  CIREHABILowering
+    0.0008 (  3.3%)  GotoSolver
+    0.0007 (  2.6%)  MarkDeclareTargetPass
+    0.0135 ( 52.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0062 ( 24.3%)  Rest
+    0.0254 (100.0%)  Total
+  CC       liburcu_cds_la-rculfhash.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0282 seconds
+
+  ----Wall Time----  ----Name----
+    0.0048 ( 17.1%)  CIRCanonicalize
+    0.0055 ( 19.7%)  TargetLowering
+    0.0157 ( 55.9%)  CXXABILowering
+    0.0020 (  7.2%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0282 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0657 seconds
+
+  ----Wall Time----  ----Name----
+    0.0019 (  2.9%)  HoistAllocas
+    0.0065 (  9.8%)  CIRFlattenCFG
+    0.0017 (  2.6%)  CIREHABILowering
+    0.0018 (  2.8%)  GotoSolver
+    0.0017 (  2.6%)  MarkDeclareTargetPass
+    0.0339 ( 51.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0182 ( 27.7%)  Rest
+    0.0657 (100.0%)  Total
+  CC       liburcu_cds_la-rculfhash-mm-order.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 15.5%)  CIRCanonicalize
+    0.0004 ( 20.7%)  TargetLowering
+    0.0010 ( 54.0%)  CXXABILowering
+    0.0002 (  8.8%)  LoweringPrepare
+    0.0000 (  1.0%)  Rest
+    0.0019 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0036 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.7%)  HoistAllocas
+    0.0003 (  7.8%)  CIRFlattenCFG
+    0.0001 (  3.8%)  CIREHABILowering
+    0.0001 (  3.2%)  GotoSolver
+    0.0001 (  3.3%)  MarkDeclareTargetPass
+    0.0019 ( 53.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 24.8%)  Rest
+    0.0036 (100.0%)  Total
+  CC       liburcu_cds_la-rculfhash-mm-chunk.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 18.0%)  CIRCanonicalize
+    0.0004 ( 19.6%)  TargetLowering
+    0.0010 ( 54.6%)  CXXABILowering
+    0.0001 (  6.8%)  LoweringPrepare
+    0.0000 (  1.0%)  Rest
+    0.0019 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0041 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.0%)  HoistAllocas
+    0.0003 (  7.2%)  CIRFlattenCFG
+    0.0001 (  3.3%)  CIREHABILowering
+    0.0002 (  4.8%)  GotoSolver
+    0.0001 (  3.1%)  MarkDeclareTargetPass
+    0.0022 ( 53.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0010 ( 24.8%)  Rest
+    0.0041 (100.0%)  Total
+  CC       liburcu_cds_la-rculfhash-mm-mmap.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0022 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 16.8%)  CIRCanonicalize
+    0.0005 ( 21.6%)  TargetLowering
+    0.0012 ( 53.1%)  CXXABILowering
+    0.0002 (  7.5%)  LoweringPrepare
+    0.0000 (  1.0%)  Rest
+    0.0022 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0049 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.8%)  HoistAllocas
+    0.0004 (  7.7%)  CIRFlattenCFG
+    0.0002 (  4.0%)  CIREHABILowering
+    0.0002 (  3.1%)  GotoSolver
+    0.0003 (  5.2%)  MarkDeclareTargetPass
+    0.0025 ( 51.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0012 ( 24.3%)  Rest
+    0.0049 (100.0%)  Total
+  CC       liburcu_cds_la-compat_futex.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0016 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 19.6%)  CIRCanonicalize
+    0.0003 ( 22.1%)  TargetLowering
+    0.0007 ( 45.0%)  CXXABILowering
+    0.0002 ( 12.0%)  LoweringPrepare
+    0.0000 (  1.3%)  Rest
+    0.0016 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0039 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.9%)  HoistAllocas
+    0.0004 ( 10.1%)  CIRFlattenCFG
+    0.0002 (  4.2%)  CIREHABILowering
+    0.0002 (  6.4%)  GotoSolver
+    0.0001 (  3.6%)  MarkDeclareTargetPass
+    0.0019 ( 48.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 23.2%)  Rest
+    0.0039 (100.0%)  Total
+  CCLD     liburcu-cds.la
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/src'
+Making all in doc
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/doc'
+Making all in examples
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/doc/examples'
+make[2]: Nothing to be done for 'all'.
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/doc/examples'
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/doc'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/doc'
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/doc'
+Making all in tests
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests'
+Making all in utils
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/utils'
+  CC       tap.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0033 seconds
+
+  ----Wall Time----  ----Name----
+    0.0008 ( 24.4%)  CIRCanonicalize
+    0.0007 ( 22.0%)  TargetLowering
+    0.0014 ( 42.6%)  CXXABILowering
+    0.0003 ( 10.4%)  LoweringPrepare
+    0.0000 (  0.7%)  Rest
+    0.0033 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0088 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 (  4.9%)  HoistAllocas
+    0.0007 (  8.0%)  CIRFlattenCFG
+    0.0004 (  4.4%)  CIREHABILowering
+    0.0003 (  3.6%)  GotoSolver
+    0.0003 (  3.5%)  MarkDeclareTargetPass
+    0.0043 ( 49.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0023 ( 26.4%)  Rest
+    0.0088 (100.0%)  Total
+  AR       libtap.a
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/utils'
+Making all in common
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/common'
+  CC       debug-yield.lo
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 37.4%)  CIRCanonicalize
+    0.0001 ( 30.7%)  TargetLowering
+    0.0000 ( 17.3%)  CXXABILowering
+    0.0000 (  4.3%)  LoweringPrepare
+    0.0000 ( 10.3%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.5%)  HoistAllocas
+    0.0000 (  4.6%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 72.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 19.3%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     libdebug-yield.la
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/common'
+Making all in unit
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/unit'
+  CC       get_cpu_mask_from_sysfs.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 27.4%)  CIRCanonicalize
+    0.0003 ( 23.1%)  TargetLowering
+    0.0005 ( 36.8%)  CXXABILowering
+    0.0001 ( 11.1%)  LoweringPrepare
+    0.0000 (  1.6%)  Rest
+    0.0013 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0032 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.8%)  HoistAllocas
+    0.0003 ( 10.3%)  CIRFlattenCFG
+    0.0002 (  5.3%)  CIREHABILowering
+    0.0002 (  5.2%)  GotoSolver
+    0.0001 (  4.4%)  MarkDeclareTargetPass
+    0.0016 ( 48.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 21.8%)  Rest
+    0.0032 (100.0%)  Total
+  CCLD     get_cpu_mask_from_sysfs
+  CXX      get_cpu_mask_from_sysfs_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 22.2%)  CIRCanonicalize
+    0.0003 ( 24.4%)  TargetLowering
+    0.0004 ( 35.3%)  CXXABILowering
+    0.0002 ( 16.3%)  LoweringPrepare
+    0.0000 (  1.8%)  Rest
+    0.0012 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0033 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  5.9%)  HoistAllocas
+    0.0003 ( 10.0%)  CIRFlattenCFG
+    0.0002 (  5.3%)  CIREHABILowering
+    0.0002 (  5.5%)  GotoSolver
+    0.0002 (  4.7%)  MarkDeclareTargetPass
+    0.0016 ( 47.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 21.2%)  Rest
+    0.0033 (100.0%)  Total
+  CXXLD    get_cpu_mask_from_sysfs_cxx
+  CC       get_max_cpuid_from_sysfs.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 24.3%)  CIRCanonicalize
+    0.0003 ( 23.4%)  TargetLowering
+    0.0005 ( 35.6%)  CXXABILowering
+    0.0002 ( 15.2%)  LoweringPrepare
+    0.0000 (  1.6%)  Rest
+    0.0014 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0032 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  5.0%)  HoistAllocas
+    0.0003 (  9.6%)  CIRFlattenCFG
+    0.0002 (  5.0%)  CIREHABILowering
+    0.0002 (  4.9%)  GotoSolver
+    0.0002 (  4.7%)  MarkDeclareTargetPass
+    0.0015 ( 48.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 22.4%)  Rest
+    0.0032 (100.0%)  Total
+  CCLD     get_max_cpuid_from_sysfs
+  CXX      get_max_cpuid_from_sysfs_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 19.3%)  CIRCanonicalize
+    0.0003 ( 23.6%)  TargetLowering
+    0.0005 ( 39.5%)  CXXABILowering
+    0.0002 ( 16.0%)  LoweringPrepare
+    0.0000 (  1.7%)  Rest
+    0.0014 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0032 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  6.8%)  HoistAllocas
+    0.0003 (  9.9%)  CIRFlattenCFG
+    0.0002 (  5.4%)  CIREHABILowering
+    0.0002 (  4.9%)  GotoSolver
+    0.0001 (  4.0%)  MarkDeclareTargetPass
+    0.0015 ( 46.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 22.3%)  Rest
+    0.0032 (100.0%)  Total
+  CXXLD    get_max_cpuid_from_sysfs_cxx
+  CC       test_arch.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0008 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 30.9%)  CIRCanonicalize
+    0.0002 ( 23.0%)  TargetLowering
+    0.0003 ( 33.4%)  CXXABILowering
+    0.0001 ( 10.1%)  LoweringPrepare
+    0.0000 (  2.6%)  Rest
+    0.0008 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.4%)  HoistAllocas
+    0.0001 (  7.9%)  CIRFlattenCFG
+    0.0001 (  3.8%)  CIREHABILowering
+    0.0001 (  3.8%)  GotoSolver
+    0.0001 (  2.9%)  MarkDeclareTargetPass
+    0.0010 ( 52.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0005 ( 25.6%)  Rest
+    0.0019 (100.0%)  Total
+  CCLD     test_arch
+  CXX      test_arch_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0008 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 32.3%)  CIRCanonicalize
+    0.0002 ( 24.6%)  TargetLowering
+    0.0002 ( 32.0%)  CXXABILowering
+    0.0001 (  8.7%)  LoweringPrepare
+    0.0000 (  2.5%)  Rest
+    0.0008 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0020 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  5.3%)  HoistAllocas
+    0.0001 (  7.5%)  CIRFlattenCFG
+    0.0001 (  3.6%)  CIREHABILowering
+    0.0001 (  3.5%)  GotoSolver
+    0.0001 (  3.3%)  MarkDeclareTargetPass
+    0.0011 ( 53.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0005 ( 22.9%)  Rest
+    0.0020 (100.0%)  Total
+  CXXLD    test_arch_cxx
+  CC       test_get_max_cpuid_from_mask.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 26.3%)  CIRCanonicalize
+    0.0003 ( 23.5%)  TargetLowering
+    0.0005 ( 38.6%)  CXXABILowering
+    0.0001 ( 10.3%)  LoweringPrepare
+    0.0000 (  1.4%)  Rest
+    0.0014 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0037 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.5%)  HoistAllocas
+    0.0003 (  7.2%)  CIRFlattenCFG
+    0.0001 (  3.7%)  CIREHABILowering
+    0.0001 (  3.6%)  GotoSolver
+    0.0001 (  3.0%)  MarkDeclareTargetPass
+    0.0019 ( 53.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 25.9%)  Rest
+    0.0037 (100.0%)  Total
+  CCLD     test_get_max_cpuid_from_mask
+  CXX      test_get_max_cpuid_from_mask_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 25.3%)  CIRCanonicalize
+    0.0003 ( 23.2%)  TargetLowering
+    0.0004 ( 35.4%)  CXXABILowering
+    0.0002 ( 14.5%)  LoweringPrepare
+    0.0000 (  1.5%)  Rest
+    0.0012 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0036 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.4%)  HoistAllocas
+    0.0002 (  6.9%)  CIRFlattenCFG
+    0.0001 (  3.6%)  CIREHABILowering
+    0.0001 (  3.6%)  GotoSolver
+    0.0002 (  4.3%)  MarkDeclareTargetPass
+    0.0018 ( 51.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 26.0%)  Rest
+    0.0036 (100.0%)  Total
+  CXXLD    test_get_max_cpuid_from_mask_cxx
+  CC       test_get_possible_cpus_array_len.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0020 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 ( 25.6%)  CIRCanonicalize
+    0.0005 ( 23.9%)  TargetLowering
+    0.0008 ( 38.4%)  CXXABILowering
+    0.0002 ( 11.1%)  LoweringPrepare
+    0.0000 (  1.0%)  Rest
+    0.0020 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0053 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  3.6%)  HoistAllocas
+    0.0005 (  8.9%)  CIRFlattenCFG
+    0.0002 (  4.1%)  CIREHABILowering
+    0.0002 (  4.0%)  GotoSolver
+    0.0002 (  4.4%)  MarkDeclareTargetPass
+    0.0027 ( 51.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0013 ( 23.8%)  Rest
+    0.0053 (100.0%)  Total
+  CCLD     test_get_possible_cpus_array_len
+  CXX      test_get_possible_cpus_array_len_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0018 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 19.3%)  CIRCanonicalize
+    0.0005 ( 26.1%)  TargetLowering
+    0.0007 ( 41.5%)  CXXABILowering
+    0.0002 ( 11.9%)  LoweringPrepare
+    0.0000 (  1.2%)  Rest
+    0.0018 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0052 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.0%)  HoistAllocas
+    0.0005 (  9.1%)  CIRFlattenCFG
+    0.0002 (  4.3%)  CIREHABILowering
+    0.0002 (  4.5%)  GotoSolver
+    0.0002 (  4.1%)  MarkDeclareTargetPass
+    0.0026 ( 50.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0012 ( 23.7%)  Rest
+    0.0052 (100.0%)  Total
+  CXXLD    test_get_possible_cpus_array_len_cxx
+  CC       test_uatomic.o
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:97:3: warning: implicit conversion from 'unsigned long' to 'unsigned char' changes value from 18446744073709551605 to 245 [-Wconstant-conversion]
+   97 |                 do_test(&vals.c[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:104:3: warning: implicit conversion from 'unsigned long' to 'unsigned short' changes value from 18446744073709551605 to 65525 [-Wconstant-conversion]
+  104 |                 do_test(&vals.s[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:110:3: warning: implicit conversion from 'unsigned long' to 'unsigned int' changes value from 18446744073709551605 to 4294967285 [-Wconstant-conversion]
+  110 |                 do_test(&vals.i[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0297 seconds
+
+  ----Wall Time----  ----Name----
+    0.0067 ( 22.6%)  CIRCanonicalize
+    0.0075 ( 25.4%)  TargetLowering
+    0.0106 ( 35.6%)  CXXABILowering
+    0.0048 ( 16.3%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0297 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.1009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0046 (  4.6%)  HoistAllocas
+    0.0104 ( 10.3%)  CIRFlattenCFG
+    0.0056 (  5.5%)  CIREHABILowering
+    0.0052 (  5.2%)  GotoSolver
+    0.0055 (  5.5%)  MarkDeclareTargetPass
+    0.0404 ( 40.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0291 ( 28.9%)  Rest
+    0.1009 (100.0%)  Total
+3 warnings generated.
+  CCLD     test_uatomic
+  CXX      test_uatomic_cxx.o
+In file included from /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic_cxx.cpp:5:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:97:3: warning: implicit conversion from 'unsigned long' to 'unsigned char' changes value from 18446744073709551605 to 245 [-Wconstant-conversion]
+   97 |                 do_test(&vals.c[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+In file included from /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic_cxx.cpp:5:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:104:3: warning: implicit conversion from 'unsigned long' to 'unsigned short' changes value from 18446744073709551605 to 65525 [-Wconstant-conversion]
+  104 |                 do_test(&vals.s[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+In file included from /scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic_cxx.cpp:5:
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:110:3: warning: implicit conversion from 'unsigned long' to 'unsigned int' changes value from 18446744073709551605 to 4294967285 [-Wconstant-conversion]
+  110 |                 do_test(&vals.i[i]);
+      |                 ^~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/tests/unit/test_uatomic.c:36:19: note: expanded from macro 'do_test'
+   36 |         uatomic_add(ptr, -11UL);                \
+      |         ~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/api.h:54:23: note: expanded from macro 'uatomic_add'
+   54 |         uatomic_add_mo(addr, v, _uatomic_default_mo(CMM_RELAXED, ##mo))
+      |         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:136:37: note: expanded from macro 'uatomic_add_mo'
+  136 |         (void) uatomic_add_return_mo(addr, v, mo)
+      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/userspace-rcu/include/urcu/uatomic/builtins-generic.h:98:48: note: expanded from macro 'uatomic_add_return_mo'
+   98 |                         __atomic_add_fetch(cmm_cast_volatile(addr), v,  \
+      |                         ~~~~~~~~~~~~~~~~~~                          ^
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0295 seconds
+
+  ----Wall Time----  ----Name----
+    0.0058 ( 19.5%)  CIRCanonicalize
+    0.0080 ( 27.1%)  TargetLowering
+    0.0107 ( 36.3%)  CXXABILowering
+    0.0050 ( 17.0%)  LoweringPrepare
+    0.0000 (  0.1%)  Rest
+    0.0295 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0914 seconds
+
+  ----Wall Time----  ----Name----
+    0.0053 (  5.8%)  HoistAllocas
+    0.0099 ( 10.9%)  CIRFlattenCFG
+    0.0053 (  5.8%)  CIREHABILowering
+    0.0053 (  5.8%)  GotoSolver
+    0.0055 (  6.1%)  MarkDeclareTargetPass
+    0.0347 ( 38.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0253 ( 27.7%)  Rest
+    0.0914 (100.0%)  Total
+3 warnings generated.
+  CXXLD    test_uatomic_cxx
+  CC       test_urcu_multiflavor.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 25.6%)  CIRCanonicalize
+    0.0002 ( 25.0%)  TargetLowering
+    0.0003 ( 34.8%)  CXXABILowering
+    0.0001 ( 11.9%)  LoweringPrepare
+    0.0000 (  2.6%)  Rest
+    0.0009 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0026 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.6%)  HoistAllocas
+    0.0003 ( 10.8%)  CIRFlattenCFG
+    0.0001 (  5.3%)  CIREHABILowering
+    0.0001 (  4.4%)  GotoSolver
+    0.0001 (  3.9%)  MarkDeclareTargetPass
+    0.0013 ( 48.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0006 ( 24.0%)  Rest
+    0.0026 (100.0%)  Total
+  CC       test_urcu_multiflavor-memb.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 21.4%)  CIRCanonicalize
+    0.0004 ( 23.5%)  TargetLowering
+    0.0008 ( 45.6%)  CXXABILowering
+    0.0002 (  8.4%)  LoweringPrepare
+    0.0000 (  1.1%)  Rest
+    0.0019 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0045 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.7%)  HoistAllocas
+    0.0004 (  9.3%)  CIRFlattenCFG
+    0.0002 (  3.5%)  CIREHABILowering
+    0.0002 (  3.5%)  GotoSolver
+    0.0002 (  4.8%)  MarkDeclareTargetPass
+    0.0023 ( 49.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0011 ( 24.3%)  Rest
+    0.0045 (100.0%)  Total
+  CC       test_urcu_multiflavor-mb.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 ( 24.2%)  CIRCanonicalize
+    0.0004 ( 23.1%)  TargetLowering
+    0.0008 ( 39.0%)  CXXABILowering
+    0.0002 ( 12.5%)  LoweringPrepare
+    0.0000 (  1.2%)  Rest
+    0.0019 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0040 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.0%)  HoistAllocas
+    0.0004 ( 10.0%)  CIRFlattenCFG
+    0.0001 (  3.1%)  CIREHABILowering
+    0.0001 (  3.0%)  GotoSolver
+    0.0001 (  2.6%)  MarkDeclareTargetPass
+    0.0021 ( 51.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0010 ( 25.4%)  Rest
+    0.0040 (100.0%)  Total
+  CC       test_urcu_multiflavor-qsbr.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0005 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 26.7%)  CIRCanonicalize
+    0.0002 ( 35.7%)  TargetLowering
+    0.0001 ( 26.5%)  CXXABILowering
+    0.0000 (  7.0%)  LoweringPrepare
+    0.0000 (  4.1%)  Rest
+    0.0005 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  3.3%)  HoistAllocas
+    0.0001 (  9.1%)  CIRFlattenCFG
+    0.0000 (  3.6%)  CIREHABILowering
+    0.0000 (  3.8%)  GotoSolver
+    0.0000 (  2.8%)  MarkDeclareTargetPass
+    0.0007 ( 54.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 23.3%)  Rest
+    0.0012 (100.0%)  Total
+  CC       test_urcu_multiflavor-bp.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 23.6%)  CIRCanonicalize
+    0.0003 ( 21.9%)  TargetLowering
+    0.0005 ( 37.7%)  CXXABILowering
+    0.0002 ( 14.6%)  LoweringPrepare
+    0.0000 (  2.3%)  Rest
+    0.0013 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0035 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  6.4%)  HoistAllocas
+    0.0003 (  9.5%)  CIRFlattenCFG
+    0.0002 (  7.0%)  CIREHABILowering
+    0.0001 (  3.8%)  GotoSolver
+    0.0001 (  3.9%)  MarkDeclareTargetPass
+    0.0016 ( 47.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0008 ( 21.9%)  Rest
+    0.0035 (100.0%)  Total
+  CCLD     test_urcu_multiflavor
+  CXX      test_urcu_multiflavor_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0008 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 25.8%)  CIRCanonicalize
+    0.0002 ( 24.3%)  TargetLowering
+    0.0003 ( 32.5%)  CXXABILowering
+    0.0001 ( 15.1%)  LoweringPrepare
+    0.0000 (  2.3%)  Rest
+    0.0008 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0027 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  6.3%)  HoistAllocas
+    0.0002 (  7.2%)  CIRFlattenCFG
+    0.0001 (  4.7%)  CIREHABILowering
+    0.0001 (  4.4%)  GotoSolver
+    0.0001 (  4.3%)  MarkDeclareTargetPass
+    0.0013 ( 48.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 24.4%)  Rest
+    0.0027 (100.0%)  Total
+  CXX      test_urcu_multiflavor-memb_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0018 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 24.0%)  CIRCanonicalize
+    0.0004 ( 22.2%)  TargetLowering
+    0.0007 ( 42.1%)  CXXABILowering
+    0.0002 ( 10.7%)  LoweringPrepare
+    0.0000 (  1.1%)  Rest
+    0.0018 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0044 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  3.7%)  HoistAllocas
+    0.0004 (  9.0%)  CIRFlattenCFG
+    0.0002 (  4.0%)  CIREHABILowering
+    0.0002 (  4.7%)  GotoSolver
+    0.0001 (  3.2%)  MarkDeclareTargetPass
+    0.0022 ( 49.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0012 ( 26.3%)  Rest
+    0.0044 (100.0%)  Total
+  CXX      test_urcu_multiflavor-mb_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0018 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 19.1%)  CIRCanonicalize
+    0.0005 ( 26.1%)  TargetLowering
+    0.0008 ( 42.7%)  CXXABILowering
+    0.0002 ( 11.1%)  LoweringPrepare
+    0.0000 (  1.1%)  Rest
+    0.0018 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0044 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.3%)  HoistAllocas
+    0.0004 (  9.1%)  CIRFlattenCFG
+    0.0001 (  3.2%)  CIREHABILowering
+    0.0002 (  4.5%)  GotoSolver
+    0.0002 (  3.4%)  MarkDeclareTargetPass
+    0.0022 ( 49.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0012 ( 26.3%)  Rest
+    0.0044 (100.0%)  Total
+  CXX      test_urcu_multiflavor-qsbr_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0006 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 26.6%)  CIRCanonicalize
+    0.0001 ( 18.1%)  TargetLowering
+    0.0002 ( 27.1%)  CXXABILowering
+    0.0001 ( 14.7%)  LoweringPrepare
+    0.0001 ( 13.5%)  Rest
+    0.0006 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  4.4%)  HoistAllocas
+    0.0001 (  5.5%)  CIRFlattenCFG
+    0.0000 (  2.8%)  CIREHABILowering
+    0.0001 (  5.7%)  GotoSolver
+    0.0001 (  4.2%)  MarkDeclareTargetPass
+    0.0008 ( 55.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 21.7%)  Rest
+    0.0014 (100.0%)  Total
+  CXX      test_urcu_multiflavor-bp_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 20.3%)  CIRCanonicalize
+    0.0003 ( 25.4%)  TargetLowering
+    0.0005 ( 40.0%)  CXXABILowering
+    0.0002 ( 12.7%)  LoweringPrepare
+    0.0000 (  1.6%)  Rest
+    0.0012 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0033 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  6.3%)  HoistAllocas
+    0.0003 ( 10.4%)  CIRFlattenCFG
+    0.0001 (  4.3%)  CIREHABILowering
+    0.0001 (  3.5%)  GotoSolver
+    0.0001 (  3.2%)  MarkDeclareTargetPass
+    0.0016 ( 48.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0008 ( 23.8%)  Rest
+    0.0033 (100.0%)  Total
+  CXXLD    test_urcu_multiflavor_cxx
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 25.5%)  CIRCanonicalize
+    0.0002 ( 22.9%)  TargetLowering
+    0.0003 ( 26.5%)  CXXABILowering
+    0.0002 ( 22.8%)  LoweringPrepare
+    0.0000 (  2.2%)  Rest
+    0.0010 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0026 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.4%)  HoistAllocas
+    0.0002 (  8.3%)  CIRFlattenCFG
+    0.0001 (  4.9%)  CIREHABILowering
+    0.0001 (  5.5%)  GotoSolver
+    0.0001 (  5.1%)  MarkDeclareTargetPass
+    0.0013 ( 49.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0006 ( 23.6%)  Rest
+    0.0026 (100.0%)  Total
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor-memb.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0005 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 28.6%)  CIRCanonicalize
+    0.0001 ( 28.3%)  TargetLowering
+    0.0001 ( 22.6%)  CXXABILowering
+    0.0001 ( 16.7%)  LoweringPrepare
+    0.0000 (  3.8%)  Rest
+    0.0005 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.5%)  HoistAllocas
+    0.0001 (  9.0%)  CIRFlattenCFG
+    0.0000 (  3.2%)  CIREHABILowering
+    0.0000 (  2.3%)  GotoSolver
+    0.0000 (  2.8%)  MarkDeclareTargetPass
+    0.0008 ( 56.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 22.6%)  Rest
+    0.0014 (100.0%)  Total
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor-mb.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0006 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 30.6%)  CIRCanonicalize
+    0.0001 ( 21.3%)  TargetLowering
+    0.0002 ( 34.4%)  CXXABILowering
+    0.0001 ( 10.2%)  LoweringPrepare
+    0.0000 (  3.4%)  Rest
+    0.0006 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  6.6%)  HoistAllocas
+    0.0001 (  5.6%)  CIRFlattenCFG
+    0.0000 (  2.8%)  CIREHABILowering
+    0.0000 (  2.6%)  GotoSolver
+    0.0000 (  2.8%)  MarkDeclareTargetPass
+    0.0007 ( 55.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 23.8%)  Rest
+    0.0013 (100.0%)  Total
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor-qsbr.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0004 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 35.0%)  CIRCanonicalize
+    0.0001 ( 29.8%)  TargetLowering
+    0.0001 ( 21.5%)  CXXABILowering
+    0.0000 (  9.5%)  LoweringPrepare
+    0.0000 (  4.2%)  Rest
+    0.0004 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  6.3%)  HoistAllocas
+    0.0001 (  5.8%)  CIRFlattenCFG
+    0.0001 (  5.5%)  CIREHABILowering
+    0.0000 (  3.3%)  GotoSolver
+    0.0000 (  2.7%)  MarkDeclareTargetPass
+    0.0007 ( 54.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 22.4%)  Rest
+    0.0013 (100.0%)  Total
+  CC       test_urcu_multiflavor_dynlink-test_urcu_multiflavor-bp.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0005 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 31.6%)  CIRCanonicalize
+    0.0002 ( 32.9%)  TargetLowering
+    0.0001 ( 20.0%)  CXXABILowering
+    0.0001 ( 11.1%)  LoweringPrepare
+    0.0000 (  4.4%)  Rest
+    0.0005 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  3.4%)  HoistAllocas
+    0.0001 (  9.1%)  CIRFlattenCFG
+    0.0001 (  5.8%)  CIREHABILowering
+    0.0000 (  2.6%)  GotoSolver
+    0.0000 (  2.6%)  MarkDeclareTargetPass
+    0.0007 ( 54.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 22.6%)  Rest
+    0.0014 (100.0%)  Total
+  CCLD     test_urcu_multiflavor_dynlink
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 33.7%)  CIRCanonicalize
+    0.0002 ( 19.0%)  TargetLowering
+    0.0003 ( 26.5%)  CXXABILowering
+    0.0002 ( 18.6%)  LoweringPrepare
+    0.0000 (  2.1%)  Rest
+    0.0010 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0027 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.4%)  HoistAllocas
+    0.0003 (  9.9%)  CIRFlattenCFG
+    0.0001 (  5.1%)  CIREHABILowering
+    0.0001 (  3.7%)  GotoSolver
+    0.0001 (  4.3%)  MarkDeclareTargetPass
+    0.0013 ( 49.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 24.4%)  Rest
+    0.0027 (100.0%)  Total
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor-memb_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0005 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 34.3%)  CIRCanonicalize
+    0.0001 ( 18.7%)  TargetLowering
+    0.0001 ( 27.2%)  CXXABILowering
+    0.0001 ( 14.5%)  LoweringPrepare
+    0.0000 (  5.3%)  Rest
+    0.0005 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  4.4%)  HoistAllocas
+    0.0001 (  9.0%)  CIRFlattenCFG
+    0.0000 (  3.3%)  CIREHABILowering
+    0.0000 (  2.8%)  GotoSolver
+    0.0000 (  2.9%)  MarkDeclareTargetPass
+    0.0007 ( 55.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 22.7%)  Rest
+    0.0012 (100.0%)  Total
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor-mb_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0005 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 29.1%)  CIRCanonicalize
+    0.0002 ( 37.9%)  TargetLowering
+    0.0001 ( 17.3%)  CXXABILowering
+    0.0001 ( 11.7%)  LoweringPrepare
+    0.0000 (  3.9%)  Rest
+    0.0005 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  3.0%)  HoistAllocas
+    0.0001 (  6.3%)  CIRFlattenCFG
+    0.0000 (  3.0%)  CIREHABILowering
+    0.0000 (  2.6%)  GotoSolver
+    0.0000 (  2.8%)  MarkDeclareTargetPass
+    0.0007 ( 58.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 23.7%)  Rest
+    0.0012 (100.0%)  Total
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor-qsbr_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0006 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 29.3%)  CIRCanonicalize
+    0.0001 ( 23.4%)  TargetLowering
+    0.0002 ( 29.3%)  CXXABILowering
+    0.0001 ( 14.9%)  LoweringPrepare
+    0.0000 (  3.1%)  Rest
+    0.0006 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  4.6%)  HoistAllocas
+    0.0001 (  7.7%)  CIRFlattenCFG
+    0.0000 (  3.2%)  CIREHABILowering
+    0.0000 (  3.0%)  GotoSolver
+    0.0000 (  2.9%)  MarkDeclareTargetPass
+    0.0006 ( 54.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 23.9%)  Rest
+    0.0012 (100.0%)  Total
+  CXX      test_urcu_multiflavor_dynlink_cxx-test_urcu_multiflavor-bp_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0005 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 37.4%)  CIRCanonicalize
+    0.0001 ( 30.2%)  TargetLowering
+    0.0001 ( 19.1%)  CXXABILowering
+    0.0000 (  9.3%)  LoweringPrepare
+    0.0000 (  4.0%)  Rest
+    0.0005 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0013 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  2.9%)  HoistAllocas
+    0.0002 ( 11.5%)  CIRFlattenCFG
+    0.0001 (  7.3%)  CIREHABILowering
+    0.0001 (  3.8%)  GotoSolver
+    0.0000 (  2.9%)  MarkDeclareTargetPass
+    0.0007 ( 49.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0003 ( 22.1%)  Rest
+    0.0013 (100.0%)  Total
+  CXXLD    test_urcu_multiflavor_dynlink_cxx
+  CC       test_urcu_multiflavor_single_unit.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0040 seconds
+
+  ----Wall Time----  ----Name----
+    0.0009 ( 21.2%)  CIRCanonicalize
+    0.0010 ( 25.1%)  TargetLowering
+    0.0017 ( 42.2%)  CXXABILowering
+    0.0004 ( 10.9%)  LoweringPrepare
+    0.0000 (  0.6%)  Rest
+    0.0040 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0094 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 (  4.0%)  HoistAllocas
+    0.0008 (  8.7%)  CIRFlattenCFG
+    0.0005 (  5.0%)  CIREHABILowering
+    0.0005 (  4.9%)  GotoSolver
+    0.0005 (  4.8%)  MarkDeclareTargetPass
+    0.0047 ( 49.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0022 ( 23.2%)  Rest
+    0.0094 (100.0%)  Total
+  CCLD     test_urcu_multiflavor_single_unit
+  CXX      test_urcu_multiflavor_single_unit_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0036 seconds
+
+  ----Wall Time----  ----Name----
+    0.0008 ( 20.9%)  CIRCanonicalize
+    0.0007 ( 19.5%)  TargetLowering
+    0.0016 ( 44.3%)  CXXABILowering
+    0.0005 ( 14.8%)  LoweringPrepare
+    0.0000 (  0.6%)  Rest
+    0.0036 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0094 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  5.0%)  HoistAllocas
+    0.0008 (  8.9%)  CIRFlattenCFG
+    0.0003 (  3.6%)  CIREHABILowering
+    0.0003 (  3.4%)  GotoSolver
+    0.0006 (  6.2%)  MarkDeclareTargetPass
+    0.0046 ( 48.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0023 ( 24.4%)  Rest
+    0.0094 (100.0%)  Total
+  CXXLD    test_urcu_multiflavor_single_unit_cxx
+  CC       test_urcu_multiflavor_single_unit_dynlink-test_urcu_multiflavor_single_unit.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 28.0%)  CIRCanonicalize
+    0.0003 ( 24.6%)  TargetLowering
+    0.0004 ( 31.1%)  CXXABILowering
+    0.0002 ( 14.5%)  LoweringPrepare
+    0.0000 (  1.8%)  Rest
+    0.0012 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0033 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  5.7%)  HoistAllocas
+    0.0003 (  9.9%)  CIRFlattenCFG
+    0.0002 (  5.8%)  CIREHABILowering
+    0.0002 (  5.5%)  GotoSolver
+    0.0002 (  4.6%)  MarkDeclareTargetPass
+    0.0016 ( 46.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 22.0%)  Rest
+    0.0033 (100.0%)  Total
+  CCLD     test_urcu_multiflavor_single_unit_dynlink
+  CXX      test_urcu_multiflavor_single_unit_dynlink_cxx-test_urcu_multiflavor_single_unit_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0012 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 27.7%)  CIRCanonicalize
+    0.0003 ( 21.4%)  TargetLowering
+    0.0004 ( 33.0%)  CXXABILowering
+    0.0002 ( 16.2%)  LoweringPrepare
+    0.0000 (  1.7%)  Rest
+    0.0012 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0036 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.7%)  HoistAllocas
+    0.0002 (  6.8%)  CIRFlattenCFG
+    0.0001 (  4.1%)  CIREHABILowering
+    0.0002 (  4.4%)  GotoSolver
+    0.0002 (  5.8%)  MarkDeclareTargetPass
+    0.0016 ( 44.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0011 ( 29.5%)  Rest
+    0.0036 (100.0%)  Total
+  CXXLD    test_urcu_multiflavor_single_unit_dynlink_cxx
+  CC       test_build.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0027 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 15.3%)  CIRCanonicalize
+    0.0005 ( 18.5%)  TargetLowering
+    0.0016 ( 57.8%)  CXXABILowering
+    0.0002 (  7.7%)  LoweringPrepare
+    0.0000 (  0.8%)  Rest
+    0.0027 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0052 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  3.9%)  HoistAllocas
+    0.0005 (  9.2%)  CIRFlattenCFG
+    0.0002 (  3.2%)  CIREHABILowering
+    0.0002 (  3.7%)  GotoSolver
+    0.0002 (  3.0%)  MarkDeclareTargetPass
+    0.0027 ( 51.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0013 ( 25.4%)  Rest
+    0.0052 (100.0%)  Total
+  CCLD     test_build
+  CXX      test_build_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0032 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 12.4%)  CIRCanonicalize
+    0.0005 ( 16.9%)  TargetLowering
+    0.0019 ( 60.5%)  CXXABILowering
+    0.0003 (  9.6%)  LoweringPrepare
+    0.0000 (  0.6%)  Rest
+    0.0032 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0066 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  3.7%)  HoistAllocas
+    0.0005 (  7.6%)  CIRFlattenCFG
+    0.0003 (  4.7%)  CIREHABILowering
+    0.0002 (  3.6%)  GotoSolver
+    0.0002 (  3.3%)  MarkDeclareTargetPass
+    0.0033 ( 50.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0018 ( 26.7%)  Rest
+    0.0066 (100.0%)  Total
+  CXXLD    test_build_cxx
+  CC       test_build_dynlink-test_build.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0014 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 20.6%)  CIRCanonicalize
+    0.0002 ( 17.0%)  TargetLowering
+    0.0007 ( 48.8%)  CXXABILowering
+    0.0002 ( 12.1%)  LoweringPrepare
+    0.0000 (  1.5%)  Rest
+    0.0014 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0032 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  4.4%)  HoistAllocas
+    0.0003 (  9.1%)  CIRFlattenCFG
+    0.0003 (  8.5%)  CIREHABILowering
+    0.0001 (  4.3%)  GotoSolver
+    0.0001 (  3.5%)  MarkDeclareTargetPass
+    0.0015 ( 46.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 23.4%)  Rest
+    0.0032 (100.0%)  Total
+  CCLD     test_build_dynlink
+  CXX      test_build_dynlink_cxx-test_build_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0017 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 15.8%)  CIRCanonicalize
+    0.0003 ( 17.7%)  TargetLowering
+    0.0009 ( 53.4%)  CXXABILowering
+    0.0002 ( 11.9%)  LoweringPrepare
+    0.0000 (  1.2%)  Rest
+    0.0017 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0036 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 (  4.7%)  HoistAllocas
+    0.0002 (  6.7%)  CIRFlattenCFG
+    0.0002 (  4.7%)  CIREHABILowering
+    0.0001 (  3.9%)  GotoSolver
+    0.0002 (  5.0%)  MarkDeclareTargetPass
+    0.0018 ( 50.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0009 ( 24.5%)  Rest
+    0.0036 (100.0%)  Total
+  CXXLD    test_build_dynlink_cxx
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/unit'
+Making all in benchmark
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/benchmark'
+  CC       test_urcu.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0055 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 20.7%)  CIRCanonicalize
+    0.0013 ( 24.1%)  TargetLowering
+    0.0023 ( 42.8%)  CXXABILowering
+    0.0007 ( 12.0%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0055 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0145 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.3%)  HoistAllocas
+    0.0015 ( 10.2%)  CIRFlattenCFG
+    0.0006 (  4.2%)  CIREHABILowering
+    0.0006 (  4.2%)  GotoSolver
+    0.0006 (  4.1%)  MarkDeclareTargetPass
+    0.0071 ( 49.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0035 ( 24.0%)  Rest
+    0.0145 (100.0%)  Total
+  CC       common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 38.8%)  CIRCanonicalize
+    0.0001 ( 32.8%)  TargetLowering
+    0.0000 ( 14.9%)  CXXABILowering
+    0.0000 (  4.0%)  LoweringPrepare
+    0.0000 (  9.5%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.6%)  HoistAllocas
+    0.0000 (  4.8%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 71.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 20.2%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     test_urcu
+  CC       test_urcu_dynamic_link-test_urcu.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0045 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 ( 21.4%)  CIRCanonicalize
+    0.0011 ( 24.7%)  TargetLowering
+    0.0019 ( 41.6%)  CXXABILowering
+    0.0005 ( 11.9%)  LoweringPrepare
+    0.0000 (  0.5%)  Rest
+    0.0045 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0119 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.8%)  HoistAllocas
+    0.0013 ( 11.0%)  CIRFlattenCFG
+    0.0006 (  5.0%)  CIREHABILowering
+    0.0006 (  4.8%)  GotoSolver
+    0.0006 (  5.0%)  MarkDeclareTargetPass
+    0.0056 ( 46.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0027 ( 22.5%)  Rest
+    0.0119 (100.0%)  Total
+  CC       test_urcu_dynamic_link-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 36.6%)  CIRCanonicalize
+    0.0001 ( 32.8%)  TargetLowering
+    0.0000 ( 16.7%)  CXXABILowering
+    0.0000 (  4.1%)  LoweringPrepare
+    0.0000 (  9.8%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.7%)  HoistAllocas
+    0.0000 (  4.6%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.6%)  MarkDeclareTargetPass
+    0.0007 ( 71.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 20.6%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_dynamic_link
+  CC       test_urcu_timing.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0037 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 ( 18.4%)  CIRCanonicalize
+    0.0008 ( 20.4%)  TargetLowering
+    0.0019 ( 50.5%)  CXXABILowering
+    0.0004 ( 10.0%)  LoweringPrepare
+    0.0000 (  0.6%)  Rest
+    0.0037 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0090 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  3.7%)  HoistAllocas
+    0.0009 ( 10.1%)  CIRFlattenCFG
+    0.0003 (  3.5%)  CIREHABILowering
+    0.0003 (  3.6%)  GotoSolver
+    0.0003 (  3.6%)  MarkDeclareTargetPass
+    0.0045 ( 50.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0023 ( 25.2%)  Rest
+    0.0090 (100.0%)  Total
+  CCLD     test_urcu_timing
+  CC       test_rwlock_timing.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0025 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 ( 20.1%)  CIRCanonicalize
+    0.0006 ( 22.1%)  TargetLowering
+    0.0011 ( 45.0%)  CXXABILowering
+    0.0003 ( 11.9%)  LoweringPrepare
+    0.0000 (  1.0%)  Rest
+    0.0025 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0070 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  4.7%)  HoistAllocas
+    0.0006 (  8.7%)  CIRFlattenCFG
+    0.0003 (  4.8%)  CIREHABILowering
+    0.0003 (  4.8%)  GotoSolver
+    0.0003 (  4.5%)  MarkDeclareTargetPass
+    0.0035 ( 49.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0016 ( 23.3%)  Rest
+    0.0070 (100.0%)  Total
+  CCLD     test_rwlock_timing
+  CC       test_rwlock.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0049 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 ( 20.5%)  CIRCanonicalize
+    0.0011 ( 23.0%)  TargetLowering
+    0.0021 ( 41.8%)  CXXABILowering
+    0.0007 ( 14.2%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0049 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0116 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  4.6%)  HoistAllocas
+    0.0012 ( 10.7%)  CIRFlattenCFG
+    0.0006 (  4.8%)  CIREHABILowering
+    0.0005 (  4.1%)  GotoSolver
+    0.0005 (  4.1%)  MarkDeclareTargetPass
+    0.0056 ( 47.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0028 ( 23.9%)  Rest
+    0.0116 (100.0%)  Total
+  CCLD     test_rwlock
+  CC       test_perthreadlock_timing.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0026 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 ( 22.9%)  CIRCanonicalize
+    0.0006 ( 21.3%)  TargetLowering
+    0.0011 ( 43.5%)  CXXABILowering
+    0.0003 ( 11.4%)  LoweringPrepare
+    0.0000 (  0.9%)  Rest
+    0.0026 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0061 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  4.5%)  HoistAllocas
+    0.0007 ( 11.4%)  CIRFlattenCFG
+    0.0003 (  4.3%)  CIREHABILowering
+    0.0003 (  4.7%)  GotoSolver
+    0.0003 (  4.5%)  MarkDeclareTargetPass
+    0.0029 ( 47.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0014 ( 22.6%)  Rest
+    0.0061 (100.0%)  Total
+  CCLD     test_perthreadlock_timing
+  CC       test_perthreadlock.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0049 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 ( 20.1%)  CIRCanonicalize
+    0.0012 ( 24.7%)  TargetLowering
+    0.0021 ( 42.4%)  CXXABILowering
+    0.0006 ( 12.3%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0049 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0123 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  4.2%)  HoistAllocas
+    0.0013 ( 10.5%)  CIRFlattenCFG
+    0.0006 (  4.6%)  CIREHABILowering
+    0.0005 (  4.2%)  GotoSolver
+    0.0005 (  4.0%)  MarkDeclareTargetPass
+    0.0060 ( 48.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0029 ( 24.0%)  Rest
+    0.0123 (100.0%)  Total
+  CCLD     test_perthreadlock
+  CC       test_urcu_yield-test_urcu.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0056 seconds
+
+  ----Wall Time----  ----Name----
+    0.0012 ( 21.2%)  CIRCanonicalize
+    0.0014 ( 24.4%)  TargetLowering
+    0.0023 ( 41.7%)  CXXABILowering
+    0.0007 ( 12.4%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0056 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0156 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.1%)  HoistAllocas
+    0.0016 ( 10.5%)  CIRFlattenCFG
+    0.0006 (  4.0%)  CIREHABILowering
+    0.0006 (  4.0%)  GotoSolver
+    0.0006 (  3.9%)  MarkDeclareTargetPass
+    0.0078 ( 49.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0037 ( 23.7%)  Rest
+    0.0156 (100.0%)  Total
+  CC       test_urcu_yield-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 34.8%)  CIRCanonicalize
+    0.0001 ( 33.0%)  TargetLowering
+    0.0000 ( 17.4%)  CXXABILowering
+    0.0000 (  5.2%)  LoweringPrepare
+    0.0000 (  9.5%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.5%)  HoistAllocas
+    0.0000 (  4.3%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 72.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 19.2%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     test_urcu_yield
+  CC       test_urcu_mb-test_urcu.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0055 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 20.8%)  CIRCanonicalize
+    0.0013 ( 23.4%)  TargetLowering
+    0.0024 ( 43.3%)  CXXABILowering
+    0.0007 ( 12.1%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0055 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0152 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  3.9%)  HoistAllocas
+    0.0015 (  9.8%)  CIRFlattenCFG
+    0.0006 (  3.9%)  CIREHABILowering
+    0.0007 (  4.3%)  GotoSolver
+    0.0006 (  3.9%)  MarkDeclareTargetPass
+    0.0077 ( 50.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0036 ( 23.9%)  Rest
+    0.0152 (100.0%)  Total
+  CC       test_urcu_mb-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 35.3%)  CIRCanonicalize
+    0.0001 ( 32.9%)  TargetLowering
+    0.0000 ( 16.9%)  CXXABILowering
+    0.0000 (  4.6%)  LoweringPrepare
+    0.0000 ( 10.3%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.4%)  HoistAllocas
+    0.0000 (  4.0%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 73.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 18.8%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_mb
+  CC       test_urcu_qsbr_timing.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0039 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 ( 18.3%)  CIRCanonicalize
+    0.0009 ( 23.3%)  TargetLowering
+    0.0019 ( 48.4%)  CXXABILowering
+    0.0004 (  9.3%)  LoweringPrepare
+    0.0000 (  0.7%)  Rest
+    0.0039 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0092 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 (  4.5%)  HoistAllocas
+    0.0009 ( 10.0%)  CIRFlattenCFG
+    0.0003 (  3.6%)  CIREHABILowering
+    0.0003 (  3.7%)  GotoSolver
+    0.0003 (  3.5%)  MarkDeclareTargetPass
+    0.0046 ( 50.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0023 ( 24.7%)  Rest
+    0.0092 (100.0%)  Total
+  CCLD     test_urcu_qsbr_timing
+  CC       test_urcu_qsbr.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0054 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 21.1%)  CIRCanonicalize
+    0.0013 ( 23.7%)  TargetLowering
+    0.0024 ( 43.5%)  CXXABILowering
+    0.0006 ( 11.3%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0054 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0145 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.1%)  HoistAllocas
+    0.0015 ( 10.5%)  CIRFlattenCFG
+    0.0005 (  3.7%)  CIREHABILowering
+    0.0006 (  4.3%)  GotoSolver
+    0.0006 (  4.1%)  MarkDeclareTargetPass
+    0.0071 ( 48.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0035 ( 24.3%)  Rest
+    0.0145 (100.0%)  Total
+  CCLD     test_urcu_qsbr
+  CC       test_mutex.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0041 seconds
+
+  ----Wall Time----  ----Name----
+    0.0009 ( 22.1%)  CIRCanonicalize
+    0.0010 ( 25.1%)  TargetLowering
+    0.0016 ( 40.0%)  CXXABILowering
+    0.0005 ( 12.4%)  LoweringPrepare
+    0.0000 (  0.5%)  Rest
+    0.0041 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0110 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  4.6%)  HoistAllocas
+    0.0011 ( 10.4%)  CIRFlattenCFG
+    0.0005 (  4.9%)  CIREHABILowering
+    0.0005 (  4.9%)  GotoSolver
+    0.0005 (  4.8%)  MarkDeclareTargetPass
+    0.0053 ( 48.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0024 ( 22.1%)  Rest
+    0.0110 (100.0%)  Total
+  CCLD     test_mutex
+  CC       test_looplen.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0008 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 31.3%)  CIRCanonicalize
+    0.0002 ( 24.4%)  TargetLowering
+    0.0002 ( 31.7%)  CXXABILowering
+    0.0001 ( 10.0%)  LoweringPrepare
+    0.0000 (  2.6%)  Rest
+    0.0008 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.3%)  HoistAllocas
+    0.0002 (  8.9%)  CIRFlattenCFG
+    0.0001 (  3.8%)  CIREHABILowering
+    0.0001 (  3.4%)  GotoSolver
+    0.0001 (  3.2%)  MarkDeclareTargetPass
+    0.0010 ( 51.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0005 ( 26.1%)  Rest
+    0.0019 (100.0%)  Total
+  CCLD     test_looplen
+  CC       test_urcu_gc.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0068 seconds
+
+  ----Wall Time----  ----Name----
+    0.0014 ( 19.9%)  CIRCanonicalize
+    0.0016 ( 23.0%)  TargetLowering
+    0.0030 ( 43.7%)  CXXABILowering
+    0.0009 ( 13.0%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0068 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0166 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 (  4.3%)  HoistAllocas
+    0.0017 ( 10.2%)  CIRFlattenCFG
+    0.0007 (  4.4%)  CIREHABILowering
+    0.0007 (  4.1%)  GotoSolver
+    0.0007 (  4.3%)  MarkDeclareTargetPass
+    0.0082 ( 49.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0039 ( 23.4%)  Rest
+    0.0166 (100.0%)  Total
+  CCLD     test_urcu_gc
+  CC       test_urcu_lgc-test_urcu_gc.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0066 seconds
+
+  ----Wall Time----  ----Name----
+    0.0014 ( 21.3%)  CIRCanonicalize
+    0.0014 ( 21.9%)  TargetLowering
+    0.0029 ( 44.6%)  CXXABILowering
+    0.0008 ( 11.9%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0066 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0153 seconds
+
+  ----Wall Time----  ----Name----
+    0.0009 (  5.7%)  HoistAllocas
+    0.0017 ( 11.2%)  CIRFlattenCFG
+    0.0005 (  3.3%)  CIREHABILowering
+    0.0007 (  4.4%)  GotoSolver
+    0.0007 (  4.5%)  MarkDeclareTargetPass
+    0.0072 ( 47.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0036 ( 23.6%)  Rest
+    0.0153 (100.0%)  Total
+  CC       test_urcu_lgc-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 39.9%)  CIRCanonicalize
+    0.0001 ( 30.4%)  TargetLowering
+    0.0000 ( 16.7%)  CXXABILowering
+    0.0000 (  4.2%)  LoweringPrepare
+    0.0000 (  8.8%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.7%)  HoistAllocas
+    0.0000 (  4.8%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0006 ( 71.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 20.1%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     test_urcu_lgc
+  CC       test_urcu_mb_gc-test_urcu_gc.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0067 seconds
+
+  ----Wall Time----  ----Name----
+    0.0014 ( 20.2%)  CIRCanonicalize
+    0.0015 ( 22.2%)  TargetLowering
+    0.0030 ( 45.0%)  CXXABILowering
+    0.0008 ( 12.3%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0067 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0170 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 (  4.0%)  HoistAllocas
+    0.0017 ( 10.0%)  CIRFlattenCFG
+    0.0008 (  4.5%)  CIREHABILowering
+    0.0007 (  4.3%)  GotoSolver
+    0.0007 (  4.4%)  MarkDeclareTargetPass
+    0.0084 ( 49.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0040 ( 23.4%)  Rest
+    0.0170 (100.0%)  Total
+  CC       test_urcu_mb_gc-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 36.7%)  CIRCanonicalize
+    0.0001 ( 31.5%)  TargetLowering
+    0.0000 ( 17.6%)  CXXABILowering
+    0.0000 (  4.4%)  LoweringPrepare
+    0.0000 (  9.8%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.3%)  HoistAllocas
+    0.0000 (  4.4%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.6%)  MarkDeclareTargetPass
+    0.0007 ( 73.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 18.4%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_mb_gc
+  CC       test_urcu_qsbr_gc.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0064 seconds
+
+  ----Wall Time----  ----Name----
+    0.0012 ( 18.9%)  CIRCanonicalize
+    0.0014 ( 21.9%)  TargetLowering
+    0.0029 ( 46.1%)  CXXABILowering
+    0.0008 ( 12.7%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0064 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0153 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 (  4.7%)  HoistAllocas
+    0.0015 (  9.6%)  CIRFlattenCFG
+    0.0006 (  3.9%)  CIREHABILowering
+    0.0006 (  3.7%)  GotoSolver
+    0.0005 (  3.6%)  MarkDeclareTargetPass
+    0.0077 ( 50.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0037 ( 24.0%)  Rest
+    0.0153 (100.0%)  Total
+  CCLD     test_urcu_qsbr_gc
+  CC       test_urcu_qsbr_lgc-test_urcu_qsbr_gc.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0060 seconds
+
+  ----Wall Time----  ----Name----
+    0.0013 ( 21.1%)  CIRCanonicalize
+    0.0014 ( 22.6%)  TargetLowering
+    0.0026 ( 43.6%)  CXXABILowering
+    0.0007 ( 12.2%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0060 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0149 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 (  4.8%)  HoistAllocas
+    0.0016 ( 10.8%)  CIRFlattenCFG
+    0.0007 (  4.5%)  CIREHABILowering
+    0.0007 (  4.6%)  GotoSolver
+    0.0006 (  3.8%)  MarkDeclareTargetPass
+    0.0072 ( 48.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0034 ( 23.0%)  Rest
+    0.0149 (100.0%)  Total
+  CC       test_urcu_qsbr_lgc-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 37.2%)  CIRCanonicalize
+    0.0001 ( 31.4%)  TargetLowering
+    0.0000 ( 17.4%)  CXXABILowering
+    0.0000 (  4.5%)  LoweringPrepare
+    0.0000 (  9.5%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.6%)  HoistAllocas
+    0.0000 (  4.4%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0006 ( 71.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 20.1%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     test_urcu_qsbr_lgc
+  CC       test_urcu_mb_lgc-test_urcu_gc.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0064 seconds
+
+  ----Wall Time----  ----Name----
+    0.0014 ( 22.3%)  CIRCanonicalize
+    0.0014 ( 22.2%)  TargetLowering
+    0.0027 ( 42.3%)  CXXABILowering
+    0.0008 ( 12.9%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0064 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0151 seconds
+
+  ----Wall Time----  ----Name----
+    0.0009 (  5.9%)  HoistAllocas
+    0.0016 ( 10.3%)  CIRFlattenCFG
+    0.0005 (  3.6%)  CIREHABILowering
+    0.0007 (  4.4%)  GotoSolver
+    0.0006 (  3.9%)  MarkDeclareTargetPass
+    0.0073 ( 48.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0036 ( 23.5%)  Rest
+    0.0151 (100.0%)  Total
+  CC       test_urcu_mb_lgc-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 37.7%)  CIRCanonicalize
+    0.0001 ( 31.0%)  TargetLowering
+    0.0000 ( 17.8%)  CXXABILowering
+    0.0000 (  4.5%)  LoweringPrepare
+    0.0000 (  9.0%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.3%)  HoistAllocas
+    0.0000 (  4.0%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.6%)  MarkDeclareTargetPass
+    0.0007 ( 75.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 17.5%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_mb_lgc
+  CC       test_urcu_qsbr_dynamic_link-test_urcu_qsbr.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0047 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 24.1%)  CIRCanonicalize
+    0.0011 ( 24.2%)  TargetLowering
+    0.0019 ( 39.4%)  CXXABILowering
+    0.0006 ( 12.0%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0047 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0133 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.5%)  HoistAllocas
+    0.0013 (  9.8%)  CIRFlattenCFG
+    0.0005 (  4.0%)  CIREHABILowering
+    0.0006 (  4.3%)  GotoSolver
+    0.0006 (  4.3%)  MarkDeclareTargetPass
+    0.0066 ( 50.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0031 ( 23.1%)  Rest
+    0.0133 (100.0%)  Total
+  CC       test_urcu_qsbr_dynamic_link-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 32.4%)  CIRCanonicalize
+    0.0001 ( 34.4%)  TargetLowering
+    0.0000 ( 18.1%)  CXXABILowering
+    0.0000 (  4.8%)  LoweringPrepare
+    0.0000 ( 10.3%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.4%)  HoistAllocas
+    0.0000 (  4.5%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 73.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 18.8%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_qsbr_dynamic_link
+  CC       test_urcu_defer.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0059 seconds
+
+  ----Wall Time----  ----Name----
+    0.0013 ( 21.5%)  CIRCanonicalize
+    0.0013 ( 21.9%)  TargetLowering
+    0.0026 ( 44.3%)  CXXABILowering
+    0.0006 ( 11.0%)  LoweringPrepare
+    0.0001 (  1.4%)  Rest
+    0.0059 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0152 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.0%)  HoistAllocas
+    0.0015 ( 10.1%)  CIRFlattenCFG
+    0.0006 (  4.3%)  CIREHABILowering
+    0.0006 (  4.1%)  GotoSolver
+    0.0006 (  3.6%)  MarkDeclareTargetPass
+    0.0077 ( 50.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0036 ( 23.5%)  Rest
+    0.0152 (100.0%)  Total
+  CCLD     test_urcu_defer
+  CC       test_urcu_assign.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0065 seconds
+
+  ----Wall Time----  ----Name----
+    0.0013 ( 20.4%)  CIRCanonicalize
+    0.0014 ( 22.0%)  TargetLowering
+    0.0027 ( 41.2%)  CXXABILowering
+    0.0010 ( 16.0%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0065 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0150 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.0%)  HoistAllocas
+    0.0017 ( 11.2%)  CIRFlattenCFG
+    0.0005 (  3.5%)  CIREHABILowering
+    0.0005 (  3.6%)  GotoSolver
+    0.0005 (  3.2%)  MarkDeclareTargetPass
+    0.0076 ( 50.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0036 ( 24.1%)  Rest
+    0.0150 (100.0%)  Total
+  CCLD     test_urcu_assign
+  CC       test_urcu_assign_dynamic_link-test_urcu_assign.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0049 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 ( 21.0%)  CIRCanonicalize
+    0.0011 ( 23.3%)  TargetLowering
+    0.0021 ( 43.1%)  CXXABILowering
+    0.0006 ( 12.2%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0049 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0130 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.5%)  HoistAllocas
+    0.0014 ( 11.1%)  CIRFlattenCFG
+    0.0006 (  4.8%)  CIREHABILowering
+    0.0006 (  4.7%)  GotoSolver
+    0.0006 (  4.3%)  MarkDeclareTargetPass
+    0.0063 ( 48.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0028 ( 21.8%)  Rest
+    0.0130 (100.0%)  Total
+  CC       test_urcu_assign_dynamic_link-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 38.2%)  CIRCanonicalize
+    0.0001 ( 31.2%)  TargetLowering
+    0.0000 ( 17.3%)  CXXABILowering
+    0.0000 (  4.2%)  LoweringPrepare
+    0.0000 (  9.0%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.5%)  HoistAllocas
+    0.0000 (  5.4%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0006 ( 70.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 19.9%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     test_urcu_assign_dynamic_link
+  CC       test_urcu_bp.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0053 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 21.2%)  CIRCanonicalize
+    0.0012 ( 22.6%)  TargetLowering
+    0.0022 ( 41.5%)  CXXABILowering
+    0.0008 ( 14.2%)  LoweringPrepare
+    0.0000 (  0.5%)  Rest
+    0.0053 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0129 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.5%)  HoistAllocas
+    0.0014 ( 10.9%)  CIRFlattenCFG
+    0.0005 (  3.9%)  CIREHABILowering
+    0.0005 (  3.6%)  GotoSolver
+    0.0005 (  3.7%)  MarkDeclareTargetPass
+    0.0064 ( 49.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0031 ( 23.9%)  Rest
+    0.0129 (100.0%)  Total
+  CCLD     test_urcu_bp
+  CC       test_urcu_bp_dynamic_link-test_urcu_bp.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0049 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 ( 20.4%)  CIRCanonicalize
+    0.0010 ( 21.2%)  TargetLowering
+    0.0020 ( 40.4%)  CXXABILowering
+    0.0009 ( 17.5%)  LoweringPrepare
+    0.0000 (  0.5%)  Rest
+    0.0049 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0115 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.9%)  HoistAllocas
+    0.0012 ( 10.5%)  CIRFlattenCFG
+    0.0005 (  4.2%)  CIREHABILowering
+    0.0005 (  4.0%)  GotoSolver
+    0.0006 (  5.4%)  MarkDeclareTargetPass
+    0.0056 ( 48.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0026 ( 22.8%)  Rest
+    0.0115 (100.0%)  Total
+  CC       test_urcu_bp_dynamic_link-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 33.2%)  CIRCanonicalize
+    0.0001 ( 37.2%)  TargetLowering
+    0.0000 ( 15.2%)  CXXABILowering
+    0.0000 (  3.9%)  LoweringPrepare
+    0.0000 ( 10.5%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.7%)  HoistAllocas
+    0.0000 (  4.5%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 72.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 19.4%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_bp_dynamic_link
+  CC       test_cycles_per_loop.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0007 seconds
+
+  ----Wall Time----  ----Name----
+    0.0002 ( 33.6%)  CIRCanonicalize
+    0.0001 ( 20.3%)  TargetLowering
+    0.0002 ( 35.3%)  CXXABILowering
+    0.0001 (  7.8%)  LoweringPrepare
+    0.0000 (  3.0%)  Rest
+    0.0007 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0019 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  3.3%)  HoistAllocas
+    0.0001 (  7.6%)  CIRFlattenCFG
+    0.0001 (  3.4%)  CIREHABILowering
+    0.0001 (  3.0%)  GotoSolver
+    0.0000 (  2.5%)  MarkDeclareTargetPass
+    0.0010 ( 54.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0005 ( 26.0%)  Rest
+    0.0019 (100.0%)  Total
+  CCLD     test_cycles_per_loop
+  CC       test_urcu_lfq.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0100 seconds
+
+  ----Wall Time----  ----Name----
+    0.0016 ( 15.9%)  CIRCanonicalize
+    0.0020 ( 19.5%)  TargetLowering
+    0.0056 ( 55.4%)  CXXABILowering
+    0.0009 (  8.9%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0100 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0232 seconds
+
+  ----Wall Time----  ----Name----
+    0.0008 (  3.6%)  HoistAllocas
+    0.0025 ( 11.0%)  CIRFlattenCFG
+    0.0008 (  3.4%)  CIREHABILowering
+    0.0008 (  3.5%)  GotoSolver
+    0.0007 (  3.1%)  MarkDeclareTargetPass
+    0.0117 ( 50.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0057 ( 24.7%)  Rest
+    0.0232 (100.0%)  Total
+  CCLD     test_urcu_lfq
+  CC       test_urcu_wfq.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0064 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 16.4%)  CIRCanonicalize
+    0.0014 ( 21.3%)  TargetLowering
+    0.0031 ( 47.9%)  CXXABILowering
+    0.0009 ( 14.1%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0064 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0144 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 (  4.6%)  HoistAllocas
+    0.0015 ( 10.5%)  CIRFlattenCFG
+    0.0006 (  4.3%)  CIREHABILowering
+    0.0007 (  4.6%)  GotoSolver
+    0.0006 (  4.0%)  MarkDeclareTargetPass
+    0.0070 ( 48.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0034 ( 23.5%)  Rest
+    0.0144 (100.0%)  Total
+  CCLD     test_urcu_wfq
+  CC       test_urcu_lfs.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0098 seconds
+
+  ----Wall Time----  ----Name----
+    0.0017 ( 16.9%)  CIRCanonicalize
+    0.0020 ( 20.5%)  TargetLowering
+    0.0052 ( 52.9%)  CXXABILowering
+    0.0009 (  9.5%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0098 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0232 seconds
+
+  ----Wall Time----  ----Name----
+    0.0009 (  3.8%)  HoistAllocas
+    0.0027 ( 11.5%)  CIRFlattenCFG
+    0.0010 (  4.5%)  CIREHABILowering
+    0.0009 (  3.8%)  GotoSolver
+    0.0008 (  3.5%)  MarkDeclareTargetPass
+    0.0115 ( 49.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0054 ( 23.5%)  Rest
+    0.0232 (100.0%)  Total
+  CCLD     test_urcu_lfs
+  CC       test_urcu_wfs.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0097 seconds
+
+  ----Wall Time----  ----Name----
+    0.0016 ( 17.1%)  CIRCanonicalize
+    0.0020 ( 20.4%)  TargetLowering
+    0.0050 ( 51.5%)  CXXABILowering
+    0.0010 ( 10.8%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0097 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0238 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 (  4.2%)  HoistAllocas
+    0.0026 ( 10.8%)  CIRFlattenCFG
+    0.0012 (  5.0%)  CIREHABILowering
+    0.0008 (  3.2%)  GotoSolver
+    0.0010 (  4.1%)  MarkDeclareTargetPass
+    0.0119 ( 49.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0054 ( 22.8%)  Rest
+    0.0238 (100.0%)  Total
+  CCLD     test_urcu_wfs
+  CC       test_urcu_lfs_rcu.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0078 seconds
+
+  ----Wall Time----  ----Name----
+    0.0013 ( 17.1%)  CIRCanonicalize
+    0.0017 ( 21.5%)  TargetLowering
+    0.0040 ( 51.3%)  CXXABILowering
+    0.0008 (  9.9%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0078 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0186 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 (  3.9%)  HoistAllocas
+    0.0020 ( 11.0%)  CIRFlattenCFG
+    0.0007 (  3.8%)  CIREHABILowering
+    0.0007 (  3.8%)  GotoSolver
+    0.0007 (  3.9%)  MarkDeclareTargetPass
+    0.0090 ( 48.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0047 ( 25.4%)  Rest
+    0.0186 (100.0%)  Total
+  CCLD     test_urcu_lfs_rcu
+  CC       test_urcu_wfcq.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0116 seconds
+
+  ----Wall Time----  ----Name----
+    0.0018 ( 15.7%)  CIRCanonicalize
+    0.0023 ( 19.6%)  TargetLowering
+    0.0064 ( 54.8%)  CXXABILowering
+    0.0011 (  9.6%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0116 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0262 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 (  3.8%)  HoistAllocas
+    0.0026 ( 10.1%)  CIRFlattenCFG
+    0.0010 (  3.9%)  CIREHABILowering
+    0.0011 (  4.3%)  GotoSolver
+    0.0010 (  3.9%)  MarkDeclareTargetPass
+    0.0131 ( 50.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0062 ( 23.9%)  Rest
+    0.0262 (100.0%)  Total
+  CCLD     test_urcu_wfcq
+  CC       test_urcu_wfq_dynlink-test_urcu_wfq.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0047 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 ( 20.9%)  CIRCanonicalize
+    0.0011 ( 24.2%)  TargetLowering
+    0.0019 ( 41.6%)  CXXABILowering
+    0.0006 ( 12.8%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0047 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0132 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.4%)  HoistAllocas
+    0.0014 ( 10.5%)  CIRFlattenCFG
+    0.0006 (  4.8%)  CIREHABILowering
+    0.0006 (  4.8%)  GotoSolver
+    0.0006 (  4.5%)  MarkDeclareTargetPass
+    0.0063 ( 47.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0031 ( 23.5%)  Rest
+    0.0132 (100.0%)  Total
+  CC       test_urcu_wfq_dynlink-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 37.8%)  CIRCanonicalize
+    0.0001 ( 31.2%)  TargetLowering
+    0.0000 ( 16.7%)  CXXABILowering
+    0.0000 (  4.4%)  LoweringPrepare
+    0.0000 (  9.9%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.5%)  HoistAllocas
+    0.0000 (  4.6%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.7%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 72.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 19.7%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     test_urcu_wfq_dynlink
+  CC       test_urcu_wfs_dynlink-test_urcu_wfs.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0070 seconds
+
+  ----Wall Time----  ----Name----
+    0.0014 ( 20.2%)  CIRCanonicalize
+    0.0017 ( 23.8%)  TargetLowering
+    0.0030 ( 42.9%)  CXXABILowering
+    0.0009 ( 12.8%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0070 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0179 seconds
+
+  ----Wall Time----  ----Name----
+    0.0009 (  5.2%)  HoistAllocas
+    0.0020 ( 11.1%)  CIRFlattenCFG
+    0.0010 (  5.4%)  CIREHABILowering
+    0.0008 (  4.7%)  GotoSolver
+    0.0009 (  5.1%)  MarkDeclareTargetPass
+    0.0084 ( 47.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0038 ( 21.5%)  Rest
+    0.0179 (100.0%)  Total
+  CC       test_urcu_wfs_dynlink-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 38.9%)  CIRCanonicalize
+    0.0001 ( 31.7%)  TargetLowering
+    0.0000 ( 14.9%)  CXXABILowering
+    0.0000 (  3.9%)  LoweringPrepare
+    0.0000 ( 10.6%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0011 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.3%)  HoistAllocas
+    0.0001 (  4.6%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.5%)  GotoSolver
+    0.0000 (  0.5%)  MarkDeclareTargetPass
+    0.0009 ( 74.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 18.3%)  Rest
+    0.0011 (100.0%)  Total
+  CCLD     test_urcu_wfs_dynlink
+  CC       test_urcu_wfcq_dynlink-test_urcu_wfcq.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0076 seconds
+
+  ----Wall Time----  ----Name----
+    0.0015 ( 19.3%)  CIRCanonicalize
+    0.0017 ( 21.9%)  TargetLowering
+    0.0035 ( 45.6%)  CXXABILowering
+    0.0010 ( 12.9%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0076 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0194 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 (  5.2%)  HoistAllocas
+    0.0022 ( 11.2%)  CIRFlattenCFG
+    0.0009 (  4.9%)  CIREHABILowering
+    0.0010 (  5.3%)  GotoSolver
+    0.0009 (  4.7%)  MarkDeclareTargetPass
+    0.0090 ( 46.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0043 ( 22.2%)  Rest
+    0.0194 (100.0%)  Total
+  CC       test_urcu_wfcq_dynlink-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 37.9%)  CIRCanonicalize
+    0.0001 ( 32.2%)  TargetLowering
+    0.0000 ( 16.5%)  CXXABILowering
+    0.0000 (  4.0%)  LoweringPrepare
+    0.0000 (  9.4%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.4%)  HoistAllocas
+    0.0000 (  4.4%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.6%)  MarkDeclareTargetPass
+    0.0008 ( 73.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 19.1%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_wfcq_dynlink
+  CC       test_urcu_lfq_dynlink-test_urcu_lfq.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0054 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 19.8%)  CIRCanonicalize
+    0.0013 ( 24.9%)  TargetLowering
+    0.0023 ( 42.9%)  CXXABILowering
+    0.0006 ( 11.9%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0054 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0137 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  4.6%)  HoistAllocas
+    0.0014 (  9.9%)  CIRFlattenCFG
+    0.0006 (  4.6%)  CIREHABILowering
+    0.0006 (  4.6%)  GotoSolver
+    0.0007 (  5.0%)  MarkDeclareTargetPass
+    0.0067 ( 48.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0031 ( 22.4%)  Rest
+    0.0137 (100.0%)  Total
+  CC       test_urcu_lfq_dynlink-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 36.5%)  CIRCanonicalize
+    0.0001 ( 32.2%)  TargetLowering
+    0.0000 ( 16.8%)  CXXABILowering
+    0.0000 (  4.1%)  LoweringPrepare
+    0.0000 ( 10.3%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.5%)  HoistAllocas
+    0.0000 (  4.8%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 71.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 20.3%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_lfq_dynlink
+  CC       test_urcu_lfs_dynlink-test_urcu_lfs.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0066 seconds
+
+  ----Wall Time----  ----Name----
+    0.0012 ( 18.3%)  CIRCanonicalize
+    0.0014 ( 20.9%)  TargetLowering
+    0.0031 ( 47.4%)  CXXABILowering
+    0.0009 ( 13.1%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0066 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0152 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 (  4.4%)  HoistAllocas
+    0.0017 ( 11.5%)  CIRFlattenCFG
+    0.0006 (  3.9%)  CIREHABILowering
+    0.0006 (  4.0%)  GotoSolver
+    0.0008 (  5.1%)  MarkDeclareTargetPass
+    0.0074 ( 48.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0034 ( 22.4%)  Rest
+    0.0152 (100.0%)  Total
+  CC       test_urcu_lfs_dynlink-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 35.5%)  CIRCanonicalize
+    0.0001 ( 33.3%)  TargetLowering
+    0.0000 ( 17.6%)  CXXABILowering
+    0.0000 (  4.4%)  LoweringPrepare
+    0.0000 (  9.3%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.8%)  HoistAllocas
+    0.0000 (  4.9%)  CIRFlattenCFG
+    0.0000 (  0.9%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  1.0%)  MarkDeclareTargetPass
+    0.0006 ( 69.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 21.0%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     test_urcu_lfs_dynlink
+  CC       test_urcu_hash-test_urcu_hash.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0101 seconds
+
+  ----Wall Time----  ----Name----
+    0.0020 ( 19.9%)  CIRCanonicalize
+    0.0023 ( 23.2%)  TargetLowering
+    0.0043 ( 42.7%)  CXXABILowering
+    0.0014 ( 14.0%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0101 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0267 seconds
+
+  ----Wall Time----  ----Name----
+    0.0014 (  5.2%)  HoistAllocas
+    0.0027 ( 10.1%)  CIRFlattenCFG
+    0.0015 (  5.5%)  CIREHABILowering
+    0.0013 (  5.0%)  GotoSolver
+    0.0014 (  5.4%)  MarkDeclareTargetPass
+    0.0126 ( 47.2%)  cir::direct::ConvertCIRToLLVMPass
+    0.0058 ( 21.6%)  Rest
+    0.0267 (100.0%)  Total
+  CC       test_urcu_hash-test_urcu_hash_rw.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0060 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 19.0%)  CIRCanonicalize
+    0.0012 ( 20.7%)  TargetLowering
+    0.0029 ( 48.7%)  CXXABILowering
+    0.0007 ( 11.2%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0060 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0143 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  3.6%)  HoistAllocas
+    0.0013 (  9.3%)  CIRFlattenCFG
+    0.0005 (  3.3%)  CIREHABILowering
+    0.0007 (  4.9%)  GotoSolver
+    0.0005 (  3.2%)  MarkDeclareTargetPass
+    0.0073 ( 51.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0035 ( 24.5%)  Rest
+    0.0143 (100.0%)  Total
+  CC       test_urcu_hash-test_urcu_hash_unique.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0055 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 20.0%)  CIRCanonicalize
+    0.0012 ( 21.2%)  TargetLowering
+    0.0027 ( 49.1%)  CXXABILowering
+    0.0005 (  9.3%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0055 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0131 seconds
+
+  ----Wall Time----  ----Name----
+    0.0005 (  3.6%)  HoistAllocas
+    0.0012 (  9.0%)  CIRFlattenCFG
+    0.0005 (  3.5%)  CIREHABILowering
+    0.0005 (  3.5%)  GotoSolver
+    0.0005 (  3.5%)  MarkDeclareTargetPass
+    0.0068 ( 51.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0033 ( 25.0%)  Rest
+    0.0131 (100.0%)  Total
+  CC       test_urcu_hash-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0002 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 35.9%)  CIRCanonicalize
+    0.0000 ( 30.5%)  TargetLowering
+    0.0000 ( 18.2%)  CXXABILowering
+    0.0000 (  5.2%)  LoweringPrepare
+    0.0000 ( 10.2%)  Rest
+    0.0002 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0010 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.3%)  HoistAllocas
+    0.0000 (  4.3%)  CIRFlattenCFG
+    0.0000 (  0.8%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 74.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 17.6%)  Rest
+    0.0010 (100.0%)  Total
+  CCLD     test_urcu_hash
+  CC       test_urcu_lfs_rcu_dynlink-test_urcu_lfs_rcu.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0050 seconds
+
+  ----Wall Time----  ----Name----
+    0.0011 ( 21.7%)  CIRCanonicalize
+    0.0012 ( 23.3%)  TargetLowering
+    0.0021 ( 41.6%)  CXXABILowering
+    0.0006 ( 13.0%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0050 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0128 seconds
+
+  ----Wall Time----  ----Name----
+    0.0008 (  6.1%)  HoistAllocas
+    0.0014 ( 10.9%)  CIRFlattenCFG
+    0.0007 (  5.1%)  CIREHABILowering
+    0.0006 (  4.7%)  GotoSolver
+    0.0006 (  4.4%)  MarkDeclareTargetPass
+    0.0060 ( 47.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0028 ( 21.7%)  Rest
+    0.0128 (100.0%)  Total
+  CC       test_urcu_lfs_rcu_dynlink-common-states.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0003 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 ( 26.2%)  CIRCanonicalize
+    0.0001 ( 22.6%)  TargetLowering
+    0.0001 ( 41.3%)  CXXABILowering
+    0.0000 (  3.2%)  LoweringPrepare
+    0.0000 (  6.7%)  Rest
+    0.0003 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0009 seconds
+
+  ----Wall Time----  ----Name----
+    0.0000 (  1.6%)  HoistAllocas
+    0.0001 (  5.6%)  CIRFlattenCFG
+    0.0000 (  1.0%)  CIREHABILowering
+    0.0000 (  0.6%)  GotoSolver
+    0.0000 (  0.7%)  MarkDeclareTargetPass
+    0.0007 ( 70.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0002 ( 19.9%)  Rest
+    0.0009 (100.0%)  Total
+  CCLD     test_urcu_lfs_rcu_dynlink
+  CC       test_uatomic.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0055 seconds
+
+  ----Wall Time----  ----Name----
+    0.0012 ( 21.2%)  CIRCanonicalize
+    0.0015 ( 26.9%)  TargetLowering
+    0.0019 ( 33.9%)  CXXABILowering
+    0.0010 ( 17.6%)  LoweringPrepare
+    0.0000 (  0.4%)  Rest
+    0.0055 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0165 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 (  6.0%)  HoistAllocas
+    0.0022 ( 13.3%)  CIRFlattenCFG
+    0.0009 (  5.7%)  CIREHABILowering
+    0.0008 (  4.8%)  GotoSolver
+    0.0010 (  6.0%)  MarkDeclareTargetPass
+    0.0071 ( 43.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0034 ( 20.9%)  Rest
+    0.0165 (100.0%)  Total
+  CCLD     test_uatomic
+  CC       test_barrier.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0016 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 ( 17.5%)  CIRCanonicalize
+    0.0006 ( 33.9%)  TargetLowering
+    0.0005 ( 33.5%)  CXXABILowering
+    0.0002 ( 13.7%)  LoweringPrepare
+    0.0000 (  1.4%)  Rest
+    0.0016 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0032 seconds
+
+  ----Wall Time----  ----Name----
+    0.0001 (  4.1%)  HoistAllocas
+    0.0004 ( 11.6%)  CIRFlattenCFG
+    0.0002 (  6.6%)  CIREHABILowering
+    0.0002 (  5.0%)  GotoSolver
+    0.0001 (  4.4%)  MarkDeclareTargetPass
+    0.0015 ( 47.7%)  cir::direct::ConvertCIRToLLVMPass
+    0.0007 ( 20.7%)  Rest
+    0.0032 (100.0%)  Total
+  CCLD     test_barrier
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/benchmark'
+Making all in regression
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/regression'
+  CC       test_urcu_fork.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0031 seconds
+
+  ----Wall Time----  ----Name----
+    0.0007 ( 23.4%)  CIRCanonicalize
+    0.0007 ( 22.4%)  TargetLowering
+    0.0013 ( 43.1%)  CXXABILowering
+    0.0003 ( 10.4%)  LoweringPrepare
+    0.0000 (  0.7%)  Rest
+    0.0031 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0080 seconds
+
+  ----Wall Time----  ----Name----
+    0.0003 (  4.1%)  HoistAllocas
+    0.0008 ( 10.3%)  CIRFlattenCFG
+    0.0003 (  4.1%)  CIREHABILowering
+    0.0003 (  3.8%)  GotoSolver
+    0.0003 (  4.3%)  MarkDeclareTargetPass
+    0.0039 ( 49.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0019 ( 24.2%)  Rest
+    0.0080 (100.0%)  Total
+  CCLD     test_urcu_fork.tap
+  CXX      test_urcu_fork_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0031 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 ( 18.6%)  CIRCanonicalize
+    0.0008 ( 25.2%)  TargetLowering
+    0.0014 ( 43.9%)  CXXABILowering
+    0.0004 ( 11.6%)  LoweringPrepare
+    0.0000 (  0.7%)  Rest
+    0.0031 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0084 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 (  4.3%)  HoistAllocas
+    0.0008 (  9.8%)  CIRFlattenCFG
+    0.0003 (  4.1%)  CIREHABILowering
+    0.0005 (  5.9%)  GotoSolver
+    0.0004 (  5.3%)  MarkDeclareTargetPass
+    0.0040 ( 47.6%)  cir::direct::ConvertCIRToLLVMPass
+    0.0019 ( 23.0%)  Rest
+    0.0084 (100.0%)  Total
+  CXXLD    test_urcu_fork_cxx.tap
+  CC       rcutorture_urcu_membarrier-urcutorture.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0139 seconds
+
+  ----Wall Time----  ----Name----
+    0.0026 ( 19.0%)  CIRCanonicalize
+    0.0027 ( 19.1%)  TargetLowering
+    0.0072 ( 52.1%)  CXXABILowering
+    0.0013 (  9.7%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0139 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0308 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 (  3.1%)  HoistAllocas
+    0.0032 ( 10.3%)  CIRFlattenCFG
+    0.0009 (  2.9%)  CIREHABILowering
+    0.0008 (  2.7%)  GotoSolver
+    0.0008 (  2.5%)  MarkDeclareTargetPass
+    0.0161 ( 52.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0081 ( 26.1%)  Rest
+    0.0308 (100.0%)  Total
+  CCLD     rcutorture_urcu_membarrier
+  CXX      rcutorture_urcu_membarrier_cxx-urcutorture_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0123 seconds
+
+  ----Wall Time----  ----Name----
+    0.0019 ( 15.3%)  CIRCanonicalize
+    0.0027 ( 22.1%)  TargetLowering
+    0.0064 ( 52.5%)  CXXABILowering
+    0.0012 (  9.9%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0123 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0336 seconds
+
+  ----Wall Time----  ----Name----
+    0.0013 (  3.9%)  HoistAllocas
+    0.0030 (  9.0%)  CIRFlattenCFG
+    0.0011 (  3.4%)  CIREHABILowering
+    0.0012 (  3.6%)  GotoSolver
+    0.0012 (  3.5%)  MarkDeclareTargetPass
+    0.0172 ( 51.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0085 ( 25.4%)  Rest
+    0.0336 (100.0%)  Total
+  CXXLD    rcutorture_urcu_membarrier_cxx
+  CC       rcutorture_urcu_mb-urcutorture.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0120 seconds
+
+  ----Wall Time----  ----Name----
+    0.0022 ( 18.3%)  CIRCanonicalize
+    0.0027 ( 22.2%)  TargetLowering
+    0.0061 ( 51.1%)  CXXABILowering
+    0.0010 (  8.2%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0120 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0310 seconds
+
+  ----Wall Time----  ----Name----
+    0.0009 (  2.9%)  HoistAllocas
+    0.0032 ( 10.3%)  CIRFlattenCFG
+    0.0009 (  2.7%)  CIREHABILowering
+    0.0009 (  2.8%)  GotoSolver
+    0.0008 (  2.7%)  MarkDeclareTargetPass
+    0.0164 ( 52.9%)  cir::direct::ConvertCIRToLLVMPass
+    0.0080 ( 25.7%)  Rest
+    0.0310 (100.0%)  Total
+  CCLD     rcutorture_urcu_mb
+  CXX      rcutorture_urcu_mb_cxx-urcutorture_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0126 seconds
+
+  ----Wall Time----  ----Name----
+    0.0017 ( 13.2%)  CIRCanonicalize
+    0.0028 ( 22.6%)  TargetLowering
+    0.0069 ( 54.5%)  CXXABILowering
+    0.0012 (  9.5%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0126 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0343 seconds
+
+  ----Wall Time----  ----Name----
+    0.0018 (  5.3%)  HoistAllocas
+    0.0036 ( 10.4%)  CIRFlattenCFG
+    0.0012 (  3.5%)  CIREHABILowering
+    0.0010 (  3.0%)  GotoSolver
+    0.0014 (  4.1%)  MarkDeclareTargetPass
+    0.0169 ( 49.3%)  cir::direct::ConvertCIRToLLVMPass
+    0.0083 ( 24.3%)  Rest
+    0.0343 (100.0%)  Total
+  CXXLD    rcutorture_urcu_mb_cxx
+  CC       rcutorture_urcu_bp-urcutorture.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0117 seconds
+
+  ----Wall Time----  ----Name----
+    0.0021 ( 18.1%)  CIRCanonicalize
+    0.0025 ( 21.6%)  TargetLowering
+    0.0060 ( 51.8%)  CXXABILowering
+    0.0010 (  8.3%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0117 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0307 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 (  3.2%)  HoistAllocas
+    0.0029 (  9.6%)  CIRFlattenCFG
+    0.0010 (  3.3%)  CIREHABILowering
+    0.0009 (  2.8%)  GotoSolver
+    0.0008 (  2.6%)  MarkDeclareTargetPass
+    0.0163 ( 53.0%)  cir::direct::ConvertCIRToLLVMPass
+    0.0078 ( 25.6%)  Rest
+    0.0307 (100.0%)  Total
+  CCLD     rcutorture_urcu_bp
+  CXX      rcutorture_urcu_bp_cxx-urcutorture_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0124 seconds
+
+  ----Wall Time----  ----Name----
+    0.0018 ( 14.4%)  CIRCanonicalize
+    0.0028 ( 22.5%)  TargetLowering
+    0.0066 ( 53.7%)  CXXABILowering
+    0.0011 (  9.2%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0124 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0315 seconds
+
+  ----Wall Time----  ----Name----
+    0.0010 (  3.2%)  HoistAllocas
+    0.0027 (  8.5%)  CIRFlattenCFG
+    0.0008 (  2.6%)  CIREHABILowering
+    0.0009 (  2.8%)  GotoSolver
+    0.0009 (  2.8%)  MarkDeclareTargetPass
+    0.0168 ( 53.5%)  cir::direct::ConvertCIRToLLVMPass
+    0.0084 ( 26.7%)  Rest
+    0.0315 (100.0%)  Total
+  CXXLD    rcutorture_urcu_bp_cxx
+  CC       rcutorture_urcu_qsbr-urcutorture.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0135 seconds
+
+  ----Wall Time----  ----Name----
+    0.0022 ( 16.5%)  CIRCanonicalize
+    0.0030 ( 21.9%)  TargetLowering
+    0.0072 ( 53.2%)  CXXABILowering
+    0.0011 (  8.3%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0135 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0307 seconds
+
+  ----Wall Time----  ----Name----
+    0.0012 (  3.9%)  HoistAllocas
+    0.0029 (  9.3%)  CIRFlattenCFG
+    0.0008 (  2.7%)  CIREHABILowering
+    0.0009 (  2.8%)  GotoSolver
+    0.0010 (  3.3%)  MarkDeclareTargetPass
+    0.0161 ( 52.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0079 ( 25.6%)  Rest
+    0.0307 (100.0%)  Total
+  CCLD     rcutorture_urcu_qsbr
+  CXX      rcutorture_urcu_qsbr_cxx-urcutorture_cxx.o
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0119 seconds
+
+  ----Wall Time----  ----Name----
+    0.0017 ( 13.9%)  CIRCanonicalize
+    0.0025 ( 21.2%)  TargetLowering
+    0.0065 ( 54.6%)  CXXABILowering
+    0.0012 ( 10.0%)  LoweringPrepare
+    0.0000 (  0.2%)  Rest
+    0.0119 (100.0%)  Total
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0308 seconds
+
+  ----Wall Time----  ----Name----
+    0.0012 (  3.9%)  HoistAllocas
+    0.0027 (  8.7%)  CIRFlattenCFG
+    0.0009 (  2.8%)  CIREHABILowering
+    0.0008 (  2.7%)  GotoSolver
+    0.0008 (  2.6%)  MarkDeclareTargetPass
+    0.0164 ( 53.1%)  cir::direct::ConvertCIRToLLVMPass
+    0.0081 ( 26.1%)  Rest
+    0.0308 (100.0%)  Total
+  CXXLD    rcutorture_urcu_qsbr_cxx
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests/regression'
+make[2]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests'
+make[2]: Nothing to be done for 'all-am'.
+make[2]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests'
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/tests'
+Making all in extras
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/extras'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir/extras'
+make[1]: Entering directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir'
+make[1]: Nothing to be done for 'all-am'.
+make[1]: Leaving directory '/scratch/alex/llvm-orb/orb-eval/bench/work-2026-10-13/build/clangir'

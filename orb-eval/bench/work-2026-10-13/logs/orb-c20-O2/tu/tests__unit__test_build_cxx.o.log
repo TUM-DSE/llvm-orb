@@ -1,0 +1,133 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0035 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 ( 12.4%)  CIRCanonicalize
+    0.0002 (  6.6%)  CIRSimplify
+    0.0006 ( 16.6%)  TargetLowering
+    0.0020 ( 55.7%)  CXXABILowering
+    0.0003 (  8.0%)  LoweringPrepare
+    0.0000 (  0.6%)  Rest
+    0.0035 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=41
+[getOrderMatrix] forwardOrdered=622 backEdgeOrdered=0
+[OrderAnalysis] required=622 crossIterOnly=0
+[FenceSynthesis] <test_build_cxx.cpp:284> start fenceCostBase=20
+[FenceSynthesis] <test_build_cxx.cpp:284> required pairs=622
+[getOrderMatrix] n=41
+[getOrderMatrix] forwardOrdered=16 backEdgeOrdered=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=41
+[FenceSynthesis] <test_build_cxx.cpp:284> n=41
+[FenceSynthesis] <test_build_cxx.cpp:284> === Event map ===
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=0	_ZL13_cds_lfs_initP13cds_lfs_stack	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=23	_ZL29test_build_cds_list_head_initv	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=2	_ZL14_cds_lfs_empty25cds_lfs_stack_const_ptr_t	ptr.load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=27	_ZL13test_urcu_tlsv	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=19	_ZL15_cds_wfcq_empty25cds_wfcq_head_const_ptr_tPK13cds_wfcq_tail	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=6	_ZL24cds_lfs_stack_const_castPK13cds_lfs_stack	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=4	_ZL14_cds_lfs_empty25cds_lfs_stack_const_ptr_t	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=21	_ZL15_cds_wfcq_empty25cds_wfcq_head_const_ptr_tPK13cds_wfcq_tail	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=29	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=31	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=39	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=38	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=11	_ZL14_cds_wfs_empty25cds_wfs_stack_const_ptr_t	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=12	_ZL24cds_wfs_stack_const_castPK13cds_wfs_stack	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=8	_ZL14_cds_wfs_empty25cds_wfs_stack_const_ptr_t	ptr.load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=18	_ZL15_cds_wfcq_empty25cds_wfcq_head_const_ptr_tPK13cds_wfcq_tail	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=5	_ZL14_cds_lfs_empty25cds_lfs_stack_const_ptr_t	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=15	_ZL15_cds_wfcq_empty25cds_wfcq_head_const_ptr_tPK13cds_wfcq_tail	ptr.load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=25	_ZL13test_urcu_tlsv	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=35	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=28	_ZL13test_urcu_tlsv	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=1	_ZL30cmm_seq_cst_fence_after_atomic12cmm_memorder	arm_atomic.atomic_fence
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=26	_ZL13test_urcu_tlsv	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=3	_ZL14_cds_lfs_empty25cds_lfs_stack_const_ptr_t	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=22	_ZL28cds_wfcq_head_const_cast_cppPK13cds_wfcq_head	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=32	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=34	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=9	_ZL14_cds_wfs_empty25cds_wfs_stack_const_ptr_t	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=24	_ZL29test_build_cds_list_head_initv	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=13	_ZL19_cds_wfcq_node_initP13cds_wfcq_node	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=14	_ZL14_cds_wfcq_initP13cds_wfcq_headP13cds_wfcq_tail	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=16	_ZL15_cds_wfcq_empty25cds_wfcq_head_const_ptr_tPK13cds_wfcq_tail	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=17	_ZL15_cds_wfcq_empty25cds_wfcq_head_const_ptr_tPK13cds_wfcq_tail	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=36	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=40	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=37	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=7	_ZL13_cds_wfs_initP13cds_wfs_stack	ptr.store
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=20	_ZL15_cds_wfcq_empty25cds_wfcq_head_const_ptr_tPK13cds_wfcq_tail	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=33	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=10	_ZL14_cds_wfs_empty25cds_wfs_stack_const_ptr_t	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> ev=30	_ZL26test_build_rcu_dereferencev	arm_atomic.atomic_load
+[FenceSynthesis] <test_build_cxx.cpp:284> === End event map ===
+[FenceSynthesis] <test_build_cxx.cpp:284> pre-ordered=0/622 crossFn=580 sameFn=42 LL=334 LS=208 SL=0 SS=0 FL=27 FS=13 LF=27 SF=13
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=0/622 overspecified=16
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=0 (1,31) upgrade ev=1 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=418/622 overspecified=397 t=6ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=1 (21,31) upgrade ev=21 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=439/622 overspecified=397 t=6ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=2 (20,30) upgrade ev=20 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=460/622 overspecified=397 t=6ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=3 (39,5) upgrade ev=39 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=476/622 overspecified=397 t=7ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=4 (40,4) upgrade ev=40 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=492/622 overspecified=397 t=7ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=5 (18,31) upgrade ev=18 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=516/622 overspecified=397 t=7ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=6 (17,30) upgrade ev=17 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=540/622 overspecified=397 t=7ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=7 (37,4) upgrade ev=37 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=559/622 overspecified=397 t=8ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=8 (36,11) upgrade ev=36 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=578/622 overspecified=397 t=8ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=9 (34,18) upgrade ev=34 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=600/622 overspecified=397 t=8ms
+[FenceSynthesis] <test_build_cxx.cpp:284> iter=10 (33,18) upgrade ev=33 op=arm_atomic.atomic_load to=1 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <test_build_cxx.cpp:284> ordered=622/622 overspecified=397 t=8ms
+[FenceSynthesis] <test_build_cxx.cpp:284> done ordered=622/622 overspecified=397 promotions=11 remaining=0 t=9ms
+[OrbStats] module=test_build_cxx.cpp ld_rlx=14 ld_acqpc=10 ld_acq=0 st_rlx=0 st_rel=0 fence_acq=0 fence_rel=0 fence_acqrel=1 ptr_ld=3 ptr_st=13 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0236 seconds
+
+  ----Wall Time----  ----Name----
+    0.0004 (  1.6%)  HoistAllocas
+    0.0006 (  2.4%)  CIRFlattenCFG
+    0.0002 (  1.0%)  CIREHABILowering
+    0.0002 (  0.9%)  GotoSolver
+    0.0009 (  3.8%)  CIRToCF
+    0.0018 (  7.5%)  CIRToPtr
+    0.0006 (  2.6%)  CIRToCppAtomic
+    0.0012 (  4.9%)  OrderAnalysisPass
+    0.0008 (  3.4%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0010 (  4.1%)  ConvertCppAtomicToArmAtomicPass
+    0.0093 ( 39.6%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0028 ( 11.8%)  cir::direct::ConvertCIRToLLVMPass
+    0.0010 (  4.0%)  ConvertArmAtomicToLLVMPass
+    0.0008 (  3.6%)  ConvertToLLVMPass
+    0.0012 (  5.0%)  CIROrbCleanup
+    0.0017 (  7.3%)  Rest
+    0.0236 (100.0%)  Total

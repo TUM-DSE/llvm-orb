@@ -1,0 +1,240 @@
+checking build system type... aarch64-unknown-linux-gnu
+checking host system type... aarch64-unknown-linux-gnu
+checking target system type... aarch64-unknown-linux-gnu
+checking for a BSD-compatible install... /run/current-system/sw/bin/install -c
+checking whether sleep supports fractional seconds... yes
+checking filesystem timestamp resolution... 0.01
+checking whether build environment is sane... yes
+checking for a race-free mkdir -p... /run/current-system/sw/bin/mkdir -p
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking xargs -n works... yes
+checking whether UID '2107' is supported by ustar format... yes
+checking whether GID '100' is supported by ustar format... yes
+checking how to create a ustar tar archive... gnutar
+checking whether to enable maintainer-specific portions of Makefiles... yes
+checking for gcc... /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether the compiler supports GNU C... yes
+checking whether /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc accepts -g... yes
+checking for /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc option to enable C23 features... -std=gnu23
+checking whether /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 understands -c and -o together... yes
+checking whether make supports the include directive... yes (GNU style)
+checking dependency style of /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23... gcc3
+checking for stdio.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for strings.h... yes
+checking for sys/stat.h... yes
+checking for sys/types.h... yes
+checking for unistd.h... yes
+checking for wchar.h... yes
+checking for minix/config.h... no
+checking for sys/param.h... yes
+checking for vfork.h... no
+checking whether it is safe to define __EXTENSIONS__... yes
+checking whether _XOPEN_SOURCE should be defined... no
+checking for /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 option to support large files... none needed
+checking whether /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 supports atomic builtins... yes
+checking whether the compiler supports GNU C++... yes
+checking whether /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ accepts -g... yes
+checking dependency style of /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++... gcc3
+checking whether /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ supports C++11 features with -std=c++11... yes
+checking for __attribute__... yes
+checking for a sed that does not truncate output... /nix/store/v5bw9inlszgv4wgas7009fia4l4n0dwv-gnused-4.9/bin/sed
+checking how to run the C preprocessor... /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 -E
+checking for egrep -e... /run/current-system/sw/bin/grep -E
+checking whether /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 is Clang... yes
+checking whether pthreads work with "-pthread" and "-lpthread"... yes
+checking whether Clang needs flag to prevent "argument unused" warning when linking with -pthread... no
+checking for joinable pthread attribute... PTHREAD_CREATE_JOINABLE
+checking whether more special flags are required for pthreads... no
+checking for PTHREAD_PRIO_INHERIT... yes
+checking for inline... inline
+checking for typeof syntax and keyword spelling... typeof
+checking for int32_t... yes
+checking for pid_t... yes
+checking for size_t... yes
+checking for ssize_t... yes
+checking for uint16_t... yes
+checking for uint32_t... yes
+checking for uint64_t... yes
+checking for uint8_t... yes
+checking whether C compiler accepts -Wall... yes
+checking whether C compiler accepts -Wextra... yes
+checking whether C compiler accepts -Wmissing-prototypes... yes
+checking whether C compiler accepts -Wmissing-declarations... yes
+checking whether C compiler accepts -Wnull-dereference... yes
+checking whether C compiler accepts -Wundef... yes
+checking whether C compiler accepts -Wshadow... yes
+checking whether C compiler accepts -Wjump-misses-init... yes
+checking whether C compiler accepts -Wsuggest-attribute=format... no
+checking whether C compiler accepts -Wtautological-constant-out-of-range-compare... yes
+checking whether C compiler accepts -Wnested-externs... yes
+checking whether C compiler accepts -Wwrite-strings... yes
+checking whether C compiler accepts -Wformat=2... yes
+checking whether C compiler accepts -Wstrict-aliasing... yes
+checking whether C compiler accepts -Wmissing-noreturn... yes
+checking whether C compiler accepts -Winit-self... yes
+checking whether C compiler accepts -Wduplicated-cond... no
+checking whether C compiler accepts -Wduplicated-branches... no
+checking whether C compiler accepts -Wlogical-op... no
+checking whether C compiler accepts -Wno-null-dereference... yes
+checking whether C++ compiler accepts -Wall... yes
+checking whether C++ compiler accepts -Wextra... yes
+checking whether C++ compiler accepts -Wmissing-prototypes... yes
+checking whether C++ compiler accepts -Wmissing-declarations... yes
+checking whether C++ compiler accepts -Wnull-dereference... yes
+checking whether C++ compiler accepts -Wundef... yes
+checking whether C++ compiler accepts -Wshadow... yes
+checking whether C++ compiler accepts -Wjump-misses-init... yes
+checking whether C++ compiler accepts -Wsuggest-attribute=format... no
+checking whether C++ compiler accepts -Wtautological-constant-out-of-range-compare... yes
+checking whether C++ compiler accepts -Wnested-externs... yes
+checking whether C++ compiler accepts -Wwrite-strings... yes
+checking whether C++ compiler accepts -Wformat=2... yes
+checking whether C++ compiler accepts -Wstrict-aliasing... yes
+checking whether C++ compiler accepts -Wmissing-noreturn... yes
+checking whether C++ compiler accepts -Winit-self... yes
+checking whether C++ compiler accepts -Wduplicated-cond... no
+checking whether C++ compiler accepts -Wduplicated-branches... no
+checking whether C++ compiler accepts -Wlogical-op... no
+checking whether C++ compiler accepts -Wno-null-dereference... yes
+checking for _Bool... yes
+checking for stdbool.h that conforms to C99 or later... yes
+checking for limits.h... yes
+checking for stddef.h... yes
+checking for sys/param.h... (cached) yes
+checking for sys/time.h... yes
+checking for gawk... (cached) gawk
+checking for grep that handles long lines and -e... /run/current-system/sw/bin/grep
+checking whether make sets $(MAKE)... (cached) yes
+checking for nproc... nproc
+checking for getconf... getconf
+checking for time... time
+checking how to print strings... printf
+checking for a sed that does not truncate output... (cached) /nix/store/v5bw9inlszgv4wgas7009fia4l4n0dwv-gnused-4.9/bin/sed
+checking for egrep... /run/current-system/sw/bin/grep -E
+checking for fgrep... /run/current-system/sw/bin/grep -F
+checking for ld used by /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23... /nix/store/9cbcjrpcvhbxii5zkqf6a51qg8y8ijik-binutils-wrapper-2.46/bin/ld
+checking if the linker (/nix/store/9cbcjrpcvhbxii5zkqf6a51qg8y8ijik-binutils-wrapper-2.46/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /run/current-system/sw/bin/nm -B
+checking the name lister (/run/current-system/sw/bin/nm -B) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 1572864
+checking how to convert aarch64-unknown-linux-gnu file names to aarch64-unknown-linux-gnu format... func_convert_file_noop
+checking how to convert aarch64-unknown-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /nix/store/9cbcjrpcvhbxii5zkqf6a51qg8y8ijik-binutils-wrapper-2.46/bin/ld option to reload object files... -r
+checking for file... file
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ranlib... ranlib
+checking for ar... ar
+checking for archiver @FILE support... @
+checking for strip... strip
+checking command to parse /run/current-system/sw/bin/nm -B output from /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 object... ok
+checking for sysroot... no
+checking for a working dd... /run/current-system/sw/bin/dd
+checking how to truncate binary pipes... /run/current-system/sw/bin/dd bs=4096 count=1
+checking for mt... no
+checking if : is a manifest tool... no
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 supports -fno-rtti -fno-exceptions... yes
+checking for /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 option to produce PIC... -fPIC -DPIC
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 PIC flag -fPIC -DPIC works... yes
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 static flag -static works... no
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 supports -c -o file.o... yes
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 supports -c -o file.o... (cached) yes
+checking whether the /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-cc -std=gnu23 linker (/nix/store/9cbcjrpcvhbxii5zkqf6a51qg8y8ijik-binutils-wrapper-2.46/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... no
+checking whether to build static libraries... yes
+checking how to run the C++ preprocessor... /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11 -E
+checking for ld used by /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11... /nix/store/9cbcjrpcvhbxii5zkqf6a51qg8y8ijik-binutils-wrapper-2.46/bin/ld
+checking if the linker (/nix/store/9cbcjrpcvhbxii5zkqf6a51qg8y8ijik-binutils-wrapper-2.46/bin/ld) is GNU ld... yes
+checking whether the /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11 linker (/nix/store/9cbcjrpcvhbxii5zkqf6a51qg8y8ijik-binutils-wrapper-2.46/bin/ld) supports shared libraries... yes
+checking for /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11 option to produce PIC... -fPIC -DPIC
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11 PIC flag -fPIC -DPIC works... yes
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11 static flag -static works... no
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11 supports -c -o file.o... yes
+checking if /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11 supports -c -o file.o... (cached) yes
+checking whether the /scratch/alex/llvm-orb/orb-eval/bench/orb-timed-c++ -std=c++11 linker (/nix/store/9cbcjrpcvhbxii5zkqf6a51qg8y8ijik-binutils-wrapper-2.46/bin/ld) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking for getpagesize... yes
+checking for fork... yes
+checking for vfork... yes
+checking for working mmap... yes
+checking for working fork... yes
+checking for working vfork... (cached) yes
+checking for atexit... yes
+checking for getcpuid... no
+checking for gettid... yes
+checking for gettimeofday... yes
+checking for memeset... no
+checking for memset... yes
+checking for munmap... yes
+checking for rand_r... yes
+checking for sched_getcpu... yes
+checking for sched_setaffinity... yes
+checking for strerror... yes
+checking for strtoul... yes
+checking for sysconf... yes
+checking for library containing clock_gettime... none required
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating doc/Makefile
+config.status: creating doc/examples/Makefile
+config.status: creating extras/Makefile
+config.status: creating include/Makefile
+config.status: creating src/Makefile
+config.status: creating tests/Makefile
+config.status: creating tests/common/Makefile
+config.status: creating tests/unit/Makefile
+config.status: creating tests/benchmark/Makefile
+config.status: creating tests/regression/Makefile
+config.status: creating tests/utils/Makefile
+config.status: creating src/liburcu.pc
+config.status: creating src/liburcu-bp.pc
+config.status: creating src/liburcu-cds.pc
+config.status: creating src/liburcu-qsbr.pc
+config.status: creating src/liburcu-mb.pc
+config.status: creating src/liburcu-memb.pc
+config.status: creating tests/utils/env.sh
+config.status: creating include/config.h
+config.status: creating include/urcu/config.h
+config.status: executing depfiles commands
+config.status: executing libtool commands
+checking for tput... /run/current-system/sw/bin/tput
+
+Userspace-RCU 0.15.0
+
+Features
+  Target architecture:                aarch64
+  SMP support:                        yes
+  Thread Local Storage (TLS):         compiler TLS
+  clock_gettime():                    yes
+  Require membarrier:                 no
+  Internal debugging:                 no
+  Lock-free HT iterator debugging:    no
+  Multi-flavor support:               yes
+  Use compiler atomic builtins:       yes
+  Emit legacy memory barriers:        yes
+
+Install directories
+  Binaries:                           /usr/local/bin
+  Libraries:                          /usr/local/lib

@@ -1,0 +1,153 @@
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0086 seconds
+
+  ----Wall Time----  ----Name----
+    0.0008 (  8.8%)  CIRCanonicalize
+    0.0005 (  5.4%)  CIRSimplify
+    0.0011 ( 13.3%)  TargetLowering
+    0.0057 ( 65.8%)  CXXABILowering
+    0.0005 (  6.3%)  LoweringPrepare
+    0.0000 (  0.3%)  Rest
+    0.0086 (100.0%)  Total
+[OrderAnalysis] computing (recompute or first-time)
+[getOrderMatrix] n=60
+[getOrderMatrix] forwardOrdered=1475 backEdgeOrdered=16
+[OrderAnalysis] required=1491 crossIterOnly=16
+[FenceSynthesis] <wfcqueue.c:42de> start fenceCostBase=1
+[FenceSynthesis] <wfcqueue.c:42de> required pairs=1491
+[getOrderMatrix] n=60
+[getOrderMatrix] forwardOrdered=121 backEdgeOrdered=12
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] precomputeTransitiveDominance: nEvents=60
+[FenceSynthesis] <wfcqueue.c:42de> n=60
+[FenceSynthesis] <wfcqueue.c:42de> === Event map ===
+[FenceSynthesis] <wfcqueue.c:42de> ev=23	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=27	_cds_wfcq_node_init_atomic	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=46	___cds_wfcq_splice	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=19	___cds_wfcq_busy_wait	ptr.load
+[FenceSynthesis] <wfcqueue.c:42de> ev=31	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=4	_cds_wfcq_empty	ptr.load
+[FenceSynthesis] <wfcqueue.c:42de> ev=54	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=39	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=38	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=11	___cds_wfcq_append	ptr.load
+[FenceSynthesis] <wfcqueue.c:42de> ev=12	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=42	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=8	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=58	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=35	___cds_wfcq_dequeue_with_state	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=15	_cds_wfcq_enqueue	arm_atomic.atomic_fence
+[FenceSynthesis] <wfcqueue.c:42de> ev=51	___cds_wfcq_splice	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=3	cmm_seq_cst_fence_after_atomic	arm_atomic.atomic_fence
+[FenceSynthesis] <wfcqueue.c:42de> ev=22	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=57	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=49	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=9	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=24	___cds_wfcq_node_sync_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=16	_cds_wfcq_dequeue_with_state_blocking	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=36	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_fence
+[FenceSynthesis] <wfcqueue.c:42de> ev=43	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_fence
+[FenceSynthesis] <wfcqueue.c:42de> ev=17	_cds_wfcq_splice_blocking	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=37	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=10	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=50	___cds_wfcq_splice	arm_atomic.atomic_fence
+[FenceSynthesis] <wfcqueue.c:42de> ev=30	___cds_wfcq_dequeue_with_state	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=56	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=52	___cds_wfcq_first	ptr.load
+[FenceSynthesis] <wfcqueue.c:42de> ev=6	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=21	___cds_wfcq_busy_wait	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=29	___cds_wfcq_dequeue_with_state	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=44	___cds_wfcq_splice	ptr.load
+[FenceSynthesis] <wfcqueue.c:42de> ev=41	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=45	___cds_wfcq_splice	ptr.load
+[FenceSynthesis] <wfcqueue.c:42de> ev=48	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=18	_cds_wfcq_splice_blocking	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=55	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=5	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=25	_cds_wfcq_node_init_atomic	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=53	___cds_wfcq_first	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=28	___cds_wfcq_dequeue_with_state	ptr.load
+[FenceSynthesis] <wfcqueue.c:42de> ev=26	_cds_wfcq_node_init_atomic	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=32	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=47	___cds_wfcq_splice	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=34	___cds_wfcq_dequeue_with_state	ptr.load
+[FenceSynthesis] <wfcqueue.c:42de> ev=59	___cds_wfcq_next	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=13	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=14	___cds_wfcq_append	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=40	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_store
+[FenceSynthesis] <wfcqueue.c:42de> ev=7	_cds_wfcq_empty	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> ev=20	___cds_wfcq_busy_wait	ptr.store
+[FenceSynthesis] <wfcqueue.c:42de> ev=33	___cds_wfcq_dequeue_with_state	arm_atomic.atomic_load
+[FenceSynthesis] <wfcqueue.c:42de> === End event map ===
+[FenceSynthesis] <wfcqueue.c:42de> pre-ordered=70/1491 crossFn=1367 sameFn=124 LL=354 LS=400 SL=26 SS=252 FL=130 FS=85 LF=143 SF=101
+[FenceSynthesis] <wfcqueue.c:42de> ordered=70/1491 overspecified=63
+[FenceSynthesis] <wfcqueue.c:42de> iter=0 (3,24) upgrade ev=3 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=2 added=570
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=556/1491 overspecified=368 t=31ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=1 (50,23) upgrade ev=50 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=777/1491 overspecified=432 t=32ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=2 (14,24) upgrade ev=36 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=777/1491 overspecified=432 t=32ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=3 (14,56) upgrade ev=43 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=777/1491 overspecified=432 t=32ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=4 (15,24) upgrade ev=15 op=arm_atomic.atomic_fence to=4 waste=0
+[OrderMatrix] closeTransitively: rounds=5 added=436
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=950/1491 overspecified=581 t=33ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=8 (14,49) fence
+[OrderMatrix] closeTransitively: rounds=4 added=1326
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=1206/1491 overspecified=966 t=34ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=11 (14,33) fence
+[OrderMatrix] closeTransitively: rounds=4 added=885
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=1279/1491 overspecified=1248 t=34ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=13 (59,24) fence
+[OrderMatrix] closeTransitively: rounds=3 added=243
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=1331/1491 overspecified=1372 t=35ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=14 (6,24) fence
+[OrderMatrix] closeTransitively: rounds=2 added=60
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=1339/1491 overspecified=1448 t=36ms
+[FenceSynthesis] <wfcqueue.c:42de> iter=18 (58,18) fence
+[OrderMatrix] closeTransitively: rounds=2 added=32
+[OrderMatrix] closeTransitively: rounds=1 added=0
+[FenceSynthesis] <wfcqueue.c:42de> ordered=1345/1491 overspecified=1520 t=36ms
+[FenceSynthesis] <wfcqueue.c:42de> done ordered=1345/1491 overspecified=1520 promotions=19 remaining=0 t=36ms
+[OrbStats] module=wfcqueue.c ld_rlx=21 ld_acqpc=0 ld_acq=0 st_rlx=12 st_rel=0 fence_acq=3 fence_rel=0 fence_acqrel=7 ptr_ld=8 ptr_st=14 other=0
+===-------------------------------------------------------------------------===
+                         ... Execution time report ...
+===-------------------------------------------------------------------------===
+  Total Execution Time: 0.0724 seconds
+
+  ----Wall Time----  ----Name----
+    0.0006 (  0.8%)  HoistAllocas
+    0.0013 (  1.8%)  CIRFlattenCFG
+    0.0005 (  0.7%)  CIREHABILowering
+    0.0005 (  0.7%)  GotoSolver
+    0.0025 (  3.4%)  CIRToCF
+    0.0050 (  6.9%)  CIRToPtr
+    0.0015 (  2.1%)  CIRToCppAtomic
+    0.0033 (  4.6%)  OrderAnalysisPass
+    0.0024 (  3.4%)    (A) orb::OrderAnalysis
+    0.0000 (  0.0%)      (A) AliasAnalysis
+    0.0000 (  0.0%)      (A) DominanceInfo
+    0.0022 (  3.1%)  ConvertCppAtomicToArmAtomicPass
+    0.0378 ( 52.3%)  FenceSynthesisPass
+    0.0000 (  0.0%)    (A) AliasAnalysis
+    0.0000 (  0.0%)    (A) DominanceInfo
+    0.0000 (  0.0%)    (A) PostDominanceInfo
+    0.0061 (  8.4%)  cir::direct::ConvertCIRToLLVMPass
+    0.0021 (  2.9%)  ConvertArmAtomicToLLVMPass
+    0.0022 (  3.0%)  ConvertToLLVMPass
+    0.0036 (  4.9%)  CIROrbCleanup
+    0.0032 (  4.5%)  Rest
+    0.0724 (100.0%)  Total
